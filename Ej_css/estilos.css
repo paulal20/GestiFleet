@@ -1,0 +1,35 @@
+/* El primer párrafo de cada noticia aparezca en negrita */
+/* --> NO SÉ SI SE REFIERE AL PRIMER PÁRRAFO DE CADA NOTICIA COMO AQUÍ*/
+.noticia p:first-of-type {
+    font-weight: bold;
+}
+/* --> O SI ES SÓLO PARA LA PRIMERA NOTICIA QUE TIENE UNA CLASE NOTICIA DESTACADA?? */
+.destacada p {
+    font-weight: bold;
+}
+/* Los enlaces cambien de color cuando el usuario pase el ratón
+por encima y también cuando se navegue con el teclado */
+a:link { color: blue; }
+a:hover { color: red; } 
+a:focus {
+    color: red;
+    outline: 3px solid orange;
+    outline-offset: 3px;
+    background-color: #fff7e6;
+}
+
+/* Añade un icono decorativo antes de cada título de noticia */
+h1::before {
+    content: "★ ";
+    color: gold;
+}
+
+h1::after {
+    content: " ★";
+    color: gold;
+}
+
+.titulo::before {
+    content: "➤ ";
+    color: gold;
+}
