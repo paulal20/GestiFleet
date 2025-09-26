@@ -26,8 +26,7 @@ h1::after {
 }
 
 .titulo::before {
-    content: "➤ ";
-    color: gold;
+    content: "📰 ";
 }
 
 p::first-letter {
