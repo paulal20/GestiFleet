@@ -1,14 +1,11 @@
-/* El primer párrafo de cada noticia aparezca en negrita */
-/* --> NO SÉ SI SE REFIERE AL PRIMER PÁRRAFO DE CADA NOTICIA COMO AQUÍ*/
-.noticia p:first-of-type {
+/*
+Paula López Solla
+Arturo Gómez Izquierdo
+*/
+.noticia .titulo + p {
     font-weight: bold;
 }
-/* --> O SI ES SÓLO PARA LA PRIMERA NOTICIA QUE TIENE UNA CLASE NOTICIA DESTACADA?? */
-.destacada p {
-    font-weight: bold;
-}
-/* Los enlaces cambien de color cuando el usuario pase el ratón
-por encima y también cuando se navegue con el teclado */
+
 a:link { color: blue; }
 a:hover { color: red; } 
 a:focus {
@@ -18,7 +15,6 @@ a:focus {
     background-color: #fff7e6;
 }
 
-/* Añade un icono decorativo antes de cada título de noticia */
 h1::before {
     content: "★ ";
     color: gold;
@@ -33,3 +29,32 @@ h1::after {
     content: "➤ ";
     color: gold;
 }
+
+p::first-letter {
+    font-size: 2em;
+    font-weight: bold;
+    color: darkred;
+}
+
+::selection {
+ background-color: navy;
+ color: white;
+}
+
+.noticia:nth-child(even) {
+    background-color: rgb(176, 199, 228);
+}
+
+.noticia:nth-child(odd) {
+    background-color: rgb(136, 171, 230);
+}
+
+/* 
+ • ¿Qué sucede si el icono decorativo aporta información importante y no solo estética? 
+Que debería estar en el archivo html con un atributo alt.
+
+ • ¿Cómo ayudas a los usuarios que navegan con teclado a saber en qué enlace están? 
+Añadiendo en el html el atributo alt con la información de dicho enlace o destacando el enlace con teclado.
+
+ • ¿Qué problema existe si el único criterio para diferenciar noticias o enlaces es el color?  
+No sería legible para las personas daltónicas, por lo tanto no es accesible. */
