@@ -8,11 +8,12 @@ body {
 .grid {
     display: grid;
     grid-template-areas:
-    "header"
-    "contenido"
-    "footer";
-    grid-template-columns: 1fr;
-    grid-template-rows: 2fr 7fr 1fr;
+    "header header header header"
+    "barra barra barra barra"
+    "opciones contenido contenido contenido"
+    "footer footer footer footer";
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: 2fr 1fr 6fr 1fr;
     gap: 5px;
     height: 100vh; /* toda la altura de la ventana */
 
@@ -31,11 +32,22 @@ body {
 }
 
 .barra{
-    display: none;
+    grid-area: barra;
+    background: #FFC107; 
+    color: #111111;
+    font-size: 2rem;
+
+    padding: 1rem;
 }
 
 .opciones{
-    display: none;
+    grid-area: opciones;
+    background: #00796B; 
+    color: #ffffff;
+    font-size: 2rem;
+
+    text-align: center;
+    padding: 1rem;
 }
 
 .contenido{
@@ -43,8 +55,6 @@ body {
     /*background: lightyellow; /*Este era el color de antes*/
     background:#f8e8b6; color:#111111;
     /*background:#FFF8E1; color:#111111; /*Este era el color antiguo, yo prefiero el que he dejado puesto*/
-    width: 75%;
-    margin: 0 auto;
     font-size: 2rem;
 
     display: grid;
