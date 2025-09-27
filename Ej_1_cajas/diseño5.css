@@ -10,10 +10,11 @@ body {
     grid-template-areas:
     "header header header header"
     "barra barra barra barra"
-    "opciones contenido contenido contenido"
+    "articulo1 articulo1 articulo1 opciones"
+    "articulo2 articulo2 articulo2 opciones"
     "footer footer footer footer";
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: 2fr 1fr 6fr 1fr;
+    grid-template-rows: 2fr 1fr 3fr 3fr 1fr;
     gap: 5px;
     height: 100vh; /* toda la altura de la ventana */
 
@@ -21,14 +22,40 @@ body {
 .header { 
     grid-area: header;
     /*background: lightblue; /*Este era el color de antes*/
-    background:#00796B; 
-    color:#fff;
-    font-size: 4rem;
+    background:#1E3A8A; 
 
     display: grid;
-    place-items: center;   
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-areas: "logo titulo titulo titulo titulo titulo";
+    gap: 1rem;    
     padding: 1rem;
-    /*text-align: center; /*No es necesario meterlo*/
+}
+
+.principal{
+    display: none;
+}
+
+.logo{
+    background:#00796B; 
+    color:#fff;
+    grid-area: logo;
+    font-size: 2rem;
+
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.titulo{
+    background:#00796B; 
+    color:#fff;
+    grid-area: titulo;
+    font-size: 4rem;
+
+    padding: 1rem;
+    display: flex;
+    align-items: center;
 }
 
 .barra{
@@ -38,6 +65,10 @@ body {
     font-size: 2rem;
 
     padding: 1rem;
+}
+
+.identificacion{
+    display: none;
 }
 
 .opciones{
@@ -50,16 +81,33 @@ body {
     padding: 1rem;
 }
 
-.contenido{
-    grid-area: contenido;
-    /*background: lightyellow; /*Este era el color de antes*/
+.opt{
+    display: none;
+}
+
+.busqueda{
+    display: none;
+}
+
+.noticias{
+    display: none;
+}
+
+.articulo1{
+    grid-area: articulo1;
     background:#f8e8b6; color:#111111;
-    /*background:#FFF8E1; color:#111111; /*Este era el color antiguo, yo prefiero el que he dejado puesto*/
     font-size: 2rem;
 
-    display: grid;
-    /*place-items: center;  /*Por si lo queremos centrar en el medio del panel*/
-    text-align: center; /*Con esto vale para centrarlo arriba con la separación del padding*/
+    text-align: center;
+    padding: 1rem;
+}
+
+.articulo2{
+    grid-area: articulo2;
+    background:#f8e8b6; color:#111111;
+    font-size: 2rem;
+
+    text-align: center;
     padding: 1rem;
 }
 
@@ -73,4 +121,8 @@ body {
     place-items: center;   
     padding: 1rem;
     /*text-align: center; /*No es necesario meterlo*/
+}
+
+.contenido{
+    display: none;
 }

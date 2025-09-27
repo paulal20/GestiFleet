@@ -31,6 +31,14 @@ body {
     /*text-align: center; /*No es necesario meterlo*/
 }
 
+.logo{
+    display: none;
+}
+
+.titulo{
+    display: none;
+}
+
 .barra{
     grid-area: barra;
     background: #FFC107; 
@@ -38,6 +46,10 @@ body {
     font-size: 2rem;
 
     padding: 1rem;
+}
+
+.identificacion{
+    display: none;
 }
 
 .opciones{
@@ -48,6 +60,14 @@ body {
 
     text-align: center;
     padding: 1rem;
+}
+
+.busqueda{
+    display: none;
+}
+
+.noticias{
+    display: none;
 }
 
 .contenido{
@@ -69,8 +89,17 @@ body {
     background:#C84700; color:#fff;
     font-size: 2rem;
 
-    display: grid;
-    place-items: center;   
     padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     /*text-align: center; /*No es necesario meterlo*/
+}
+
+.articulo1{
+    display: none;
+}
+
+.articulo2{
+    display: none;
 }
