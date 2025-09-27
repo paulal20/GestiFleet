@@ -1,27 +1,47 @@
- body {
- margin: 0;
- font-family: Arial, sans-serif;
- }
- .grid {
- display: grid;
- grid-template-areas:
- "header header header"
- "menu main main"
- "aside main main"
- "footer footer footer";
- grid-template-columns: repeat(3, 1fr);
- grid-template-rows: 80px repeat(2, minmax(150px, auto)) 60px;
- gap: 5px;
- height: 100vh; /* toda la altura de la ventana */
- }
- .header { grid-area: header; background: lightblue; text-align: center; padding-top: 30px;}
- .menu { grid-area: menu; background: lightgreen; }
- .main { grid-area: main; background: lightyellow; }
- .aside { grid-area: aside; background: lightcoral; }
- .footer { grid-area: footer; background: lightgray; }
- /* Ejemplo de posicionamiento manual extra */
- .main {
- grid-column: 2 / 4; /* explícitamente en la segunda columna [2, 3)*/
- grid-row: 2 / 4; 
-/* ocupa desde la fila 2 hasta la 3 [2, 4)*/
- }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+.grid {
+    display: grid;
+    grid-template-areas:
+    "header"
+    "main"
+    "footer";
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 3fr 1fr;
+    gap: 5px;
+    height: 100vh; /* toda la altura de la ventana */
+
+}
+.header { 
+    grid-area: header;
+    background: lightblue;
+
+    display: grid;
+    place-items: center;   
+    padding: 1rem;
+    /*text-align: center; /*No es necesario meterlo*/
+}
+
+.main{
+    grid-area: main;
+    background: lightyellow;
+    width: 80%;
+    margin: 0 auto;
+
+    display: grid;
+    place-items: center;  
+    padding: 1rem;
+}
+
+.footer { 
+    grid-area: footer;
+    background: lightgray;
+
+    display: grid;
+    place-items: center;   
+    padding: 1rem;
+    /*text-align: center; /*No es necesario meterlo*/
+}
+
