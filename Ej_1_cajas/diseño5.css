@@ -1,4 +1,7 @@
-html { font-size: 16px; } 
+html {
+    font-size: 16px;
+}
+
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -8,36 +11,36 @@ body {
 .grid {
     display: grid;
     grid-template-areas:
-    "header header header header"
-    "barra barra barra barra"
-    "articulo1 articulo1 articulo1 opciones"
-    "articulo2 articulo2 articulo2 opciones"
-    "footer footer footer footer";
+        "header header header header"
+        "barra barra barra barra"
+        "articulo1 articulo1 articulo1 opciones"
+        "articulo2 articulo2 articulo2 opciones"
+        "footer footer footer footer";
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: 2fr 1fr 3fr 3fr 1fr;
     gap: 5px;
-    height: 100vh; /* toda la altura de la ventana */
+    height: 100vh;
 
 }
-.header { 
+
+.header {
     grid-area: header;
-    /*background: lightblue; /*Este era el color de antes*/
-    background:#1E3A8A; 
+    background: #1E3A8A;
 
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     grid-template-areas: "logo titulo titulo titulo titulo titulo";
-    gap: 1rem;    
+    gap: 1rem;
     padding: 1rem;
 }
 
-.principal{
+.principal {
     display: none;
 }
 
-.logo{
-    background:#00796B; 
-    color:#fff;
+.logo {
+    background: #00796B;
+    color: #fff;
     grid-area: logo;
     font-size: 2rem;
 
@@ -47,9 +50,9 @@ body {
     align-items: center;
 }
 
-.titulo{
-    background:#00796B; 
-    color:#fff;
+.titulo {
+    background: #00796B;
+    color: #fff;
     grid-area: titulo;
     font-size: 4rem;
 
@@ -58,9 +61,9 @@ body {
     align-items: center;
 }
 
-.barra{
+.barra {
     grid-area: barra;
-    background: #FFC107; 
+    background: #FFC107;
     color: #111111;
     font-size: 2rem;
 
@@ -71,7 +74,7 @@ body {
     grid-template-areas: "texto texto texto identificacion";
 }
 
-.barra-texto{
+.barra-texto {
     grid-area: texto;
 
     padding: 1rem;
@@ -79,9 +82,9 @@ body {
     align-items: center;
 }
 
-.identificacion{
+.identificacion {
     grid-area: identificacion;
-    background: #d0cfcf; 
+    background: #d0cfcf;
     color: #111111;
     font-size: 2rem;
 
@@ -94,9 +97,9 @@ body {
     margin: 0 auto;
 }
 
-.opciones{
+.opciones {
     grid-area: opciones;
-    background: #1E3A8A; 
+    background: #1E3A8A;
     padding: 1rem;
 
     display: grid;
@@ -106,58 +109,59 @@ body {
     gap: 1rem;
 }
 
-.opt{
+.opt {
     display: none;
 }
 
-.busqueda{
+.busqueda {
     grid-area: busqueda;
-    background: #00796B; 
+    background: #00796B;
     color: #ffffff;
     font-size: 3rem;
     padding: 1rem;
     text-align: center;
 }
 
-.noticias{
+.noticias {
     grid-area: noticias;
-    background: #00796B; 
+    background: #00796B;
     color: #ffffff;
     font-size: 3rem;
     padding: 1rem;
     text-align: center;
 }
 
-.articulo1{
+.articulo1 {
     grid-area: articulo1;
-    background:#f8e8b6; color:#111111;
+    background: #f8e8b6;
+    color: #111111;
     font-size: 4rem;
 
     text-align: center;
     padding: 1rem;
 }
 
-.articulo2{
+.articulo2 {
     grid-area: articulo2;
-    background:#f8e8b6; color:#111111;
+    background: #f8e8b6;
+    color: #111111;
     font-size: 4rem;
 
     text-align: center;
     padding: 1rem;
 }
 
-.footer { 
+.footer {
     grid-area: footer;
-    /*background: lightgray; /*Este era el color de antes*/
-    background:#C84700; color:#fff;
+    background: #C84700;
+    color: #fff;
     font-size: 2rem;
 
     display: grid;
-    place-items: center;   
+    place-items: center;
     padding: 1rem;
-    /*text-align: center; /*No es necesario meterlo*/
 }
 
-.contenido{
+.contenido {
     display: none;
 }
