@@ -1,0 +1,59 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initialscale=1.0">
+    <title>Gestión de Flota de Vehículos Eléctricos</title>
+    <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+    <div class="grid">
+        <header>
+            <img class="logo" src="imagenes/logo.png" alt="Logo de la empresa" id="logo" width="80">
+            <h1>GestiFleet</h1>
+        </header>
+
+        <nav>
+            <button type="button" class="btn btn-primary" aria-label="Inicio"><a href="index.html">Inicio</a></button>
+            <button type="button" class="btn btn-primary"><a href="vehiculos.html">Vehículos</a></button>
+            <button type="button" class="btn btn-primary"><a href="reservas.html">Reservas</a></button>
+            <button type="button" class="btn btn-primary"><a href="contacto.html">Contacto</a></button>            
+        </nav>
+    <main>
+        <h1>Los vehiculos que ofertamos: </h1>
+    </main>
+    
+     <form>
+            <fieldset>
+                <legend>Reserva tu vehículo</legend>
+                <label>Nombre: <input type="text" name="nombre"></label>
+                <label>Primer apellido: <input type="text" name="apellido1"></label>
+                <label>Segundo apellido: <input type="text" name="apellido2"></label><br><br>
+                <label>e-mail: <input type="email" name="email" placeholder="@"></label><br><br>
+            </fieldset>
+            <fieldset>
+                <legend>Detalles de la reserva</legend>
+                <br>
+                <label for="vehiculo">Selecciona el vehículo: </label><br>
+                <select id="vehiculo" name="vehiculo">
+                    <option value="honda">Honda</option>
+                    <option value="mercedes">Mercedes</option>
+                    <option value="mazda">Mazda</option>
+                </select>
+                <br><br>
+                <label for="fecha">Fecha de la reserva: </label>
+                <input type="date" id="fecha" name="fecha"><br><br>
+                <label for="hora_inicio">Hora de inicio: </label>
+                <input type="time" id="hora_inicio" name="hora_inicio"><br><br>
+                <label for="hora_fin">Hora de fin: </label>
+                <input type="time" id="hora_fin" name="hora_fin"><br><br>
+            </fieldset>
+        </form>
+
+    <footer>
+        <p>Precios desde 30.000 &euro; &nbsp; | &copy; 2025 </p>
+    </footer>
+    </div>
+</body>
+</html>
