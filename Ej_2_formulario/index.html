@@ -54,6 +54,39 @@
                 <label>Si deseas mandar simplemente una opinión o comentario escríbelo aquí:</label><br>
                 <textarea name="comentario" placeholder="Escribe tu comentario..."></textarea>
             </fieldset>
+
+            <fieldset>
+                <legend>Comenzar de nuevo</legend>
+                <br>
+                <label for="borrar">Borrar todos los datos del formulario y volver a empezar: </label>
+                <button type="button" onclick="document.querySelector('form').reset();">borrar todo</button>
+
+            </fieldset>
+
+            <fieldset>
+                <legend>Enviar</legend>
+                <br>
+                <label for="enviar">Enviar formulario por correo electrónico: Al pulsar en el botón se abrirá la página de envío de ese correo: en esa página pulsa en enviar: </label><br><br>
+                <button type="button" onclick="enviarPorCorreo()">enviar por correo</button>
+                <script>
+                function enviarPorCorreo() {
+                    var form = document.querySelector('form');
+                    var nombre = form.nombre.value;
+                    var apellido1 = form.apellido1.value;
+                    var apellido2 = form.apellido2.value;
+                    var direccion = form.direccion.value;
+                    var email = form.email.value;
+                    var estudios = form.estudios.value;
+                    var intereses = Array.from(form.querySelectorAll('input[name="intereses"]:checked')).map(e => e.value).join(', ');
+                    var frecuencia = form.frecuencia.value;
+                    var comentario = form.comentario.value;
+                    var sexo = form.sexo.value;
+                    var body = `Nombre: ${nombre}%0D%0AApellido1: ${apellido1}%0D%0AApellido2: ${apellido2}%0D%0ADirección: ${direccion}%0D%0AEmail: ${email}%0D%0AEstudios: ${estudios}%0D%0AIntereses: ${intereses}%0D%0AFrecuencia: ${frecuencia}%0D%0AComentario: ${comentario}%0D%0ASexo: ${sexo}`;
+                    window.location.href = `mailto:?subject=Formulario Revista&body=${body}`;
+                }
+                </script>
+            </fieldset>
+
         </form>
 
     </body>
