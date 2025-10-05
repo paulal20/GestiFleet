@@ -1,129 +1,78 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Revista</title>
-    <link rel="stylesheet" href="estilo.css">
-</head>
-<body>
-    <form id="revistaForm" novalidate>
-        <fieldset>
-            <legend>Datos personales</legend>
-            <br>
-            <label>Nombre: <input type="text" name="nombre" required></label>
-            <label>Primer apellido: <input type="text" name="apellido1" required></label>
-            <label>Segundo apellido: <input type="text" name="apellido2" required></label>
-            <br><br>
-            <label>Dirección: <input type="text" name="direccion" placeholder="Calle o plaza, número y piso" required></label><br><br>
-            <label>E-mail: <input type="email" name="email" placeholder="@" required></label><br><br>
-            <label>Contraseña: <input type="password" id="password" name="password" required></label><br><br>
-            <label>Sexo:</label><br>
-            <label><input type="radio" name="sexo" value="hombre" required> Varón</label><br>
-            <label><input type="radio" name="sexo" value="mujer"> Mujer</label><br><br>
-        </fieldset>
+    <head>
+        <meta charset="UTF-8">
+        <title>Revista</title>
+        <link rel="stylesheet" href="estilos.css">
+    </head>
+    <body>
+        <form id="revistaForm" novalidate>
+            <fieldset>
+                <legend>Datos personales</legend>
+                <br>
+                <label>Nombre: <input type="text" name="nombre" required></label>
+                <label>Primer apellido: <input type="text" name="apellido1" required></label>
+                <label>Segundo apellido: <input type="text" name="apellido2" required></label>
+                <br><br>
+                <label>Dirección: <input type="text" name="direccion" placeholder="Calle o plaza, número y piso" required></label><br><br>
+                <label>E-mail: <input type="email" name="email" placeholder="@" required></label><br><br>
+                <label>Contraseña: <input type="password" id="password" name="password" required></label><br><br>
+                <label>Sexo:</label><br>
+                <label><input type="radio" name="sexo" value="hombre" required> Varón</label><br>
+                <label><input type="radio" name="sexo" value="mujer"> Mujer</label><br><br>
+            </fieldset>
 
-        <fieldset>
-            <legend>Nivel de estudios e intereses</legend>
-            <br>
-            <label for="estudios">Nivel de estudios</label><br><br>
-            <select id="estudios" name="estudios" required>
-                <option value="certificado">Certificado escolar</option>
-                <option value="secundaria">Secundaria</option>
-                <option value="bachillerato">Bachillerato</option>
-                <option value="universidad">Universidad</option>
-            </select>
-            <br><br>
-            <label>Recibir artículos sobre los siguientes temas:</label><br>
-            <label><input type="checkbox" name="intereses" value="Musica"> Música</label><br>
-            <label><input type="checkbox" name="intereses" value="Deportes"> Deportes</label><br>
-            <label><input type="checkbox" name="intereses" value="Cine"> Cine</label><br>
-            <label><input type="checkbox" name="intereses" value="Libros"> Libros</label><br>
-            <label><input type="checkbox" name="intereses" value="Ciencia"> Ciencia</label><br><br>
-        </fieldset>
+            <fieldset>
+                <legend>Nivel de estudios e intereses</legend>
+                <br>
+                <label for="estudios">Nivel de estudios</label><br><br>
+                <select id="estudios" name="estudios" required>
+                    <option value="certificado">Certificado escolar</option>
+                    <option value="secundaria">Secundaria</option>
+                    <option value="bachillerato">Bachillerato</option>
+                    <option value="universidad">Universidad</option>
+                </select>
+                <br><br>
+                <label>Recibir artículos sobre los siguientes temas:</label><br>
+                <label><input type="checkbox" name="intereses" value="Musica"> Música</label><br>
+                <label><input type="checkbox" name="intereses" value="Deportes"> Deportes</label><br>
+                <label><input type="checkbox" name="intereses" value="Cine"> Cine</label><br>
+                <label><input type="checkbox" name="intereses" value="Libros"> Libros</label><br>
+                <label><input type="checkbox" name="intereses" value="Ciencia"> Ciencia</label><br><br>
+            </fieldset>
 
-        <fieldset>
-            <legend>Datos sobre la revista</legend>
-            <br>
-            <label for="frecuencia">Frecuencia con la que se recibirá la revista: </label><br><br>
-            <select id="frecuencia" name="frecuencia">
-                <option value="semanal">Semanal</option>
-                <option value="diaria">Diaria</option>
-                <option value="mensual">Mensual</option>
-            </select>
-            <br>
-            <p>Puedes mandar tu artículo sobre cualquier tema de los que tratamos. Nosotros lo valoraremos para que pueda ser publicado.</p>
-            <label>Mandar artículo: <input type="file" name="articulo"></label><br><br>
-            <label>Si deseas mandar simplemente una opinión o comentario escríbelo aquí:</label><br>
-            <textarea name="comentario" placeholder="Escribe tu comentario..." rows="6" cols="70"></textarea>
-            <br><br>
-        </fieldset>
+            <fieldset>
+                <legend>Datos sobre la revista</legend>
+                <br>
+                <label for="frecuencia">Frecuencia con la que se recibirá la revista: </label><br><br>
+                <select id="frecuencia" name="frecuencia">
+                    <option value="semanal">Semanal</option>
+                    <option value="diaria">Diaria</option>
+                    <option value="mensual">Mensual</option>
+                </select>
+                <br>
+                <p>Puedes mandar tu artículo sobre cualquier tema de los que tratamos. Nosotros lo valoraremos para que pueda ser publicado.</p>
+                <label>Mandar artículo: <input type="file" name="articulo"></label><br><br>
+                <label>Si deseas mandar simplemente una opinión o comentario escríbelo aquí:</label><br>
+                <textarea name="comentario" placeholder="Escribe tu comentario..." rows="6" cols="70"></textarea>
+                <br><br>
+            </fieldset>
 
-        <fieldset>
-            <legend>Comenzar de nuevo</legend>
-            <br>
-            <label for="borrar">Borrar todos los datos del formulario y volver a empezar: </label>
-            <button type="button" onclick="document.getElementById('revistaForm').reset();">Borrar todo</button>
-            <br><br>
-        </fieldset>
+            <fieldset>
+                <legend>Comenzar de nuevo</legend>
+                <br>
+                <label for="borrar">Borrar todos los datos del formulario y volver a empezar: </label>
+                <button type="button" onclick="document.getElementById('revistaForm').reset();">Borrar todo</button>
+                <br><br>
+            </fieldset>
 
-        <fieldset>
-            <legend>Enviar</legend>
-            <br>
-            <label for="enviar">Enviar formulario por correo electrónico: Al pulsar en el botón se abrirá la página de envío de ese correo: en esa página pulsa en enviar: </label><br><br>
-            <button type="button" onclick="enviarPorCorreo()">Enviar por correo</button>
-            <br><br>
-
-            <script>
-            function enviarPorCorreo() {
-                const form = document.getElementById('revistaForm');
-                const interesesChecked = Array.from(form.querySelectorAll('input[name="intereses"]:checked'));
-                if (interesesChecked.length === 0) {
-                    alert('Por favor, selecciona al menos un interés.');
-                    const firstChk = form.querySelector('input[name="intereses"]');
-                    if (firstChk) firstChk.focus();
-                    return;
-                }
-                if (!form.reportValidity()) return;
-
-                const nombre = form.nombre.value || '';
-                const apellido1 = form.apellido1.value || '';
-                const apellido2 = form.apellido2.value || '';
-                const sexoInput = form.querySelector('input[name="sexo"]:checked');
-                const sexo = sexoInput ? sexoInput.value : '';
-                const direccion = form.direccion.value || '';
-                const email = form.email.value || '';
-                const estudiosSelect = form.estudios;
-                const estudios = estudiosSelect && estudiosSelect.selectedIndex >= 0
-                    ? estudiosSelect.options[estudiosSelect.selectedIndex].text
-                    : '';
-                const intereses = interesesChecked.map(input => {
-                    const label = input.closest('label');
-                    if (label) return label.textContent.replace(/\s+/g, ' ').trim();
-                    return input.value;
-                }).join(', ');
-                const frecuenciaSelect = form.frecuencia;
-                const frecuencia = frecuenciaSelect && frecuenciaSelect.selectedIndex >= 0
-                    ? frecuenciaSelect.options[frecuenciaSelect.selectedIndex].text
-                    : '';
-                const comentario = form.comentario ? form.comentario.value : '';
-                const asunto = 'Formulario Revista';
-                const cuerpo = [
-                    `Nombre: ${nombre}`,
-                    `Apellido1: ${apellido1}`,
-                    `Apellido2: ${apellido2}`,
-                    `Sexo: ${sexo}`,
-                    `Dirección: ${direccion}`,
-                    `Email: ${email}`,
-                    `Estudios: ${estudios}`,
-                    `Intereses: ${intereses}`,
-                    `Frecuencia: ${frecuencia}`,
-                    `Comentario: ${comentario}`
-                ].join('\r\n');
-                const mailto = `mailto:?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
-                window.location.href = mailto;
-            }
-            </script>
-        </fieldset>
-    </form>
-</body>
+            <fieldset>
+                <legend>Enviar</legend>
+                <br>
+                <label for="enviar">Enviar formulario por correo electrónico: Al pulsar en el botón se abrirá la página de envío de ese correo: en esa página pulsa en enviar: </label><br><br>
+                <button type="button" onclick="enviarPorCorreo()">Enviar por correo</button>
+                <br><br>
+            </fieldset>
+        </form>
+    </body>
 </html>

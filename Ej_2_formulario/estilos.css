@@ -1,0 +1,52 @@
+html {
+    font-size: 16px;
+}
+
+body {
+    margin: 0;
+    padding: 2rem;
+    background: #f5f7fb;
+    color: #222;
+    line-height: 1.45;
+}
+
+fieldset {
+    border: 1px solid #5b5d62;
+    padding: 1rem;
+    margin: 0 0 1rem 0;
+    border-radius: 6px;
+    background: #fff;
+}
+
+legend {
+    font-size: 1.5rem;
+    padding: 0 0.5rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select,
+textarea {
+    padding: 0.45rem 0.6rem;
+    border: 1px solid #5b5d62;
+    border-radius: 6px;
+    background: #fff;
+    color: #111;
+    min-height: 1.5rem;
+    vertical-align: middle;
+}
+
+button {
+    padding: 0.55rem 0.9rem;
+    border-radius: 6px;
+    border: 1px solid #5b5d62;
+    background: #fff;
+    min-height: 44px;
+}
+
+button:hover {
+    background-color: #c3c5ca;
+}
