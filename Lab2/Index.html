@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initialscale=1.0">
+    <title>Gestión de Flota de Vehículos Eléctricos</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <h1 id="vehiculos">Vehículos Eléctricos</h1>
+    <h2>Plataforma de movilidad sostenible</h2>
+    <p>En esta página vas a poder <strong><em>gestionar</em></strong> diferentes vehículos.</p>
+    <h3>Vehículos disponibles</h3>
+    <!-- ordenada -->
+    <ol>
+        <li>Honda</li>
+        <li>Mercedes</li>
+        <li>Mazda</li>
+        <li>Honda</li>
+        <li>Mercedes</li>
+        <li>Mazda</li>
+        <li>Honda</li>
+        <li>Mercedes</li>
+        <li>Mazda</li>
+        <li>Honda</li>
+        <li>Mercedes</li>
+        <li>Mazda</li>
+    </ol>
+    <!-- no ordenada -->
+    <ul>
+         <li>Honda</li>
+        <li>Mercedes</li>
+        <li>Mazda</li>
+        <li>Honda</li>
+        <li>Mercedes</li>
+        <li>Mazda</li>
+        <li>Honda</li>
+        <li>Mercedes</li>
+        <li>Mazda</li>
+        <li>Honda</li>
+        <li>Mercedes</li>
+        <li>Mazda</li>
+    </ul>
+
+    <dl>
+        <dt>HTML</dt>
+        <dd>Lenguaje de marcado para estructurar páginas web. Utiliza etiquetas para definir y organizar elementos como textos, imágenes, enlaces y vídeos, permitiendo que
+             los navegadores interpreten y muestren la información al usuario. </dd>
+
+        <dt>CSS</dt>
+        <dd>Lenguaje de estilos para dar formato al contenido. Permite controlar cómo se ven los elementos de una página, como los colores, las fuentes, los márgenes y la 
+            disposición del contenido, haciendo que la web sea más atractiva y fácil de usar. </dd>
+
+        <dt>JSON</dt>
+        <dd>Formato de texto ligero y legible por humanos para almacenar e intercambiar datos, basado en la sintaxis de objetos de JavaScript pero independiente de cualquier
+            lenguaje de programación. Se basa en la sintaxis de los objetos de JavaScript, pero es un formato independiente del lenguaje, lo que permite su uso en una amplia 
+            variedad de lenguajes de programación. Sus principales usos son la comunicación entre servidores y aplicaciones, la configuración de software y el almacenamiento 
+            de datos en bases de datos NoSQL. 
+        </dd>
+    </dl>
+    <a href="https://www.ucm.es/">Universidad Complutense de Madrid</a>
+    <a href="contacto.html">Contacto</a>
+    <br>
+    <img src="imagenes/tesla2.png" alt="Tesla rojo" width="200">
+    <br>
+    <a href="imagenes/tesla2.png" target="_blank">
+        <img src="imagenes/tesla2.png" width="50" height="20" alt="Tesla rojo">
+    </a>
+    <p><a href="#vehiculos">Volver a los vehículos</a></p>
+
+    <!----  Lab2  ---->
+
+    <section id = "vehiculos">
+        <table border="1">
+            <caption>Vehículos disponibles</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Matricula</th>
+                    <th scope="col">Marca</th>
+                    <th scope="col">Autonomía</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1234-ABC</td>
+                    <td>Tesla</td>
+                    <td>400 km</td>
+                </tr>
+                <tr>
+                    <td>5678-DEF</td>
+                    <td>Nissan</td>
+                    <td>270 km</td> 
+                </tr>
+                <tr>
+                    <td>9101-GHI</td>
+                    <td>Renault</td>
+                    <td>300 km</td>
+                </tr>
+                <tr>
+                    <td>1121-JKL</td>
+                    <td>BMW</td>
+                    <td>350 km</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <br>
+
+    <section id="reservas">
+        <form id="formulario">
+            <fieldset>
+                <legend>Reserva de vehículo</legend><br>
+                <label for="nombre">Nombre</label>
+                <input type="text" id="nombre" name="nombre" required><br><br>
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" name="email" required><br><br>
+                <label for="telefono">Teléfono</label>
+                <input type="tel" id="telefono" name="telefono" pattern="\d{9}" title="Introduce un número de 9 cifras"><br><br>
+
+                <label for="vehiculo">Seleccione el vehículo</label>
+                <select id="vehiculo" name="vehiculo" required>
+                    <option value="" disabled selected>Vehículo</option>
+                    <option value="tesla">Tesla - 400 km</option>
+                    <option value="nissan">Nissan - 270 km</option>
+                    <option value="renault">Renault - 300 km</option>
+                    <option value="bmw">BMW - 350 km</option>
+                </select><br><br>
+
+                <label for="fecha">Fecha</label>
+                <input type="date" id="fecha" name="fecha" required><br><br>
+                <label for="hora">Hora</label>
+                <input type="time" id="hora" name="hora" required><br><br>
+
+                <label for="condiciones"></label>
+                <input type="checkbox" id="condiciones" name="condiciones" required> Acepto las condiciones<br><br>
+               
+                <button type="reset" class="reset">Limpiar</button>
+                <button type="button" class="enviar" id="enviarBtn">Enviar</button>
+            </fieldset>
+        </form>
+    </section>
+
+
+
+
+    <!-- Para probar que funciona el required y el pattern en el teléfono del formulario -->
+    <script>
+    document.getElementById('enviarBtn').addEventListener('click', function() {
+        const form = document.getElementById('formulario');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        const telefono = document.getElementById('telefono').value;
+        if (telefono && !/^\d{9}$/.test(telefono)) {
+            alert('El teléfono debe tener exactamente 9 cifras.');
+            document.getElementById('telefono').focus();
+            return;
+        }
+        alert('Formulario enviado correctamente.');
+    });
+    </script>
+
+
+    <!----  Lab2  ---->
+
+    <footer>
+        <p>Precios desde 30.000 &euro; &nbsp; | &copy; 2025 </p>
+    </footer>
+</body>
+</html>
