@@ -4,56 +4,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initialscale=1.0">
-    <title>Gestión de Flota de Vehículos Eléctricos</title>
-    <link rel="stylesheet" href="/css/estilos.css">
+    <title>GestiFleet</title>
+    <link rel="stylesheet" href="estilos.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
 <body>
-    <div class="grid">
-        <header>
-            <img class="logo" src="imagenes/logo.png" alt="Logo de la empresa" id="logo" width="80">
+    <div class="d-flex flex-column min-vh-100">
+        <header class="d-flex align-items-center">
+            <a href="index.html"><img class="me-3" src="imagenes/logo.png" alt="Logo de la empresa" id="logo" width="80"></a>
             <h1>GestiFleet</h1>
         </header>
 
-        <nav>
-            <button type="button" class="btn btn-primary" aria-label="Inicio"><a href="index.html">Inicio</a></button>
-            <button type="button" class="btn btn-primary"><a href="vehiculos.html">Vehículos</a></button>
-            <button type="button" class="btn btn-primary"><a href="reservas.html">Reservas</a></button>
-            <button type="button" class="btn btn-primary"><a href="contacto.html">Contacto</a></button>            
+        <nav class="d-flex justify-content-start">
+            <a href="index.html" class="btn btn-primary" role="button">Inicio</a>
+            <a href="vehiculos.html" class="btn btn-primary" role="button">Vehículos</a>
+            <a href="reservas.html" class="btn btn-primary" role="button">Reservas</a>
+            <a href="contacto.html" class="btn btn-primary" role="button">Contacto</a>           
         </nav>
-    <main>
-        <h1>Los vehiculos que ofertamos: </h1>
-    </main>
-    
-     <form>
-            <fieldset>
-                <legend>Reserva tu vehículo</legend>
-                <label>Nombre: <input type="text" name="nombre"></label>
-                <label>Primer apellido: <input type="text" name="apellido1"></label>
-                <label>Segundo apellido: <input type="text" name="apellido2"></label><br><br>
-                <label>e-mail: <input type="email" name="email" placeholder="@"></label><br><br>
-            </fieldset>
-            <fieldset>
-                <legend>Detalles de la reserva</legend>
-                <br>
-                <label for="vehiculo">Selecciona el vehículo: </label><br>
-                <select id="vehiculo" name="vehiculo">
-                    <option value="honda">Honda</option>
-                    <option value="mercedes">Mercedes</option>
-                    <option value="mazda">Mazda</option>
-                </select>
-                <br><br>
-                <label for="fecha">Fecha de la reserva: </label>
-                <input type="date" id="fecha" name="fecha"><br><br>
-                <label for="hora_inicio">Hora de inicio: </label>
-                <input type="time" id="hora_inicio" name="hora_inicio"><br><br>
-                <label for="hora_fin">Hora de fin: </label>
-                <input type="time" id="hora_fin" name="hora_fin"><br><br>
-            </fieldset>
-        </form>
 
-    <footer>
-        <p>Precios desde 30.000 &euro; &nbsp; | &copy; 2025 </p>
-    </footer>
+        <main class="flex-grow-1">
+            <div class="container py-4">
+                <h1>Reserva tu coche!</h1>
+                <form id="revistaForm" novalidate>
+                    <fieldset>
+                        <legend class="w-auto">Reserva tu vehículo</legend>
+                        <br>
+                        <div class="name">
+                            <label for="nombre" class="obligatorio">Nombre: </label>
+                            <input type="text" id="nombre" name="nombre" required>
+                            <label for="apellido1" class="obligatorio">Primer apellido: </label>
+                            <input type="text" id="apellido1" name="apellido1" required>
+                            <label for="apellido2">Segundo apellido: </label>
+                            <input type="text" id="apellido2" name="apellido2" required>
+                        </div>
+                        <label for="email" class="obligatorio">E-mail: </label>
+                        <input type="email" id="email" name="email" placeholder="@" required><br><br>
+                    </fieldset>
+                    <fieldset>
+                        <legend class="w-auto">Detalles de la reserva</legend>
+                        <br>
+                        <label for="vehiculo" class="obligatorio">Selecciona el vehículo: </label><br>
+                        <select id="vehiculo" name="vehiculo" required>
+                            <option value="honda">Honda</option>
+                            <option value="mercedes">Mercedes</option>
+                            <option value="mazda">Mazda</option>
+                        </select>
+                        <br><br>
+                        <div class="fecha-reserva">
+                            <label for="fecha">Fecha de la reserva: </label>
+                            <input type="date" id="fecha" name="fecha"><br><br>
+                            <label for="hora_inicio">Hora de inicio: </label>
+                            <input type="time" id="hora_inicio" name="hora_inicio"><br><br>
+                            <label for="hora_fin">Hora de fin: </label>
+                            <input type="time" id="hora_fin" name="hora_fin"><br><br>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </main>
+
+        <footer>
+            <p>Precios desde 30.000 &euro; &nbsp; | &copy; 2025 </p>
+        </footer>
     </div>
 </body>
 </html>

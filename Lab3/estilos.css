@@ -1,101 +1,190 @@
-html {
-    font-size: 16px;
-}
-
 body {
-    margin: 0;
     font-family: Arial, sans-serif;
-    font-size: 1rem;
-}
-
-button a {
-    text-decoration: none;
-    color: black;
-}
-
-.btn.btn-primary {
-    color: #9cafe4;
-    background-color: #9cafe4;
-    border-color: #9cafe4;
-}
-
-.grid {
-    display: grid;
-    grid-template-areas:
-        "header header header"
-        "barra barra barra"
-        "contenido contenido contenido"
-        "contenido contenido contenido"
-        "footer footer footer";
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: 2fr 1fr auto auto 1fr;
-    gap: 5px;
-    height: 100vh;
-
+    background-color: #e3eaf2;
+    color: #273444;
 }
 
 header {
-    grid-area: header;
-    background: #9cafe4;
+    background-color: #9cafe4;
     color: #394069;
-    font-size: 4rem;
-
-    display: grid;
-    grid-template-areas: "logo principal principal principal";
-    grid-template-columns: auto 1fr;
-    align-items: center;
     padding: 1rem;
 }
 
-.principal {
-    grid-area: principal;
-    text-align: center;
-    width: 100%;
-}
-
-.logo {
-    grid-area: logo;
-    color: #ffffff;
-    font-size: 1.5rem;
-
-    padding: 1rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+header h1 {
+    font-size: 3rem;
+    margin-left: 1rem;
 }
 
 nav {
-    grid-area: barra;
-    background: #394069;
-    color: #111111;
-    font-size: 2rem;
-
+    background-color: #394069;
     padding: 1rem;
 }
 
-.identificacion {
-    display: none;
+nav a {
+    text-decoration: none;
+    color: #dbe4f5;
+}
+
+.btn.btn-primary {
+    background-color: #9cafe4;
+    border-color: #9cafe4;
+    color: #273444;
+    margin-right: 0.5rem;
+}
+
+.btn.btn-primary:hover, 
+.btn.btn-primary:active {
+    background-color: #6f85c0;
+    border-color: #6f85c0;
+    color: #f0f4f8;
 }
 
 main {
-    grid-area: contenido;
-    background: #f8e8b6;
-    color: #111111;
-    font-size: 1rem;
-
-    display: grid;
-    /* text-align: center; */
+    background-color: #e3eaf2;
     padding: 1rem;
+    color: #273444;
 }
 
 footer {
-    grid-area: footer;
-    background: #394069;
-    color: #fff;
-    font-size: 2rem;
-
+    background-color: #394069;
+    color: #dbe4f5;
+    text-align: center;
     padding: 1rem;
+}
+
+/* form {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    margin-left: 2rem;
+    margin-right: 2rem;
+} */
+
+#revistaForm fieldset + fieldset {
+    margin-top: 2rem;
+}
+
+fieldset {
+    border: 2px solid #9cafe4 !important;
+    padding: 1rem !important;
+    margin: 0 0 1rem 0;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+legend {
+    font-size: 1.4rem;
+    padding: 0 0.5rem;
+    font-weight: 600;
+    color: #394069;
+    background-color: #dbe4f598;
+    border-radius: 5px;
+}
+
+input[type="text"],
+input[type="email"] {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.6rem 0.8rem;
+    border: 1.5px solid #9cafe4;
+    border-radius: 6px;
+    background: #f4f7fa;
+    color: #273444;
+    min-height: 1.5rem;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+input:focus{
+    border-color: #6f85c0;
+    box-shadow: 0 0 0 3px rgba(111, 133, 192, 0.3);
+    outline: none;
+}
+
+select {
+    box-sizing: border-box;
+    padding: 0.6rem 0.8rem;
+    border: 1.5px solid #9cafe4;
+    border-radius: 6px;
+    background: #f4f7fa;
+    color: #273444;
+}
+
+select option:checked,
+select option:focus {
+    background-color: #6f85c0 !important;
+    color: #fff;
+}
+
+.name, 
+.fecha-reserva {
     display: flex;
-    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: nowrap;
     align-items: center;
+    white-space: nowrap;
+}
+
+button {
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    border: none;
+    background: #6f85c0;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+button:hover {
+    background-color: #4d649a;
+    transform: translateY(-1px);
+}
+
+button:active {
+    background-color: #394069;
+    transform: translateY(0);
+}
+
+.obligatorio::after {
+    content: "*";
+    color: red;
+    font-weight: bold;
+    margin-left: 0.2rem;
+    font-size: 1.2rem;
+    vertical-align: super;
+}
+
+
+/*
+ESTO ES UNA PRUEBA PARA VER Q TAL LA VAINA
+*/
+.custom-navbar .nav-link,
+.custom-navbar .navbar-brand,
+.custom-navbar .dropdown-toggle {
+    display: inline-block;
+    background-color: #9cafe4;
+    color: #273444 !important;
+    padding: 0.4rem 0.9rem;
+    margin-right: 0.5rem;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.custom-navbar .nav-link:hover,
+.custom-navbar .dropdown-toggle:hover {
+    background-color: #6f85c0;
+    color: white !important;
+}
+
+/* Botón hamburguesa */
+.custom-navbar .navbar-toggler {
+    border-color: #dbe4f5;
+}
+
+.custom-navbar .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(219, 228, 245, 0.9)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }

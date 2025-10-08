@@ -24,13 +24,19 @@
 
         <main class="flex-grow-1">
             <div class="container">
-                <h1>Bienvenido a GestiFleet!</h1>
-                <h2>Plataforma de movilidad sostenible</h2>
-                <p>En esta página vas a poder <strong><em>gestionar</em></strong> diferentes vehículos.</p>
-                
+                <form id="contactoForm" novalidate>
+                    <fieldset>
+                        <legend class="w-auto">Contacto</legend><br>
+                        <label for="nombre">Nombre:</label>
+                        <input type="text" id="nombre" name="nombre" required><br><br>
+                        <label for="email">Correo electrónico:</label>
+                        <input type="email" id="email" name="email" required><br><br>
+                        <label>Mensaje:</label><br><br>
+                        <textarea name="comentario" placeholder="Escribe tu mensaje..." rows="6" cols="50"></textarea><br><br>
+                    </fieldset>
+                </form>
             </div>
         </main>
-
         <footer>
             <p>Precios desde 30.000 &euro; &nbsp; | &copy; 2025 </p>
         </footer>
