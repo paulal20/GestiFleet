@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initialscale=1.0">
+    <title>GestiFleet</title>
+    <link rel="stylesheet" href="../public/css/style.css">
+    <link rel="stylesheet" href="../public/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="d-flex flex-column min-vh-100">
+        <header class="d-flex align-items-center">
+            <a href="index.html"><img class="me-3" src="../public/img/logo.png" alt="Logo de la empresa" id="logo" width="80"></a>
+            <h1>GestiFleet</h1>
+        </header>
+
+        <nav class="navbar navbar-expand-lg custom-navbar">
+          <div class="container-fluid">
+            <img class="me-3" src="../public/img/logo-blanco.png" alt="Logo de la empresa" id="logo" width="60">
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+        
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <li class="nav-item">
+                  <a href="index.html" class="btn btn-primary me-2">
+                    <span lang="es" class="lang lang-es">Inicio</span>
+                    <span lang="en" class="lang lang-en d-none">Home</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="vehiculos.html" class="btn btn-primary me-2">
+                    <span lang="es" class="lang lang-es">Vehículos</span>
+                    <span lang="en" class="lang lang-en d-none">Vehicles</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="reservas.html" class="btn btn-primary me-2">
+                    <span lang="es" class="lang lang-es">Reservas</span>
+                    <span lang="en" class="lang lang-en d-none">Bookings</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="contacto.html" class="btn btn-primary me-2">
+                    <span lang="es" class="lang lang-es">Contacto</span>
+                    <span lang="en" class="lang lang-en d-none">Contact</span>
+                  </a>
+                </li>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle btn btn-primary me-2" href="#" id="temaDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span lang="es" class="lang lang-es">Tema</span>
+                    <span lang="en" class="lang lang-en d-none">Theme</span>
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="temaDropdown">
+                    <li><a class="dropdown-item tema-opcion" href="#" data-value="normal">
+                      <span lang="es" class="lang lang-es">Predeterminado</span>
+                      <span lang="en" class="lang lang-en d-none">Default</span>
+                    </a></li>
+                    <li><a class="dropdown-item tema-opcion" href="#" data-value="high">
+                      <span lang="es" class="lang lang-es">Oscuro</span>
+                      <span lang="en" class="lang lang-en d-none">Dark</span>
+                    </a></li>
+                  </ul>
+                </li>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle btn btn-primary me-2" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span lang="es" class="lang lang-es">Idioma</span>
+                    <span lang="en" class="lang lang-en d-none">Language</span>
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+                    <li>
+                      <a class="dropdown-item" href="#" onclick="setLanguage('es')">
+                        <span lang="es" class="lang lang-es">Español</span>
+                        <span lang="en" class="lang lang-en d-none">Spanish</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="#" onclick="setLanguage('en')">
+                        <span lang="es" class="lang lang-es">Inglés</span>
+                        <span lang="en" class="lang lang-en d-none">English</span>
+                      </a>
+                    </li>
+                    
+                  </ul>
+                </li>
+                               
+              </ul>
+        
+              <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search">
+                <button class="btn btn-outline-light" type="submit">
+                  <span lang="es" class="lang lang-es">Buscar</span>
+                  <span lang="en" class="lang lang-en d-none">Search</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </nav>
+
+        <main class="flex-grow-1">
+            <div class="container">
+                <h1>Bienvenido a GestiFleet!</h1>
+                <h2>Plataforma de movilidad sostenible</h2>
+                <p>En esta página vas a poder <strong><em>gestionar</em></strong> diferentes vehículos.</p>
+                
+            </div>
+        </main>
+
+        <footer>
+          <p lang="es" class="lang lang-es">Precios desde 30.000 &euro; &nbsp; | &copy; 2025 </p>
+          <p lang="en" class="lang lang-en d-none">Prices from €30,000 &nbsp; | &copy; 2025</p>
+      </footer>
+    </div>
+    <script src="../public/js/bootstrap.min.js"></script>
+    <script src="../public/js/ajustes.js"></script>
+</body>
+</html>

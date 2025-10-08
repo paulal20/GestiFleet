@@ -1,12 +1,49 @@
+/* ========== VARIABLES GLOBALES ========== */
+:root{
+  --color-bg: #e3eaf2;            /* fondo claro */
+  --color-text: #273444;          /* texto principal */
+  --color-primary: #9cafe4;       /* azul claro principal (header, botones) */
+  --color-primary-hover: #6f85c0; /* hover primary */
+  --color-nav: #394069;           /* nav / footer bg */
+  --color-link: #dbe4f5;          /* color enlaces en nav/footer */
+  --color-field-bg: #ffffff;      /* fondo de fieldset/panel */
+  --color-legend-bg: rgba(219,228,245,0.6);
+  --color-input-bg: #f4f7fa;
+  --color-field-border: #9cafe4;
+  --shadow-focus: 0 0 0 3px rgba(111,133,192,0.3);
+  --btn-bg: #6f85c0;
+  --btn-hover: #4d649a;
+  --btn-active: #394069;
+}
+
+/* ========== MODO OSCURO: clase .dark-theme ========== */
+.dark-theme{
+  --color-bg: #0b1220;
+  --color-text: #e6eef8;
+  --color-primary: #1f5f9a;
+  --color-primary-hover: #154b78;
+  --color-nav: #0f2238;
+  --color-link: #cfe8ff;
+  --color-field-bg: #071424;
+  --color-legend-bg: rgba(31,95,154,0.18);
+  --color-input-bg: #081726;
+  --color-field-border: #1f7ea3;
+  --shadow-focus: 0 0 0 3px rgba(23,69,110,0.28);
+  --btn-bg: #17456e;
+  --btn-hover: #10314d;
+  --btn-active: #e6eef8;
+}
+
+
 body {
     font-family: Arial, sans-serif;
-    background-color: #e3eaf2;
-    color: #273444;
+    background-color: var(--color-bg);
+    color: var(--color-text);
 }
 
 header {
-    background-color: #9cafe4;
-    color: #394069;
+    background-color: var(--color-primary);
+    color: var(--btn-active);
     padding: 1rem;
 }
 
@@ -16,38 +53,38 @@ header h1 {
 }
 
 nav {
-    background-color: #394069;
+    background-color: var(--color-nav);
     padding: 1rem;
 }
 
 nav a {
     text-decoration: none;
-    color: #dbe4f5;
+    color: var(--color-link);
 }
 
 .btn.btn-primary {
-    background-color: #9cafe4;
-    border-color: #9cafe4;
-    color: #273444;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-text);
     margin-right: 0.5rem;
 }
 
 .btn.btn-primary:hover, 
 .btn.btn-primary:active {
-    background-color: #6f85c0;
-    border-color: #6f85c0;
-    color: #f0f4f8;
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+    color: var(--color-link);
 }
 
 main {
-    background-color: #e3eaf2;
+    background-color: var(--color-bg);
     padding: 1rem;
-    color: #273444;
+    color: var(--color-text);
 }
 
 footer {
-    background-color: #394069;
-    color: #dbe4f5;
+    background-color: var(--color-nav);
+    color: var(--color-link);
     text-align: center;
     padding: 1rem;
 }
@@ -64,11 +101,11 @@ footer {
 }
 
 fieldset {
-    border: 2px solid #9cafe4 !important;
+    border: 2px solid var(--color-field-border) !important;
     padding: 1rem !important;
     margin: 0 0 1rem 0;
     border-radius: 10px;
-    background: #ffffff;
+    background: var(--color-field-bg);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
@@ -76,8 +113,8 @@ legend {
     font-size: 1.4rem;
     padding: 0 0.5rem;
     font-weight: 600;
-    color: #394069;
-    background-color: #dbe4f598;
+    color: var(--btn-active);
+    background-color: var(--color-legend-bg);
     border-radius: 5px;
 }
 
@@ -87,32 +124,56 @@ input[type="email"] {
     width: 100%;
     box-sizing: border-box;
     padding: 0.6rem 0.8rem;
-    border: 1.5px solid #9cafe4;
+    border: 1.5px solid var(--color-field-border);
     border-radius: 6px;
-    background: #f4f7fa;
-    color: #273444;
+    background: var(--color-input-bg);
+    color: var(--color-text);
     min-height: 1.5rem;
     transition: border 0.2s, box-shadow 0.2s;
 }
 
+/*Para que el buscar, las fechas, horas y desplegables salgan también en modo oscuro*/
+.dark-theme input[type="text"],
+.dark-theme input[type="email"],
+.dark-theme input[type="search"],
+.dark-theme input[type="date"],
+.dark-theme input[type="time"],
+.dark-theme textarea,
+.dark-theme select {
+  background-color: var(--color-input-bg);
+  color: var(--color-text);
+  border-color: var(--color-field-border);
+}
+
+.dark-theme input[type="date"],
+.dark-theme input[type="time"] {
+  all: revert;
+  background-color: var(--color-input-bg);
+  color: var(--color-text);
+}
+
+
+/*Hasta aquí lo de usar tema oscuro para esas cosas*/
+
+
 input:focus{
-    border-color: #6f85c0;
-    box-shadow: 0 0 0 3px rgba(111, 133, 192, 0.3);
+    border-color: var(--color-primary-hover);
+    box-shadow: var(--shadow-focus);
     outline: none;
 }
 
 select {
     box-sizing: border-box;
     padding: 0.6rem 0.8rem;
-    border: 1.5px solid #9cafe4;
+    border: 1.5px solid var(--color-field-border);
     border-radius: 6px;
-    background: #f4f7fa;
-    color: #273444;
+    background: var(--color-input-bg);
+    color: var(--color-text);
 }
 
 select option:checked,
 select option:focus {
-    background-color: #6f85c0 !important;
+    background-color: var(--color-primary-hover) !important;
     color: #fff;
 }
 
@@ -130,7 +191,7 @@ button {
     padding: 0.6rem 1rem;
     border-radius: 6px;
     border: none;
-    background: #6f85c0;
+    background: var(--btn-bg);
     color: #fff;
     font-weight: 600;
     cursor: pointer;
@@ -138,12 +199,12 @@ button {
 }
 
 button:hover {
-    background-color: #4d649a;
+    background-color: var(--btn-hover);
     transform: translateY(-1px);
 }
 
 button:active {
-    background-color: #394069;
+    background-color: var(--btn-active);
     transform: translateY(0);
 }
 
@@ -164,8 +225,8 @@ ESTO ES UNA PRUEBA PARA VER Q TAL LA VAINA
 .custom-navbar .navbar-brand,
 .custom-navbar .dropdown-toggle {
     display: inline-block;
-    background-color: #9cafe4;
-    color: #273444 !important;
+    background-color: var(--color-primary);
+    color: var(--color-text) !important;
     padding: 0.4rem 0.9rem;
     margin-right: 0.5rem;
     border: none;
@@ -176,13 +237,13 @@ ESTO ES UNA PRUEBA PARA VER Q TAL LA VAINA
 
 .custom-navbar .nav-link:hover,
 .custom-navbar .dropdown-toggle:hover {
-    background-color: #6f85c0;
+    background-color: var(--color-primary-hover);
     color: white !important;
 }
 
 /* Botón hamburguesa */
 .custom-navbar .navbar-toggler {
-    border-color: #dbe4f5;
+    border-color: var(--color-link);
 }
 
 .custom-navbar .navbar-toggler-icon {
