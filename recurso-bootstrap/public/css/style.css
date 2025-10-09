@@ -100,6 +100,10 @@ footer {
     margin-top: 2rem;
 }
 
+#revistaFormEn fieldset + fieldset {
+    margin-top: 2rem;
+}
+
 fieldset {
     border: 2px solid var(--color-field-border) !important;
     padding: 1rem !important;
@@ -185,6 +189,8 @@ select option:focus {
     flex-wrap: nowrap;
     align-items: center;
     white-space: nowrap;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 button {
@@ -249,3 +255,11 @@ ESTO ES UNA PRUEBA PARA VER Q TAL LA VAINA
 .custom-navbar .navbar-toggler-icon {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(219, 228, 245, 0.9)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
+
+.error {
+    color: red;
+    font-size: 0.85em;
+    display: block;
+    margin-bottom: 0.5em;
+  }
+  

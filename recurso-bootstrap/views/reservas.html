@@ -105,21 +105,28 @@
 
         <main class="flex-grow-1">
             <div class="container py-4">
-                <h1>Reserva tu coche!</h1>
-                <form id="revistaForm" novalidate>
+                <h1 lang="es" class="lang lang-es">Reserva tu coche!</h1>
+                <h1 lang="en" class="lang lang-en d-none">Book your vehicle!</h1>
+                <form id="revistaForm" lang="es" class="lang lang-es" novalidate>
                     <fieldset>
                         <legend class="w-auto">Reserva tu vehículo</legend>
                         <br>
                         <div class="name">
                             <label for="nombre" class="obligatorio">Nombre: </label>
                             <input type="text" id="nombre" name="nombre" required>
+                            <span class="error" id="error-nombre"></span>
+                            
                             <label for="apellido1" class="obligatorio">Primer apellido: </label>
                             <input type="text" id="apellido1" name="apellido1" required>
+                            <span class="error" id="error-apellido1"></span>
+
                             <label for="apellido2">Segundo apellido: </label>
                             <input type="text" id="apellido2" name="apellido2" required>
+                            <span class="error" id="error-apellido2"></span>
                         </div>
                         <label for="email" class="obligatorio">E-mail: </label>
-                        <input type="email" id="email" name="email" placeholder="@" required><br><br>
+                        <input type="email" id="email" name="email" placeholder="@" required>
+                        <span class="error" id="error-email"></span><br><br>
                     </fieldset>
                     <fieldset>
                         <legend class="w-auto">Detalles de la reserva</legend>
@@ -131,26 +138,76 @@
                             <option value="mercedes">Mercedes</option>
                             <option value="mazda">Mazda</option>
                         </select>
+                        <span class="error" id="error-vehiculo"></span>
                         <br><br>
                         <div class="fecha-reserva">
-                            <label for="fecha">Fecha de la reserva: </label>
-                            <input type="date" id="fecha" name="fecha"><br><br>
-                            <label for="hora_inicio">Hora de inicio: </label>
-                            <input type="time" id="hora_inicio" name="hora_inicio"><br><br>
-                            <label for="hora_fin">Hora de fin: </label>
-                            <input type="time" id="hora_fin" name="hora_fin"><br><br>
+                            <label for="fechaInicio">Inicio de la reserva: </label>
+                            <input type="datetime-local" id="fechaInicio" name="fechaInicio">
+                            <span class="error" id="error-fecha-inicio"></span><br><br>
+
+                            <label for="duracion">Duración: </label>
+                            <input type="number" id="duracion" name="duracion"><br><br>
+                            <span class="error" id="error-duracion"></span>
+
                         </div>
                     </fieldset>
+                    <button type="reset" class="btn btn-outline-secondary mt-3">Borrar formulario</button>
+                    <button type="submit" class="btn btn-success mt-3">Enviar</button>
                 </form>
+
+                <form id="revistaFormEn" lang="en" class="lang lang-en d-none" novalidate>
+                    <fieldset>
+                        <legend class="w-auto">Book your vehicle</legend>
+                        <br>
+                        <div class="name">
+                            <label for="nombre" class="obligatorio">Name: </label>
+                            <input type="text" id="nombre" name="nombre" required>
+                            <span class="error" id="error-nombre"></span>
+                            
+                            <label for="apellido1" class="obligatorio">First surname: </label>
+                            <input type="text" id="apellido1" name="apellido1" required>
+                            <span class="error" id="error-apellido1"></span>
+
+                            <label for="apellido2">Second surname: </label>
+                            <input type="text" id="apellido2" name="apellido2" required>
+                            <span class="error" id="error-apellido2"></span>
+                        </div>
+                        <label for="email" class="obligatorio">E-mail: </label>
+                        <input type="email" id="email" name="email" placeholder="@" required>
+                        <span class="error" id="error-email"></span><br><br>
+                    </fieldset>
+                    <fieldset>
+                        <legend class="w-auto">Reservation details</legend>
+                        <br>
+                        <label for="vehiculo" class="obligatorio">Select the vehicle: </label><br>
+                        <select id="vehiculo" name="vehiculo" required>
+                            <option value="">Select the vehicle</option>
+                            <option value="honda">Honda</option>
+                            <option value="mercedes">Mercedes</option>
+                            <option value="mazda">Mazda</option>
+                        </select>
+                        <br><br>
+                        <div class="fecha-reserva">
+                            <label for="fechaInicio">Start of reservation: </label>
+                            <input type="datetime-local" id="fechaInicio" name="fechaIncio"> <br><br>
+                            <label for="duracion">Duration: </label>
+                            <input type="number" id="duracion" name="duracion"><br><br>
+                        </div>
+                    </fieldset>
+                    <button type="reset" class="btn btn-outline-secondary mt-3">Delete form</button>
+                    <button type="submit" class="btn btn-success mt-3">Submit</button>
+                </form>
+
             </div>
         </main>
 
         <footer>
           <p lang="es" class="lang lang-es">Precios desde 30.000 &euro; &nbsp; | &copy; 2025 </p>
-          <p lang="en" class="lang lang-en d-none">Prices from €30,000 &nbsp; | &copy; 2025</p>
+          <p lang="en" class="lang lang-en d-none">Prices from &euro; 30,000 &nbsp; | &copy; 2025</p>
       </footer>
     </div>
     <script src="../public/js/bootstrap.min.js"></script>
     <script src="../public/js/ajustes.js"></script>
+    <script src="../public/js/formulario.js"></script>
 </body>
 </html>
