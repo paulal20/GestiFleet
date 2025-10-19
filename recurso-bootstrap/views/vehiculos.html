@@ -15,83 +15,69 @@
             <h1>GestiFleet</h1>
         </header>
 
-        <nav class="navbar navbar-expand-lg custom-navbar">
+        <nav class="navbar navbar-expand-lg nav-underline custom-navbar">
           <div class="container-fluid">
-            <img class="me-3" src="../public/img/logo-blanco.png" alt="Logo de la empresa" width="60">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+              <img src="../public/img/logo-blanco.png" alt="Logo de la empresa" width="60" class="me-2">
+            </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
             </button>
-        
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-              <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
+            <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="nav nav-underline me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                  <a href="index.html" class="btn btn-primary me-2">
+                  <a href="index.html" class="nav-link" aria-current="page">
                     <span lang="es" class="lang lang-es">Inicio</span>
                     <span lang="en" class="lang lang-en d-none">Home</span>
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="vehiculos.html" class="btn btn-primary me-2">
+                  <a href="vehiculos.html" class="nav-link">
                     <span lang="es" class="lang lang-es">Vehículos</span>
                     <span lang="en" class="lang lang-en d-none">Vehicles</span>
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="reservas.html" class="btn btn-primary me-2">
+                  <a href="reservas.html" class="nav-link">
                     <span lang="es" class="lang lang-es">Reservas</span>
                     <span lang="en" class="lang lang-en d-none">Bookings</span>
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="contacto.html" class="btn btn-primary me-2">
+                  <a href="contacto.html" class="nav-link">
                     <span lang="es" class="lang lang-es">Contacto</span>
                     <span lang="en" class="lang lang-en d-none">Contact</span>
                   </a>
                 </li>
+
                 <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle btn btn-primary me-2" href="#" id="temaDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span lang="es" class="lang lang-es">Tema</span>
-                    <span lang="en" class="lang lang-en d-none">Theme</span>
+                  <a class="nav-link dropdown-toggle" href="#" id="temaDropdown" role="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    <span lang="es" class="lang lang-es desplegable">Tema</span>
+                    <span lang="en" class="lang lang-en d-none desplegable">Theme</span>
                   </a>
-                  <ul class="dropdown-menu" aria-labelledby="temaDropdown">
-                    <li><a class="dropdown-item tema-opcion" href="#" data-value="normal">
-                      <span lang="es" class="lang lang-es">Predeterminado</span>
-                      <span lang="en" class="lang lang-en d-none">Default</span>
-                    </a></li>
-                    <li><a class="dropdown-item tema-opcion" href="#" data-value="high">
-                      <span lang="es" class="lang lang-es">Oscuro</span>
-                      <span lang="en" class="lang lang-en d-none">Dark</span>
-                    </a></li>
+                  <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="temaDropdown">
+                    <li><a class="dropdown-item tema-opcion" href="#" data-value="normal">Predeterminado</a></li>
+                    <li><a class="dropdown-item tema-opcion" href="#" data-value="high">Oscuro</a></li>
                   </ul>
                 </li>
+
                 <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle btn btn-primary me-2" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span lang="es" class="lang lang-es">Idioma</span>
-                    <span lang="en" class="lang lang-en d-none">Language</span>
+                  <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <span lang="es" class="lang lang-es desplegable">Idioma</span>
+                    <span lang="en" class="lang lang-en d-none desplegable">Language</span>
                   </a>
-                  <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-                    <li>
-                      <a class="dropdown-item" href="#" onclick="setLanguage('es')">
-                        <span lang="es" class="lang lang-es">Español</span>
-                        <span lang="en" class="lang lang-en d-none">Spanish</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a class="dropdown-item" href="#" onclick="setLanguage('en')">
-                        <span lang="es" class="lang lang-es">Inglés</span>
-                        <span lang="en" class="lang lang-en d-none">English</span>
-                      </a>
-                    </li>
-                    
+                  <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="languageDropdown">
+                    <li><a class="dropdown-item" href="#" onclick="setLanguage('es')">Español</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="setLanguage('en')">Inglés</a></li>
                   </ul>
                 </li>
-                               
               </ul>
-        
+
               <form class="d-flex" role="search">
                 <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search">
                 <button class="btn btn-outline-light" type="submit">
@@ -104,13 +90,135 @@
         </nav>
 
         <main class="flex-grow-1">
-            <div class="container">
-                <h1>Bienvenido a GestiFleet!</h1>
-                <h2>Plataforma de movilidad sostenible</h2>
-                <p>En esta página vas a poder <strong><em>gestionar</em></strong> diferentes vehículos.</p>
-                
+          <div class="container py-4">
+            <h1 class="mb-4">Vehículos ofertados en GestiFleet:</h1>
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+
+              <div class="col">
+                <div class="vehiculo-card card h-100">
+                  <div class="vehiculo-img-container">
+                    <img src="../public/img/vehiculos/tesla1.png" class="card-img-top" alt="Tesla">
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title">Tesla</h5>
+                    <p class="card-text">Sedán eléctrico de lujo con aceleración impresionante, autonomía de más de 600 km y tecnología avanzada de conducción autónoma.</p>
+                  </div>
+                  <div class="card-footer p-0">
+                    <button class="btn btn-primary w-100 rounded-0">Reservar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col">
+                <div class="vehiculo-card card h-100">
+                  <div class="vehiculo-img-container">
+                    <img src="../public/img/vehiculos/byd_seal1.png" class="card-img-top" alt="byd_seal1">
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title">BYD SEAL</h5>
+                    <p class="card-text">Sedán eléctrico moderno con diseño aerodinámico, interiores tecnológicos y un rendimiento eficiente para ciudad y carretera.</p>
+                  </div>
+                  <div class="card-footer p-0">
+                    <button class="btn btn-primary w-100 rounded-0">Reservar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col">
+                <div class="vehiculo-card card h-100">
+                  <div class="vehiculo-img-container">
+                    <img src="../public/img/vehiculos/volvo1.png" class="card-img-top" alt="Volvo">
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title">Volvo</h5>
+                    <p class="card-text">SUV seguro y confortable, con un interior espacioso, tecnología de asistencia al conductor y sistemas de seguridad de última generación.</p>
+                  </div>
+                  <div class="card-footer p-0">
+                    <button class="btn btn-primary w-100 rounded-0">Reservar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col">
+                <div class="vehiculo-card card h-100">
+                  <div class="vehiculo-img-container">
+                    <img src="../public/img/vehiculos/VW1.png" class="card-img-top" alt="Volkswagen">
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title">Volkswagen</h5>
+                    <p class="card-text">Compacto eficiente y versátil, ideal para la ciudad, con un diseño moderno y prestaciones equilibradas para toda la familia.</p>
+                    <p class=""text-muted>Desde 62.000 €</p>
+                  </div>
+                  <div class="card-footer p-0">
+                    <button class="btn btn-primary w-100 rounded-0">Reservar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col">
+                <div class="vehiculo-card card h-100">
+                  <div class="vehiculo-img-container">
+                    <img src="../public/img/vehiculos/tesla2.png" class="card-img-top" alt="Tesla">
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title">Tesla</h5>
+                    <p class="card-text">Sedán eléctrico de lujo con interiores premium, sistema de conducción autónoma y batería de alta duración para viajes largos.</p>
+                  </div>
+                  <div class="card-footer p-0">
+                    <button class="btn btn-primary w-100 rounded-0">Reservar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col">
+                <div class="vehiculo-card card h-100">
+                  <div class="vehiculo-img-container">
+                    <img src="../public/img/vehiculos/byd_seal2.png" class="card-img-top" alt="BYD SEAL">
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title">BYD SEAL</h5>
+                    <p class="card-text">Sedán eléctrico eficiente con diseño aerodinámico, interiores tecnológicos y autonomía optimizada para uso urbano y carretera.</p>
+                  </div>
+                  <div class="card-footer p-0">
+                    <button class="btn btn-primary w-100 rounded-0">Reservar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col">
+                <div class="vehiculo-card card h-100">
+                  <div class="vehiculo-img-container">
+                    <img src="../public/img/vehiculos/volvo2.png" class="card-img-top" alt="Volvo">
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title">Volvo</h5>
+                    <p class="card-text">SUV seguro y confortable con tecnología de asistencia al conductor, interiores amplios y sistemas de seguridad avanzados.</p>
+                  </div>
+                  <div class="card-footer p-0">
+                    <button class="btn btn-primary w-100 rounded-0">Reservar</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col">
+                <div class="vehiculo-card card h-100">
+                  <div class="vehiculo-img-container">
+                    <img src="../public/img/vehiculos/VW2.png" class="card-img-top" alt="Volkswagen">
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title">Volkswagen</h5>
+                    <p class="card-text">Compacto versátil con diseño moderno, eficiente y práctico para uso diario en ciudad y viajes familiares cortos.</p>
+                  </div>
+                  <div class="card-footer p-0">
+                    <button class="btn btn-primary w-100 rounded-0">Reservar</button>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
         </main>
+
 
         <footer>
           <p lang="es" class="lang lang-es">Precios desde 30.000 &euro; &nbsp; | &copy; 2025 </p>

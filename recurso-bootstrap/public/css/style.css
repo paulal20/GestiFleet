@@ -181,7 +181,28 @@ select option:focus {
     color: #fff;
 }
 
-.name, 
+.name {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.name .nombre {
+    width: 100%;
+    min-width: 220px;
+    max-width: 400px;
+}
+
+.name .apellido1,
+.name .apellido2 {
+    flex: 1 1 0;
+    min-width: 150px;
+    max-width: 400px;
+}
+
 .fecha-reserva {
     display: flex;
     gap: 1rem;
@@ -223,37 +244,89 @@ button:active {
     vertical-align: super;
 }
 
+.custom-navbar {
+  background-color: var(--color-nav);
+}
 
-/*
-ESTO ES UNA PRUEBA PARA VER Q TAL LA VAINA
-*/
-.custom-navbar .nav-link,
-.custom-navbar .navbar-brand,
-.custom-navbar .dropdown-toggle {
-    display: inline-block;
-    background-color: var(--color-primary);
-    color: var(--color-text) !important;
-    padding: 0.4rem 0.9rem;
-    margin-right: 0.5rem;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    transition: background-color 0.2s ease-in-out;
+.custom-navbar .nav-link {
+    color: var(--color-link);
+    font-weight: 500;
+    position: relative;
+    transition: color 0.3s ease;
+    padding: 0.5rem 0.8rem;
+    display: inline-block; 
+    margin-right: 0.8rem;
+}
+
+.custom-navbar .nav-item:last-child .nav-link {
+    margin-right: 0;
+}
+
+.custom-navbar .navbar-nav {
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+}
+
+.custom-navbar .nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: var(--color-primary);
+  transition: width 0.3s ease;
+}
+
+.custom-navbar .nav-link.dropdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  padding-right: 0.5rem;
+}
+
+.custom-navbar .desplegable::after {
+  content: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23dbe4f5'><path d='M0 2h10L5 8z'/></svg>") !important;
+  border: none;
+  margin-left: 0.3rem;
+}
+
+ .custom-navbar .nav-link.dropdown-toggle::after { /*para q no salga el icono por defecto duplicado */
+  content: "" !important;
+  border: none;
+  margin-left: 0.3rem;
+}
+
+.custom-navbar .nav-link:hover::after,
+.custom-navbar .nav-link.active::after {
+  width: 100%;
 }
 
 .custom-navbar .nav-link:hover,
-.custom-navbar .dropdown-toggle:hover {
-    background-color: var(--color-primary-hover);
-    color: white !important;
+.custom-navbar .nav-link.active {
+  color: var(--color-primary);
 }
 
-/* Botón hamburguesa */
+.custom-navbar .dropdown-menu {
+  background-color: var(--color-nav);
+  border: 1px solid var(--color-primary);
+}
+
+.custom-navbar .dropdown-item {
+  color: var(--color-link);
+}
+
+.custom-navbar .dropdown-item:hover {
+  background-color: var(--color-primary-hover);
+  color: #fff;
+}
+
 .custom-navbar .navbar-toggler {
-    border-color: var(--color-link);
+  border-color: var(--color-link);
 }
 
 .custom-navbar .navbar-toggler-icon {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(219, 228, 245, 0.9)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(219, 228, 245, 0.9)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
 .error {
@@ -262,4 +335,63 @@ ESTO ES UNA PRUEBA PARA VER Q TAL LA VAINA
     display: block;
     margin-bottom: 0.5em;
   }
-  
+
+.vehiculo-card {
+  background-color: var(--color-field-bg);
+  border: 2px solid var(--color-field-border);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  color: var(--color-text);
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.vehiculo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+  border-color: var(--color-primary-hover);
+}
+
+.vehiculo-card img {
+  object-fit: cover;
+  height: 200px;
+  width: 100%;
+}
+
+.vehiculo-img-container {
+    width: 100%;
+    height: 220px;
+    background-color: var(--color-primary);
+    display: grid;  
+    place-items: center;   
+    border-radius: 0;
+    overflow: hidden; 
+}
+
+.vehiculo-img-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.vehiculo-card .card-body {
+  padding: 1rem;
+  background: var(--color-input-bg);
+}
+
+.vehiculo-card .card-title {
+  font-weight: 600;
+  color: var(--color-primary-hover);
+  margin-bottom: 0.5rem;
+}
+
+.vehiculo-card .card-text {
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.vehiculo-card .card-footer {
+  background-color: var(--color-legend-bg);
+  font-weight: 600;
+  text-align: center;
+}

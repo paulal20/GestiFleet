@@ -64,18 +64,40 @@ document.addEventListener('keydown', function(e) {
   })();
 
 
-  //CAMBIAR IDIOMA
-  function setLanguage(lang) {
-    document.documentElement.lang = lang;
+  // CAMBIAR IDIOMA
+function setLanguage(lang) {
+  // Guardar el idioma en localStorage para mantenerlo en todas las páginas
+  localStorage.setItem('language', lang);
 
-    const elementsEs = document.querySelectorAll('.lang-es');
-    const elementsEn = document.querySelectorAll('.lang-en');
+  document.documentElement.lang = lang;
 
-    if (lang === 'es') {
-      elementsEs.forEach(el => el.classList.remove('d-none'));
-      elementsEn.forEach(el => el.classList.add('d-none'));
-    } else {
-      elementsEs.forEach(el => el.classList.add('d-none'));
-      elementsEn.forEach(el => el.classList.remove('d-none'));
-    }
+  const elementsEs = document.querySelectorAll('.lang-es');
+  const elementsEn = document.querySelectorAll('.lang-en');
+
+  if (lang === 'es') {
+    elementsEs.forEach(el => el.classList.remove('d-none'));
+    elementsEn.forEach(el => el.classList.add('d-none'));
+  } else {
+    elementsEs.forEach(el => el.classList.add('d-none'));
+    elementsEn.forEach(el => el.classList.remove('d-none'));
   }
+}
+
+// Al cargar la página, aplica el idioma guardado (por defecto "es")
+document.addEventListener('DOMContentLoaded', function() {
+  const savedLang = localStorage.getItem('language') || 'es';
+  setLanguage(savedLang);
+});
+
+// para que se active el link de la página actual en la barra de navegación
+document.addEventListener("DOMContentLoaded", function() {
+    const currentPage = window.location.pathname.split("/").pop();
+    const navLinks = document.querySelectorAll(".custom-navbar .nav-link");
+
+    navLinks.forEach(link => {
+      const href = link.getAttribute("href");
+      if (href && href === currentPage) {
+        link.classList.add("active");
+      }
+    });
+  });

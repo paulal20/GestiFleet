@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", function(){
         }
 
         if(campos.apellido1.value.trim().length < 3){
-            errores.apellido1.textContent = "El nombre debe tener al menos 3 caracteres.";
+            errores.apellido1.textContent = "El apellido debe tener al menos 3 caracteres.";
             valido = false;
         }
 
