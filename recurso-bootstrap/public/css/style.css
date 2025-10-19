@@ -395,3 +395,13 @@ button:active {
   font-weight: 600;
   text-align: center;
 }
+
+.vehiculo-card .card-footer:hover {
+  background-color: var(--btn-hover);
+  color: #fff;
+}
+
+.vehiculo-card .card-footer:active {
+  background-color: var(--btn-active);
+  color: #fff;
+}
