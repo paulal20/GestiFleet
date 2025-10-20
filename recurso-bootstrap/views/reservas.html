@@ -93,26 +93,45 @@
             <div class="container py-4">
                 <h1 lang="es" class="lang lang-es">Reserva tu coche!</h1>
                 <h1 lang="en" class="lang lang-en d-none">Book your vehicle!</h1>
+                <!-- PONER ESTO BIEN Y MUY BONITO -->
+                <div id="formProgressContainer">
+                  <label for="formProgress">Progreso del formulario:</label>
+                  <progress id="formProgress" value="0" max="100"></progress>
+                  <span id="progressPercent">0%</span>
+                </div>
                 <form id="revistaForm" lang="es" class="lang lang-es" novalidate>
                     <fieldset>
                         <legend class="w-auto">Reserva tu vehículo</legend>
                         <br>
                         <div class="name">
+                          <div class="campo-nombre">
                             <label for="nombre" class="obligatorio">Nombre: </label>
                             <input type="text" id="nombre" name="nombre" required>
                             <span class="error" id="error-nombre"></span>
-                            
+                          </div>
+                          <div class="campo-apellido1">
                             <label for="apellido1" class="obligatorio">Primer apellido: </label>
                             <input type="text" id="apellido1" name="apellido1" required>
                             <span class="error" id="error-apellido1"></span>
-
-                            <label for="apellido2">Segundo apellido: </label>
+                          </div>
+                          <div class="campo-apellido2">
+                            <label for="apellido2"  class="NoObligatorio">Segundo apellido: </label>
                             <input type="text" id="apellido2" name="apellido2" required>
                             <span class="error" id="error-apellido2"></span>
+                          </div>
                         </div>
-                        <label for="email" class="obligatorio">E-mail: </label>
-                        <input type="email" id="email" name="email" placeholder="@" required>
-                        <span class="error" id="error-email"></span><br><br>
+                        <div class="mailContrasenya">
+                          <div class="campo-email">
+                            <label for="email" class="obligatorio">E-mail: </label>
+                            <input type="email" id="email" name="email" placeholder="@" required>
+                            <span class="error" id="error-email"></span>
+                          </div>
+                          <div class="campo-contrasenya">
+                            <label for="contrasenya" class="obligatorio">Contraseña: </label>
+                            <input type="password" id="contrasenya" name="contrasenya" required>
+                            <span class="error" id="error-contrasenya"></span>
+                          </div>
+                        </div>
                     </fieldset>
                     <fieldset>
                         <legend class="w-auto">Detalles de la reserva</legend>
@@ -120,21 +139,22 @@
                         <label for="vehiculo" class="obligatorio">Selecciona el vehículo: </label><br>
                         <select id="vehiculo" name="vehiculo" required>
                             <option value="">Seleccione un vehículo</option>
-                            <option value="honda">Honda</option>
-                            <option value="mercedes">Mercedes</option>
-                            <option value="mazda">Mazda</option>
+                            <option value="coche">Coche</option>
+                            <option value="moto">Moto</option>
+                            <option value="patinete">Patinete</option>
                         </select>
                         <span class="error" id="error-vehiculo"></span>
-                        <br><br>
                         <div class="fecha-reserva">
+                          <div class="campo-fecha">
                             <label for="fechaInicio">Inicio de la reserva: </label>
                             <input type="datetime-local" id="fechaInicio" name="fechaInicio">
-                            <span class="error" id="error-fecha-inicio"></span><br><br>
-
+                            <span class="error" id="error-fecha-inicio"></span>
+                          </div>
+                          <div class="campo-duracion">
                             <label for="duracion">Duración: </label>
-                            <input type="number" id="duracion" name="duracion"><br><br>
+                            <input type="number" id="duracion" name="duracion">
                             <span class="error" id="error-duracion"></span>
-
+                          </div>
                         </div>
                     </fieldset>
                     <button type="reset" class="btn btn-outline-secondary mt-3">Borrar formulario</button>
@@ -194,6 +214,6 @@
     </div>
     <script src="../public/js/bootstrap.min.js"></script>
     <script src="../public/js/ajustes.js"></script>
-    <script src="../public/js/formulario.js"></script>
+    <script src="../public/js/formularioPrueba.js"></script>
 </body>
 </html>
