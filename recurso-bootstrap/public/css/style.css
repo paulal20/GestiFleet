@@ -17,21 +17,21 @@
 }
 
 /* ========== MODO OSCURO: clase .dark-theme ========== */
-.dark-theme{
-  --color-bg: #0b1220;
-  --color-text: #e6eef8;
-  --color-primary: #1f5f9a;
-  --color-primary-hover: #154b78;
-  --color-nav: #0f2238;
-  --color-link: #cfe8ff;
-  --color-field-bg: #071424;
-  --color-legend-bg: rgba(31,95,154,0.18);
-  --color-input-bg: #081726;
-  --color-field-border: #1f7ea3;
-  --shadow-focus: 0 0 0 3px rgba(23,69,110,0.28);
-  --btn-bg: #17456e;
-  --btn-hover: #10314d;
-  --btn-active: #e6eef8;
+.dark-theme {
+  --color-bg: #0c101ae6; 
+  --color-text: #f1f5fa; 
+  --color-primary: #3a8dd5;  
+  --color-primary-hover: #266cab;
+  --color-nav: #111827;         
+  --color-link: #a8ccf0; 
+  --color-field-bg: #121d2b; 
+  --color-legend-bg: rgba(58,141,213,0.18);
+  --color-input-bg: #0f1724;  
+  --color-field-border: #3a8dd5;
+  --shadow-focus: 0 0 0 3px rgba(58,141,213,0.3);
+  --btn-bg: #266cab;          
+  --btn-hover: #1b4e7d;
+  --btn-active: #f1f5fa;  
 }
 
 
@@ -74,6 +74,42 @@ nav a {
     background-color: var(--color-primary-hover);
     border-color: var(--color-primary-hover);
     color: var(--color-link);
+}
+
+.btn-outline-secondary {
+  color: var(--color-primary) !important;
+  border: 2px solid var(--color-primary) !important;
+  background-color: transparent;
+  font-weight: 600;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+  background-color: transparent !important;
+  color: var(--color-primary-hover) !important;
+  border-color: var(--color-primary-hover) !important;
+}
+
+.btn-success {
+  background-color: var(--btn-bg) !important;
+  border-color: var(--btn-bg) !important;
+  color: #fff;
+  font-weight: 600;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-success:hover,
+.btn-success:focus {
+  background-color: var(--btn-hover) !important;
+  border-color: var(--btn-hover) !important;
+  transform: translateY(-1px);
+}
+
+.btn-success:active {
+  background-color: var(--btn-active) !important;
+  border-color: var(--btn-active) !important;
+  transform: translateY(0);
 }
 
 main {
@@ -143,8 +179,8 @@ input[type="number"] {
 .dark-theme input[type="text"],
 .dark-theme input[type="email"],
 .dark-theme input[type="search"],
-.dark-theme input[type="date"],
-.dark-theme input[type="time"],
+.dark-theme input[type="datetime-local"],
+.dark-theme input[type="number"]
 .dark-theme textarea,
 .dark-theme select {
   background-color: var(--color-input-bg);
@@ -152,11 +188,12 @@ input[type="number"] {
   border-color: var(--color-field-border);
 }
 
-.dark-theme input[type="date"],
-.dark-theme input[type="time"] {
-  all: revert;
-  background-color: var(--color-input-bg);
-  color: var(--color-text);
+.dark-theme input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+.dark-theme input[type="password"]::-webkit-textfield-decoration-container {
+  filter: invert(1);
 }
 
 
@@ -440,10 +477,110 @@ textarea.is-invalid {
   background-color: #ffe6e6;
 }
 
+.dark-theme input.is-valid,
+.dark-theme select.is-valid,
+.dark-theme textarea.is-valid {
+  border: 2px solid #6fcf97;       /* verde suave */
+  background-color: #153d2d;       /* verde muy tenue sobre fondo oscuro */
+  color: #e6ffed;                  /* texto visible */
+}
+
+.dark-theme input.is-invalid,
+.dark-theme select.is-invalid,
+.dark-theme textarea.is-invalid {
+  border: 2px solid #bb2525;       /* rojo suave */
+  background-color: #331b1b;       /* rojo muy tenue sobre fondo oscuro */
+  color: #ffd6d6;                  /* texto visible */
+}
+
+.dark-theme input.is-valid {
+  box-shadow: 0 0 5px #28a74566;
+}
+
+.dark-theme input.is-invalid {
+  box-shadow: 0 0 5px #dc354566;
+}
+
 .error {
   color: #dc3545;
   font-size: 12px;
   display: block;
   min-height: 16px;
   margin-top: 4px;
+}
+
+#formProgress {
+  width: 100%;
+  height: 20px;
+  appearance: none;
+}
+
+#formProgress::-webkit-progress-bar {
+  background-color: var(--color-primary);
+  border-radius: 10px;
+}
+
+#formProgress::-webkit-progress-value {
+  background-color: var(--color-nav);
+  border-radius: 10px;
+}
+
+
+/* ESTILO MÓVIL */
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 2rem;
+    margin-left: 0.5rem;
+    text-align: center;
+  }
+
+  legend {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  .custom-navbar .navbar-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
+  nav {
+    padding: 0.5rem 1rem;
+  }
+
+  .custom-navbar .nav-link {
+    margin-right: 0;
+    padding: 0.3rem 0;
+    width: 100%;
+  }
+
+  .custom-navbar .nav-item {
+    width: 100%;
+  }
+
+  form {
+    padding: 0.5rem;
+  }
+
+  fieldset {
+    padding: 1rem 0.8rem;
+  }
+
+  #formProgress {
+    height: 16px;
+  }
+
+  .vehiculo-card {
+    margin-bottom: 1.5rem;
+  }
+
+  .vehiculo-img-container {
+    height: 160px;
+  }
+
+  footer {
+    font-size: 0.9rem;
+    padding: 0.8rem;
+  }
 }
