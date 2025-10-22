@@ -9,7 +9,8 @@ document.addEventListener("DOMContentLoaded", function(){
         contrasenya: document.getElementById("contrasenya"),
         vehiculo: document.getElementById("vehiculo"),
         fechaInicio: document.getElementById("fechaInicio"),
-        duracion: document.getElementById("duracion")
+        duracion: document.getElementById("duracion"),
+        condiciones: document.getElementById("condiciones")
     };
 
     const errores = {
@@ -20,7 +21,8 @@ document.addEventListener("DOMContentLoaded", function(){
         contrasenya: document.getElementById("error-contrasenya"),
         vehiculo: document.getElementById("error-vehiculo"),
         fechaInicio: document.getElementById("error-fecha-inicio"),
-        duracion: document.getElementById("error-duracion")
+        duracion: document.getElementById("error-duracion"),
+        condiciones: document.getElementById("error-condiciones")
     };
 
     const barraProgreso = document.getElementById("formProgress");
@@ -42,11 +44,9 @@ document.addEventListener("DOMContentLoaded", function(){
             const esVacio = !input.value || String(input.value).trim() === "";
             const esOpcional = !input.required;
 
-            // Si es opcional y tiene texto, se activa (cuenta)
             if (esOpcional && !esVacio) {
                 opcionalesActivos.add(key);
             }
-            // Si es opcional y está vacío, se desactiva (deja de contar)
             else if (esOpcional && esVacio) {
                 opcionalesActivos.delete(key);
             }
@@ -54,7 +54,6 @@ document.addEventListener("DOMContentLoaded", function(){
             if (esValido) validos++;
         });
 
-        // 4️⃣ El total dinámico: required + opcionales activos
         const totalDinamico = totalCampos + opcionalesActivos.size;
 
         const porcentaje = totalDinamico > 0 ? Math.round((validos / totalDinamico) * 100) : 0;
@@ -146,7 +145,11 @@ document.addEventListener("DOMContentLoaded", function(){
             return "";
         }
 
-        return "";
+        if (key === "condiciones") {
+            if (!input.checked) {
+                return "Debes aceptar las condiciones.";
+            }
+        }
     }
 
     function actualizarEstadoCampo(input, errorSpan) {

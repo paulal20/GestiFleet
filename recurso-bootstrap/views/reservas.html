@@ -113,32 +113,32 @@
                     <fieldset>
                         <legend class="w-auto">Reserva tu vehículo</legend>
                         <br>
-                        <div class="name">
-                          <div class="campo-nombre">
-                            <label for="nombre" class="obligatorio">Nombre: </label>
-                            <input type="text" id="nombre" name="nombre" required>
+                        <div class="row name">
+                          <div class="col-md-4 campo-nombre">
+                            <label for="nombre" class="form-label obligatorio">Nombre: </label>
+                            <input type="text" id="nombre" name="nombre" class="form-control" aria-describedby="error-nombre" required> <!-- TODO esto hay q tenerlo en cuenta-->
                             <span class="error" id="error-nombre" aria-live="polite"></span>
                           </div>
-                          <div class="campo-apellido1">
-                            <label for="apellido1" class="obligatorio">Primer apellido: </label>
-                            <input type="text" id="apellido1" name="apellido1" required>
+                          <div class="col-md-4 campo-apellido1">
+                            <label for="apellido1" class="form-label obligatorio">Primer apellido: </label>
+                            <input type="text" id="apellido1" name="apellido1" class="form-control" aria-describedby="error-apellido1" required>
                             <span class="error" id="error-apellido1" aria-live="polite"></span>
                           </div>
-                          <div class="campo-apellido2">
-                            <label for="apellido2" class="NoObligatorio">Segundo apellido: </label>
-                            <input type="text" id="apellido2" name="apellido2">
+                          <div class="col-md-4 campo-apellido2">
+                            <label for="apellido2" class="form-label NoObligatorio">Segundo apellido: </label>
+                            <input type="text" id="apellido2" name="apellido2" class="form-control" aria-describedby="error-apellido2">
                             <span class="error" id="error-apellido2" aria-live="polite"></span>
                           </div>
                         </div>
-                        <div class="mailContrasenya">
-                          <div class="campo-email">
-                            <label for="email" class="obligatorio">E-mail: </label>
-                            <input type="email" id="email" name="email" placeholder="tunombre@correo.com" required>
+                        <div class="row mailContrasenya">
+                          <div class="col-md-6 campo-email">
+                            <label for="email" class="form-label obligatorio">E-mail: </label>
+                            <input type="email" id="email" name="email" class="form-control" placeholder="tunombre@correo.com" required>
                             <span class="error" id="error-email" aria-live="polite"></span>
                           </div>
-                          <div class="campo-contrasenya">
-                            <label for="contrasenya" class="obligatorio">Contraseña: </label>
-                            <input type="password" id="contrasenya" name="contrasenya" required>
+                          <div class="col-md-6 campo-contrasenya">
+                            <label for="contrasenya" class="form-label obligatorio">Contraseña: </label>
+                            <input type="password" id="contrasenya" name="contrasenya" class="form-control" required>
                             <span class="error" id="error-contrasenya" aria-live="polite"></span>
                           </div>
                         </div>
@@ -146,29 +146,31 @@
                     <fieldset>
                         <legend class="w-auto">Detalles de la reserva</legend>
                         <br>
-                        <label for="vehiculo" class="obligatorio">Selecciona el vehículo: </label><br>
-                        <select id="vehiculo" name="vehiculo" required>
-                            <option value="">Seleccione un vehículo</option>
-                            <option value="coche">Coche</option>
-                            <option value="moto">Moto</option>
-                            <option value="patinete">Patinete</option>
-                        </select>
-                        <span class="error" id="error-vehiculo" aria-live="polite"></span>
-                        <div class="fecha-reserva">
-                          <div class="campo-fecha">
-                            <label for="fechaInicio" class="obligatorio">Inicio de la reserva: </label>
-                            <input type="datetime-local" id="fechaInicio" name="fechaInicio" required>
+                        <div class ="col-md-4">
+                          <label for="vehiculo" class="form-label obligatorio">Selecciona el vehículo: </label><br>
+                          <select id="vehiculo" name="vehiculo" class="form-select" required>
+                              <option value="">Seleccione un vehículo</option>
+                              <option value="coche">Coche</option>
+                              <option value="moto">Moto</option>
+                              <option value="patinete">Patinete</option>
+                          </select>
+                          <span class="error" id="error-vehiculo" aria-live="polite"></span>
+                        </div>
+                        <div class="row fecha-reserva">
+                          <div class="col-md-6 campo-fecha">
+                            <label for="fechaInicio" class="form-label obligatorio">Inicio de la reserva: </label>
+                            <input type="datetime-local" id="fechaInicio" name="fechaInicio" class="form-control" required>
                             <span class="error" id="error-fecha-inicio" aria-live="polite"></span>
                           </div>
-                          <div class="campo-duracion">
-                            <label for="duracion" class="NoObligatorio">Duración: </label>
-                            <input type="number" id="duracion" name="duracion">
+                          <div class="col-md-6 campo-duracion">
+                            <label for="duracion" class="form-label NoObligatorio">Duración: </label>
+                            <input type="number" id="duracion" name="duracion" class="form-control">
                             <span class="error" id="error-duracion" aria-live="polite"></span>
                           </div>
                         </div>
                         <div class="campo-condiciones mt-3">
                           <input type="checkbox" id="condiciones" name="condiciones" required>
-                          <label for="condiciones" class="obligatorio">Acepto los términos y condiciones</label>
+                          <label for="condiciones" class="form-label obligatorio">Acepto los términos y condiciones</label>
                           <span class="error" id="error-condiciones" aria-live="polite"></span>
                         </div>
                     </fieldset>
@@ -177,72 +179,77 @@
                 </form>
 
                 <form id="revistaFormEn" lang="en" class="lang lang-en d-none" novalidate>
-                    <fieldset>
-                        <legend class="w-auto">Book your vehicle</legend>
-                        <br>
-                        <div class="name">
-                          <div class="campo-nombre">
-                            <label for="nombre" class="obligatorio">Name: </label>
-                            <input type="text" id="nombre" name="nombre" required>
-                            <span class="error" id="error-nombre" aria-live="polite"></span>
-                          </div>
-                          <div class="campo-apellido1">
-                            <label for="apellido1" class="obligatorio">First surname: </label>
-                            <input type="text" id="apellido1" name="apellido1" required>
-                            <span class="error" id="error-apellido1" aria-live="polite"></span>
-                          </div>
-                          <div class="campo-apellido2">
-                            <label for="apellido2" class="NoObligatorio">Second surname: </label>
-                            <input type="text" id="apellido2" name="apellido2" >
-                            <span class="error" id="error-apellido2" aria-live="polite"></span>
-                          </div>
-                        </div>
-                        <div class="mailContrasenya">
-                          <div class="campo-email">
-                            <label for="email" class="obligatorio">E-mail: </label>
-                            <input type="email" id="email" name="email" placeholder="yourname@mail.com" required>
-                            <span class="error" id="error-email" aria-live="polite"></span>
-                          </div>
-                          <div class="campo-contrasenya">
-                            <label for="contrasenya" class="obligatorio">Password: </label>
-                            <input type="password" id="contrasenya" name="contrasenya" required>
-                            <span class="error" id="error-contrasenya" aria-live="polite"></span>
-                          </div>
-                        </div>
-                    </fieldset>
-                    <fieldset>
-                        <legend class="w-auto">Reservation details</legend>
-                        <br>
-                        <label for="vehiculo" class="obligatorio">Select the vehicle: </label><br>
-                        <select id="vehiculo" name="vehiculo" required>
-                            <option value="">Select the vehicle</option>
-                            <option value="coche">Car</option>
-                            <option value="moto">Motorbike</option>
-                            <option value="patinete">Scooter</option>
-                        </select>
-                        <span class="error" id="error-vehiculo" aria-live="polite"></span>
-                        <div class="fecha-reserva">
-                          <div class="campo-fecha">
-                            <label for="fechaInicio" class="obligatorio">Start of reservation: </label>
-                            <input type="datetime-local" id="fechaInicio" name="fechaInicio" required>
-                            <span class="error" id="error-fecha-inicio" aria-live="polite"></span>
-                          </div>
-                          <div class="campo-duracion">
-                            <label for="duracion" class="NoObligatorio">Duration: </label>
-                            <input type="number" id="duracion" name="duracion">
-                            <span class="error" id="error-duracion" aria-live="polite"></span>
-                          </div>
-                        </div>
-                        <div class="campo-condiciones mt-3">
-                          <input type="checkbox" id="condiciones" name="condiciones" required>
-                          <label for="condiciones" class="obligatorio">I agree to the terms and conditions</label>
-                          <span class="error" id="error-condiciones" aria-live="polite"></span>
-                        </div>
-                    </fieldset>
-                    <button type="reset" class="btn btn-outline-secondary mt-3">Delete form</button>
-                    <button type="submit" class="btn btn-success mt-3">Submit</button>
-                </form>
+                  <fieldset>
+                    <legend class="w-auto">Book your vehicle</legend>
+                    <br>
+                    <div class="row name">
+                      <div class="col-md-4 campo-nombre">
+                        <label for="nombre" class="form-label obligatorio">Name: </label>
+                        <input type="text" id="nombre" name="nombre" class="form-control" aria-describedby="error-nombre" required>
+                        <span class="error" id="error-nombre" aria-live="polite"></span>
+                      </div>
+                      <div class="col-md-4 campo-apellido1">
+                        <label for="apellido1" class="form-label obligatorio">First surname: </label>
+                        <input type="text" id="apellido1" name="apellido1" class="form-control" aria-describedby="error-apellido1" required>
+                        <span class="error" id="error-apellido1" aria-live="polite"></span>
+                      </div>
+                      <div class="col-md-4 campo-apellido2">
+                        <label for="apellido2" class="form-label NoObligatorio">Second surname: </label>
+                        <input type="text" id="apellido2" name="apellido2" class="form-control" aria-describedby="error-apellido2">
+                        <span class="error" id="error-apellido2" aria-live="polite"></span>
+                      </div>
+                    </div>
+                    <div class="row mailContrasenya">
+                      <div class="col-md-6 campo-email">
+                        <label for="email" class="form-label obligatorio">E-mail: </label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="yourname@mail.com" required>
+                        <span class="error" id="error-email" aria-live="polite"></span>
+                      </div>
+                      <div class="col-md-6 campo-contrasenya">
+                        <label for="contrasenya" class="form-label obligatorio">Password: </label>
+                        <input type="password" id="contrasenya" name="contrasenya" class="form-control" required>
+                        <span class="error" id="error-contrasenya" aria-live="polite"></span>
+                      </div>
+                    </div>
+                  </fieldset>
 
+                  <fieldset>
+                    <legend class="w-auto">Reservation details</legend>
+                    <br>
+                    <div class="col-md-4">
+                      <label for="vehiculo" class="form-label obligatorio">Select the vehicle: </label><br>
+                      <select id="vehiculo" name="vehiculo" class="form-select" required>
+                        <option value="">Select the vehicle</option>
+                        <option value="coche">Car</option>
+                        <option value="moto">Motorbike</option>
+                        <option value="patinete">Scooter</option>
+                      </select>
+                      <span class="error" id="error-vehiculo" aria-live="polite"></span>
+                    </div>
+
+                    <div class="row fecha-reserva">
+                      <div class="col-md-6 campo-fecha">
+                        <label for="fechaInicio" class="form-label obligatorio">Start of reservation: </label>
+                        <input type="datetime-local" id="fechaInicio" name="fechaInicio" class="form-control" required>
+                        <span class="error" id="error-fecha-inicio" aria-live="polite"></span>
+                      </div>
+                      <div class="col-md-6 campo-duracion">
+                        <label for="duracion" class="form-label NoObligatorio">Duration: </label>
+                        <input type="number" id="duracion" name="duracion" class="form-control">
+                        <span class="error" id="error-duracion" aria-live="polite"></span>
+                      </div>
+                    </div>
+
+                    <div class="campo-condiciones mt-3">
+                      <input type="checkbox" id="condiciones" name="condiciones" required>
+                      <label for="condiciones" class="form-label obligatorio">I agree to the terms and conditions</label>
+                      <span class="error" id="error-condiciones" aria-live="polite"></span>
+                    </div>
+                  </fieldset>
+
+                  <button type="reset" class="btn btn-outline-secondary mt-3">Delete form</button>
+                  <button type="submit" class="btn btn-success mt-3">Submit</button>
+                </form>
             </div>
         </main>
 
