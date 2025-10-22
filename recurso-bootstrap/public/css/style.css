@@ -180,7 +180,7 @@ input[type="number"] {
 .dark-theme input[type="email"],
 .dark-theme input[type="search"],
 .dark-theme input[type="datetime-local"],
-.dark-theme input[type="number"]
+.dark-theme input[type="number"],
 .dark-theme textarea,
 .dark-theme select {
   background-color: var(--color-input-bg);
@@ -197,7 +197,7 @@ input[type="number"] {
 }
 
 
-/*Hasta aquí lo de usar tema oscuro para esas cosas*/
+/*Hasta aquí lo de usar tema oscuro para esas cosas* Que es esto ???? */
 
 
 input:focus{
@@ -480,17 +480,17 @@ textarea.is-invalid {
 .dark-theme input.is-valid,
 .dark-theme select.is-valid,
 .dark-theme textarea.is-valid {
-  border: 2px solid #6fcf97;       /* verde suave */
-  background-color: #153d2d;       /* verde muy tenue sobre fondo oscuro */
-  color: #e6ffed;                  /* texto visible */
+  border: 2px solid #6fcf97;   
+  background-color: #153d2d;    
+  color: #e6ffed;           
 }
 
 .dark-theme input.is-invalid,
 .dark-theme select.is-invalid,
 .dark-theme textarea.is-invalid {
-  border: 2px solid #bb2525;       /* rojo suave */
-  background-color: #331b1b;       /* rojo muy tenue sobre fondo oscuro */
-  color: #ffd6d6;                  /* texto visible */
+  border: 2px solid #bb2525;       
+  background-color: #331b1b;     
+  color: #ffd6d6;              
 }
 
 .dark-theme input.is-valid {
@@ -525,6 +525,34 @@ textarea.is-invalid {
   border-radius: 10px;
 }
 
+/* ===== Estilo específico para la casilla de condiciones ===== */
+.campo-condiciones {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  flex-wrap: nowrap;
+}
+
+/* Agrandar y alinear visualmente el checkbox sin romper accesibilidad */
+.campo-condiciones input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin: 0; 
+  transform: scale(1.05);
+  -webkit-appearance: checkbox;
+  appearance: checkbox;
+}
+
+/* Asegurar que el label esté centrado verticalmente y ocupando su sitio */
+.campo-condiciones label {
+  margin: 0;
+  line-height: 1.2;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+}
 
 /* ESTILO MÓVIL */
 @media (max-width: 768px) {
