@@ -14,13 +14,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
-    secret: 'ecomarket-exam',
+    secret: 'gestifleet',
     resave: false,
     saveUninitialized: false
 }));
 
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 // View engine
 app.set('views', path.join(__dirname, 'views'));
@@ -41,7 +42,24 @@ app.locals.productosDetalle = productosDetalle;
 const mainRoutes = require('./routes/index');
 app.use('/', mainRoutes);
 
+// Ruta que genera un error para probar error 500
+app.get('/error', (req, res, next) => {
+    next(new Error('Error forzado para probar error 500'));
+  });
+  
+  // Middleware para capturar 404 (no encontrado)
+  app.use((req, res, next) => {
+    res.status(404).render('error404');
+  });
+  
+  // Middleware para manejar errores 500
+  app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).render('error500', { error: err });
+  });
+
 // Server
 app.listen(PORT, () => {
-    console.log(`EcoMarket EXAM app running at http://localhost:${PORT}`);
+    console.log(`GestiFleet app running at http://localhost:${PORT}`);
 });
+

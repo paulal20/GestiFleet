@@ -15,89 +15,7 @@
             <h1>GestiFleet</h1>
         </header>
 
-        <nav class="navbar navbar-expand-lg nav-underline custom-navbar">
-          <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="index.html">
-              <img src="../public/img/logo-blanco.png" alt="Logo de la empresa" width="60" class="me-2">
-            </a>
-
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-              <ul class="nav nav-underline me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                  <a href="index.html" class="nav-link" aria-current="page">
-                    <span lang="es" class="lang lang-es">Inicio</span>
-                    <span lang="en" class="lang lang-en d-none">Home</span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="vehiculos.html" class="nav-link">
-                    <span lang="es" class="lang lang-es">Vehículos</span>
-                    <span lang="en" class="lang lang-en d-none">Vehicles</span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="reservas.html" class="nav-link">
-                    <span lang="es" class="lang lang-es">Reservas</span>
-                    <span lang="en" class="lang lang-en d-none">Bookings</span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="contacto.html" class="nav-link">
-                    <span lang="es" class="lang lang-es">Contacto</span>
-                    <span lang="en" class="lang lang-en d-none">Contact</span>
-                  </a>
-                </li>
-
-                <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" id="temaDropdown" role="button" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                    <span lang="es" class="lang lang-es desplegable">Tema</span>
-                    <span lang="en" class="lang lang-en d-none desplegable">Theme</span>
-                  </a>
-                  <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="temaDropdown">
-                    <li><a class="dropdown-item tema-opcion" href="#" data-value="normal">Predeterminado</a></li>
-                    <li><a class="dropdown-item tema-opcion" href="#" data-value="high">Oscuro</a></li>
-                  </ul>
-                </li>
-
-                <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                    <span lang="es" class="lang lang-es desplegable">Idioma</span>
-                    <span lang="en" class="lang lang-en d-none desplegable">Language</span>
-                  </a>
-                  <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="languageDropdown">
-                    <li>
-                      <a class="dropdown-item" href="#" onclick="setLanguage('es')">
-                        <span lang="es" class="lang lang-es">Español</span>
-                        <span lang="en" class="lang lang-en d-none">Spanish</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a class="dropdown-item" href="#" onclick="setLanguage('en')">
-                        <span lang="es" class="lang lang-es">Inglés</span>
-                        <span lang="en" class="lang lang-en d-none">English</span>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-
-              <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search">
-                <button class="btn btn-outline-light" type="submit">
-                  <span lang="es" class="lang lang-es">Buscar</span>
-                  <span lang="en" class="lang lang-en d-none">Search</span>
-                </button>
-              </form>
-            </div>
-          </div>
-        </nav>
+        <%- include('fragments/nav') %>
 
         <main class="flex-grow-1">
           <div class="container py-4">
@@ -237,10 +155,7 @@
         </main>
 
 
-        <footer>
-          <p lang="es" class="lang lang-es">Precios desde 30.000 &euro; &nbsp; | &copy; 2025 </p>
-          <p lang="en" class="lang lang-en d-none">Prices from €30,000 &nbsp; | &copy; 2025</p>
-      </footer>
+        <%- include('fragments/footer') %>
     </div>
     <script src="../public/js/bootstrap.min.js"></script>
     <script src="../public/js/ajustes.js"></script>

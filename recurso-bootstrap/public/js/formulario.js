@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function(){
         contrasenya: document.getElementById("contrasenya"),
         vehiculo: document.getElementById("vehiculo"),
         fechaInicio: document.getElementById("fechaInicio"),
-        duracion: document.getElementById("duracion"),
+        fechaFin: document.getElementById("fechaFin"),
         condiciones: document.getElementById("condiciones")
     };
 
@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function(){
         contrasenya: document.getElementById("error-contrasenya"),
         vehiculo: document.getElementById("error-vehiculo"),
         fechaInicio: document.getElementById("error-fecha-inicio"),
-        duracion: document.getElementById("error-duracion"),
+        fechaFin: document.getElementById("error-fecha-fin"),
         condiciones: document.getElementById("error-condiciones")
     };
 
@@ -126,21 +126,37 @@ document.addEventListener("DOMContentLoaded", function(){
 
         if (key === "fechaInicio") {
             if (estaVacio(v)) return "La fecha y hora de inicio son obligatorias.";
-            const fechaDatos = new Date(v);
+            const fechaI = new Date(v);
             const ahora = new Date();
-            if (isNaN(fechaDatos.getTime()) || fechaDatos <= ahora) {
+            if (isNaN(fechaI.getTime()) || fechaI <= ahora) {
                 return "La fecha y hora introducidas deben ser posteriores a la presente.";
+            }
+
+            const fechaFinInput = campos.fechaFin;
+            if (!estaVacio(fechaFinInput.value)) {
+                const fechaFinDatos = new Date(fechaFinInput.value);
+                if (fechaI >= fechaFinDatos) {
+                    return "La fecha de inicio debe ser anterior a la fecha de fin.";
+                }
             }
             return "";
         }
 
-        if (key === "duracion") {
-            if (estaVacio(v)) {
-                return "";
+        if (key === "fechaFin") {
+            if (estaVacio(v)) return "La fecha y hora de fin son obligatorias.";
+            const fechaF = new Date(v);
+            const ahora = new Date();
+
+            if (isNaN(fechaF.getTime()) || fechaF <= ahora) {
+                return "La fecha y hora introducidas deben ser posteriores a la presente.";
             }
-            const n = Number(v);
-            if (!Number.isFinite(n) || n <= 0) {
-                return "La duración debe ser mayor a 0.";
+
+             const fechaInicioInput = campos.fechaInicio;
+            if (!estaVacio(fechaInicioInput.value)) {
+                const fechaInicioDatos = new Date(fechaInicioInput.value);
+                if (fechaF <= fechaInicioDatos) {
+                    return "La fecha de fin debe ser posterior a la fecha de inicio.";
+                }
             }
             return "";
         }
