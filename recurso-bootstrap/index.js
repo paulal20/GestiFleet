@@ -38,6 +38,9 @@ const productosDetalle = require('./data/productos_detalle.json');
 app.locals.productos = productos;
 app.locals.productosDetalle = productosDetalle;
 
+const todasLasReservas = [];
+app.locals.todasLasReservas = todasLasReservas;
+
 // Routes
 const mainRoutes = require('./routes/index');
 app.use('/', mainRoutes);
@@ -47,16 +50,17 @@ app.get('/error', (req, res, next) => {
     next(new Error('Error forzado para probar error 500'));
   });
   
-  // Middleware para capturar 404 (no encontrado)
-  app.use((req, res, next) => {
-    res.status(404).render('error404');
-  });
-  
-  // Middleware para manejar errores 500
-  app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).render('error500', { error: err });
-  });
+// Middleware para capturar 404 (no encontrado)
+app.use((req, res, next) => {
+  res.status(404).render('error404');
+});
+
+// Middleware para manejar errores 500
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).render('error500', { error: err });
+});
+
 
 // Server
 app.listen(PORT, () => {

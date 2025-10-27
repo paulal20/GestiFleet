@@ -241,6 +241,8 @@ document.addEventListener("DOMContentLoaded", function(){
         actualizarTodos();
 
         if (valido) {
+            console.log("Formulario válido. Enviando...");
+            
             alert("Formulario enviado correctamente.");
             form.submit();
         } else {
