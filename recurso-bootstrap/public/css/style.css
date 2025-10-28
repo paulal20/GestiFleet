@@ -502,6 +502,77 @@ textarea.is-invalid {
   font-weight: 600;
 }
 
+/* Autofill para inputs marcados por tu JS como válidos */
+input.is-valid:-webkit-autofill,
+textarea.is-valid:-webkit-autofill,
+select.is-valid:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #e6ffed inset !important;
+  box-shadow: 0 0 0 1000px #e6ffed inset !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  background-clip: content-box;
+}
+
+/* Autofill para inputs marcados por tu JS como inválidos */
+input.is-invalid:-webkit-autofill,
+textarea.is-invalid:-webkit-autofill,
+select.is-invalid:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #ffe6e6 inset !important;
+  box-shadow: 0 0 0 1000px #ffe6e6 inset !important;
+  -webkit-text-fill-color: #7a1c1c !important;
+  background-clip: content-box;
+}
+
+/* Repite para -moz-autofill si quieres */
+input.is-valid:-moz-autofill,
+textarea.is-valid:-moz-autofill,
+select.is-valid:-moz-autofill {
+  -moz-box-shadow: 0 0 0 1000px #e6ffed inset !important;
+  box-shadow: 0 0 0 1000px #e6ffed inset !important;
+  -moz-text-fill-color: var(--color-text) !important;
+}
+
+input.is-invalid:-moz-autofill,
+textarea.is-invalid:-moz-autofill,
+select.is-invalid:-moz-autofill {
+  -moz-box-shadow: 0 0 0 1000px #ffe6e6 inset !important;
+  box-shadow: 0 0 0 1000px #ffe6e6 inset !important;
+  -moz-text-fill-color: #7a1c1c !important;
+}
+
+/* Dark theme (coherente con .dark-theme input.is-valid) */
+.dark-theme input.is-valid:-webkit-autofill,
+.dark-theme textarea.is-valid:-webkit-autofill,
+.dark-theme select.is-valid:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #153d2d inset !important;
+  box-shadow: 0 0 0 1000px #153d2d inset !important;
+  -webkit-text-fill-color: #e6ffed !important;
+}
+.dark-theme input.is-invalid:-webkit-autofill,
+.dark-theme textarea.is-invalid:-webkit-autofill,
+.dark-theme select.is-invalid:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #331b1b inset !important;
+  box-shadow: 0 0 0 1000px #331b1b inset !important;
+  -webkit-text-fill-color: #ffd6d6 !important;
+}
+
+/* Firefox - válido */
+.dark-theme input.is-valid:-moz-autofill,
+.dark-theme textarea.is-valid:-moz-autofill,
+.dark-theme select.is-valid:-moz-autofill {
+  -moz-box-shadow: 0 0 0 1000px #153d2d inset !important;
+  box-shadow: 0 0 0 1000px #153d2d inset !important;
+  -moz-text-fill-color: #e6ffed !important;
+}
+
+/* Firefox - inválido */
+.dark-theme input.is-invalid:-moz-autofill,
+.dark-theme textarea.is-invalid:-moz-autofill:invalid,
+.dark-theme select.is-invalid:-moz-autofill:invalid {
+  -moz-box-shadow: 0 0 0 1000px #331b1b inset !important;
+  box-shadow: 0 0 0 1000px #331b1b inset !important;
+  -moz-text-fill-color: #ffd6d6 !important;
+}
+
 /* ESTILO MÓVIL */
 @media (max-width: 768px) {
   header h1 {

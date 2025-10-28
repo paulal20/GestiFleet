@@ -24,6 +24,11 @@
                 <label for="tipo" class="mb-0">Filtrar por tipo:</label>
                 <select name="tipo" id="tipo" class="form-select w-auto">
                   <option value="">Todos</option>
+                  <% if (tiposDisponibles && tiposDisponibles.length > 0) { %>
+                    <% tiposDisponibles.forEach(function(t) { %>
+                      <option value="<%= t %>"> <%= t %> </option>
+                    <% }) %>
+                  <% } %>
                 </select>
                 <button type="submit" class="btn btn-primary">Filtrar</button>
               </form>
@@ -52,117 +57,6 @@
               <% } else { %>
                 <p>No se encontraron vehículos para este tipo.</p>
               <% } %>
-              <!-- <div class="col">
-                <div class="vehiculo-card card h-100">
-                  <div class="vehiculo-img-container">
-                    <img src="/img/vehiculos/byd_seal1.png" class="card-img-top" alt="byd_seal1">
-                  </div>
-                  <div class="card-body">
-                    <h5 class="card-title">BYD SEAL</h5>
-                    <p class="card-text">Sedán eléctrico moderno con diseño aerodinámico, interiores tecnológicos y un rendimiento eficiente para ciudad y carretera.</p>
-                    <p class="text-muted">Desde 40.000 €</p>
-                  </div>
-                  <div class="card-footer p-0">
-                    <a href="/reservas" class="btn btn-primary w-100 rounded-0">Reservar</a>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col">
-                <div class="vehiculo-card card h-100">
-                  <div class="vehiculo-img-container">
-                    <img src="/img/vehiculos/volvo1.png" class="card-img-top" alt="Volvo">
-                  </div>
-                  <div class="card-body">
-                    <h5 class="card-title">Volvo</h5>
-                    <p class="card-text">SUV seguro y confortable, con un interior espacioso, tecnología de asistencia al conductor y sistemas de seguridad de última generación.</p>
-                    <p class="text-muted">Desde 70.000 €</p>
-                  </div>
-                  <div class="card-footer p-0">
-                    <a href="/reservas" class="btn btn-primary w-100 rounded-0">Reservar</a>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col">
-                <div class="vehiculo-card card h-100">
-                  <div class="vehiculo-img-container">
-                    <img src="/img/vehiculos/VW1.png" class="card-img-top" alt="Volkswagen">
-                  </div>
-                  <div class="card-body">
-                    <h5 class="card-title">Volkswagen</h5>
-                    <p class="card-text">Compacto eficiente y versátil, ideal para la ciudad, con un diseño moderno y prestaciones equilibradas para toda la familia.</p>
-                    <p class="text-muted">Desde 62.000 €</p>
-                  </div>
-                  <div class="card-footer p-0">
-                    <a href="/reservas" class="btn btn-primary w-100 rounded-0">Reservar</a>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col">
-                <div class="vehiculo-card card h-100">
-                  <div class="vehiculo-img-container">
-                    <img src="/img/vehiculos/tesla2.png" class="card-img-top" alt="Tesla">
-                  </div>
-                  <div class="card-body">
-                    <h5 class="card-title">Tesla</h5>
-                    <p class="card-text">Sedán eléctrico de lujo con interiores premium, sistema de conducción autónoma y batería de alta duración para viajes largos.</p>
-                    <p class="text-muted">Desde 95.000 €</p>
-                  </div>
-                  <div class="card-footer p-0">
-                    <a href="/reservas" class="btn btn-primary w-100 rounded-0">Reservar</a>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col">
-                <div class="vehiculo-card card h-100">
-                  <div class="vehiculo-img-container">
-                    <img src="/img/vehiculos/byd_seal2.png" class="card-img-top" alt="BYD SEAL">
-                  </div>
-                  <div class="card-body">
-                    <h5 class="card-title">BYD SEAL</h5>
-                    <p class="card-text">Sedán eléctrico eficiente con diseño aerodinámico, interiores tecnológicos y autonomía optimizada para uso urbano y carretera.</p>
-                    <p class="text-muted">Desde 40.000 €</p>
-                  </div>
-                  <div class="card-footer p-0">
-                    <a href="/reservas" class="btn btn-primary w-100 rounded-0">Reservar</a>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col">
-                <div class="vehiculo-card card h-100">
-                  <div class="vehiculo-img-container">
-                    <img src="/img/vehiculos/volvo2.png" class="card-img-top" alt="Volvo">
-                  </div>
-                  <div class="card-body">
-                    <h5 class="card-title">Volvo</h5>
-                    <p class="card-text">SUV seguro y confortable con tecnología de asistencia al conductor, interiores amplios y sistemas de seguridad avanzados.</p>
-                    <p class="text-muted">Desde 70.000 €</p>
-                  </div>
-                  <div class="card-footer p-0">
-                    <a href="/reservas" class="btn btn-primary w-100 rounded-0">Reservar</a>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col">
-                <div class="vehiculo-card card h-100">
-                  <div class="vehiculo-img-container">
-                    <img src="/img/vehiculos/VW2.png" class="card-img-top" alt="Volkswagen">
-                  </div>
-                  <div class="card-body">
-                    <h5 class="card-title">Volkswagen</h5>
-                    <p class="card-text">Compacto versátil con diseño moderno, eficiente y práctico para uso diario en ciudad y viajes familiares cortos.</p>
-                    <p class="text-muted">Desde 62.000 €</p>
-                  </div>
-                  <div class="card-footer p-0">
-                    <a href="/reservas" class="btn btn-primary w-100 rounded-0">Reservar</a>
-                  </div>
-                </div>
-              </div> -->
             </div>
           </div>
         </main>
