@@ -52,29 +52,28 @@ router.get('/vehiculos', (req, res) => {
 });
 
 // Ruta Reservas
-router.get('/reservas', (req, res) => {
-  res.render('reservas', { title: 'Reservas' });
+router.get('/reserva', (req, res) => {
+  res.render('reservas', { title: 'Reserva' });
 });
 
-//Ruta Reserva (procesa el formulario)
+//Ruta Post Reserva
 router.post('/reserva', (req, res) => {
-    // 1. Accede al array global desde req.app.locals
     const todasLasReservas = req.app.locals.todasLasReservas;
-
-    // 2. Los datos están en req.body
     const datosRecibidos = req.body;
-
-    // 3. Guardamos la reserva
     todasLasReservas.push(datosRecibidos);
 
-    // 4. Mostramos en la terminal
     console.log("¡Nueva reserva recibida!");
     console.table(datosRecibidos);
     console.log("--- Total de reservas en memoria ---");
     console.table(todasLasReservas);
 
-    // 5. Enviamos respuesta
-    res.send('<h1>¡Reserva recibida!</h1><p>Gracias, hemos guardado tus datos.</p><a href="/reservas">Volver</a>');
+   res.redirect('/listareservas');
+});
+
+//Ruta Lista Reservas
+router.get('/listareservas', (req, res) => {
+  const todasLasReservas = req.app.locals.todasLasReservas;
+  res.render('listareservas', { title: 'Lista de Reservas', listaDeReservas: todasLasReservas });
 });
 
 // Ruta Contacto

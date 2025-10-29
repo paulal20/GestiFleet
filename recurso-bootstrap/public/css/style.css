@@ -502,7 +502,8 @@ textarea.is-invalid {
   font-weight: 600;
 }
 
-/* Autofill para inputs marcados por tu JS como válidos */
+/* ===== Sobreescribir el autofill ===== */
+
 input.is-valid:-webkit-autofill,
 textarea.is-valid:-webkit-autofill,
 select.is-valid:-webkit-autofill {
@@ -512,7 +513,6 @@ select.is-valid:-webkit-autofill {
   background-clip: content-box;
 }
 
-/* Autofill para inputs marcados por tu JS como inválidos */
 input.is-invalid:-webkit-autofill,
 textarea.is-invalid:-webkit-autofill,
 select.is-invalid:-webkit-autofill {
@@ -522,7 +522,6 @@ select.is-invalid:-webkit-autofill {
   background-clip: content-box;
 }
 
-/* Repite para -moz-autofill si quieres */
 input.is-valid:-moz-autofill,
 textarea.is-valid:-moz-autofill,
 select.is-valid:-moz-autofill {
@@ -539,7 +538,6 @@ select.is-invalid:-moz-autofill {
   -moz-text-fill-color: #7a1c1c !important;
 }
 
-/* Dark theme (coherente con .dark-theme input.is-valid) */
 .dark-theme input.is-valid:-webkit-autofill,
 .dark-theme textarea.is-valid:-webkit-autofill,
 .dark-theme select.is-valid:-webkit-autofill {
@@ -547,6 +545,7 @@ select.is-invalid:-moz-autofill {
   box-shadow: 0 0 0 1000px #153d2d inset !important;
   -webkit-text-fill-color: #e6ffed !important;
 }
+
 .dark-theme input.is-invalid:-webkit-autofill,
 .dark-theme textarea.is-invalid:-webkit-autofill,
 .dark-theme select.is-invalid:-webkit-autofill {
@@ -555,7 +554,6 @@ select.is-invalid:-moz-autofill {
   -webkit-text-fill-color: #ffd6d6 !important;
 }
 
-/* Firefox - válido */
 .dark-theme input.is-valid:-moz-autofill,
 .dark-theme textarea.is-valid:-moz-autofill,
 .dark-theme select.is-valid:-moz-autofill {
@@ -564,13 +562,67 @@ select.is-invalid:-moz-autofill {
   -moz-text-fill-color: #e6ffed !important;
 }
 
-/* Firefox - inválido */
 .dark-theme input.is-invalid:-moz-autofill,
 .dark-theme textarea.is-invalid:-moz-autofill:invalid,
 .dark-theme select.is-invalid:-moz-autofill:invalid {
   -moz-box-shadow: 0 0 0 1000px #331b1b inset !important;
   box-shadow: 0 0 0 1000px #331b1b inset !important;
   -moz-text-fill-color: #ffd6d6 !important;
+}
+
+/* ===== Sobreescribir el autofill ===== */
+
+.table {
+ border-color: var(--color-field-border); 
+}
+
+.table th {
+ background-color: var(--color-field-bg);
+ color: var(--color-text);
+border-color: var(--color-field-border);
+ vertical-align: middle; 
+}
+
+.table > tbody > tr > td {
+ background-color: var(--color-input-bg);
+ color: var(--btn-active);
+ border-color: var(--color-field-border);
+ vertical-align: middle; 
+}
+
+.table-hover > tbody > tr:hover > * {
+ background-color: var(--color-primary);
+ color: var(--btn-active);
+}
+
+.table .table-dark th {
+ background-color: var(--color-nav);
+ color: var(--color-link);
+ border-color: var(--color-primary-hover);
+}
+
+table caption {
+ padding: 0.5rem 0;
+ font-size: 1.2rem;
+ font-weight: 600;
+ color: var(--btn-active); 
+}
+
+table caption strong {
+ color: var(--color-primary-hover); 
+}
+
+.alert-info {
+ background-color: var(--color-nav) !important;
+ border-color: var(--color-primary-hover) !important;
+ border-width: 2px;
+ color: var(--color-link) !important;
+}
+
+.alert-info .alert-heading,
+.alert-info h4 {
+ color: var(--color-link) !important;
+ font-weight: 600;
 }
 
 /* ESTILO MÓVIL */
