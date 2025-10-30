@@ -4,6 +4,7 @@ const path = require('path');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const expressLayouts = require('express-ejs-layouts');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,10 +23,13 @@ app.use(session({
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 // View engine
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+
+
+app.use(expressLayouts);
+app.set('layout', 'layout'); 
 
 // Simulated database (in-memory)
 const usuarios = [
@@ -60,7 +64,6 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).render('error500', { error: err });
 });
-
 
 // Server
 app.listen(PORT, () => {

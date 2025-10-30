@@ -47,8 +47,11 @@
                       <p class="card-text"><%= v.descripcion %></p>
                       <p class="card-text">Tipo: <%= v.tipo %></p>
                       <p class="text-muted">Desde <%= v.precio %> €</p>
+
+                      <a href="/vehiculos/<%= v.id %>" class="text-primary d-block mb-2">Ver detalles</a>  
                     </div>
                     <div class="card-footer p-0">
+                      <!-- <a href="/vehiculos/<%= v.id %>" class="btn btn-primary w-50 rounded-0">Ver detalle</a> -->
                       <a href="/reserva" class="btn btn-primary w-100 rounded-0">Reservar</a>
                     </div>
                   </div>

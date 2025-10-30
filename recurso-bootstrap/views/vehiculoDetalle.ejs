@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GestiFleet</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="d-flex flex-column min-vh-100">
+      <%- include('fragments/header') %>
+
+        <%- include('fragments/nav') %>
+
+        <main class="flex-grow-1">
+          <div class="container py-4">
+            <div class="vehiculo-card card mx-auto" style="max-width: 600px;">
+              <div class="vehiculo-img-container">
+                <img src="/img/vehiculos/<%= vehiculo.nombre.toLowerCase() %>.png" class="card-img-top" alt="<%= vehiculo.marca %>">
+              </div>
+              <div class="card-body">
+                <h5 class="card-title"><%= vehiculo.marca %> <%= vehiculo.modelo %> (<%= vehiculo.anyo %>)</h5>
+                <p class="card-text"><%= vehiculo.descripcion %></p>
+                <p class="card-text">Tipo: <%= vehiculo.tipo %></p>
+                <p class="text-muted">Desde <%= vehiculo.precio %> €</p>
+              </div>
+              <div class="card-footer d-flex gap-2">
+                <a href="/vehiculos" class="btn btn-secondary w-50">Volver a la lista</a>
+                <a href="/reserva" class="btn btn-primary w-50">Reservar</a>
+              </div>
+            </div>
+          </div>
+        </main>
+
+
+        <%- include('fragments/footer') %>
+    </div>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/ajustes.js"></script>
+</body>
+</html>
