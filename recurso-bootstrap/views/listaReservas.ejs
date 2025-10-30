@@ -1,104 +1,78 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GestiFleet - Lista de Reservas</title> 
-    <link rel="icon" type="image/png" href="/img/favicon.png">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="d-flex flex-column min-vh-100">
-        <%- include('fragments/header') %>
-        <%- include('fragments/nav') %>
+<div class="listareservas-content">
 
-        <main class="flex-grow-1">
-            <div class="container py-4">
+    <h1 lang="es" class="lang lang-es">Lista de Reservas</h1>
+    <h1 lang="en" class="lang lang-en d-none">Bookings List</h1>
+    <br>
 
-                <h1 lang="es" class="lang lang-es">Lista de Reservas</h1>
-                <h1 lang="en" class="lang lang-en d-none">Bookings List</h1>
-                <br>
+    <% if (listaDeReservas && listaDeReservas.length > 0) { %>
 
-                <% if (listaDeReservas && listaDeReservas.length > 0) { %>
+        <div id="tabla-reservas-descripcion" class="visually-hidden">
+            <span lang="es" class="lang lang-es">
+                Esta tabla detalla todas las reservas de vehículos registradas, mostrando el nombre del cliente, su email, el vehículo seleccionado y las fechas de inicio y fin de la reserva.
+            </span>
+            <span lang="en" class="lang lang-en d-none">
+                This table details all registered vehicle bookings, showing the client's name, their email, the selected vehicle, and the booking start and end dates.
+            </span>
+        </div>
 
-                    <div id="tabla-reservas-descripcion" class="visually-hidden">
-                        <span lang="es" class="lang lang-es">
-                            Esta tabla detalla todas las reservas de vehículos registradas, mostrando el nombre del cliente, su email, el vehículo seleccionado y las fechas de inicio y fin de la reserva.
-                        </span>
-                        <span lang="en" class="lang lang-en d-none">
-                            This table details all registered vehicle bookings, showing the client's name, their email, the selected vehicle, and the booking start and end dates.
-                        </span>
-                    </div>
-
-                    <div class="table-responsive-md">
-                        
-                        <table class="table table-hover" aria-describedby="tabla-reservas-descripcion">
-                            
-                            <caption class="text-center">
-                                <span class="lang lang-es">Reservas actuales en el sistema: </span>
-                                <span class="lang lang-en d-none">Current bookings in the system: </span>
-                                <strong><%= listaDeReservas.length %></strong>
-                            </caption>
-                            
-                            <thead class="table-dark">
-                                <tr>
-                                    <th scope="col">
-                                        <span class="lang lang-es">Nombre</span>
-                                        <span class="lang lang-en d-none">Name</span>
-                                    </th>
-                                    <th scope="col">
-                                        <span class="lang lang-es">Email</span>
-                                        <span class="lang lang-en d-none">Email</span>
-                                    </th>
-                                    <th scope="col">
-                                        <span class="lang lang-es">Vehículo</span>
-                                        <span class="lang lang-en d-none">Vehicle</span>
-                                    </th>
-                                    <th scope="col">
-                                        <span class="lang lang-es">Fecha de Inicio</span>
-                                        <span class="lang lang-en d-none">Start Date</span>
-                                    </th>
-                                    <th scope="col">
-                                        <span class="lang lang-es">Fecha de Fin</span>
-                                        <span class="lang lang-en d-none">End Date</span>
-                                    </th>
-                                </tr>
-                            </thead>
-                            
-                            <tbody>
-                                <% listaDeReservas.forEach(reserva => { %>
-                                    <tr>
-                                        <td><%= reserva.nombre %> <%= reserva.apellido1 %> <%= reserva.apellido2 %></td>
-                                        <td><%= reserva.email %></td>
-                                        <td><%= reserva.vehiculo %></td>
-                                        <td><%= reserva.fechaInicio %></td>
-                                        <td><%= reserva.fechaFin %></td>
-                                    </tr>
-                                <% }) %>
-                            </tbody>
-                        </table>
-                    </div>
-
-                <% } else { %>
-
-                    <div class="alert alert-info text-center" role="alert">
-                        <h4 class="alert-heading lang lang-es">No hay reservas</h4>
-                        <h4 class="alert-heading lang lang-en d-none">No bookings found</h4>
-                        
-                        <p class="lang lang-es mb-0">Todavía no se ha realizado ninguna reserva en el sistema.</p>
-                        <p class="lang lang-en d-none mb-0">No bookings have been made in the system yet.</p>
-                    </div>
+        <div class="table-responsive-md">
+            
+            <table class="table table-hover" aria-describedby="tabla-reservas-descripcion">
                 
-                <% } %>
-            </div>
-        </main>
+                <caption class="text-center">
+                    <span class="lang lang-es">Reservas actuales en el sistema: </span>
+                    <span class="lang lang-en d-none">Current bookings in the system: </span>
+                    <strong><%= listaDeReservas.length %></strong>
+                </caption>
+                
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">
+                            <span class="lang lang-es">Nombre</span>
+                            <span class="lang lang-en d-none">Name</span>
+                        </th>
+                        <th scope="col">
+                            <span class="lang lang-es">Email</span>
+                            <span class="lang lang-en d-none">Email</span>
+                        </th>
+                        <th scope="col">
+                            <span class="lang lang-es">Vehículo</span>
+                            <span class="lang lang-en d-none">Vehicle</span>
+                        </th>
+                        <th scope="col">
+                            <span class="lang lang-es">Fecha de Inicio</span>
+                            <span class="lang lang-en d-none">Start Date</span>
+                        </th>
+                        <th scope="col">
+                            <span class="lang lang-es">Fecha de Fin</span>
+                            <span class="lang lang-en d-none">End Date</span>
+                        </th>
+                    </tr>
+                </thead>
+                
+                <tbody>
+                    <% listaDeReservas.forEach(reserva => { %>
+                        <tr>
+                            <td><%= reserva.nombre %> <%= reserva.apellido1 %> <%= reserva.apellido2 %></td>
+                            <td><%= reserva.email %></td>
+                            <td><%= reserva.vehiculo %></td>
+                            <td><%= reserva.fechaInicio %></td>
+                            <td><%= reserva.fechaFin %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
 
-        <%- include('fragments/footer') %>
-    </div>
+    <% } else { %>
+
+        <div class="alert alert-info text-center" role="alert">
+            <h4 class="alert-heading lang lang-es">No hay reservas</h4>
+            <h4 class="alert-heading lang lang-en d-none">No bookings found</h4>
+            
+            <p class="lang lang-es mb-0">Todavía no se ha realizado ninguna reserva en el sistema.</p>
+            <p class="lang lang-en d-none mb-0">No bookings have been made in the system yet.</p>
+        </div>
     
-    <script src="/js/bootstrap.min.js"></script>
-    <script src="/js/ajustes.js"></script>
-    <script src="/js/formulario.js"></script>
-</body>
-</html>
+    <% } %>
+</div>
