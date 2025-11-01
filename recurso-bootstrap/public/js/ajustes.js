@@ -101,7 +101,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll(".custom-navbar .nav-link");
 
     navLinks.forEach(link => {
-      const href = link.getAttribute("href") || '';
+      const href = (link.getAttribute("href") || '').trim();
+
+      // Ignorar anchors, triggers de dropdown y enlaces vacíos o javascript:
+      if (!href || href.startsWith('#') || href.toLowerCase().startsWith('javascript:') || link.classList.contains('dropdown-toggle')) {
+        link.classList.remove('active');
+        return;
+      }
+
       // normalizar: quitar query/hash y slash final
       const a = href.split(/[?#]/)[0].replace(/\/+$/, '') || '/';
       if (a === currentPath) {
@@ -112,6 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   } catch(e){ /* no crítico */ }
 });
+
 
 //Calcular bien el header y el nav fijo
 (function () {
