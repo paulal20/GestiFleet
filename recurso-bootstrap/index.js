@@ -54,45 +54,37 @@ app.get('/error', (req, res, next) => {
     next(new Error('Error forzado para probar error 500'));
   });
   
-// 404: captura rutas no encontradas y las transforma en Error para pasar al handler central
+// 404 -> convertir en Error y pasarlo al handler central
 app.use((req, res, next) => {
   const err404 = new Error(`Ruta ${req.originalUrl} no encontrada`);
   err404.status = 404;
-  // err404.expose = true -> ruta inexistente es info segura para usuario
+  err404.publicMessage = 'La página que buscas no existe.';
   err404.expose = true;
-  // opcional: mensaje público distinto al message técnico
-  err404.publicMessage = `La página que buscas no existe.`;
   next(err404);
 });
 
-// Error handler central (middleware con 4 args) — sigue el patrón del PDF
+// Middleware central de errores (4 args): renderiza UNA sola vista 'error'
 app.use((err, req, res, next) => {
-  // 1) logging completo siempre en servidor (stack para depuración)
+  // Logging completo en servidor
   console.error(err && err.stack ? err.stack : err);
 
-  // 2) status (por defecto 500)
   const status = err.status || 500;
   res.status(status);
 
-  // 3) decidir mensaje público:
-  //    - si err.expose === true y existe err.publicMessage -> mostrar ese texto
-  //    - si err.expose === true y no hay publicMessage -> mostrar err.message
-  //    - en caso contrario, mostrar mensaje genérico según status (no leak de internals)
+  // Determinar mensaje público seguro
   let mensajePublico;
   if (err.expose && err.publicMessage) mensajePublico = err.publicMessage;
   else if (err.expose) mensajePublico = err.message;
   else if (status === 404) mensajePublico = 'No se ha encontrado la página solicitada.';
   else mensajePublico = 'Ha ocurrido un error en el servidor. Por favor, inténtalo más tarde.';
 
-  // 4) decidir si mostramos detalles técnicos (solo en desarrollo y si explícitamente lo pides)
+  // Mostrar detalles sólo en desarrollo y si se solicita explícitamente
   const canShowDetails = (process.env.NODE_ENV !== 'production') && !!err.showStack;
   const detalles = canShowDetails ? (err.stack || String(err)) : null;
 
-  // 5) content negotiation: HTML / JSON / TXT
+  // Renderizar UNA plantilla 'error' para todos los estados
   if (req.accepts('html')) {
-    const vista = status === 404 ? 'error404' : 'error500';
-    return res.render(vista, {
-      title: status === 404 ? 'Página no encontrada' : 'Error interno del servidor',
+    return res.render('error', {
       status,
       mensaje: mensajePublico,
       details: detalles,
@@ -100,6 +92,7 @@ app.use((err, req, res, next) => {
     });
   }
 
+  // JSON para APIs
   if (req.accepts('json')) {
     const payload = { error: mensajePublico };
     if (detalles) payload.stack = detalles;
