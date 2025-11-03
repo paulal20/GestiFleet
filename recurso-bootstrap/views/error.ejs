@@ -1,5 +1,4 @@
 <% 
-  // valores por defecto para evitar ReferenceError si alguna llamada olvidó enviar variables
   const _status = (typeof status !== 'undefined') ? status : 500;
   const _mensaje = (typeof mensaje !== 'undefined') ? mensaje : 
                     ((_status === 404) ? 'La página que buscas no existe.' : 'Ha ocurrido un error en el servidor.');
@@ -14,7 +13,6 @@
 
     <p><%= _mensaje %></p>
 
-    <!-- Si quieres mostrar la ruta solicitada en 404, puedes usar _url -->
     <% if (_status === 404 && _url) { %>
       <p style="opacity:0.9; font-size:0.95rem;">Ruta: <code><%= _url %></code></p>
     <% } %>
