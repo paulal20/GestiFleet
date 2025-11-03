@@ -673,22 +673,21 @@ table caption strong {
  font-weight: 600;
 }
 
-/* ===== Estilos para páginas de error (404, 500) ===== */
 .error-page-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - var(--top-offset)); /* respeta header fijo */
+  min-height: calc(100vh - var(--top-offset)); 
   padding: 2rem;
   box-sizing: border-box;
-  background: transparent; /* deja el fondo general de body */
+  background: transparent; 
 }
 
 .error-box {
   width: 100%;
   max-width: 880px;
-  background: var(--color-field-bg);              /* tarjeta sobre el fondo */
-  border: 2px solid var(--color-nav);             /* borde del mismo color que el nav */
+  background: var(--color-field-bg);            
+  border: 2px solid var(--color-nav);           
   border-radius: 12px;
   padding: 2.25rem;
   box-shadow: 0 8px 30px rgba(32,40,60,0.10);
@@ -697,7 +696,6 @@ table caption strong {
   transform-origin: center;
 }
 
-/* Ajustes tipográficos dentro de la caja de error */
 .error-box h1 {
   font-size: 3.25rem;
   margin: 0 0 0.25rem;
@@ -719,8 +717,7 @@ table caption strong {
   opacity: 0.92;
 }
 
-/* Enlace con estilo acorde a la web */
-.error-box a {
+.error-box .btn {
   display: inline-block;
   text-decoration: none;
   font-weight: 700;
@@ -733,17 +730,26 @@ table caption strong {
   box-shadow: 0 3px 10px rgba(22,30,60,0.06);
 }
 
-.error-box a:hover,
-.error-box a:focus {
+.error-box .btn:hover,
+.error-box .btn:focus {
   background: var(--btn-hover);
   transform: translateY(-2px);
   outline: none;
   box-shadow: 0 6px 20px rgba(22,30,60,0.12);
 }
 
-/* Focus accesible */
-.error-box a:focus {
+.error-box .btn:focus {
   box-shadow: 0 0 0 4px rgba(111,133,192,0.18);
+}
+
+.error-box .error-url {
+  opacity: 0.9;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+
+.error-actions {
+  margin-top: 1.25rem;
 }
 
 .dark-theme .error-box {
@@ -753,13 +759,9 @@ table caption strong {
   box-shadow: 0 10px 28px rgba(0,0,0,0.45);
 }
 
-.dark-theme .error-box a {
-  background: var(--btn-bg);
-  color: #fff;
-}
-
 .dark-theme .error-box h1 { color: var(--color-link); }
 .dark-theme .error-box h2 { color: var(--color-primary); }
+.dark-theme .error-box .btn { background: var(--btn-bg); color: #fff; }
 
 /* ESTILO MÓVIL */
 @media (max-width: 768px) {

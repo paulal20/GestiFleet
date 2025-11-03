@@ -1,31 +1,30 @@
-<% 
+<%
+  // Variables seguras con valores por defecto
   const _status = (typeof status !== 'undefined') ? status : 500;
-  const _mensaje = (typeof mensaje !== 'undefined') ? mensaje : 
-                    ((_status === 404) ? 'La página que buscas no existe.' : 'Ha ocurrido un error en el servidor.');
-  const _details = (typeof details !== 'undefined') ? details : null;
+  const _mensaje = (typeof mensaje !== 'undefined') ? mensaje :
+                   ((_status === 404)
+                     ? 'La página que buscas no existe.'
+                     : 'Ha ocurrido un error en el servidor.');
   const _url = (typeof url !== 'undefined') ? url : '';
 %>
 
 <div class="error-page-wrapper">
   <div class="error-box">
     <h1>Error <%= _status %></h1>
-    <h2><%= (_status === 404) ? 'Página no encontrada' : 'Error interno del servidor' %></h2>
+    <h2>
+      <%= (_status === 404)
+          ? 'Página no encontrada'
+          : 'Error interno del servidor' %>
+    </h2>
 
     <p><%= _mensaje %></p>
 
     <% if (_status === 404 && _url) { %>
-      <p style="opacity:0.9; font-size:0.95rem;">Ruta: <code><%= _url %></code></p>
+      <p class="error-url">Ruta: <code><%= _url %></code></p>
     <% } %>
 
-    <div style="margin-top:1.25rem;">
+    <div class="error-actions">
       <a href="/" class="btn">Volver al inicio</a>
     </div>
-
-    <% if (_details) { %>
-      <details style="margin-top:1rem; text-align:left; max-height:300px; overflow:auto;">
-        <summary>Detalles técnicos (solo visibles en desarrollo)</summary>
-        <pre><%= _details %></pre>
-      </details>
-    <% } %>
   </div>
 </div>
