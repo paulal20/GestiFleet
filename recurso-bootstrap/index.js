@@ -95,7 +95,8 @@ app.use((err, req, res, next) => {
       title: status === 404 ? 'Página no encontrada' : 'Error interno del servidor',
       status,
       mensaje: mensajePublico,
-      details: detalles
+      details: detalles,
+      url: req.originalUrl
     });
   }
 
