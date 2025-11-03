@@ -1,0 +1,48 @@
+<div class="login-content">
+    <h1 lang="es" class="lang lang-es">Inicia sesión</h1>
+    <h1 lang="en" class="lang lang-en d-none">Login</h1>
+  
+    <form id="loginForm" action="/login" method="POST" novalidate autocomplete="off">
+        <fieldset>
+            <legend class="w-auto">Accede a tu cuenta</legend>
+            <br>
+
+            <div class="row mail">
+                <div class="col-md-6 campo-email">
+                    <label for="email" class="form-label obligatorio">Correo electrónico:</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="tunombre@correo.com" required>
+                    <span class="error" id="error-email" aria-live="polite"></span>
+                </div>
+
+                <div class="col-md-6 campo-confemail">
+                    <label for="confemail" class="form-label obligatorio">Confirmar correo:</label>
+                    <input type="confemail" id="confemail" name="confemail" class="form-control" placeholder="tunombre@correo.com" required>
+                    <span class="error" id="error-confemail" aria-live="polite"></span>
+                </div>
+            </div>
+            <div class="row constrasenya">
+                <div class="col-md-6 campo-contrasenya">
+                    <label for="contrasenya" class="form-label obligatorio">Contraseña: </label>
+                    <input type="password" id="contrasenya" name="contrasenya" class="form-control" required>
+                    <span class="error" id="error-contrasenya" aria-live="polite"></span>
+                    <div class="mostrar-contrasenya" style="margin-top:6px; display:flex; align-items:center; gap:8px;">
+                        <input type="checkbox" id="mostrarContrasenya" aria-controls="contrasenya" />
+                        <label for="mostrarContrasenya" style="cursor:pointer; user-select:none;">Mostrar contraseña</label>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+            <div>
+              <button type="reset" class="btn btn-outline-secondary">Borrar formulario</button>
+              <button type="submit" class="btn btn-success">Enviar</button>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span>¿No tienes cuenta?</span>
+              <a href="/register" class="btn btn-success">Regístrate</a>
+            </div>
+        </div>
+    </form>
+</div>
+<script src="/js/login.js"></script>
+<!-- AQUI TMB VALE Y ASI NO LE METEMOS EL JS A TODOS -->

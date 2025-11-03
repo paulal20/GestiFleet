@@ -1,6 +1,20 @@
-<div class="error500-content text-center">
-    <h1>Error 500</h1>
-    <h2>Error interno del servidor</h2>
-    <p>Lo sentimos, algo salió mal en el servidor.</p>
+<!-- views/error500.ejs -->
+<div class="error-page-wrapper">
+  <div class="error-box">
+    <h1>Error <%= status || 500 %></h1>
+    <h2><%= status === 404 ? 'Página no encontrada' : 'Error interno del servidor' %></h2>
+
+    <!-- Mensaje seguro decidido por el handler -->
+    <p><%= mensaje || 'Ha ocurrido un error en el servidor. Por favor, inténtalo más tarde.' %></p>
+
     <a href="/">Volver al inicio</a>
+
+    <% if (details) { %>
+      <!-- Solo se mostrará si el error handler lo permite (dev + showStack) -->
+      <details style="margin-top:1rem; text-align:left;">
+        <summary>Detalles técnicos (solo visibles en desarrollo)</summary>
+        <pre><%= details %></pre>
+      </details>
+    <% } %>
+  </div>
 </div>

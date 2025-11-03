@@ -1,6 +1,8 @@
-<div class="error404-content text-center">
-    <h1>Error 404</h1>
+<div class="error-page-wrapper">
+  <div class="error-box">
+    <h1>Error <%= status || 404 %></h1>
     <h2>Página no encontrada</h2>
-    <p>Lo sentimos, la página que buscas no existe.</p>
+    <p><%= mensaje || ('La página ' + (typeof url !== 'undefined' ? url : '') + ' no existe.') %></p>
     <a href="/">Volver al inicio</a>
+  </div>
 </div>

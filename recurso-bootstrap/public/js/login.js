@@ -1,69 +1,25 @@
 document.addEventListener("DOMContentLoaded", function(){
-    const form = document.getElementById("revistaForm");
+    const form = document.getElementById("loginForm");
 
     if (form) {
 
         const campos = {
-            nombre: document.getElementById("nombre"),
-            apellido1: document.getElementById("apellido1"),
-            apellido2: document.getElementById("apellido2"),
             email: document.getElementById("email"),
-            contrasenya: document.getElementById("contrasenya"),
-            vehiculo: document.getElementById("vehiculo"),
-            fechaInicio: document.getElementById("fechaInicio"),
-            fechaFin: document.getElementById("fechaFin"),
-            condiciones: document.getElementById("condiciones")
+            confemail: document.getElementById("confemail"),
+            contrasenya: document.getElementById("contrasenya")
         };
 
         const errores = {
-            nombre: document.getElementById("error-nombre"),
-            apellido1: document.getElementById("error-apellido1"),
-            apellido2: document.getElementById("error-apellido2"),
             email: document.getElementById("error-email"),
-            contrasenya: document.getElementById("error-contrasenya"),
-            vehiculo: document.getElementById("error-vehiculo"),
-            fechaInicio: document.getElementById("error-fecha-inicio"),
-            fechaFin: document.getElementById("error-fecha-fin"),
-            condiciones: document.getElementById("error-condiciones")
+            confemail: document.getElementById("error-confemail"),
+            contrasenya: document.getElementById("error-contrasenya")
         };
 
-        const barraProgreso = document.getElementById("formProgress");
-        const textoProgreso = document.getElementById("progressPercent");
         const mostrarContrasenya = document.getElementById("mostrarContrasenya");
 
         let totalCampos = Object.values(campos).filter(el => el && el.required).length;
 
         const opcionalesActivos = new Set();
-
-        function actualizarProgreso() {
-            let validos = 0;
-
-            Object.keys(campos).forEach(key => {
-                const input = campos[key];
-                const error = errores[key];
-                if (!input) return;
-
-                const esValido = input.classList.contains("is-valid");
-                const esVacio = !input.value || String(input.value).trim() === "";
-                const esOpcional = !input.required;
-
-                if (esOpcional && !esVacio) {
-                    opcionalesActivos.add(key);
-                }
-                else if (esOpcional && esVacio) {
-                    opcionalesActivos.delete(key);
-                }
-
-                if (esValido) validos++;
-            });
-
-            const totalDinamico = totalCampos + opcionalesActivos.size;
-
-            const porcentaje = totalDinamico > 0 ? Math.round((validos / totalDinamico) * 100) : 0;
-            if (barraProgreso) barraProgreso.value = porcentaje;
-            if (textoProgreso) textoProgreso.textContent = porcentaje + "%";
-        }
-
 
         function limpiarErrores() {
             Object.values(errores).forEach(span => {
@@ -81,25 +37,6 @@ document.addEventListener("DOMContentLoaded", function(){
 
             const v = String(input.value || "").trim();
 
-            if (key === "nombre" || key === "apellido1") {
-                if (estaVacio(v)) {
-                    return "Este campo es obligatorio.";
-                }
-                if (v.length < 3) {
-                    return "Debe tener al menos 3 caracteres.";
-                }
-                return "";
-            }
-
-            if (key == "apellido2"){
-                if(v.length != 0) {
-                    if (v.length < 3) {
-                        return "Debe tener al menos 3 caracteres.";
-                    }
-                }
-                return "";
-            }
-
             if (key === "email") {
                 if (estaVacio(v)) {
                     return "El email es obligatorio.";
@@ -111,6 +48,21 @@ document.addEventListener("DOMContentLoaded", function(){
                 return "";
             }
 
+            if(key === "confemail") {
+                if (estaVacio(v)) {
+                    return "El email es obligatorio.";
+                }
+                const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!re.test(v)) {
+                    return "El correo no tiene un formato válido.";
+                }
+                const emailOriginal = String(campos.email?.value || "").trim();
+                if (v !== emailOriginal) {
+                    return "Los correos no coinciden.";
+                }
+                return "";
+            }
+
             if (key === "contrasenya") {
                 if (estaVacio(v)) {
                     return "La contraseña es obligatoria.";
@@ -118,55 +70,6 @@ document.addEventListener("DOMContentLoaded", function(){
                 const contrasenyaForm = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
                 if (!contrasenyaForm.test(v)) {
                     return "La contraseña debe tener mín. 8 caracteres, una mayúscula, un número y un símbolo.";
-                }
-                return "";
-            }
-
-            if (key === "vehiculo") {
-                if (!v) return "Debes seleccionar un tipo de vehículo.";
-                return "";
-            }
-
-            if (key === "fechaInicio") {
-                if (estaVacio(v)) return "La fecha y hora de inicio son obligatorias.";
-                const fechaI = new Date(v);
-                const ahora = new Date();
-                if (isNaN(fechaI.getTime()) || fechaI <= ahora) {
-                    return "La fecha y hora introducidas deben ser posteriores a la presente.";
-                }
-
-                const fechaFinInput = campos.fechaFin;
-                if (!estaVacio(fechaFinInput.value)) {
-                    const fechaFinDatos = new Date(fechaFinInput.value);
-                    if (fechaI >= fechaFinDatos) {
-                        return "La fecha de inicio debe ser anterior a la fecha de fin.";
-                    }
-                }
-                return "";
-            }
-
-            if (key === "fechaFin") {
-                if (estaVacio(v)) return "La fecha y hora de fin son obligatorias.";
-                const fechaF = new Date(v);
-                const ahora = new Date();
-
-                if (isNaN(fechaF.getTime()) || fechaF <= ahora) {
-                    return "La fecha y hora introducidas deben ser posteriores a la presente.";
-                }
-
-                const fechaInicioInput = campos.fechaInicio;
-                if (!estaVacio(fechaInicioInput.value)) {
-                    const fechaInicioDatos = new Date(fechaInicioInput.value);
-                    if (fechaF <= fechaInicioDatos) {
-                        return "La fecha de fin debe ser posterior a la fecha de inicio.";
-                    }
-                }
-                return "";
-            }
-
-            if (key === "condiciones") {
-                if (!input.checked) {
-                    return "Debes aceptar las condiciones.";
                 }
                 return "";
             }
@@ -216,17 +119,14 @@ document.addEventListener("DOMContentLoaded", function(){
 
             el.addEventListener("input", () => {
                 validarCampoEnTiempoReal(key);
-                actualizarProgreso();
             });
 
             el.addEventListener("change", () => {
                 validarCampoEnTiempoReal(key);
-                actualizarProgreso();
             });
 
             el.addEventListener("blur", () => {
                 validarCampoEnTiempoReal(key);
-                actualizarProgreso();
             });
         });
 
@@ -275,11 +175,9 @@ document.addEventListener("DOMContentLoaded", function(){
                     Object.values(errores).forEach(span => { if (span) span.textContent = ""; });
                     if (campos.contrasenya) campos.contrasenya.type = "password";
                     if (mostrarContrasenya) mostrarContrasenya.checked = false;
-                    actualizarProgreso();
+                    
                 }, 0);
             }
         });
-
-        actualizarProgreso();
     }
 });

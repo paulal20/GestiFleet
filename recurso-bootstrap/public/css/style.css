@@ -198,6 +198,7 @@ legend {
 
 input[type="text"],
 input[type="email"],
+input[type="confemail"],
 input[type="password"],
 input[type="datetime-local"],
 input[type="number"] {
@@ -216,6 +217,7 @@ input[type="number"] {
 /*Para que el buscar, las fechas, horas y desplegables salgan también en modo oscuro*/
 .dark-theme input[type="text"],
 .dark-theme input[type="email"],
+.dark-theme input[type="confemail"],
 .dark-theme input[type="search"],
 .dark-theme input[type="datetime-local"],
 .dark-theme input[type="number"],
@@ -671,6 +673,94 @@ table caption strong {
  font-weight: 600;
 }
 
+/* ===== Estilos para páginas de error (404, 500) ===== */
+.error-page-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - var(--top-offset)); /* respeta header fijo */
+  padding: 2rem;
+  box-sizing: border-box;
+  background: transparent; /* deja el fondo general de body */
+}
+
+.error-box {
+  width: 100%;
+  max-width: 880px;
+  background: var(--color-field-bg);              /* tarjeta sobre el fondo */
+  border: 2px solid var(--color-nav);             /* borde del mismo color que el nav */
+  border-radius: 12px;
+  padding: 2.25rem;
+  box-shadow: 0 8px 30px rgba(32,40,60,0.10);
+  text-align: center;
+  color: var(--color-text);
+  transform-origin: center;
+}
+
+/* Ajustes tipográficos dentro de la caja de error */
+.error-box h1 {
+  font-size: 3.25rem;
+  margin: 0 0 0.25rem;
+  color: var(--btn-active);
+  line-height: 1;
+}
+
+.error-box h2 {
+  font-size: 1.5rem;
+  margin: 0 0 0.75rem;
+  color: var(--color-primary-hover);
+  font-weight: 600;
+}
+
+.error-box p {
+  font-size: 1.05rem;
+  margin: 0 0 1.25rem;
+  color: var(--color-text);
+  opacity: 0.92;
+}
+
+/* Enlace con estilo acorde a la web */
+.error-box a {
+  display: inline-block;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  background: var(--btn-bg);
+  color: #ffffff;
+  border: 2px solid transparent;
+  transition: background-color 0.18s ease, transform 0.08s ease, box-shadow 0.12s ease;
+  box-shadow: 0 3px 10px rgba(22,30,60,0.06);
+}
+
+.error-box a:hover,
+.error-box a:focus {
+  background: var(--btn-hover);
+  transform: translateY(-2px);
+  outline: none;
+  box-shadow: 0 6px 20px rgba(22,30,60,0.12);
+}
+
+/* Focus accesible */
+.error-box a:focus {
+  box-shadow: 0 0 0 4px rgba(111,133,192,0.18);
+}
+
+.dark-theme .error-box {
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  border-color: var(--color-primary-hover);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.45);
+}
+
+.dark-theme .error-box a {
+  background: var(--btn-bg);
+  color: #fff;
+}
+
+.dark-theme .error-box h1 { color: var(--color-link); }
+.dark-theme .error-box h2 { color: var(--color-primary); }
+
 /* ESTILO MÓVIL */
 @media (max-width: 768px) {
 
@@ -730,5 +820,22 @@ table caption strong {
   footer {
     font-size: 0.9rem;
     padding: 0.8rem;
+  }
+
+  .error-box {
+    padding: 1.25rem;
+    border-radius: 10px;
+  }
+
+  .error-box h1 {
+    font-size: 2.2rem;
+  }
+
+  .error-box h2 {
+    font-size: 1.1rem;
+  }
+
+  .error-box p {
+    font-size: 0.98rem;
   }
 }

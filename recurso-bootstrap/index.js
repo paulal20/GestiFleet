@@ -54,16 +54,61 @@ app.get('/error', (req, res, next) => {
     next(new Error('Error forzado para probar error 500'));
   });
   
-// Middleware para capturar 404 (no encontrado)
+// 404: captura rutas no encontradas y las transforma en Error para pasar al handler central
 app.use((req, res, next) => {
-  res.status(404).render('error404');
+  const err404 = new Error(`Ruta ${req.originalUrl} no encontrada`);
+  err404.status = 404;
+  // err404.expose = true -> ruta inexistente es info segura para usuario
+  err404.expose = true;
+  // opcional: mensaje público distinto al message técnico
+  err404.publicMessage = `La página que buscas no existe.`;
+  next(err404);
 });
 
-// Middleware para manejar errores 500
+// Error handler central (middleware con 4 args) — sigue el patrón del PDF
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).render('error500', { error: err });
+  // 1) logging completo siempre en servidor (stack para depuración)
+  console.error(err && err.stack ? err.stack : err);
+
+  // 2) status (por defecto 500)
+  const status = err.status || 500;
+  res.status(status);
+
+  // 3) decidir mensaje público:
+  //    - si err.expose === true y existe err.publicMessage -> mostrar ese texto
+  //    - si err.expose === true y no hay publicMessage -> mostrar err.message
+  //    - en caso contrario, mostrar mensaje genérico según status (no leak de internals)
+  let mensajePublico;
+  if (err.expose && err.publicMessage) mensajePublico = err.publicMessage;
+  else if (err.expose) mensajePublico = err.message;
+  else if (status === 404) mensajePublico = 'No se ha encontrado la página solicitada.';
+  else mensajePublico = 'Ha ocurrido un error en el servidor. Por favor, inténtalo más tarde.';
+
+  // 4) decidir si mostramos detalles técnicos (solo en desarrollo y si explícitamente lo pides)
+  const canShowDetails = (process.env.NODE_ENV !== 'production') && !!err.showStack;
+  const detalles = canShowDetails ? (err.stack || String(err)) : null;
+
+  // 5) content negotiation: HTML / JSON / TXT
+  if (req.accepts('html')) {
+    const vista = status === 404 ? 'error404' : 'error500';
+    return res.render(vista, {
+      title: status === 404 ? 'Página no encontrada' : 'Error interno del servidor',
+      status,
+      mensaje: mensajePublico,
+      details: detalles
+    });
+  }
+
+  if (req.accepts('json')) {
+    const payload = { error: mensajePublico };
+    if (detalles) payload.stack = detalles;
+    return res.json(payload);
+  }
+
+  // fallback texto
+  res.type('txt').send(mensajePublico);
 });
+
 
 // Server
 app.listen(PORT, () => {

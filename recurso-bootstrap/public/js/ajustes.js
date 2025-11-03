@@ -86,6 +86,7 @@ function setLanguage(lang) {
     elementsEs.forEach(el => el.classList.add('d-none'));
     elementsEn.forEach(el => el.classList.remove('d-none'));
   }
+  
 }
 
 // Al cargar la página, aplica el idioma guardado (por defecto "es")
