@@ -1,31 +1,89 @@
 const express = require('express');
 const router = express.Router();
+const store = require('../data/store');
+// const bcrypt = require('bcrypt');
+// npm install bcrypt
 
 router.get('/', (req, res) => {
   res.render('index', { title: 'Inicio' });
 });
 
 router.get('/login', (req, res) => {
-  res.render('login', { title: 'Inicio de Sesión' });
+  res.render('login', { title: 'Inicio de Sesión' , error: null, mensaje: null});
 })
 
 router.post('/login', (req, res) => {
-  const { correo, password } = req.body;
-  const { usuarios } = req.app.locals.store;
-
-  // --- ¡AQUÍ EMPIEZA EL LAB 7! ---
-  // 1. Buscar el usuario en el array 'usuarios'
-  // 2. Comparar la contraseña (con bcrypt en el futuro)
-  // 3. Si es correcto, guardar usuario en req.session.usuario
-  // 4. Redirigir al inicio
-  // 5. Si es incorrecto, mostrar mensaje de error en la vista de login
+  const { email: correo, contrasenya: password } = req.body;
+  const { usuarios } = store; //req.app.locals.store
 
   console.log("¡Nuevo login recibido!");
   console.table(req.body);
 
-  res.redirect('/login'); // Temporal, redirigir a '/' si es exitoso
+  const user = usuarios.find(u => u.correo === correo);
+  if(!user){
+    return res.render('login', {error: 'Usuario no encontrado'});
+  }
+  const esValida = password === user.password;
+  // await bcrypt.compare(password, user.password);
+  // try {
+  //   const esValida = await bcrypt.compare(password, user.password);
+  //   if(!esValida){
+  //     return res.render('login', {error:'Contraseña incorrecta'});
+  //   }
+  // } catch(err) {
+  //   console.error(err);
+  //   return res.render('login', {error: 'Error interno en la validación'});
+  // }
+  if(!esValida){
+    return res.render('login', {error:'Contraseña incorrecta'});
+  }
+  req.session.user = {correo: user.correo};
+
+  res.redirect('/');
 });
 
+router.get('/register', (req, res) => {
+  res.render('register', { title: 'Registro' , error: null});
+})
+
+router.post('/register', (req, res) => {
+  const { email: correo, contrasenya: password } = req.body;
+  const { usuarios } = store;
+
+  console.log("¡Nuevo registro recibido!");
+  console.table(req.body);
+
+  const existe = usuarios.find(u => u.correo === correo);
+  if(existe){
+    return res.render('register', {error: 'El correo ya está registrado'});
+  }
+
+  try {
+    const hash = password;
+    // const hash = await bcrypt.hash(password, SALT_ROUNDS);
+
+    const nuevoUser = {
+      nombre: req.body.nombre,
+      correo,
+      password: hash,
+      rol: 'empleado',
+      id_concesionario: req.body.concesionario
+    };
+
+    usuarios.push(nuevoUser);
+    //lo logeamos directamente?? o q tenga q hacer el login?
+    req.session.user = {
+      correo: nuevoUser.correo,
+      rol: nuevoUser.rol
+    };
+
+    console.table(store.usuarios);
+    res.redirect('/');
+  } catch(err) {
+    console.error(err);
+    res.render('register', { title: 'Registro', error: 'Error al registrar usuario' });
+  }
+});
 // GET /registro (Próximo paso LAB 7)
 // router.get('/registro', (req, res) => { ... });
 

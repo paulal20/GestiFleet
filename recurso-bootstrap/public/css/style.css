@@ -785,6 +785,15 @@ table caption strong {
     gap: 0.3rem;
   }
 
+  .custom-navbar .navbar-toggler {
+    margin-left: auto; 
+  }
+
+  .custom-navbar .container-fluid {
+    display: flex;
+    align-items: center;
+  }
+
   nav {
     padding: 0.5rem 1rem;
   }

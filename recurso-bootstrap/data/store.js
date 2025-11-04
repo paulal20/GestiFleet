@@ -8,7 +8,7 @@ const usuarios = [
         id_usuario: 1,
         nombre: 'Administrador',
         correo: 'admin@gestifleet.com',
-        password: 'admin', // Temporal - Cambiar a hash
+        password: 'Admin^12', // Temporal - Cambiar a hash
         rol: 'admin',
         id_concesionario: 1
     },
@@ -16,7 +16,7 @@ const usuarios = [
         id_usuario: 2,
         nombre: 'Empleado Ejemplo',
         correo: 'empleado@gestifleet.com',
-        password: 'empleado', // Temporal - Cambiar a hash
+        password: 'Empleado^1', // Temporal - Cambiar a hash
         rol: 'empleado',
         id_concesionario: 2
     }

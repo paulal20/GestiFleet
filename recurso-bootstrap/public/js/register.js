@@ -1,18 +1,26 @@
 document.addEventListener("DOMContentLoaded", function(){
-    const form = document.getElementById("loginForm");
+    const form = document.getElementById("registerForm");
 
     if (form) {
 
         const campos = {
+            nombre: document.getElementById("nombre"),
+            apellido1: document.getElementById("apellido1"),
+            apellido2: document.getElementById("apellido2"),
             email: document.getElementById("email"),
             confemail: document.getElementById("confemail"),
-            contrasenya: document.getElementById("contrasenya")
+            contrasenya: document.getElementById("contrasenya"),
+            concesionario: document.getElementById("concesionario")
         };
 
         const errores = {
+            nombre: document.getElementById("error-nombre"),
+            apellido1: document.getElementById("error-apellido1"),
+            apellido2: document.getElementById("error-apellido2"),
             email: document.getElementById("error-email"),
             confemail: document.getElementById("error-confemail"),
-            contrasenya: document.getElementById("error-contrasenya")
+            contrasenya: document.getElementById("error-contrasenya"),
+            concesionario: document.getElementById("error-concesionario")
         };
 
         const mostrarContrasenya = document.getElementById("mostrarContrasenya");
@@ -32,6 +40,25 @@ document.addEventListener("DOMContentLoaded", function(){
             if (!input) return "";
 
             const v = String(input.value || "").trim();
+
+            if (key === "nombre" || key === "apellido1") {
+                if (estaVacio(v)) {
+                    return "Este campo es obligatorio.";
+                }
+                if (v.length < 3) {
+                    return "Debe tener al menos 3 caracteres.";
+                }
+                return "";
+            }
+
+            if (key == "apellido2"){
+                if(v.length != 0) {
+                    if (v.length < 3) {
+                        return "Debe tener al menos 3 caracteres.";
+                    }
+                }
+                return "";
+            }
 
             if (key === "email") {
                 if (estaVacio(v)) {
@@ -67,6 +94,11 @@ document.addEventListener("DOMContentLoaded", function(){
                 if (!contrasenyaForm.test(v)) {
                     return "La contraseña debe tener mín. 8 caracteres, una mayúscula, un número y un símbolo.";
                 }
+                return "";
+            }
+
+            if (key === "concesionario") {
+                if (!v) return "Debes seleccionar un concesionario.";
                 return "";
             }
 
