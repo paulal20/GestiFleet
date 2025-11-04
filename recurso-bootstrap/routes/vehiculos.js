@@ -19,7 +19,7 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:id', (req, res, next) => {
-    const { vehiculos } = req.app.locals.store;
+    const { vehiculos, concesionarios } = req.app.locals.store;
     const id = parseInt(req.params.id);
     const vehiculo = vehiculos.find(v => v.id === id);
 
@@ -31,7 +31,12 @@ router.get('/:id', (req, res, next) => {
         return next(err);
     }
 
-    res.render('vehiculoDetalle', { vehiculo });
+    const concesionario = concesionarios.find(c => c.id_concesionario === vehiculo.id_concesionario);
+
+    res.render('vehiculoDetalle', { 
+        vehiculo, 
+        concesionario: concesionario || { nombre: 'Sin asignar' } 
+    });
 });
 
 // Aquí añadirás las rutas del LAB 8 (CRUD)

@@ -7,6 +7,20 @@
       <h5 class="card-title"><%= vehiculo.marca %> <%= vehiculo.modelo %> (<%= vehiculo.anyo %>)</h5>
       <p class="card-text"><%= vehiculo.descripcion %></p>
       <p class="card-text">Tipo: <%= vehiculo.tipo %></p>
+
+      <p class="card-text">
+        <strong>Estado:</strong>
+        <% if (vehiculo.estado === 'disponible') { %>
+          <span class="badge bg-success">Disponible</span>
+        <% } else if (vehiculo.estado === 'reservado') { %>
+          <span class="badge bg-warning text-dark">Reservado</span>
+        <% } else { %>
+          <span class="badge bg-danger">Mantenimiento</span>
+        <% } %>
+      </p>
+      <p class="card-text">
+        <strong>Concesionario:</strong> <%= concesionario.nombre %>
+      </p>
       <p class="text-muted">Desde <%= vehiculo.precio %> €</p>
     </div>
     <div class="card-footer d-flex gap-2">
