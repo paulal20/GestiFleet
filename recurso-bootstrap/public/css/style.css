@@ -459,6 +459,38 @@ button:active {
   color: #fff;
 }
 
+.perfil-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 2rem;
+  background-color: var(--color-background);
+}
+
+.perfil-card-wrapper {
+  width: 100%;
+  max-width: 500px;
+}
+
+.perfil-card {
+  background-color: var(--color-card-bg);
+  border-radius: 1rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  padding: 2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.perfil-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+}
+
+.perfil-card-header {
+  background-color: var(--btn-bg);
+  margin-bottom: 1.5rem;
+}
+
 input.is-valid,
 select.is-valid,
 textarea.is-valid {
@@ -762,6 +794,28 @@ table caption strong {
 .dark-theme .error-box h1 { color: var(--color-link); }
 .dark-theme .error-box h2 { color: var(--color-primary); }
 .dark-theme .error-box .btn { background: var(--btn-bg); color: #fff; }
+
+.modal-content {
+  background-color: var(--color-field-bg);
+  border: 2px solid var(--color-field-border); 
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  color: var(--color-text);
+}
+
+.modal-header {
+  background-color: var(--color-legend-bg);
+  border-bottom: 2px solid var(--color-field-border);
+  color: var(--btn-active);
+  font-weight: 600;
+}
+
+.modal-body,
+.modal-footer  {
+  background-color: var(--color-legend-bg);
+  color: var(--color-text);
+  padding: 1.5rem;
+}
 
 /* ESTILO MÓVIL */
 @media (max-width: 768px) {

@@ -1,16 +1,18 @@
 const express = require('express');
 const router = express.Router();
 
-router.get('/reserva', (req, res) => {
+const { isAuth } = require('../middleware/auth');
+
+router.get('/', isAuth, (req, res) => {
     res.render('reservas', { title: 'Reserva' });
 });
 
-router.post('/reserva', (req, res) => {
+router.post('/', isAuth, (req, res) => {
     const { reservas } = req.app.locals.store;
     const datosRecibidos = req.body;
 
-    // Aquí deberías añadir validación (LAB 8/9)
-    // y el id_usuario de la sesión (LAB 7)
+    // Aqui deberias anyadir validacion (LAB 8/9)
+    // y el id_usuario de la sesion (LAB 7)
 
     reservas.push(datosRecibidos);
 
@@ -19,10 +21,10 @@ router.post('/reserva', (req, res) => {
     console.log("--- Total de reservas en memoria ---");
     console.table(reservas);
 
-    res.redirect('/listareservas');
+    res.redirect('/reserva/listareservas');
 });
 
-router.get('/listareservas', (req, res) => {
+router.get('/listareservas', isAuth, (req, res) => {
     const { reservas } = req.app.locals.store;
     res.render('listareservas', {
         title: 'Lista de Reservas',
@@ -30,7 +32,7 @@ router.get('/listareservas', (req, res) => {
     });
 });
 
-// Aquí irán rutas futuras como:
+// Aqui iran rutas futuras como:
 // GET /mis-reservas (para usuarios logueados)
 // POST /api/reservas (para AJAX en LAB 9)
 

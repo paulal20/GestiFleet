@@ -52,7 +52,7 @@
                         </a>
                     </li>
                     <li> 
-                        <a href="/listareservas" class="nav-link">
+                        <a href="/reserva/listareservas" class="nav-link">
                         <span lang="es" class="lang lang-es">Lista de Reservas</span>
                         <span lang="en" class="lang lang-en d-none">Bookings List</span>
                         </a>
@@ -99,10 +99,26 @@
                     </li>
                     </ul>
 
-                    <a href="/login" class="nav-link" aria-current="page">
+                    <!-- <a href="/login" class="nav-link" aria-current="page">
                         <span lang="es" class="lang lang-es">Identifícate</span>
                         <span lang="en" class="lang lang-en d-none">Login</span>
-                    </a>
+                    </a> -->
+                    <% if (!usuario) { %>
+                        <a href="/login" class="nav-link" aria-current="page">Identifícate</a>
+                      <% } else { %>
+                        <div class="dropdown">
+                            <a href="#" class="dropdown-toggle" id="perfilDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
+                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                                  </svg>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="perfilDropdown">
+                              <li><a class="dropdown-item" href="/perfil">Mi información</a></li>
+                              <li><hr class="dropdown-divider"></li>
+                              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Cerrar sesión</a></li>
+                            </ul>
+                          </div>
+                      <% } %>
                 </div>
                 </div>
             </nav>
@@ -150,7 +166,30 @@
               </div>
             </div>
         </footer>
-          
+        
+         <!-- MODAL LOGOUT -->
+         <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="logoutModalLabel">Cerrar sesión</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                    <div class="modal-body">
+                    ¿Estás seguro de que quieres cerrar sesión?
+                    <br>
+                    <div>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <a href="/logout" class="btn btn btn-primary">Cerrar sesión</a>
+                    </div>
+                </div>
+                <!-- <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <a href="/logout" class="btn btn btn-primary">Cerrar sesión</a>
+                </div> -->
+              </div>
+            </div>
+        </div>
 
     </div>  
     <script src="/js/bootstrap.min.js"></script>

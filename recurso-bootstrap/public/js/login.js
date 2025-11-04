@@ -5,13 +5,11 @@ document.addEventListener("DOMContentLoaded", function(){
 
         const campos = {
             email: document.getElementById("email"),
-            confemail: document.getElementById("confemail"),
             contrasenya: document.getElementById("contrasenya")
         };
 
         const errores = {
             email: document.getElementById("error-email"),
-            confemail: document.getElementById("error-confemail"),
             contrasenya: document.getElementById("error-contrasenya")
         };
 
@@ -42,22 +40,7 @@ document.addEventListener("DOMContentLoaded", function(){
                     return "El correo no tiene un formato válido.";
                 }
                 return "";
-            }
-
-            if(key === "confemail") {
-                if (estaVacio(v)) {
-                    return "El email es obligatorio.";
-                }
-                const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                if (!re.test(v)) {
-                    return "El correo no tiene un formato válido.";
-                }
-                const emailOriginal = String(campos.email?.value || "").trim();
-                if (v !== emailOriginal) {
-                    return "Los correos no coinciden.";
-                }
-                return "";
-            }
+            }   
 
             if (key === "contrasenya") {
                 if (estaVacio(v)) {

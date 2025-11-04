@@ -21,13 +21,13 @@ app.use(session({
 
 //---------------------PARTE NUEVA PARA LAB 7---------------------//
 // Middleware GLOBAL para exponer el usuario a TODAS las vistas
-//app.use((req, res, next) => {
+app.use((req, res, next) => {
   // Guardamos el usuario de la sesión (si existe) en res.locals
   // 'res.locals' hace que la variable 'usuario' esté disponible
   // automáticamente en todas tus plantillas EJS
-  //res.locals.usuario = req.session.usuario || null;
-  //next();
-//});
+  res.locals.usuario = req.session.usuario || null;
+  next();
+});
 //-------------------FIN PARTE NUEVA PARA LAB 7-------------------//
 
 // Static files
@@ -47,10 +47,12 @@ app.locals.store = store;
 const indexRoutes = require('./routes/index');
 const vehiculosRoutes = require('./routes/vehiculos');
 const reservasRoutes = require('./routes/reservas');
+const apiRoutes = require('./routes/api');
 
 app.use('/', indexRoutes);
 app.use('/vehiculos', vehiculosRoutes);
-app.use('/', reservasRoutes);
+app.use('/reserva', reservasRoutes);
+app.use('/api', apiRoutes);
 
 // Forzar error 500
 app.get('/error', (req, res, next) => {

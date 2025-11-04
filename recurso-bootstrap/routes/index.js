@@ -5,7 +5,11 @@ const store = require('../data/store');
 // npm install bcrypt
 
 router.get('/', (req, res) => {
-  res.render('index', { title: 'Inicio' });
+  let nombre = "usted"; // valor por defecto
+  if(req.session.usuario && req.session.usuario.nombre) {
+    nombre = req.session.usuario.nombre;
+  }
+  res.render('index', { title: 'Inicio', nombre });
 });
 
 router.get('/login', (req, res) => {
@@ -14,16 +18,14 @@ router.get('/login', (req, res) => {
 
 router.post('/login', (req, res) => {
   const { email: correo, contrasenya: password } = req.body;
-  const { usuarios } = store; //req.app.locals.store
+  // const { usuarios } = store; //req.app.locals.store
 
-  console.log("¡Nuevo login recibido!");
-  console.table(req.body);
 
-  const user = usuarios.find(u => u.correo === correo);
-  if(!user){
+  const usuario = store.usuarios.find(u => u.correo === correo);
+  if(!usuario){
     return res.render('login', {error: 'Usuario no encontrado'});
   }
-  const esValida = password === user.password;
+  const esValida = password === usuario.password;
   // await bcrypt.compare(password, user.password);
   // try {
   //   const esValida = await bcrypt.compare(password, user.password);
@@ -37,7 +39,7 @@ router.post('/login', (req, res) => {
   if(!esValida){
     return res.render('login', {error:'Contraseña incorrecta'});
   }
-  req.session.user = {correo: user.correo};
+  req.session.usuario = usuario;
 
   res.redirect('/');
 });
@@ -72,9 +74,11 @@ router.post('/register', (req, res) => {
 
     usuarios.push(nuevoUser);
     //lo logeamos directamente?? o q tenga q hacer el login?
-    req.session.user = {
+    req.session.usuario = {
+      nombre: nuevoUser.nombre,
       correo: nuevoUser.correo,
-      rol: nuevoUser.rol
+      rol: nuevoUser.rol,
+      id_concesionario: nuevoUser.id_concesionario
     };
 
     console.table(store.usuarios);
@@ -84,14 +88,22 @@ router.post('/register', (req, res) => {
     res.render('register', { title: 'Registro', error: 'Error al registrar usuario' });
   }
 });
-// GET /registro (Próximo paso LAB 7)
-// router.get('/registro', (req, res) => { ... });
 
-// POST /registro (Próximo paso LAB 7)
-// router.post('/registro', (req, res) => { ... });
+router.get('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) console.error(err);
+    res.redirect('/'); 
+  });
+});
 
-// GET /logout (Próximo paso LAB 7)
-// router.get('/logout', (req, res) => { ... });
+
+router.get('/perfil', (req, res) => {
+  const usuario = req.session.usuario;
+  if (!usuario) {
+      return res.redirect('/login');
+  }
+  res.render('perfil', { title: 'Mi Información', usuario });
+});
 
 
 // --- Rutas Estáticas ---
