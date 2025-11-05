@@ -53,14 +53,17 @@
                 <div class ="col-md-6">
                     <label for="concesionario" class="form-label obligatorio">Selecciona el concesionario: </label><br>
                     <select id="concesionario" name="concesionario" class="form-select" required>
-                        <option value="">Seleccione un concesionario</option> 
-                        <!-- HABRÁ Q PONERLO SEGÚN LOS Q HAYA EN LA BBDD -->
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
+                        <option value="">Seleccione un concesionario</option>
+                        <% if (concesionarios && concesionarios.length > 0) { %>
+                            <% concesionarios.forEach(concesionario => { %> 
+                                <option value="<%= concesionario.id_concesionario %>">
+                                    <%= concesionario.id_concesionario %> <%= concesionario.nombre %> (<%= concesionario.ciudad %>) 
+                                </option>
+                            <% }); %>
+                        <% } %>
                     </select>
                     <span class="error" id="error-concesionario" aria-live="polite"></span>
-                  </div>
+                </div>
             </div>
         </fieldset>
         <button type="reset" class="btn btn-outline-secondary">Borrar formulario</button>

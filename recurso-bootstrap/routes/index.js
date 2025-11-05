@@ -69,7 +69,7 @@ router.post('/login', isGuest, (req, res) => {
 });
 
 router.get('/register', isGuest, (req, res) => {
-  res.render('register', { title: 'Registro' , error: null});
+  res.render('register', { title: 'Registro' , error: null, concesionarios: store.concesionarios});
 })
 
 router.post('/register', isGuest, (req, res) => {
@@ -81,7 +81,7 @@ router.post('/register', isGuest, (req, res) => {
 
   const existe = usuarios.find(u => u.correo === correo);
   if(existe){
-    return res.render('register', { title: 'Registro',error: 'El correo ya está registrado' });
+    return res.render('register', { title: 'Registro', error: 'El correo ya está registrado', concesionarios: store.concesionarios });
   }
 
   try {
@@ -94,7 +94,7 @@ router.post('/register', isGuest, (req, res) => {
       correo,
       password: hash,
       rol: 'empleado',
-      id_concesionario: req.body.concesionario
+      id_concesionario: parseInt(req.body.concesionario)
     };
 
     usuarios.push(nuevoUser);
@@ -105,7 +105,7 @@ router.post('/register', isGuest, (req, res) => {
     res.redirect('/');
   } catch(err) {
     console.error(err);
-    res.render('register', { title: 'Registro', error: 'Error al registrar usuario' });
+    res.render('register', { title: 'Registro', error: 'Error al registrar usuario', concesionarios: store.concesionarios });
   }
 });
 
