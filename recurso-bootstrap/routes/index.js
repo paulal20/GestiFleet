@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const store = require('../data/store');
+const { isGuest } = require('../middleware/auth');
 // const bcrypt = require('bcrypt');
 // npm install bcrypt
 
@@ -9,21 +10,40 @@ router.get('/', (req, res) => {
   if(req.session.usuario && req.session.usuario.nombre) {
     nombre = req.session.usuario.nombre;
   }
-  res.render('index', { title: 'Inicio', nombre });
+
+  const errorMessage = req.session.errorMessage;
+  delete req.session.errorMessage;
+
+  res.render('index', { 
+        title: 'Inicio', 
+        nombre,
+        error: errorMessage || null
+    });
 });
 
-router.get('/login', (req, res) => {
-  res.render('login', { title: 'Inicio de Sesión' , error: null, mensaje: null});
+router.get('/login', isGuest, (req, res) => {
+  const errorMessage = req.session.errorMessage;
+  delete req.session.errorMessage;
+
+  res.render('login', { 
+    title: 'Inicio de Sesión', 
+    error: errorMessage || null,
+    mensaje: null
+  });
 })
 
-router.post('/login', (req, res) => {
+router.post('/login', isGuest, (req, res) => {
   const { email: correo, contrasenya: password } = req.body;
   // const { usuarios } = store; //req.app.locals.store
 
 
   const usuario = store.usuarios.find(u => u.correo === correo);
   if(!usuario){
-    return res.render('login', {error: 'Usuario no encontrado'});
+    return res.render('login', {
+      title: 'Inicio de Sesión',
+      error: 'Usuario no encontrado',
+      mensaje: null
+    });
   }
   const esValida = password === usuario.password;
   // await bcrypt.compare(password, user.password);
@@ -37,18 +57,22 @@ router.post('/login', (req, res) => {
   //   return res.render('login', {error: 'Error interno en la validación'});
   // }
   if(!esValida){
-    return res.render('login', {error:'Contraseña incorrecta'});
+   return res.render('login', {
+      title: 'Inicio de Sesión',
+      error: 'Contraseña incorrecta',
+      mensaje: null
+    });
   }
   req.session.usuario = usuario;
 
   res.redirect('/');
 });
 
-router.get('/register', (req, res) => {
+router.get('/register', isGuest, (req, res) => {
   res.render('register', { title: 'Registro' , error: null});
 })
 
-router.post('/register', (req, res) => {
+router.post('/register', isGuest, (req, res) => {
   const { email: correo, contrasenya: password } = req.body;
   const { usuarios } = store;
 
@@ -57,7 +81,7 @@ router.post('/register', (req, res) => {
 
   const existe = usuarios.find(u => u.correo === correo);
   if(existe){
-    return res.render('register', {error: 'El correo ya está registrado'});
+    return res.render('register', { title: 'Registro',error: 'El correo ya está registrado' });
   }
 
   try {
@@ -65,6 +89,7 @@ router.post('/register', (req, res) => {
     // const hash = await bcrypt.hash(password, SALT_ROUNDS);
 
     const nuevoUser = {
+      id_usuario: usuarios.length + 1,
       nombre: req.body.nombre,
       correo,
       password: hash,
@@ -74,12 +99,7 @@ router.post('/register', (req, res) => {
 
     usuarios.push(nuevoUser);
     //lo logeamos directamente?? o q tenga q hacer el login?
-    req.session.usuario = {
-      nombre: nuevoUser.nombre,
-      correo: nuevoUser.correo,
-      rol: nuevoUser.rol,
-      id_concesionario: nuevoUser.id_concesionario
-    };
+    req.session.usuario = nuevoUser
 
     console.table(store.usuarios);
     res.redirect('/');
@@ -100,6 +120,7 @@ router.get('/logout', (req, res) => {
 router.get('/perfil', (req, res) => {
   const usuario = req.session.usuario;
   if (!usuario) {
+      req.session.errorMessage = 'Debes iniciar sesión para ver tu perfil';
       return res.redirect('/login');
   }
   res.render('perfil', { title: 'Mi Información', usuario });
