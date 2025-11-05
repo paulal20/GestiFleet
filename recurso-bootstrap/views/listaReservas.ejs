@@ -1,27 +1,39 @@
 <div class="listareservas-content">
 
-    <h1 lang="es" class="lang lang-es">Lista de Reservas</h1>
-    <h1 lang="en" class="lang lang-en d-none">Bookings List</h1>
-    <br>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><%= title %></h1>
+        <% if (todosLosUsuarios && todosLosUsuarios.length > 0) { %>
+            <form action="/reserva/listareservas" method="GET" class="d-flex gap-2">
+                
+                <select name="id" id="filtroUsuario" class="form-select" style="min-width: 220px;">
+                    
+                    <option value="" <%= (idSeleccionado === 0) ? 'selected' : '' %>>
+                        -- Ver Todas las Reservas --
+                    </option>
+                    
+                    <% todosLosUsuarios.forEach(u => { %>
+                        <option value="<%= u.id_usuario %>" <%= (u.id_usuario === idSeleccionado) ? 'selected' : '' %>>
+                            <%= u.nombre %> (<%= u.correo %>)
+                        </option>
+                    <% }) %>
+                </select>
+
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+            </form>
+        <% } %>
+    </div>
+
 
     <% if (listaDeReservas && listaDeReservas.length > 0) { %>
 
         <div id="tabla-reservas-descripcion" class="visually-hidden">
-            <span lang="es" class="lang lang-es">
-                Esta tabla detalla todas las reservas de vehículos registradas, mostrando el nombre del cliente, su email, el vehículo seleccionado y las fechas de inicio y fin de la reserva.
-            </span>
-            <span lang="en" class="lang lang-en d-none">
-                This table details all registered vehicle bookings, showing the client's name, their email, the selected vehicle, and the booking start and end dates.
-            </span>
         </div>
 
         <div class="table-responsive-md">
-            
             <table class="table table-hover" aria-describedby="tabla-reservas-descripcion">
-                
                 <caption class="text-center">
-                    <span class="lang lang-es">Reservas actuales en el sistema: </span>
-                    <span class="lang lang-en d-none">Current bookings in the system: </span>
+                    <span class="lang lang-es">Reservas mostradas: </span>
+                    <span class="lang lang-en d-none">Bookings shown: </span>
                     <strong><%= listaDeReservas.length %></strong>
                 </caption>
                 
@@ -53,8 +65,9 @@
                 <tbody>
                     <% listaDeReservas.forEach(reserva => { %>
                         <tr>
-                            <td><%= reserva.nombre %> <%= reserva.apellido1 %> <%= reserva.apellido2 %></td>
-                            <td><%= reserva.email %></td>
+                            <td><%= reserva.usuarioNombre %></td>
+                            <td><%= reserva.usuarioCorreo %></td>
+                            
                             <td><%= reserva.vehiculo %></td>
                             <td><%= reserva.fechaInicio %></td>
                             <td><%= reserva.fechaFin %></td>
@@ -65,13 +78,12 @@
         </div>
 
     <% } else { %>
-
         <div class="alert alert-info text-center" role="alert">
             <h4 class="alert-heading lang lang-es">No hay reservas</h4>
             <h4 class="alert-heading lang lang-en d-none">No bookings found</h4>
             
-            <p class="lang lang-es mb-0">Todavía no se ha realizado ninguna reserva en el sistema.</p>
-            <p class="lang lang-en d-none mb-0">No bookings have been made in the system yet.</p>
+            <p class="lang lang-es mb-0">No se encontraron reservas para la selección actual.</p>
+            <p class="lang lang-en d-none mb-0">No bookings were found for the current selection.</p>
         </div>
     
     <% } %>

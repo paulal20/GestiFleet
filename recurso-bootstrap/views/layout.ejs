@@ -54,18 +54,29 @@
                         <span lang="en" class="lang lang-en d-none">Vehicles</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="/reserva" class="nav-link">
-                        <span lang="es" class="lang lang-es">Reservas</span>
-                        <span lang="en" class="lang lang-en d-none">Bookings</span>
-                        </a>
-                    </li>
-                    <li> 
-                        <a href="/reserva/listareservas" class="nav-link">
-                        <span lang="es" class="lang lang-es">Lista de Reservas</span>
-                        <span lang="en" class="lang lang-en d-none">Bookings List</span>
-                        </a>
-                    </li>
+                    <% if (usuario) { %>
+                        <li class="nav-item">
+                            <a href="/reserva" class="nav-link">
+                                <span lang="es" class="lang lang-es">Reservar</span>
+                                <span lang="en" class="lang lang-en d-none">Book</span>
+                            </a>
+                        </li>
+                        <% if (usuario.rol === 'admin') { %>
+                            <li class="nav-item">
+                                <a href="/reserva/listareservas" class="nav-link">
+                                    <span lang="es" class="lang lang-es">Ver Todas las Reservas</span>
+                                    <span lang="en" class="lang lang-en d-none">View All Bookings</span>
+                                </a>
+                            </li>
+                        <% } else { %>
+                            <li class="nav-item">
+                                <a href="/reserva/mis-reservas" class="nav-link">
+                                    <span lang="es" class="lang lang-es">Mis Reservas</span>
+                                    <span lang="en" class="lang lang-en d-none">My Bookings</span>
+                                </a>
+                            </li>
+                        <% } %>
+                    <% } %>
                     <li class="nav-item">
                         <a href="/contacto" class="nav-link">
                         <span lang="es" class="lang lang-es">Contacto</span>
