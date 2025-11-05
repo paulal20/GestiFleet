@@ -79,8 +79,10 @@
           <span class="error" id="error-condiciones" aria-live="polite"></span>
         </div>
     </fieldset>
-    <button type="reset" class="btn btn-outline-secondary mt-3">Borrar formulario</button>
-    <button type="submit" class="btn btn-success mt-3">Enviar</button>
+    <div class="d-flex justify-content-end mt-3 gap-2">
+      <button type="reset" class="btn btn-outline-secondary">Borrar formulario</button>
+      <button type="submit" class="btn btn-success">Enviar</button>
+    </div>
   </form>
 
   <form id="revistaFormEn" lang="en" autocomplete="off" class="lang lang-en d-none" action="/reserva" method="POST" novalidate>
@@ -149,8 +151,10 @@
             <span class="error" id="error-condiciones_en" aria-live="polite"></span>
         </div>
     </fieldset>
-
-    <button type="reset" class="btn btn-outline-secondary mt-3">Delete form</button>
-    <button type="submit" class="btn btn-success mt-3">Submit</button>
+    <div class="d-flex justify-content-end mt-3 gap-2">
+      <button type="reset" class="btn btn-outline-secondary">Clear form</button>
+      <button type="submit" class="btn btn-success">Submit</button>
+    </div>
   </form>
 </div>
+<script src="/js/formulario.js"></script>

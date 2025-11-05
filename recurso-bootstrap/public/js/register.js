@@ -139,6 +139,11 @@ document.addEventListener("DOMContentLoaded", function(){
             } else if (!estaVacio(input.value)) {
                 input.classList.add("is-valid");
             }
+
+            if (key === "email" && !estaVacio(campos.confemail?.value)) {
+                validarCampoEnTiempoReal("confemail");
+            }
+
         }
 
         Object.keys(campos).forEach(key => {
