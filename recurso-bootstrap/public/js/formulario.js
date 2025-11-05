@@ -254,8 +254,6 @@ document.addEventListener("DOMContentLoaded", function(){
 
             if (valido) {
                 console.log("Formulario válido. Enviando...");
-                
-                alert("Formulario enviado correctamente.");
                 form.submit();
             } else {
                 const primeraClaveInvalida = Object.keys(campos).find(k => errores[k] && errores[k].textContent);
