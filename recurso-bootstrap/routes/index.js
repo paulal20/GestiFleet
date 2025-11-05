@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const store = require('../data/store');
 const { isGuest } = require('../middleware/auth');
-// const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 // npm install bcrypt
+
+const SALT_ROUNDS = 10;
 
 router.get('/', (req, res) => {
   let nombre = "usted"; // valor por defecto
@@ -32,7 +34,7 @@ router.get('/login', isGuest, (req, res) => {
   });
 })
 
-router.post('/login', isGuest, (req, res) => {
+router.post('/login', isGuest, async (req, res) => {
   const { email: correo, contrasenya: password } = req.body;
   // const { usuarios } = store; //req.app.locals.store
 
@@ -45,24 +47,22 @@ router.post('/login', isGuest, (req, res) => {
       mensaje: null
     });
   }
-  const esValida = password === usuario.password;
-  // await bcrypt.compare(password, user.password);
-  // try {
-  //   const esValida = await bcrypt.compare(password, user.password);
-  //   if(!esValida){
-  //     return res.render('login', {error:'Contraseña incorrecta'});
-  //   }
-  // } catch(err) {
-  //   console.error(err);
-  //   return res.render('login', {error: 'Error interno en la validación'});
-  // }
-  if(!esValida){
-   return res.render('login', {
-      title: 'Inicio de Sesión',
-      error: 'Contraseña incorrecta',
-      mensaje: null
-    });
+  // const esValida = password === usuario.password;
+  try {
+
+    const esValida = await bcrypt.compare(password, usuario.password);
+    if(!esValida){
+      return res.render('login', {
+        title: 'Inicio de Sesión',
+        error: 'Contraseña incorrecta',
+        mensaje: null
+      });
+    }
+  } catch(err) {
+    console.error(err);
+    return res.render('login', {error: 'Error interno en la validación'});
   }
+  
   req.session.usuario = usuario;
 
   res.redirect('/');
@@ -72,7 +72,7 @@ router.get('/register', isGuest, (req, res) => {
   res.render('register', { title: 'Registro' , error: null, concesionarios: store.concesionarios});
 })
 
-router.post('/register', isGuest, (req, res) => {
+router.post('/register', isGuest, async (req, res) => {
   const { email: correo, contrasenya: password } = req.body;
   const { usuarios } = store;
 
@@ -85,8 +85,8 @@ router.post('/register', isGuest, (req, res) => {
   }
 
   try {
-    const hash = password;
-    // const hash = await bcrypt.hash(password, SALT_ROUNDS);
+    // const hash = password;
+    const hash = await bcrypt.hash(password, SALT_ROUNDS);
 
     const nuevoUser = {
       id_usuario: usuarios.length + 1,
@@ -98,7 +98,7 @@ router.post('/register', isGuest, (req, res) => {
     };
 
     usuarios.push(nuevoUser);
-    //lo logeamos directamente?? o q tenga q hacer el login?
+    
     req.session.usuario = nuevoUser
 
     console.table(store.usuarios);

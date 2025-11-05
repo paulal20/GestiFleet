@@ -1,14 +1,16 @@
+const bcrypt = require('bcrypt');
+
 const concesionarios = [
     { id_concesionario: 1, nombre: 'GestiFleet Madrid', ciudad: 'Madrid', direccion: 'Calle Falsa 123' },
     { id_concesionario: 2, nombre: 'GestiFleet Barcelona', ciudad: 'Barcelona', direccion: 'Avenida Siempre Viva 742' }
 ];
 
-const usuarios = [
+const usuariosPlain = [
     {
         id_usuario: 1,
         nombre: 'Administrador',
         correo: 'admin@gestifleet.com',
-        password: 'Admin^12', // Temporal - Cambiar a hash
+        password: 'Admin^12', // Temporales en claro
         rol: 'admin',
         id_concesionario: 1
     },
@@ -16,11 +18,17 @@ const usuarios = [
         id_usuario: 2,
         nombre: 'Empleado Ejemplo',
         correo: 'empleado@gestifleet.com',
-        password: 'Empleado^1', // Temporal - Cambiar a hash
+        password: 'Empleado^1', // Temporales en claro
         rol: 'empleado',
         id_concesionario: 2
     }
 ];
+
+// Hashea las contraseñas al cargar el módulo (sincronamente)
+const usuarios = usuariosPlain.map(u => ({
+    ...u,
+    password: bcrypt.hashSync(u.password, 10) // 10 salt rounds
+}));
 
 const vehiculos = [
     { id: 1, nombre: 'byd_seal1', marca: 'BYD', modelo: 'Seal 1', anyo: 2023, descripcion: 'Sedán eléctrico moderno con diseño aerodinámico y rendimiento eficiente para ciudad y carretera.', tipo: 'coche', precio: '40.000', id_concesionario: 1, estado: 'disponible' },
