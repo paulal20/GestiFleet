@@ -19,16 +19,10 @@ app.use(session({
   saveUninitialized: false
 }));
 
-//---------------------PARTE NUEVA PARA LAB 7---------------------//
-// Middleware GLOBAL para exponer el usuario a TODAS las vistas
 app.use((req, res, next) => {
-  // Guardamos el usuario de la sesión (si existe) en res.locals
-  // 'res.locals' hace que la variable 'usuario' esté disponible
-  // automáticamente en todas tus plantillas EJS
   res.locals.usuario = req.session.usuario || null;
   next();
 });
-//-------------------FIN PARTE NUEVA PARA LAB 7-------------------//
 
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
