@@ -1,0 +1,108 @@
+/* Define la estructura principal de la página, incluyendo el header/nav fijo (.header-nav) y la barra de navegación personalizada (.custom-navbar). */
+.header-nav header {
+ background-color: var(--color-primary);
+ color: var(--btn-active);
+ padding: 0.75rem 1rem;
+}
+
+.header-nav nav {
+ background-color: var(--color-nav);
+ padding: 0.25rem 1rem;
+}
+
+.header-nav {
+ position: fixed;
+ top: 0;
+ left: 0;
+ right: 0;
+ z-index: 1040; 
+ padding-top: env(safe-area-inset-top, 0);
+ box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+ background: var(--color-primary); 
+}
+
+.header-nav .navbar-collapse {
+ z-index: 1050;
+ position: relative;
+}
+
+.custom-navbar .nav-link {
+  color: var(--color-link);
+  font-weight: 500;
+  position: relative;
+  transition: color 0.3s ease;
+  padding: 0.5rem 0.8rem;
+  display: inline-block; 
+  margin-right: 0.8rem;
+}
+
+.custom-navbar .nav-item:last-child .nav-link {
+  margin-right: 0;
+}
+
+.custom-navbar .navbar-nav {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.custom-navbar .nav-link::after {
+ content: "";
+ position: absolute;
+ bottom: 0;
+ left: 0;
+ width: 0%;
+ height: 2px;
+ background-color: var(--color-primary);
+ transition: width 0.3s ease;
+}
+
+.custom-navbar .nav-link.dropdown-toggle {
+ display: inline-flex;
+ align-items: center;
+ padding-right: 0.5rem;
+}
+
+.custom-navbar .desplegable::after {
+ content: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23dbe4f5'><path d='M0 2h10L5 8z'/></svg>") !important;
+ border: none;
+ margin-left: 0.3rem;
+}
+
+.custom-navbar .nav-link.dropdown-toggle::after { 
+ content: "" !important;
+ border: none;
+ margin-left: 0.3rem;
+}
+
+.custom-navbar .nav-link:hover::after,
+.custom-navbar .nav-link.active::after {
+ width: 100%;
+}
+
+.custom-navbar .nav-link:hover,
+.custom-navbar .nav-link.active {
+ color: var(--color-primary);
+}
+
+.custom-navbar .dropdown-menu {
+ background-color: var(--color-nav);
+ border: 1px solid var(--color-primary);
+}
+
+.custom-navbar .dropdown-item {
+ color: var(--color-link);
+}
+
+.custom-navbar .dropdown-item:hover {
+ background-color: var(--color-primary-hover);
+ color: #fff;
+}
+
+.custom-navbar .navbar-toggler {
+ border-color: var(--color-link);
+}
+
+.custom-navbar .navbar-toggler-icon {
+ background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(219, 228, 245, 0.9)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}

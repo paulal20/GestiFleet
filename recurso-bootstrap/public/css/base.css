@@ -1,0 +1,31 @@
+/* Contiene los estilos base para body, main, footer y el espaciado principal #app-main. */
+body {
+  font-family: Arial, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+#app-main {
+ padding-top: var(--top-offset);
+}
+
+h1 {
+  font-size: 3.25rem;
+ margin: 0 0 0.25rem;
+ color: var(--btn-active);
+ line-height: 1;
+ padding-bottom: 2px;
+}
+
+main {
+  background-color: var(--color-bg);
+  padding: 1rem;
+  color: var(--color-text);
+}
+
+footer {
+    background-color: var(--color-nav);
+    color: var(--color-link);
+    text-align: center;
+    padding: 1rem;
+}

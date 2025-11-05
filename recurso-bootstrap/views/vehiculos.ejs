@@ -20,23 +20,24 @@
     <% if (vehiculos && vehiculos.length > 0) { %>
       <% vehiculos.forEach(v => { %>
       <div class="col">
-        <div class="vehiculo-card card h-100">
-          <div class="vehiculo-img-container">
-            <img src="/img/vehiculos/<%= v.nombre.toLowerCase() %>.png" class="card-img-top" alt="<%= v.marca %>">
-          </div>
-          <div class="card-body">
-            <h5 class="card-title"><%= v.marca %></h5>
-            <p class="card-text"><%= v.descripcion %></p>
-            <p class="card-text">Tipo: <%= v.tipo %></p>
-            <p class="text-muted">Desde <%= v.precio %> €</p>
+        <a href="/vehiculos/<%= v.id %>" class="d-block" style="  text-decoration: none !important;">
+          <div class="vehiculo-card card-base h-100">
+            <div class="vehiculo-img-container">
+              <img src="/img/vehiculos/<%= v.nombre.toLowerCase() %>.png" class="card-img-top" alt="<%= v.marca %>">
+            </div>
+            <div class="card-body">
+              <h5 class="card-title"><%= v.marca %></h5>
+              <p class="card-text"><%= v.descripcion %></p>
+              <p class="card-text">Tipo: <%= v.tipo %></p>
+              <p class="text-muted">Desde <%= v.precio %> €</p>
 
-            <a href="/vehiculos/<%= v.id %>" class="text-primary d-block mb-2">Ver detalles</a>  
+              <a href="/vehiculos/<%= v.id %>" class="text-primary d-block ">Ver detalles</a>  
+            </div>
+            <div class="card-footer p-0">
+              <a href="/reserva" class="btn btn-primary w-100 rounded-0">Reservar</a>
+            </div>
           </div>
-          <div class="card-footer p-0">
-            <!-- <a href="/vehiculos/<%= v.id %>" class="btn btn-primary w-50 rounded-0">Ver detalle</a> -->
-            <a href="/reserva" class="btn btn-primary w-100 rounded-0">Reservar</a>
-          </div>
-        </div>
+        </a> 
       </div>
       <% }) %>
     <% } else { %>

@@ -382,13 +382,6 @@ button:active {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(219, 228, 245, 0.9)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
-.error {
-    color: red;
-    font-size: 0.85em;
-    display: block;
-    margin-bottom: 0.5em;
-  }
-
 .vehiculo-card {
   background-color: var(--color-field-bg);
   border: 2px solid var(--color-field-border);
@@ -529,9 +522,9 @@ textarea.is-invalid {
   box-shadow: 0 0 5px #dc354566;
 }
 
-.error {
+  .error {
   color: #dc3545;
-  font-size: 12px;
+  font-size: 0.85em;
   display: block;
   min-height: 16px;
   margin-top: 4px;

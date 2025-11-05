@@ -1,0 +1,51 @@
+/* Contiene los estilos para las páginas de error (404/500) y los mensajes de error de validación (.error). */
+.error {
+  color: #dc3545;
+  font-size: 0.85em;
+  display: block;
+  min-height: 16px;
+  margin-top: 4px;
+}
+
+.error-page-wrapper {
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ min-height: calc(100vh - var(--top-offset)); 
+ padding: 2rem;
+ box-sizing: border-box;
+ background: transparent; 
+}
+
+.error-box {
+ width: 100%;
+ max-width: 880px;
+ background: var(--color-field-bg);      
+ border: 2px solid var(--color-nav);      
+ border-radius: 12px;
+ padding: 2.25rem;
+ box-shadow: 0 8px 30px rgba(32,40,60,0.10);
+ text-align: center;
+ color: var(--color-text);
+ transform-origin: center;
+}
+
+.error-box .error-url {
+ opacity: 0.9;
+ font-size: 0.95rem;
+ margin-top: 0.5rem;
+}
+
+ .dark-theme .error-box {
+ background: var(--color-input-bg);
+ color: var(--color-text);
+ border-color: var(--color-primary-hover);
+}
+
+.error {
+ color: #dc3545;
+ font-size: 12px;
+ display: block;
+ min-height: 16px;
+ margin-top: 4px;
+}

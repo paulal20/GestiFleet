@@ -1,29 +1,37 @@
 <div class="vehiculo-detalle-content">
   <div class="vehiculo-card card mx-auto" style="max-width: 600px;">
     <div class="vehiculo-img-container">
-      <img src="/img/vehiculos/<%= vehiculo.nombre.toLowerCase() %>.png" class="card-img-top" alt="<%= vehiculo.marca %>">
+      <img src="/img/vehiculos/<%= vehiculo.nombre.toLowerCase() %>.png" class="card-img-top"
+        alt="<%= vehiculo.marca %>">
     </div>
     <div class="card-body">
-      <h5 class="card-title"><%= vehiculo.marca %> <%= vehiculo.modelo %> (<%= vehiculo.anyo %>)</h5>
-      <p class="card-text"><%= vehiculo.descripcion %></p>
-      <p class="card-text">Tipo: <%= vehiculo.tipo %></p>
+      <h5 class="card-title">
+        <%= vehiculo.marca %>
+          <%= vehiculo.modelo %> (<%= vehiculo.anyo %>)
+      </h5>
+      <p class="card-text">
+        <%= vehiculo.descripcion %>
+      </p>
+      <p class="card-text">Tipo: <%= vehiculo.tipo %>
+      </p>
 
       <p class="card-text">
         <strong>Estado:</strong>
-        <% if (vehiculo.estado === 'disponible') { %>
+        <% if (vehiculo.estado==='disponible' ) { %>
           <span class="badge bg-success">Disponible</span>
-        <% } else if (vehiculo.estado === 'reservado') { %>
-          <span class="badge bg-warning text-dark">Reservado</span>
-        <% } else { %>
-          <span class="badge bg-danger">Mantenimiento</span>
-        <% } %>
+          <% } else if (vehiculo.estado==='reservado' ) { %>
+            <span class="badge bg-warning text-dark">Reservado</span>
+            <% } else { %>
+              <span class="badge bg-danger">Mantenimiento</span>
+              <% } %>
       </p>
       <p class="card-text">
-        <strong>Concesionario:</strong> <%= concesionario.nombre %>
+        <strong>Concesionario:</strong>
+        <%= concesionario.nombre %>
       </p>
       <p class="text-muted">Desde <%= vehiculo.precio %> €</p>
     </div>
-    <div class="card-footer d-flex gap-2">
+    <div class="perfil-actions d-flex">
       <a href="/vehiculos" class="btn btn-secondary w-50">Volver a la lista</a>
       <a href="/reserva" class="btn btn-primary w-50">Reservar</a>
     </div>

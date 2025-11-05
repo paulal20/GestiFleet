@@ -1,0 +1,70 @@
+/* Contiene todos los estilos para dispositivos móviles (media query max-width: 768px). */
+@media (max-width: 768px) {
+
+ :root { --top-offset: 120px; } 
+
+ header h1 {
+  font-size: 2rem;
+  margin-left: 0.5rem;
+  text-align: center;
+ }
+
+ legend {
+  font-size: 1.2rem;
+  text-align: center;
+ }
+
+ .custom-navbar .navbar-nav {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+ }
+
+ .custom-navbar .navbar-toggler {
+  margin-left: auto; 
+ }
+
+ .custom-navbar .container-fluid {
+  display: flex;
+  align-items: center;
+ }
+
+ nav {
+  padding: 0.5rem 1rem;
+ }
+
+ .custom-navbar .nav-link {
+  margin-right: 0;
+  padding: 0.3rem 0;
+  width: 100%;
+ }
+
+ .custom-navbar .nav-item {
+  width: 100%;
+ }
+
+ form {
+  padding: 0.5rem;
+ }
+
+ fieldset {
+  padding: 1rem 0.8rem;
+ }
+
+ #formProgress {
+  height: 16px;
+ }
+
+ .vehiculo-card {
+  margin-bottom: 1.5rem;
+ }
+
+ .vehiculo-img-container {
+  height: 160px;
+ }
+
+ footer {
+  font-size: 0.9rem;
+  padding: 0.8rem;
+ }
+}

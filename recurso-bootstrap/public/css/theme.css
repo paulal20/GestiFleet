@@ -1,0 +1,36 @@
+/* Contiene las variables CSS globales (:root) y las variables del modo oscuro (.dark-theme). */
+:root{
+ --color-bg: #e3eaf2;      /* fondo claro */
+ --color-text: #273444;     /* texto principal */
+ --color-primary: #9cafe4;    /* azul claro principal (header, botones) */
+ --color-primary-hover: #6f85c0; /* hover primary */
+ --color-nav: #394069;      /* nav / footer bg */
+ --color-link: #dbe4f5; /* color enlaces en nav/footer */
+ --color-field-bg: #ffffff; /* fondo de fieldset/panel */
+ --color-legend-bg: rgba(219,228,245,0.6);
+ --color-input-bg: #f4f7fa;
+ --color-field-border: #9cafe4;
+ --shadow-focus: 0 0 0 3px rgba(111,133,192,0.3);
+ --btn-bg: #6f85c0;
+ --btn-hover: #4d649a;
+ --btn-active: #394069;
+ --top-offset: 140px;
+}
+
+/* ========== MODO OSCURO: clase .dark-theme ========== */
+.dark-theme {
+ --color-bg: #0c101a; 
+ --color-text: #e6ebf5;
+ --color-primary: #6f85c0;
+ --color-primary-hover: #9cafe4;
+ --color-nav: #1a1e33;
+ --color-link: #b9c7e8;
+ --color-field-bg: #161b2a; 
+ --color-legend-bg: rgba(111,133,192,0.2);
+ --color-input-bg: #1d2438; 
+ --color-field-border: #6f85c0; 
+ --shadow-focus: 0 0 0 3px rgba(111,133,192,0.35);
+ --btn-bg: #6f85c0;
+ --btn-hover: #9cafe4; 
+ --btn-active: #e6ebf5; 
+}

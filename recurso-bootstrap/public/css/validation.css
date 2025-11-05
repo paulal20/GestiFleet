@@ -1,0 +1,104 @@
+/* Estilos para la validación de formularios, incluyendo los estados .is-valid, .is-invalid y sobreescrituras de autofill. */
+input.is-valid,
+select.is-valid,
+textarea.is-valid {
+ border: 2px solid #28a745;
+ background-color: #e6ffed;
+}
+
+input.is-invalid,
+select.is-invalid,
+textarea.is-invalid {
+ border: 2px solid #dc3545;
+ background-color: #ffe6e6;
+}
+
+.dark-theme input.is-valid,
+.dark-theme select.is-valid,
+.dark-theme textarea.is-valid {
+ border: 2px solid #6fcf97;  
+ background-color: #153d2d;  
+ color: #e6ffed;      
+}
+
+.dark-theme input.is-invalid,
+.dark-theme select.is-invalid,
+.dark-theme textarea.is-invalid {
+ border: 2px solid #bb2525;    
+ background-color: #331b1b;   
+ color: #ffd6d6;       
+}
+
+.dark-theme input.is-valid {
+ box-shadow: 0 0 5px #28a74566;
+}
+
+.dark-theme input.is-invalid {
+ box-shadow: 0 0 5px #dc354566;
+}
+
+input.is-valid:-webkit-autofill,
+textarea.is-valid:-webkit-autofill,
+select.is-valid:-webkit-autofill {
+ -webkit-box-shadow: 0 0 0 1000px #e6ffed inset !important;
+ box-shadow: 0 0 0 1000px #e6ffed inset !important;
+ -webkit-text-fill-color: var(--color-text) !important;
+ background-clip: content-box;
+}
+
+input.is-invalid:-webkit-autofill,
+textarea.is-invalid:-webkit-autofill,
+select.is-invalid:-webkit-autofill {
+ -webkit-box-shadow: 0 0 0 1000px #ffe6e6 inset !important;
+ box-shadow: 0 0 0 1000px #ffe6e6 inset !important;
+ -webkit-text-fill-color: #7a1c1c !important;
+ background-clip: content-box;
+}
+
+input.is-valid:-moz-autofill,
+textarea.is-valid:-moz-autofill,
+select.is-valid:-moz-autofill {
+ -moz-box-shadow: 0 0 0 1000px #e6ffed inset !important;
+ box-shadow: 0 0 0 1000px #e6ffed inset !important;
+ -moz-text-fill-color: var(--color-text) !important;
+}
+
+input.is-invalid:-moz-autofill,
+textarea.is-invalid:-moz-autofill,
+select.is-invalid:-moz-autofill {
+ -moz-box-shadow: 0 0 0 1000px #ffe6e6 inset !important;
+ box-shadow: 0 0 0 1000px #ffe6e6 inset !important;
+ -moz-text-fill-color: #7a1c1c !important;
+}
+
+.dark-theme input.is-valid:-webkit-autofill,
+.dark-theme textarea.is-valid:-webkit-autofill,
+.dark-theme select.is-valid:-webkit-autofill {
+ -webkit-box-shadow: 0 0 0 1000px #153d2d inset !important;
+ box-shadow: 0 0 0 1000px #153d2d inset !important;
+ -webkit-text-fill-color: #e6ffed !important;
+}
+
+.dark-theme input.is-invalid:-webkit-autofill,
+.dark-theme textarea.is-invalid:-webkit-autofill,
+.dark-theme select.is-invalid:-webkit-autofill {
+ -webkit-box-shadow: 0 0 0 1000px #331b1b inset !important;
+ box-shadow: 0 0 0 1000px #331b1b inset !important;
+ -webkit-text-fill-color: #ffd6d6 !important;
+}
+
+.dark-theme input.is-valid:-moz-autofill,
+.dark-theme textarea.is-valid:-moz-autofill,
+.dark-theme select.is-valid:-moz-autofill {
+ -moz-box-shadow: 0 0 0 1000px #153d2d inset !important;
+ box-shadow: 0 0 0 1000px #153d2d inset !important;
+ -moz-text-fill-color: #e6ffed !important;
+}
+
+.dark-theme input.is-invalid:-moz-autofill,
+.dark-theme textarea.is-invalid:-moz-autofill:invalid,
+.dark-theme select.is-invalid:-moz-autofill:invalid {
+ -moz-box-shadow: 0 0 0 1000px #331b1b inset !important;
+ box-shadow: 0 0 0 1000px #331b1b inset !important;
+ -moz-text-fill-color: #ffd6d6 !important;
+}
