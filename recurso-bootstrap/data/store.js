@@ -10,7 +10,7 @@ const usuariosPlain = [
         id_usuario: 1,
         nombre: 'Administrador',
         correo: 'admin@gestifleet.com',
-        password: 'Admin^12', // Temporales en claro
+        password: 'Admin^12',
         rol: 'admin',
         id_concesionario: 1
     },
@@ -18,7 +18,7 @@ const usuariosPlain = [
         id_usuario: 2,
         nombre: 'Empleado Ejemplo',
         correo: 'empleado@gestifleet.com',
-        password: 'Empleado^1', // Temporales en claro
+        password: 'Empleado^1',
         rol: 'empleado',
         id_concesionario: 2
     }
