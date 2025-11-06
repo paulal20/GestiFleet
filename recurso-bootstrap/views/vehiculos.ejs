@@ -2,6 +2,8 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>Vehículos ofertados en GestiFleet:</h1>
 
+  </div>   
+  <div>
     <form method="GET" action="/vehiculos" class="d-flex gap-2 align-items-center">
       <label for="tipo" class="mb-0">Filtrar por tipo:</label>
       <select name="tipo" id="tipo" class="form-select w-auto">
@@ -12,10 +14,19 @@
           <% }) %>
         <% } %>
       </select>
+      <label for="estado" class="mb-0">Filtrar por estado:</label>
+      <select name="estado" id="estado" class="form-select w-auto">
+        <option value="">Todos</option>
+        <% if (estadosDisponibles && estadosDisponibles.length > 0) { %>
+          <% estadosDisponibles.forEach(function(e) { %>
+            <option value="<%= e %>"> <%= e %> </option>
+          <% }) %>
+        <% } %>
+      </select>
       <button type="submit" class="btn btn-primary">Filtrar</button>
     </form>
-  </div>        
-
+  </div>     
+  <br>
   <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     <% if (vehiculos && vehiculos.length > 0) { %>
       <% vehiculos.forEach(v => { %>
@@ -28,13 +39,13 @@
             <div class="card-body">
               <h5 class="card-title"><%= v.marca %></h5>
               <p class="card-text"><%= v.descripcion %></p>
-              <p class="card-text">Tipo: <%= v.tipo %></p>
+              <!-- <p class="card-text">Tipo: <%= v.tipo %></p> -->
               <p class="text-muted">Desde <%= v.precio %> €</p>
 
-              <a href="/vehiculos/<%= v.id %>" class="text-primary d-block ">Ver detalles</a>  
+              <!-- <a href="/vehiculos/<%= v.id %>" class="text-primary d-block ">Ver detalles</a>   -->
             </div>
             <div class="card-footer p-0">
-              <a href="/reserva" class="btn btn-primary w-100 rounded-0">Reservar</a>
+              <a href="/reserva?idVehiculo=<%= v.id %>" class="btn btn-primary w-100 rounded-0">Reservar</a>
             </div>
           </div>
         </a> 

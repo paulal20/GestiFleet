@@ -3,18 +3,26 @@ const router = express.Router();
 
 router.get('/', (req, res) => {
     const { vehiculos } = req.app.locals.store;
-    const { tipo } = req.query;
+    const { tipo, estado } = req.query;
 
-    const filtro = tipo
-        ? vehiculos.filter(v => v.tipo.toLowerCase() === tipo.toLowerCase())
-        : vehiculos;
+    var filtro = vehiculos;
 
+    if(tipo) {
+        filtro = filtro.filter(v => v.tipo.toLowerCase() === tipo.toLowerCase());
+    }
+    if (estado) {
+        filtro = filtro.filter(v => v.estado.toLowerCase() === estado.toLowerCase());
+    }
     const tiposDisponibles = [...new Set(vehiculos.map(v => v.tipo))];
+    const estadosDisponibles = [...new Set(vehiculos.map(v => v.estado))];
 
     res.render('vehiculos', {
         title: 'Vehículos',
         vehiculos: filtro,
-        tiposDisponibles
+        tiposDisponibles,
+        estadosDisponibles,
+        tipoSeleccionado: tipo || '',
+        estadoSeleccionado: estado || ''
     });
 });
 
