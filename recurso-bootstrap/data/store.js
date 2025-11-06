@@ -11,7 +11,7 @@ const usuariosPlain = [
         nombre: 'Administrador',
         correo: 'admin@gestifleet.com',
         password: 'Admin^12',
-        rol: 'admin',
+        rol: 'Admin',
         id_concesionario: 1
     },
     {
@@ -19,7 +19,7 @@ const usuariosPlain = [
         nombre: 'Empleado Ejemplo',
         correo: 'empleado@gestifleet.com',
         password: 'Empleado^1',
-        rol: 'empleado',
+        rol: 'Empleado',
         id_concesionario: 2
     }
 ];

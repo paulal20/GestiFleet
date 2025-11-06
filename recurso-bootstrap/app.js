@@ -5,8 +5,10 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const expressLayouts = require('express-ejs-layouts');
 
+
 const app = express();
 const PORT = process.env.PORT || 3000;
+
 
 // Middleware
 app.use(morgan('dev'));

@@ -2,10 +2,10 @@
     "name": "ecomarket-app",
     "version": "1.0.0",
     "description": "Aplicación web desarrollada con Node.js y Express.js basada en el portal EcoMarket",
-    "main": "index.js",
+    "main": "app.js",
     "scripts": {
-        "start": "node index.js",
-        "dev": "nodemon index.js"
+        "start": "node app.js",
+        "dev": "nodemon app.js"
     },
     "author": "Alumno EcoMarket",
     "license": "MIT",

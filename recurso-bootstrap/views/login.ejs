@@ -31,15 +31,45 @@
             </div>
         </fieldset>
         <div class="d-flex justify-content-end mt-3 gap-2">
-            <button type="reset" class="btn btn-outline-secondary">Borrar formulario</button>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#modalOlvidoPassword">
+                ¿Has olvidado la contraseña?
+            </a>
             <button type="submit" class="btn btn-primary">Enviar</button>
         </div>
     </form>
     <hr class="my-4">
     <div class="text-center">
-        <span class="d-block mb-2">¿No tienes cuenta?</span>
+        <label class="d-block mb-2">¿No tienes cuenta?</span>
         <a href="/register" class="btn btn-primary">Regístrate</a>
     </div>
+
+    <div class="modal fade" id="modalOlvidoPassword" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+            
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">Restablecer contraseña</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            
+            <div class="modal-body">
+                <p>Introduce tu dirección de correo electrónico y te enviaremos un enlace para restablecer tu contraseña.</p>
+                
+                <form>
+                <div class="mb-3">
+                    <label for="email-reset" class="form-label">Email:</label>
+                    <input type="email" class="form-control" id="email-reset" placeholder="tunombre@correo.com" required>
+                </div>
+                </form>
+                <div class="d-flex justify-content-end mt-3 gap-2">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <a href="/" class="btn btn-primary">Enviar enlace</a>
+                </div>
+            </div>
+
+            </div>
+        </div>
+    </div>
+
 </div>
 <script src="/js/login.js"></script>
-<!-- AQUI TMB VALE Y ASI NO LE METEMOS EL JS A TODOS -->

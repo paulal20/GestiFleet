@@ -19,7 +19,11 @@
                     <%= usuario.nombre %>
                 </h4>
                 <small class="perfil-rol text-muted">
-                    <%= usuario.rol %>
+                    <% if (usuario.rol==='Empleado' ) { %>
+                        <span class="badge bg-success">Empleado</span>
+                          <% } else { %>
+                            <span class="badge bg-danger">Administrador</span>
+                            <% } %>
                 </small>
             </div>
 

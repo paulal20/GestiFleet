@@ -93,7 +93,7 @@ router.post('/register', isGuest, async (req, res) => {
       nombre: req.body.nombre,
       correo,
       password: hash,
-      rol: 'empleado',
+      rol: 'Empleado',
       id_concesionario: parseInt(req.body.concesionario)
     };
 
