@@ -53,9 +53,15 @@
           <label for="vehiculo" class="form-label obligatorio">Selecciona el vehículo: </label><br>
           <select id="vehiculo" name="vehiculo" class="form-select" required>
               <option value="">Seleccione un vehículo</option>
-              <option value="coche">Coche</option>
-              <option value="moto">Moto</option>
-              <option value="patinete">Patinete</option>
+              <% if (vehiculos && vehiculos.length > 0) { %>
+                <% vehiculos.forEach(v => { %>
+                  <option 
+                    value="<%= v.id %>" 
+                    <%= idVehiculoSeleccionado == v.id ? 'selected' : '' %>>
+                    <%= v.marca %> <%= v.modelo %>
+                  </option>
+                <% }) %>
+              <% } %>
           </select>
           <span class="error" id="error-vehiculo" aria-live="polite"></span>
         </div>

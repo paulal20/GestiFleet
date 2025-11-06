@@ -6,7 +6,9 @@ const { isAuth, isAdmin } = require('../middleware/auth');
 const store = require('../data/store');
 
 router.get('/', isAuth, (req, res) => {
-    res.render('reservas', { title: 'Reserva' });
+    const { vehiculos } = store;
+    const idVehiculoSeleccionado = parseInt(req.query.idVehiculo, 10) || null;
+    res.render('reservas', { title: 'Reserva', vehiculos, idVehiculoSeleccionado });
 });
 
 router.post('/', isAuth, (req, res) => {
@@ -16,6 +18,8 @@ router.post('/', isAuth, (req, res) => {
     datosRecibidos.id_usuario = req.session.usuario.id_usuario; 
     datosRecibidos.usuarioCorreo = req.session.usuario.correo;
     datosRecibidos.usuarioNombre = req.session.usuario.nombre;
+    const vehiculoSeleccionado = store.vehiculos.find(v => v.id === parseInt(datosRecibidos.vehiculo, 10));
+    datosRecibidos.vehiculo = vehiculoSeleccionado ? `${vehiculoSeleccionado.marca} ${vehiculoSeleccionado.modelo}` : 'Desconocido';
 
     reservas.push(datosRecibidos);
 
