@@ -157,4 +157,99 @@ document.addEventListener("DOMContentLoaded", function(){
             }
         });
     }
+
+    const modalOlvido = document.getElementById('modalOlvidoPassword');
+    const modalForm = document.getElementById('formOlvidoPassword');
+    const modalEmailInput = document.getElementById('email-reset');
+    const modalErrorSpan = document.getElementById('error-email-reset');
+    const modalGeneralError = document.getElementById('error-modal-general');
+    const modalSubmitBtn = document.getElementById('btnEnviarEnlaceModal');
+
+    if (modalOlvido && modalForm && modalEmailInput && modalErrorSpan && modalGeneralError && modalSubmitBtn) {
+
+        function validarEmailModal() {
+            if (typeof estaVacio === 'undefined') {
+                 window.estaVacio = (val) => val == null || String(val).trim() === "";
+            }
+
+            const v = String(modalEmailInput.value || "").trim();
+            if (estaVacio(v)) {
+                return "El email es obligatorio.";
+            }
+            const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!re.test(v)) {
+                return "El correo no tiene un formato válido.";
+            }
+            return "";
+        }
+
+        modalEmailInput.addEventListener('input', () => {
+            const errorMsg = validarEmailModal();
+            modalErrorSpan.textContent = errorMsg;
+            modalEmailInput.classList.remove('is-valid', 'is-invalid');
+            
+            if (errorMsg) {
+                modalEmailInput.classList.add('is-invalid');
+            } else if (!estaVacio(modalEmailInput.value)) {
+                modalEmailInput.classList.add('is-valid');
+            }
+            modalGeneralError.classList.add('d-none');
+        });
+
+        modalSubmitBtn.addEventListener('click', async function() {
+            const errorMsg = validarEmailModal();
+            modalEmailInput.classList.remove('is-valid', 'is-invalid');
+            modalGeneralError.classList.add('d-none'); 
+
+            if (errorMsg) {
+                modalErrorSpan.textContent = errorMsg;
+                modalEmailInput.classList.add('is-invalid');
+                modalEmailInput.focus();
+                return; 
+            }
+
+            modalErrorSpan.textContent = "";
+            modalEmailInput.classList.add('is-valid');
+            
+            const email = modalEmailInput.value.trim();
+
+            try {
+                const response = await fetch('/check-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.exists) {
+                    console.log("Email encontrado. Redirigiendo...");
+                    window.location.href = '/'; 
+                } else {
+                    modalGeneralError.textContent = data.message || "El correo electrónico no se encuentra registrado.";
+                    modalGeneralError.classList.remove('d-none'); 
+                    modalEmailInput.classList.add('is-invalid');
+                }
+
+            } catch (error) {
+                console.error('Error al verificar el email:', error);
+                
+                if (!response) {
+                    modalGeneralError.textContent = "Error de conexión. Inténtalo de nuevo.";
+                    modalGeneralError.classList.remove('d-none');
+                }
+            }
+        });
+
+        modalOlvido.addEventListener('hidden.bs.modal', function () {
+            modalEmailInput.value = "";
+            modalEmailInput.classList.remove('is-valid', 'is-invalid');
+            modalErrorSpan.textContent = "";
+            modalGeneralError.classList.add('d-none');
+            modalGeneralError.textContent = "";
+        });
+    }
+
 });

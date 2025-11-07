@@ -35,7 +35,7 @@ router.get('/login', isGuest, (req, res) => {
 })
 
 router.post('/login', isGuest, async (req, res) => {
-  const { email: correo, contrasenya: password } = req.body;
+  const { email: correo, contrasenya: password, remember } = req.body;
   // const { usuarios } = store; //req.app.locals.store
 
 
@@ -58,6 +58,13 @@ router.post('/login', isGuest, async (req, res) => {
         mensaje: null
       });
     }
+
+    if (remember) {
+      req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; 
+    } else {
+      req.session.cookie.maxAge = null; 
+    }
+
   } catch(err) {
     console.error(err);
     return res.render('login', {error: 'Error interno en la validación'});
@@ -116,6 +123,20 @@ router.get('/logout', (req, res) => {
   });
 });
 
+router.post('/check-email', (req, res) => {
+  const { email } = req.body;
+  
+  const usuario = store.usuarios.find(u => u.correo === email);
+
+  if (usuario) {
+    return res.json({ exists: true });
+  } else {
+    return res.status(404).json({ 
+      exists: false, 
+      message: "El correo electrónico no se encuentra registrado." 
+    });
+  }
+});
 
 router.get('/perfil', (req, res) => {
   const usuario = req.session.usuario;

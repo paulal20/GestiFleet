@@ -3,6 +3,10 @@ CREATE DATABASE IF NOT EXISTS GestifleetBD;
 USE GestifleetBD;
 
 ---
+DROP TABLE reservas;
+DROP TABLE vehiculos;
+DROP TABLE usuarios;
+DROP TABLE concesionarios;
 
 -- 2. Creación de las Tablas
 CREATE TABLE IF NOT EXISTS concesionarios (
