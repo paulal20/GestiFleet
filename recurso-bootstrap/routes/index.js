@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const store = require('../data/store');
 const { isGuest } = require('../middleware/auth');
 const bcrypt = require('bcrypt');
+const db = require('../data/db');
 // npm install bcrypt
+// npm install mysql2
 
 const SALT_ROUNDS = 10;
 
@@ -34,23 +35,25 @@ router.get('/login', isGuest, (req, res) => {
   });
 })
 
+// async function generarHash() {
+//   const hash = await bcrypt.hash("Admin^12", SALT_ROUNDS);
+//   console.log(hash);
+// }
+// generarHash();
+
 router.post('/login', isGuest, async (req, res) => {
   const { email: correo, contrasenya: password, remember } = req.body;
-  // const { usuarios } = store; //req.app.locals.store
-
-
-  const usuario = store.usuarios.find(u => u.correo === correo);
-  if(!usuario){
-    return res.render('login', {
-      title: 'Inicio de Sesión',
-      error: 'Usuario no encontrado',
-      mensaje: null
-    });
-  }
-  // const esValida = password === usuario.password;
-  try {
-
-    const esValida = await bcrypt.compare(password, usuario.password);
+  try{
+    const [usuarios] = await db.query('SELECT * FROM usuarios WHERE correo = ?', [correo]);
+    const usuario = usuarios[0];
+    if(!usuario){
+      return res.render('login', {
+        title: 'Inicio de Sesión',
+        error: 'Usuario no encontrado',
+        mensaje: null
+      });
+    }
+    const esValida = await bcrypt.compare(password, usuario.contraseña);
     if(!esValida){
       return res.render('login', {
         title: 'Inicio de Sesión',
@@ -58,21 +61,17 @@ router.post('/login', isGuest, async (req, res) => {
         mensaje: null
       });
     }
-
     if (remember) {
-      req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; 
+      req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
     } else {
-      req.session.cookie.maxAge = null; 
+      req.session.cookie.maxAge = null;
     }
-
-  } catch(err) {
-    console.error(err);
-    return res.render('login', {error: 'Error interno en la validación'});
+    req.session.usuario = usuario;
+    res.redirect('/');
+  } catch(err){
+    console.error('Error en el login:', err);
+    return res.render('login', {error: 'Error interno en el servidor', message: null});
   }
-  
-  req.session.usuario = usuario;
-
-  res.redirect('/');
 });
 
 router.get('/register', isGuest, (req, res) => {
@@ -80,39 +79,26 @@ router.get('/register', isGuest, (req, res) => {
 })
 
 router.post('/register', isGuest, async (req, res) => {
-  const { email: correo, contrasenya: password } = req.body;
-  const { usuarios } = store;
-
-  console.log("¡Nuevo registro recibido!");
-  console.table(req.body);
-
-  const existe = usuarios.find(u => u.correo === correo);
-  if(existe){
-    return res.render('register', { title: 'Registro', error: 'El correo ya está registrado', concesionarios: store.concesionarios });
-  }
-
-  try {
-    // const hash = password;
+  const { email: correo, contrasenya: password, concesionario, nombre, telefono } = req.body;
+  try{
+    const [usuarios] = await db.query('SELECT * FROM usuarios WHERE correo = ?', [correo]);
+    const [concesionarios] = await db.query('SELECT * FROM concesionarios');
+    if(usuarios.length > 0){
+      return res.render('register', { title: 'Registro', error: 'El correo ya está registrado', concesionarios});
+    }
     const hash = await bcrypt.hash(password, SALT_ROUNDS);
+    const [result] = await db.query(
+      'INSERT INTO usuarios (nombre, correo, contraseña, rol, telefono, id_concesionario) VALUES (?, ?, ?, ?, ?, ?)', 
+      [nombre, correo, hash, 'Empleado', telefono, parseInt(concesionario)]
+    );
 
-    const nuevoUser = {
-      id_usuario: usuarios.length + 1,
-      nombre: req.body.nombre,
-      correo,
-      password: hash,
-      rol: 'Empleado',
-      id_concesionario: parseInt(req.body.concesionario)
-    };
 
-    usuarios.push(nuevoUser);
-    
-    req.session.usuario = nuevoUser
-
-    console.table(store.usuarios);
+    const [nuevoUsuario] = await db.query('SELECT * FROM usuarios WHERE id_usuario = ?', [result.insertId]);
+    req.session.usuario = nuevoUsuario[0];
     res.redirect('/');
   } catch(err) {
-    console.error(err);
-    res.render('register', { title: 'Registro', error: 'Error al registrar usuario', concesionarios: store.concesionarios });
+    console.error('Error en el registro:', err);
+    return res.render('register', { title: 'Registro', error: 'Error interno en el servidor', concesionarios: store.concesionarios });
   }
 });
 

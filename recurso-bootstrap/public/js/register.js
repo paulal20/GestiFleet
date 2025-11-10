@@ -10,7 +10,8 @@ document.addEventListener("DOMContentLoaded", function(){
             email: document.getElementById("email"),
             confemail: document.getElementById("confemail"),
             contrasenya: document.getElementById("contrasenya"),
-            concesionario: document.getElementById("concesionario")
+            concesionario: document.getElementById("concesionario"),
+            telefono: document.getElementById("telefono")
         };
 
         const errores = {
@@ -20,7 +21,8 @@ document.addEventListener("DOMContentLoaded", function(){
             email: document.getElementById("error-email"),
             confemail: document.getElementById("error-confemail"),
             contrasenya: document.getElementById("error-contrasenya"),
-            concesionario: document.getElementById("error-concesionario")
+            concesionario: document.getElementById("error-concesionario"),
+            telefono: document.getElementById("error-telefono")
         };
 
         const mostrarContrasenya = document.getElementById("mostrarContrasenya");
@@ -99,6 +101,13 @@ document.addEventListener("DOMContentLoaded", function(){
 
             if (key === "concesionario") {
                 if (!v) return "Debes seleccionar un concesionario.";
+                return "";
+            }
+
+            if (key === "telefono") {
+                if (estaVacio(v)) return "El teléfono es obligatorio.";
+                const re = /^[0-9]{9,15}$/; 
+                if (!re.test(v)) return "Formato de teléfono no válido. Solo números, 9-15 dígitos.";
                 return "";
             }
 

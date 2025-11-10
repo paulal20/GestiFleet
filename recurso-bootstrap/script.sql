@@ -35,14 +35,18 @@ CREATE TABLE IF NOT EXISTS vehiculos (
   marca VARCHAR(50) NOT NULL,
   modelo VARCHAR(50) NOT NULL,
   año_matriculacion YEAR NOT NULL,
-  numero_plazas TINYINT NOT NULL,
-  autonomia_km INT NOT NULL,
-  color VARCHAR(30) NOT NULL,
+  descripcion TEXT,
+  tipo ENUM('coche','suv','furgoneta','otro') DEFAULT 'coche',
+  precio DECIMAL(10,2) NOT NULL,
+  numero_plazas TINYINT NOT NULL DEFAULT 5,
+  autonomia_km INT,
+  color VARCHAR(30),
   imagen VARCHAR(255),
   estado ENUM('disponible','reservado','mantenimiento') DEFAULT 'disponible',
   id_concesionario INT,
   FOREIGN KEY (id_concesionario) REFERENCES concesionarios(id_concesionario)
 );
+
 
 CREATE TABLE IF NOT EXISTS reservas (
   id_reserva INT AUTO_INCREMENT PRIMARY KEY,
@@ -63,25 +67,29 @@ INSERT INTO concesionarios (id_concesionario, nombre, ciudad, direccion, telefon
 (1, 'GestiFleet Madrid', 'Madrid', 'Calle Falsa 123', '000000000'),
 (2, 'GestiFleet Barcelona', 'Barcelona', 'Avenida Siempre Viva 742', '000000000');
 
-INSERT INTO usuarios (id_usuario, nombre, correo, contraseña, rol, id_concesionario) VALUES 
-(1, 'Administrador', 'admin@gestifleet.com', 'Admin^12', 'admin', 1),
-(2, 'Empleado Ejemplo', 'empleado@gestifleet.com', 'Empleado^1', 'empleado', 2);
+INSERT INTO usuarios (id_usuario, nombre, correo, contraseña, rol, telefono, id_concesionario) VALUES 
+(1, 'Administrador', 'admin@gestifleet.com', '$2b$10$yRO//lNEE/HAs9/cG7r18efG02NZ6j53jpmHh0xXd/zvKvH9KAzfi', 'admin', '111111111', 1),
+(2, 'Empleado Ejemplo', 'empleado@gestifleet.com', 'Empleado^1', 'empleado', '222222222', 2);
 
-INSERT INTO vehiculos (id_vehiculo, matricula, marca, modelo, año_matriculacion, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario) VALUES
-(1,  'MAD0001A', 'BYD',        'Seal 1',               2023, 5, 520, 'Gris', '/img/vehiculos/byd_seal1.png', 'disponible',   1),
-(2,  'MAD0002A', 'BYD',        'Seal 2',               2023, 5, 500, 'Negro', '/img/vehiculos/byd_seal2.png', 'disponible',   1),
-(3,  'MAD0003A', 'BYD',        'Seal 3',               2024, 5, 540, 'Blanco', '/img/vehiculos/byd_seal3.png', 'mantenimiento',2),
-(4,  'MAD0004A', 'Tesla',      'Model S',              2023, 5, 652, 'Negro', '/img/vehiculos/tesla1.png', 'reservado',    1),
-(5,  'MAD0005A', 'Tesla',      'Model 3',              2024, 5, 560, 'Rojo', '/img/vehiculos/tesla2.png', 'disponible',   1),
-(6,  'MAD0006A', 'Tesla',      'Model X',              2023, 7, 600, 'Gris', '/img/vehiculos/tesla3.png', 'disponible',   2),
-(7,  'MAD0007A', 'Tesla',      'Model Y',              2024, 5, 540, 'Negro', '/img/vehiculos/tesla4.png', 'disponible',   1),
-(8,  'MAD0008A', 'Tesla',      'Model 3 Urban',        2023, 5, 430, 'Azul', '/img/vehiculos/tesla5.png', 'reservado',    2),
-(9,  'MAD0009A', 'Tesla',      'Model X Family',       2024, 7, 580, 'Blanco', '/img/vehiculos/tesla6.png', 'disponible',   1),
-(10, 'MAD0010A', 'Volvo',      'XC90',                 2023, 7, 550, 'Gris', '/img/vehiculos/volvo1.png', 'disponible',   2),
-(11, 'MAD0011A', 'Volvo',      'XC90 Advanced',        2024, 7, 560, 'Blanco', '/img/vehiculos/volvo2.png', 'mantenimiento',1),
-(12, 'MAD0012A', 'Volvo',      'XC90 Premium',         2023, 7, 570, 'Amarillo', '/img/vehiculos/volvo3.png', 'disponible',   2),
-(13, 'MAD0013A', 'Volkswagen', 'T-Cross',              2023, 5, 650, 'Azul', '/img/vehiculos/VW1.png', 'disponible',   1),
-(14, 'MAD0014A', 'Volkswagen', 'T-Roc',                2024, 5, 630, 'Rojo', '/img/vehiculos/VW2.png', 'reservado',    2),
-(15, 'MAD0015A', 'Volkswagen', 'Tiguan',               2023, 5, 620, 'Azul', '/img/vehiculos/VW3.png', 'disponible',   1),
-(16, 'MAD0016A', 'Volkswagen', 'Tiguan Sport',         2024, 5, 610, 'Rojo', '/img/vehiculos/VW4.png', 'disponible',   2),
-(17, 'MAD0017A', 'Volkswagen', 'Tiguan Family',        2023, 7, 600, 'Azul', '/img/vehiculos/VW5.png', 'disponible',   1);
+INSERT INTO vehiculos
+(id_vehiculo, matricula, marca, modelo, año_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario)
+VALUES
+(1,  'MAD0001A', 'BYD', 'Seal 1', 2023, 'Sedán eléctrico moderno con diseño aerodinámico y rendimiento eficiente para ciudad y carretera.', 'coche', 40000.00, 5, 520, 'Gris', '/img/vehiculos/byd_seal1.png', 'disponible', 1),
+(2,  'MAD0002A', 'BYD', 'Seal 2', 2023, 'Sedán eléctrico eficiente con interiores tecnológicos y autonomía optimizada.', 'coche', 42000.00, 5, 500, 'Negro', '/img/vehiculos/byd_seal2.png', 'disponible', 1),
+(3,  'MAD0003A', 'BYD', 'Seal 3', 2024, 'Versión deportiva con prestaciones mejoradas y diseño elegante.', 'coche', 45000.00, 5, 540, 'Blanco', '/img/vehiculos/byd_seal3.png', 'mantenimiento', 2),
+(4,  'MAD0004A', 'Tesla', 'Model S', 2023, 'Sedán eléctrico de lujo con aceleración impresionante y tecnología avanzada.', 'coche', 95000.00, 5, 652, 'Negro', '/img/vehiculos/tesla1.png', 'reservado', 1),
+(5,  'MAD0005A', 'Tesla', 'Model 3', 2024, 'Versión con interiores premium y sistema de conducción autónoma.', 'coche', 98000.00, 5, 560, 'Rojo', '/img/vehiculos/tesla2.png', 'disponible', 1),
+(6,  'MAD0006A', 'Tesla', 'Model X', 2023, 'Modelo con batería de larga duración y autonomía extendida.', 'coche', 100000.00, 7, 600, 'Gris', '/img/vehiculos/tesla3.png', 'disponible', 2),
+(7,  'MAD0007A', 'Tesla', 'Model Y', 2024, 'Edición deportiva con máxima aceleración y diseño moderno.', 'coche', 105000.00, 5, 540, 'Negro', '/img/vehiculos/tesla4.png', 'disponible', 1),
+(8,  'MAD0008A', 'Tesla', 'Model 3 Urban', 2023, 'Versión urbana con eficiencia energética optimizada y máxima aceleración.', 'coche', 92000.00, 5, 430, 'Azul', '/img/vehiculos/tesla5.png', 'reservado', 2),
+(9,  'MAD0009A', 'Tesla', 'Model X Family', 2024, 'Modelo familiar con tecnología de asistencia y confort superior.', 'coche', 97000.00, 7, 580, 'Blanco', '/img/vehiculos/tesla6.png', 'disponible', 1),
+(10, 'MAD0010A', 'Volvo', 'XC90', 2023, 'SUV seguro y confortable con interior espacioso y tecnología de asistencia.', 'suv', 70000.00, 7, 550, 'Gris', '/img/vehiculos/volvo1.png', 'disponible', 2),
+(11, 'MAD0011A', 'Volvo', 'XC90 Advanced', 2024, 'Versión avanzada con sistemas de seguridad de última generación.', 'suv', 72000.00, 7, 560, 'Blanco', '/img/vehiculos/volvo2.png', 'mantenimiento', 1),
+(12, 'MAD0012A', 'Volvo', 'XC90 Premium', 2023, 'SUV premium con interiores amplios y acabados de lujo.', 'suv', 75000.00, 7, 570, 'Amarillo', '/img/vehiculos/volvo3.png', 'disponible', 2),
+(13, 'MAD0013A', 'Volkswagen', 'T-Cross', 2023, 'Compacto eficiente y versátil, ideal para la ciudad y viajes familiares.', 'suv', 62000.00, 5, 650, 'Azul', '/img/vehiculos/VW1.png', 'disponible', 1),
+(14, 'MAD0014A', 'Volkswagen', 'T-Roc', 2024, 'Versión con diseño moderno y prestaciones equilibradas.', 'suv', 64000.00, 5, 630, 'Rojo', '/img/vehiculos/VW2.png', 'reservado', 2),
+(15, 'MAD0015A', 'Volkswagen', 'Tiguan', 2023, 'Modelo urbano con eficiencia energética optimizada y diseño moderno.', 'suv', 66000.00, 5, 620, 'Azul', '/img/vehiculos/VW3.png', 'disponible', 1),
+(16, 'MAD0016A', 'Volkswagen', 'Tiguan Sport', 2024, 'Edición deportiva con mayor potencia y estilo moderno.', 'suv', 68000.00, 5, 610, 'Rojo', '/img/vehiculos/VW4.png', 'disponible', 2),
+(17, 'MAD0017A', 'Volkswagen', 'Tiguan Family', 2023, 'Versión familiar con espacio extra y confort superior.', 'suv', 70000.00, 7, 600, 'Azul', '/img/vehiculos/VW5.png', 'disponible', 1);
+
+SELECT * FROM usuarios;

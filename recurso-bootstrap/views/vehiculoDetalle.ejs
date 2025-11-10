@@ -1,34 +1,46 @@
 <div class="vehiculo-detalle-content">
   <div class="vehiculo-card card mx-auto" style="max-width: 600px;">
     <div class="vehiculo-img-container">
-      <img src="/img/vehiculos/<%= vehiculo.nombre.toLowerCase() %>.png" class="card-img-top"
+      <img src="<%= vehiculo.imagen %>" class="card-img-top"
         alt="<%= vehiculo.marca %>">
     </div>
     <div class="card-body">
       <h5 class="card-title">
         <%= vehiculo.marca %>
-          <%= vehiculo.modelo %> (<%= vehiculo.anyo %>)
+          <%= vehiculo.modelo %> (<%= vehiculo.año_matriculacion %>), Matricula: <%= vehiculo.matricula %>
       </h5>
-      <p class="card-text">
-        <%= vehiculo.descripcion %>
-      </p>
-      <p class="card-text">Tipo: <%= vehiculo.tipo %>
-      </p>
-
-      <p class="card-text">
-        <strong>Estado:</strong>
-        <% if (vehiculo.estado==='disponible' ) { %>
-          <span class="badge bg-success">Disponible</span>
-          <% } else if (vehiculo.estado==='reservado' ) { %>
-            <span class="badge bg-warning text-dark">Reservado</span>
-            <% } else { %>
-              <span class="badge bg-danger">Mantenimiento</span>
-              <% } %>
-      </p>
-      <p class="card-text">
-        <strong>Concesionario:</strong>
-        <%= concesionario.nombre %>
-      </p>
+      <p class="card-text"> <%= vehiculo.descripcion %> </p>
+      <div class="row">
+        <div class="col-6">
+          <p class="card-text"><strong>Tipo: </strong><%= vehiculo.tipo %></p>
+        </div>
+        <div class="col-6">
+          <p class="card-text"><strong>Número de plazas: </strong><%= vehiculo.numero_plazas %></p>
+        </div>
+        <div class="col-6">
+          <p class="card-text"><strong>Autonomía: </strong><%= vehiculo.autonomia_km %></p>
+        </div>
+        <div class="col-6">
+          <p class="card-text"><strong>Color: </strong><%= vehiculo.color %></p>
+        </div>
+        <div class="col-6">
+          <p class="card-text">
+            <strong>Estado:</strong>
+            <% if (vehiculo.estado==='disponible' ) { %>
+              <span class="badge bg-success">Disponible</span>
+              <% } else if (vehiculo.estado==='reservado' ) { %>
+                <span class="badge bg-warning text-dark">Reservado</span>
+                <% } else { %>
+                  <span class="badge bg-danger">Mantenimiento</span>
+                  <% } %>
+          </p>
+        </div>
+        <div class="col-6">
+          <p class="card-text"><strong>Concesionario:</strong> <%= concesionario.nombre %></p>
+        </div>
+      </div>
+      <br>
+      
       <p class="text-muted">Desde <%= vehiculo.precio %> €</p>
     </div>
     <div class="perfil-actions d-flex">
