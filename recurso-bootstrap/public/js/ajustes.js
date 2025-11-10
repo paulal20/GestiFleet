@@ -95,6 +95,59 @@ document.addEventListener('DOMContentLoaded', function() {
   setLanguage(savedLang);
 });
 
+// --- AJUSTE DE TAMAÑO DE LETRA ---
+(function() {
+    const SIZE_KEY = 'font_size';
+
+    function applyFontSize(size) {
+        const validSize = ['80', '100', '120'].includes(String(size)) ? size : '100';
+
+        document.documentElement.style.fontSize = validSize + '%';
+
+        // Actualizar el estado 'active' en las opciones del dropdown
+        document.querySelectorAll('.tamanyo-opcion').forEach(el => {
+            const isActive = (el.dataset.size === validSize);
+            el.classList.toggle('active', isActive);
+            el.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+    }
+
+    try {
+        const savedSize = localStorage.getItem(SIZE_KEY);
+        if (savedSize) {
+            applyFontSize(savedSize);
+        } else {
+            applyFontSize('100');
+        }
+    } catch (err) {
+        applyFontSize('100');
+    }
+
+    // 3. Añadir los 'listeners' a los botones cuando el DOM esté cargado
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.tamanyo-opcion').forEach(opt => {
+            opt.addEventListener('click', function(e) {
+                e.preventDefault();
+                const newSize = this.dataset.size;
+                
+                applyFontSize(newSize);
+                
+                try {
+                    localStorage.setItem(SIZE_KEY, newSize);
+                } catch (e) {
+                }
+
+                const toggle = document.getElementById('accesibilidadDropdown');
+                if (toggle && typeof bootstrap !== 'undefined') {
+                    const inst = bootstrap.Dropdown.getInstance(toggle) || new bootstrap.Dropdown(toggle);
+                    inst.hide();
+                }
+            });
+        });
+    });
+
+})();
+
 
 document.addEventListener('DOMContentLoaded', function() {
   try {

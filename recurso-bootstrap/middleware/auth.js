@@ -16,7 +16,7 @@ function isGuest(req, res, next) {
 }
 
 function isAdmin(req, res, next) {
-    if (req.session.usuario && req.session.usuario.rol === 'admin') {
+    if (req.session.usuario && req.session.usuario.rol === 'Admin') {
         return next();
     }
     req.session.errorMessage = 'Acceso denegado. Solo los administradores pueden hacer eso.';
