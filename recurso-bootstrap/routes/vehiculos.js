@@ -24,9 +24,7 @@ router.get('/', async (req, res) => {
     }
 
     const [vehiculos] = await db.query(sql, params);
-    console.log(vehiculos);
-
-    // Obtener listas únicas para los selectores
+    
     const [tipos] = await db.query('SELECT DISTINCT tipo FROM vehiculos');
     const [estados] = await db.query('SELECT DISTINCT estado FROM vehiculos');
 

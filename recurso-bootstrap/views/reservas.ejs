@@ -56,8 +56,8 @@
               <% if (vehiculos && vehiculos.length > 0) { %>
                 <% vehiculos.forEach(v => { %>
                   <option 
-                    value="<%= v.id %>" 
-                    <%= idVehiculoSeleccionado == v.id ? 'selected' : '' %>>
+                    value="<%= v.id_vehiculo %>" 
+                    <%= idVehiculoSeleccionado == v.id_vehiculo ? 'selected' : '' %>>
                     <%= v.marca %> <%= v.modelo %>
                   </option>
                 <% }) %>

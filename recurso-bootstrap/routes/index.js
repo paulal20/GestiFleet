@@ -67,6 +67,12 @@ router.post('/login', isGuest, async (req, res) => {
       req.session.cookie.maxAge = null;
     }
     req.session.usuario = usuario;
+    console.log(usuario.rol);
+    if(usuario.rol === 'admin'){
+      req.session.usuario.rol = 'Admin';
+    } else {
+      req.session.usuario.rol = 'Empleado';
+    }
     res.redirect('/');
   } catch(err){
     console.error('Error en el login:', err);
@@ -74,8 +80,15 @@ router.post('/login', isGuest, async (req, res) => {
   }
 });
 
-router.get('/register', isGuest, (req, res) => {
-  res.render('register', { title: 'Registro' , error: null, concesionarios: store.concesionarios});
+router.get('/register', isGuest, async (req, res) => {
+  try{
+    const [concesionarios] = await db.query('SELECT * FROM concesionarios');
+    res.render('register', { title: 'Registro' , error: null, concesionarios});
+
+  } catch(err){
+    console.error('Error al cargar los concesionarios:', err);
+    return res.render('register', { title: 'Registro', error: 'Error interno en el servidor', concesionarios: [] });
+  }
 })
 
 router.post('/register', isGuest, async (req, res) => {
@@ -95,6 +108,7 @@ router.post('/register', isGuest, async (req, res) => {
 
     const [nuevoUsuario] = await db.query('SELECT * FROM usuarios WHERE id_usuario = ?', [result.insertId]);
     req.session.usuario = nuevoUsuario[0];
+    req.session.usuario.rol = 'Empleado';
     res.redirect('/');
   } catch(err) {
     console.error('Error en el registro:', err);

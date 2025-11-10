@@ -2,15 +2,14 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><%= title %></h1>
+
+        <!-- Filtro solo si hay usuarios (admin) -->
         <% if (todosLosUsuarios && todosLosUsuarios.length > 0) { %>
             <form action="/reserva/listareservas" method="GET" class="d-flex gap-2">
-                
                 <select name="id" id="filtroUsuario" class="form-select" style="min-width: 220px;">
-                    
-                    <option value="" <%= (idSeleccionado === 0) ? 'selected' : '' %>>
+                    <option value="0" <%= (idSeleccionado === 0) ? 'selected' : '' %>>
                         Ver Todas las Reservas
                     </option>
-                    
                     <% todosLosUsuarios.forEach(u => { %>
                         <option value="<%= u.id_usuario %>" <%= (u.id_usuario === idSeleccionado) ? 'selected' : '' %>>
                             <%= u.nombre %> (<%= u.correo %>)
@@ -23,11 +22,9 @@
         <% } %>
     </div>
 
-
     <% if (listaDeReservas && listaDeReservas.length > 0) { %>
 
-        <div id="tabla-reservas-descripcion" class="visually-hidden">
-        </div>
+        <div id="tabla-reservas-descripcion" class="visually-hidden"></div>
 
         <div class="table-responsive-md">
             <table class="table table-hover" aria-describedby="tabla-reservas-descripcion">
@@ -36,7 +33,7 @@
                     <span class="lang lang-en d-none">Bookings shown: </span>
                     <strong><%= listaDeReservas.length %></strong>
                 </caption>
-                
+
                 <thead class="table-dark">
                     <tr>
                         <th scope="col">
@@ -59,18 +56,22 @@
                             <span class="lang lang-es">Fecha de Fin</span>
                             <span class="lang lang-en d-none">End Date</span>
                         </th>
+                        <th scope="col">
+                            <span class="lang lang-es">Estado</span>
+                            <span class="lang lang-en d-none">Status</span>
+                        </th>
                     </tr>
                 </thead>
-                
+
                 <tbody>
                     <% listaDeReservas.forEach(reserva => { %>
                         <tr>
-                            <td><%= reserva.usuarioNombre %></td>
-                            <td><%= reserva.usuarioCorreo %></td>
-                            
-                            <td><%= reserva.vehiculo %></td>
-                            <td><%= reserva.fechaInicio %></td>
-                            <td><%= reserva.fechaFin %></td>
+                            <td><%= reserva.nombre_usuario %></td>
+                            <td><%= reserva.email_usuario %></td>
+                            <td><%= reserva.marca %> <%= reserva.modelo %> (<%= reserva.matricula %>)</td>
+                            <td><%= new Date(reserva.fecha_inicio).toLocaleString() %></td>
+                            <td><%= new Date(reserva.fecha_fin).toLocaleString() %></td>
+                            <td><%= reserva.estado.charAt(0).toUpperCase() + reserva.estado.slice(1) %></td>
                         </tr>
                     <% }) %>
                 </tbody>
@@ -81,10 +82,9 @@
         <div class="alert alert-info text-center" role="alert">
             <h4 class="alert-heading lang lang-es">No hay reservas</h4>
             <h4 class="alert-heading lang lang-en d-none">No bookings found</h4>
-            
             <p class="lang lang-es mb-0">No se encontraron reservas para la selección actual.</p>
             <p class="lang lang-en d-none mb-0">No bookings were found for the current selection.</p>
         </div>
-    
     <% } %>
+
 </div>
