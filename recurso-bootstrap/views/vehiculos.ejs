@@ -32,7 +32,7 @@
       <% vehiculos.forEach(v => { %>
       <div class="col">
         <a href="/vehiculos/<%= v.id %>" class="d-block" style="  text-decoration: none !important;">
-          <div class="vehiculo-card card-base h-100">
+          <div class="vehiculo-card card-base h-100 d-flex flex-column">
             <div class="vehiculo-img-container">
               <img src="/img/vehiculos/<%= v.nombre.toLowerCase() %>.png" class="card-img-top" alt="<%= v.marca %>">
             </div>
