@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
   id_usuario INT AUTO_INCREMENT PRIMARY KEY,
   nombre VARCHAR(100) NOT NULL,
   correo VARCHAR(100) NOT NULL UNIQUE,
-  contraseña VARCHAR(255) NOT NULL,
-  rol ENUM('empleado','admin') NOT NULL,
+  contrasenya VARCHAR(255) NOT NULL,
+  rol ENUM('Empleado','Admin') NOT NULL,
   telefono VARCHAR(20),
   id_concesionario INT,
   preferencias_accesibilidad JSON,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS vehiculos (
   matricula VARCHAR(10) UNIQUE NOT NULL,
   marca VARCHAR(50) NOT NULL,
   modelo VARCHAR(50) NOT NULL,
-  año_matriculacion YEAR NOT NULL,
+  anyo_matriculacion YEAR NOT NULL,
   descripcion TEXT,
   tipo ENUM('coche','suv','furgoneta','otro') DEFAULT 'coche',
   precio DECIMAL(10,2) NOT NULL,
@@ -67,12 +67,12 @@ INSERT INTO concesionarios (id_concesionario, nombre, ciudad, direccion, telefon
 (1, 'GestiFleet Madrid', 'Madrid', 'Calle Falsa 123', '000000000'),
 (2, 'GestiFleet Barcelona', 'Barcelona', 'Avenida Siempre Viva 742', '000000000');
 
-INSERT INTO usuarios (id_usuario, nombre, correo, contraseña, rol, telefono, id_concesionario) VALUES 
-(1, 'Administrador', 'admin@gestifleet.com', '$2b$10$yRO//lNEE/HAs9/cG7r18efG02NZ6j53jpmHh0xXd/zvKvH9KAzfi', 'admin', '111111111', 1),
-(2, 'Empleado Ejemplo', 'empleado@gestifleet.com', 'Empleado^1', 'empleado', '222222222', 2);
+INSERT INTO usuarios (id_usuario, nombre, correo, contrasenya, rol, telefono, id_concesionario) VALUES 
+(1, 'Administrador', 'admin@gestifleet.com', '$2b$10$yRO//lNEE/HAs9/cG7r18efG02NZ6j53jpmHh0xXd/zvKvH9KAzfi', 'Admin', '111111111', 1),
+(2, 'Empleado Ejemplo', 'empleado@gestifleet.com', 'Empleado^1', 'Empleado', '222222222', 2);
 
 INSERT INTO vehiculos
-(id_vehiculo, matricula, marca, modelo, año_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario)
+(id_vehiculo, matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario)
 VALUES
 (1,  'MAD0001A', 'BYD', 'Seal 1', 2023, 'Sedán eléctrico moderno con diseño aerodinámico y rendimiento eficiente para ciudad y carretera.', 'coche', 40000.00, 5, 520, 'Gris', '/img/vehiculos/byd_seal1.png', 'disponible', 1),
 (2,  'MAD0002A', 'BYD', 'Seal 2', 2023, 'Sedán eléctrico eficiente con interiores tecnológicos y autonomía optimizada.', 'coche', 42000.00, 5, 500, 'Negro', '/img/vehiculos/byd_seal2.png', 'disponible', 1),
