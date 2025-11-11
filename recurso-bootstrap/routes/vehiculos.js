@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../data/db');
 
+// No necesitamos require('../data/db') porque usamos el middleware de conexión
+
+// LISTAR VEHÍCULOS (con filtros opcionales)
 router.get('/', async (req, res) => {
   try {
     const { tipo, estado } = req.query;
@@ -23,10 +25,10 @@ router.get('/', async (req, res) => {
       sql += condiciones.join(' AND ');
     }
 
-    const [vehiculos] = await db.query(sql, params);
-    
-    const [tipos] = await db.query('SELECT DISTINCT tipo FROM vehiculos');
-    const [estados] = await db.query('SELECT DISTINCT estado FROM vehiculos');
+    // Consultas usando req.db
+    const [vehiculos] = await req.db.query(sql, params);
+    const [tipos] = await req.db.query('SELECT DISTINCT tipo FROM vehiculos');
+    const [estados] = await req.db.query('SELECT DISTINCT estado FROM vehiculos');
 
     const tiposDisponibles = tipos.map(t => t.tipo);
     const estadosDisponibles = estados.map(e => e.estado);
@@ -46,32 +48,36 @@ router.get('/', async (req, res) => {
   }
 });
 
+// DETALLE DE UN VEHÍCULO
 router.get('/:id', async (req, res, next) => {
-    // const { vehiculos, concesionarios } = req.app.locals.store;
-    try{
-        const id = parseInt(req.params.id);
-        const [vehiculos] = await db.query('SELECT * FROM vehiculos WHERE id_vehiculo = ?', [id]);
-        
-        if (vehiculos.length === 0) {
-            const err = new Error('Vehículo no encontrado (id_vehiculo=' + id + ')');
-            err.status = 404;
-            err.publicMessage = 'Vehículo no encontrado.';
-            err.expose = true;
-            return next(err);
-        }
+  try {
+    const id = parseInt(req.params.id);
 
-        const vehiculo = vehiculos[0];
-        const [concesionarios] = await db.query('SELECT * FROM concesionarios WHERE id_concesionario = ?', [vehiculo.id_concesionario]);
-        const concesionario = concesionarios[0];
-
-        res.render('vehiculoDetalle', { 
-            vehiculo, 
-            concesionario: concesionario || { nombre: 'Sin asignar' } 
-        });
-    } catch(err) {
-        console.error('Error al obtener el vehículo:', err);
-        res.status(500).render('error', { mensaje: 'Error al cargar el vehículo' });
+    const [vehiculos] = await req.db.query('SELECT * FROM vehiculos WHERE id_vehiculo = ?', [id]);
+    if (vehiculos.length === 0) {
+      const err = new Error(`Vehículo no encontrado (id_vehiculo=${id})`);
+      err.status = 404;
+      err.publicMessage = 'Vehículo no encontrado.';
+      err.expose = true;
+      return next(err);
     }
+
+    const vehiculo = vehiculos[0];
+
+    const [concesionarios] = await req.db.query(
+      'SELECT * FROM concesionarios WHERE id_concesionario = ?',
+      [vehiculo.id_concesionario]
+    );
+    const concesionario = concesionarios[0];
+
+    res.render('vehiculoDetalle', {
+      vehiculo,
+      concesionario: concesionario || { nombre: 'Sin asignar' }
+    });
+  } catch (err) {
+    console.error('Error al obtener el vehículo:', err);
+    res.status(500).render('error', { mensaje: 'Error al cargar el vehículo' });
+  }
 });
 
 // Aquí añadirás las rutas del LAB 8 (CRUD)
@@ -80,6 +86,5 @@ router.get('/:id', async (req, res, next) => {
 // GET /vehiculos/:id/editar -> Formulario para editar (Ruta: '/:id/editar')
 // POST /vehiculos/:id/editar -> Lógica para actualizar (Ruta: '/:id/editar')
 // POST /vehiculos/:id/eliminar -> Lógica para borrar (Ruta: '/:id/eliminar')
-
 
 module.exports = router;

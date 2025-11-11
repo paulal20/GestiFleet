@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const expressLayouts = require('express-ejs-layouts');
-
+const getConnection = require('./middleware/connection');
 
 
 const app = express();
@@ -36,9 +36,8 @@ app.set('view engine', 'ejs');
 app.use(expressLayouts);
 app.set('layout', 'layout');
 
-//Sacar los datos del store
-const store = require('./data/store');
-app.locals.store = store;
+// Get Connection
+app.use(getConnection);
 
 // --- Rutas ---
 const indexRoutes = require('./routes/index');
