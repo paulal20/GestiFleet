@@ -5,25 +5,33 @@
     <a href="/concesionarios" class="btn btn-outline-secondary">Volver al listado</a>
   </div>
 
-  <div class="card mb-4">
-    <div class="card-body">
-      <h5 class="card-title">Información de Contacto</h5>
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item">
-          <strong>Ciudad:</strong> <%= concesionario.ciudad %>
-        </li>
-        <li class="list-group-item">
-          <strong>Dirección:</strong> <%= concesionario.direccion %>
-        </li>
-        <li class="list-group-item">
-          <strong>Teléfono:</strong> <%= concesionario.telefono_contacto %>
-        </li>
-      </ul>
+  <div class="vehiculo-card card mb-4">
+    
+    <!-- Encabezado de la tarjeta -->
+    <div class="card-header">
+      <h5 class="mb-0 fw-bold">Información de Contacto</h5>
     </div>
     
-    <!-- Acciones de Admin (Editar/Eliminar) -->
+    <!-- Cuerpo de la tarjeta -->
+    <div class="card-body">
+      <!-- Reemplazamos la lista 'ul' por el sistema 'row/col' -->
+      <div class="row mb-2">
+        <div class="col-sm-3 fw-bold">Ciudad:</div>
+        <div class="col-sm-9"><%= concesionario.ciudad %></div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-sm-3 fw-bold">Dirección:</div>
+        <div class="col-sm-9"><%= concesionario.direccion %></div>
+      </div>
+      <div class="row mb-2">
+        <div class="col-sm-3 fw-bold">Teléfono:</div>
+        <div class="col-sm-9"><%= concesionario.telefono_contacto %></div>
+      </div>
+    </div>
+    
+    <!-- Acciones de Admin (Usando la clase 'perfil-actions') -->
     <% if (usuario && usuario.rol === 'Admin') { %>
-      <div class="card-footer d-flex justify-content-end gap-2">
+      <div class="perfil-actions d-flex justify-content-end gap-2">
         <a href="/concesionarios/<%= concesionario.id_concesionario %>/editar" class="btn btn-secondary">
           Editar
         </a>

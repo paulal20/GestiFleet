@@ -66,6 +66,17 @@
   object-fit: contain;
 }
 
+.vehiculo-detalle-content .vehiculo-img-container,
+.vehiculo-detalle-content .vehiculo-card img {
+  height: auto; 
+}
+
+.vehiculo-detalle-content .h-100 .img-cover {
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
 .vehiculo-card .card-body {
  padding: 1rem;
  background: var(--color-input-bg);

@@ -123,7 +123,7 @@ router.get('/:id(\\d+)', isAuth, async (req, res, next) => {
     const [rows] = await req.db.query(
       `SELECT r.*,
               u.nombre AS nombre_usuario, u.correo AS email_usuario,
-              v.marca, v.modelo, v.matricula
+              v.marca, v.modelo, v.matricula, v.imagen
        FROM reservas r
        JOIN usuarios u ON r.id_usuario = u.id_usuario
        JOIN vehiculos v ON r.id_vehiculo = v.id_vehiculo

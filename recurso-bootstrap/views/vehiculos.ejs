@@ -53,8 +53,19 @@
               <p class="card-text"><%= v.descripcion %></p>
               <p class="text-muted">Desde <%= v.precio %> €</p>
             </div>
-            <div class="card-footer p-0">
-              <a href="/reserva?idVehiculo=<%= v.id_vehiculo %>" class="btn btn-primary w-100 rounded-0">Reservar</a>
+            <div class="card-footer p-1 d-flex gap-1">
+              <% if (usuario && usuario.rol === 'Admin') { %>
+                <form action="/vehiculos/<%= v.id_vehiculo %>/eliminar" method="POST" class="flex-fill m-0 p-0">
+                  <button type="submit" class="btn btn-outline-secondary w-100" onclick="return confirm('¿Estás seguro de eliminar este vehículo?');">
+                    Eliminar
+                  </button>
+                </form>
+                <a href="/vehiculos/<%= v.id_vehiculo %>/editar" class="btn btn-primary flex-fill">
+                  Editar
+                </a>
+              <% } else { %>
+                <a href="/reserva?idVehiculo=<%= v.id_vehiculo %>" class="btn btn-primary w-100 rounded-0">Reservar</a>
+              <% } %>
             </div>
           </div>
         </a> 
