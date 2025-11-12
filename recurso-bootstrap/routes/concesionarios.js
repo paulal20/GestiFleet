@@ -6,7 +6,7 @@ const { isAuth, isAdmin } = require('../middleware/auth');
 router.get('/', async (req, res) => {
   try {
     const [concesionarios] = await req.db.query('SELECT * FROM concesionarios ORDER BY nombre');
-    res.render('concesionarios', {
+    res.render('listaConcesionarios', {
       title: 'Concesionarios',
       concesionarios
     });
