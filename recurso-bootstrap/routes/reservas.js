@@ -24,7 +24,7 @@ router.get('/', isAuth, async (req, res) => {
       : null;
 
     res.render('reservas', {
-      title: 'Reserva',
+      title: 'Reserva tu coche!',
       vehiculos,
       idVehiculoSeleccionado,
       formData: req.body || {}
@@ -60,7 +60,7 @@ router.post('/', isAuth, async (req, res) => {
     if (errorFecha) {
       const vehiculos = await getVehiculosDisponibles(req.db);
       return res.status(400).render('reservas', {
-        title: 'Reserva',
+        title: 'Reserva tu coche!',
         vehiculos,
         idVehiculoSeleccionado: idVehiculo,
         error: errorFecha
@@ -81,7 +81,7 @@ router.post('/', isAuth, async (req, res) => {
     if (conflictos[0].conflicts > 0) {
       const vehiculos = await getVehiculosDisponibles(req.db);
       return res.status(409).render('reservas', {
-        title: 'Reserva',
+        title: 'Reserva tu coche!',
         vehiculos,
         idVehiculoSeleccionado: idVehiculo,
         formData: req.body,
@@ -105,7 +105,7 @@ router.post('/', isAuth, async (req, res) => {
     console.error('Error al procesar la reserva:', err);
     const vehiculos = await getVehiculosDisponibles(req.db);
     res.status(500).render('reservas', {
-      title: 'Reserva',
+      title: 'Reserva tu coche!',
       vehiculos,
       idVehiculoSeleccionado: idVehiculo,
       formData: req.body,
