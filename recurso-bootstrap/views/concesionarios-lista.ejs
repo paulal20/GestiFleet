@@ -1,0 +1,62 @@
+<div class="concesionarios-content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><%= title %></h1>
+    <!-- Botón "Nuevo" solo para Admins -->
+    <% if (usuario && usuario.rol === 'Admin') { %>
+        <a href="/concesionarios/nuevo" class="btn btn-success">
+            <span class="lang lang-es">Nuevo Concesionario</span>
+            <span class="lang lang-en d-none">New Dealership</span>
+        </a>
+    <% } %>
+  </div>
+
+  <!-- Mensaje de Error (si existe) -->
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert alert-danger" role="alert" aria-live="assertive">
+      <%= error %>
+    </div>
+  <% } %>
+
+  <% if (concesionarios && concesionarios.length > 0) { %>
+    <ul class="list-group">
+      <% concesionarios.forEach(c => { %>
+        <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center">
+          
+          <!-- Información -->
+          <div class="me-auto my-2">
+            <h5>
+              <a href="/concesionarios/<%= c.id_concesionario %>" class="text-decoration-none">
+                <%= c.nombre %>
+              </a>
+            </h5>
+            <small class="text-muted"><%= c.ciudad %> - <%= c.direccion %></small>
+          </div>
+          
+          <!-- Acciones -->
+          <div class="d-flex gap-2 my-2">
+            <a href="/concesionarios/<%= c.id_concesionario %>" class="btn btn-primary btn-sm" title="Ver Detalle">
+              Ver
+            </a>
+            <% if (usuario && usuario.rol === 'Admin') { %>
+              <a href="/concesionarios/<%= c.id_concesionario %>/editar" class="btn btn-secondary btn-sm" title="Editar">
+                Editar
+              </a>
+              <form action="/concesionarios/<%= c.id_concesionario %>/eliminar" method="POST" class="d-inline-block" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este concesionario?');">
+                <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
+                  Eliminar
+                </button>
+              </form>
+            <% } %>
+          </div>
+
+        </li>
+      <% }) %>
+    </ul>
+  <% } else if (typeof error === 'undefined' || !error) { %>
+    <div class="alert alert-info text-center" role="alert">
+      <h4 class="alert-heading">No hay concesionarios</h4>
+      <p class="mb-0">No se encontraron concesionarios en la base de datos.</p>
+    </div>
+  <% } %>
+
+</div>

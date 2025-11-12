@@ -1,0 +1,66 @@
+<%
+  // Determinamos si estamos en modo "Editar"
+  const isEditMode = (typeof concesionario !== 'undefined' && concesionario.id_concesionario);
+%>
+
+<div class="concesionario-form-content">
+  <h1><%= title %></h1>
+
+  <form id="concesionarioForm" action="<%= action %>" method="POST" novalidate autocomplete="off">
+    <fieldset>
+      <legend class="w-auto">Datos del Concesionario</legend>
+      
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger mt-2" role="alert" aria-live="assertive">
+          <%= error %>
+        </div>
+      <% } %>
+      <br>
+
+      <div class="row">
+        <div class="col-md-6 mb-3 campo-nombre">
+          <label for="nombre" class="form-label obligatorio">Nombre: </label>
+          <input type="text" id="nombre" name="nombre" class="form-control" 
+                 value="<%= isEditMode ? concesionario.nombre : '' %>" 
+                 aria-describedby="error-nombre" required>
+          <span class="error" id="error-nombre" aria-live="polite"></span>
+        </div>
+
+        <div class="col-md-6 mb-3 campo-ciudad">
+          <label for="ciudad" class="form-label obligatorio">Ciudad: </label>
+          <input type="text" id="ciudad" name="ciudad" class="form-control" 
+                 value="<%= isEditMode ? concesionario.ciudad : '' %>" 
+                 aria-describedby="error-ciudad" required>
+          <span class="error" id="error-ciudad" aria-live="polite"></span>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3 campo-direccion">
+          <label for="direccion" class="form-label obligatorio">Dirección: </label>
+          <input type="text" id="direccion" name="direccion" class="form-control" 
+                 value="<%= isEditMode ? concesionario.direccion : '' %>" 
+                 aria-describedby="error-direccion" required>
+          <span class="error" id="error-direccion" aria-live="polite"></span>
+        </div>
+
+        <div class="col-md-6 mb-3 campo-telefono">
+          <label for="telefono_contacto" class="form-label obligatorio">Teléfono de Contacto:</label>
+          <input type="tel" id="telefono_contacto" name="telefono_contacto" class="form-control" 
+                 placeholder="Ej: 910123456" 
+                 value="<%= isEditMode ? concesionario.telefono_contacto : '' %>" 
+                 aria-describedby="error-telefono" required>
+          <span class="error" id="error-telefono" aria-live="polite"></span>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="d-flex justify-content-end mt-3 gap-2">
+      <a href="/concesionarios" class="btn btn-outline-secondary">Cancelar</a>
+      <button type="submit" class="btn btn-primary">
+        <%= isEditMode ? 'Actualizar Concesionario' : 'Crear Concesionario' %>
+      </button>
+    </div>
+  </form>
+</div>
+<script src="/js/concesionarioForm.js"></script> 

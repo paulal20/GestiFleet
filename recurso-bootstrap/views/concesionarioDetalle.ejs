@@ -1,0 +1,88 @@
+<div class="concesionario-detalle-content">
+  
+  <!-- Encabezado y Botón Volver -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1><%= concesionario.nombre %></h1>
+    <a href="/concesionarios" class="btn btn-outline-primary">Volver al listado</a>
+  </div>
+
+  <!-- Detalles del Concesionario -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">Información de Contacto</h5>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+          <strong>Ciudad:</strong> <%= concesionario.ciudad %>
+        </li>
+        <li class="list-group-item">
+          <strong>Dirección:</strong> <%= concesionario.direccion %>
+        </li>
+        <li class="list-group-item">
+          <strong>Teléfono:</strong> <%= concesionario.telefono_contacto %>
+        </li>
+      </ul>
+    </div>
+    
+    <!-- Acciones de Admin (Editar/Eliminar) -->
+    <% if (usuario && usuario.rol === 'Admin') { %>
+      <div class="card-footer d-flex justify-content-end gap-2">
+        <a href="/concesionarios/<%= concesionario.id_concesionario %>/editar" class="btn btn-secondary">
+          Editar
+        </a>
+        <form action="/concesionarios/<%= concesionario.id_concesionario %>/eliminar" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este concesionario? Esta acción no se puede deshacer.');">
+          <button type="submit" class="btn btn-danger">
+            Eliminar
+          </button>
+        </form>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Lista de Vehículos Asociados -->
+  <h2>Vehículos en esta base</h2>
+  <% if (vehiculos && vehiculos.length > 0) { %>
+    <div class="table-responsive-md">
+      <table class="table table-hover">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Matrícula</th>
+            <th scope="col">Marca</th>
+            <th scope="col">Modelo</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% vehiculos.forEach(v => { %>
+            <tr>
+              <td><%= v.matricula %></td>
+              <td><%= v.marca %></td>
+              <td><%= v.modelo %></td>
+              <td>
+                <% if (v.estado === 'disponible') { %>
+                  <span class="badge bg-success">Disponible</span>
+                <% } else if (v.estado === 'reservado') { %>
+                  <span class="badge bg-warning text-dark">Reservado</span>
+                <% } else if (v.estado === 'mantenimiento') { %>
+                  <span class="badge bg-secondary">Mantenimiento</span>
+                <% } else { %>
+                  <span class="badge bg-light text-dark"><%= v.estado %></span>
+                <% } %>
+              </td>
+              <td>
+                <a href="/vehiculos/<%= v.id_vehiculo %>" class="btn btn-primary btn-sm">
+                  Ver Vehículo
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } else { %>
+    <div class="alert alert-info" role="alert">
+      Actualmente no hay vehículos asignados a este concesionario.
+    </div>
+  <% } %>
+
+</div>
