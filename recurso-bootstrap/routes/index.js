@@ -92,7 +92,7 @@ router.get('/register', isGuest, async (req, res) => {
 
  } catch(err){
   console.error('Error al cargar los concesionarios:', err);
-  return res.status(500).render('register', { title: 'Registro', error: 'Error interno en el servidor', concesionarios: [] });
+  return res.status(500).render('register', { title: 'Registro de usuario', error: 'Error interno en el servidor', concesionarios: [] });
  }
 })
 
@@ -104,7 +104,7 @@ router.post('/register', isGuest, async (req, res) => {
   [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
   
     if(usuarios.length > 0){
-   return res.render('register', { title: 'Registro', error: 'El correo ya está registrado', concesionarios});
+   return res.render('register', { title: 'Registro de usuario', error: 'El correo ya está registrado', concesionarios});
   }
   const hash = await bcrypt.hash(password, SALT_ROUNDS);
 
@@ -119,7 +119,7 @@ router.post('/register', isGuest, async (req, res) => {
   res.redirect('/');
  } catch(err) {
     console.error('Error en el registro:', err);
-    return res.status(500).render('register', { title: 'Registro', error: 'Error interno en el servidor', concesionarios: concesionarios });
+    return res.status(500).render('register', { title: 'Registro de usuario', error: 'Error interno en el servidor', concesionarios: concesionarios });
  }
 });
 

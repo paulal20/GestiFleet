@@ -2,9 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { isAuth, isAdmin } = require('../middleware/auth');
 
-// No necesitamos require('../data/db') porque usamos el middleware de conexión
-
-// LISTAR VEHÍCULOS (con filtros opcionales)
 router.get('/', async (req, res) => {
   try {
     const { tipo, estado } = req.query;
@@ -35,7 +32,7 @@ router.get('/', async (req, res) => {
     const estadosDisponibles = estados.map(e => e.estado);
 
     res.render('vehiculos', {
-      title: 'Vehículos',
+      title: 'Vehículos ofertados en GestiFleet',
       vehiculos,
       tiposDisponibles,
       estadosDisponibles,
@@ -81,7 +78,6 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-// Aquí añadirás las rutas del LAB 8 (CRUD)
 // GET /vehiculos/nuevo
 router.get('/nuevo', isAuth, isAdmin, async (req, res) => {
   res.render('vehiculoForm', {

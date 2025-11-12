@@ -235,8 +235,7 @@ router.get('/listareservas', isAdmin, async (req, res) => {
       title: 'Lista de Reservas',
       listaDeReservas: reservas,
       todosLosUsuarios: usuarios,
-      idSeleccionado: idFiltrado,
-      esAdmin: true
+      idSeleccionado: idFiltrado
     });
   } catch (err) {
     console.error('Error al cargar la lista de reservas:', err);
@@ -245,7 +244,6 @@ router.get('/listareservas', isAdmin, async (req, res) => {
       listaDeReservas: [],
       todosLosUsuarios: [],
       idSeleccionado: 0,
-      esAdmin: true,
       error: 'No se pudieron cargar las reservas'
     });
   }
@@ -271,8 +269,7 @@ router.get('/mis-reservas', isAuth, async (req, res) => {
       title: 'Mis Reservas',
       listaDeReservas: reservasDelUsuario,
       todosLosUsuarios: [], 
-      idSeleccionado: 0, 
-      esAdmin: false 
+      idSeleccionado: 0
     });
   } catch (err) {
     console.error('Error al cargar mis reservas:', err);
@@ -281,7 +278,6 @@ router.get('/mis-reservas', isAuth, async (req, res) => {
       listaDeReservas: [],
       todosLosUsuarios: [],
       idSeleccionado: 0,
-      esAdmin: false,
       error: 'No se pudieron cargar tus reservas'
     });
   }
