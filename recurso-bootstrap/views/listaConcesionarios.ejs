@@ -3,7 +3,7 @@
     <h1><%= title %></h1>
     <!-- Botón "Nuevo" solo para Admins -->
     <% if (usuario && usuario.rol === 'Admin') { %>
-        <a href="/concesionarios/nuevo" class="btn btn-success">
+        <a href="/concesionarios/nuevo" class="btn btn-primary">
             <span class="lang lang-es">Nuevo Concesionario</span>
             <span class="lang lang-en d-none">New Dealership</span>
         </a>

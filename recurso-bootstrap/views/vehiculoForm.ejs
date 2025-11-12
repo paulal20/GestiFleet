@@ -1,0 +1,111 @@
+<%
+  // Determinamos si estamos en modo "Editar"
+  const isEditMode = (typeof vehiculo !== 'undefined' && vehiculo.id_vehiculo);
+%>
+
+<div class="vehiculo-form-content">
+  <h1><%= title %></h1>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert alert-danger mt-2" role="alert" aria-live="assertive">
+      <%= error %>
+    </div>
+  <% } %>
+
+  <form id="vehiculoForm" action="<%= action %>" method="POST" novalidate autocomplete="off" enctype="multipart/form-data">
+    <fieldset>
+      <legend class="w-auto">Datos del Vehículo</legend>
+
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label for="matricula" class="form-label obligatorio">Matrícula:</label>
+          <input type="text" id="matricula" name="matricula" class="form-control"
+                 value="<%= isEditMode ? vehiculo.matricula : '' %>" required>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label for="marca" class="form-label obligatorio">Marca:</label>
+          <input type="text" id="marca" name="marca" class="form-control"
+                 value="<%= isEditMode ? vehiculo.marca : '' %>" required>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label for="modelo" class="form-label obligatorio">Modelo:</label>
+          <input type="text" id="modelo" name="modelo" class="form-control"
+                 value="<%= isEditMode ? vehiculo.modelo : '' %>" required>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <label for="anyo_matriculacion" class="form-label obligatorio">Año Matriculación:</label>
+          <input type="number" id="anyo_matriculacion" name="anyo_matriculacion" class="form-control"
+                 value="<%= isEditMode ? vehiculo.anyo_matriculacion : '' %>" min="1900" max="2100" required>
+        </div>
+        <div class="col-md-3 mb-3">
+          <label for="tipo" class="form-label">Tipo:</label>
+          <select id="tipo" name="tipo" class="form-select">
+            <% ['coche','suv','furgoneta','otro'].forEach(t => { %>
+              <option value="<%= t %>" <%= isEditMode && vehiculo.tipo === t ? 'selected' : '' %>><%= t.charAt(0).toUpperCase() + t.slice(1) %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="col-md-3 mb-3">
+          <label for="precio" class="form-label obligatorio">Precio (€):</label>
+          <input type="number" step="0.01" id="precio" name="precio" class="form-control"
+                 value="<%= isEditMode ? vehiculo.precio : '' %>" required>
+        </div>
+        <div class="col-md-3 mb-3">
+          <label for="numero_plazas" class="form-label">Número de Plazas:</label>
+          <input type="number" id="numero_plazas" name="numero_plazas" class="form-control"
+                 value="<%= isEditMode ? vehiculo.numero_plazas : 5 %>">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <label for="autonomia_km" class="form-label">Autonomía (km):</label>
+          <input type="number" id="autonomia_km" name="autonomia_km" class="form-control"
+                 value="<%= isEditMode ? vehiculo.autonomia_km : '' %>">
+        </div>
+        <div class="col-md-3 mb-3">
+          <label for="color" class="form-label">Color:</label>
+          <input type="text" id="color" name="color" class="form-control"
+                 value="<%= isEditMode ? vehiculo.color : '' %>">
+        </div>
+        <div class="col-md-3 mb-3">
+          <label for="estado" class="form-label">Estado:</label>
+          <select id="estado" name="estado" class="form-select">
+            <% ['disponible','reservado','mantenimiento'].forEach(e => { %>
+              <option value="<%= e %>" <%= isEditMode && vehiculo.estado === e ? 'selected' : '' %>><%= e.charAt(0).toUpperCase() + e.slice(1) %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="col-md-3 mb-3">
+          <label for="id_concesionario" class="form-label obligatorio">Concesionario:</label>
+          <input type="number" id="id_concesionario" name="id_concesionario" class="form-control"
+                 value="<%= isEditMode ? vehiculo.id_concesionario : '' %>" required>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="descripcion" class="form-label">Descripción:</label>
+        <textarea id="descripcion" name="descripcion" class="form-control" rows="3"><%= isEditMode ? vehiculo.descripcion : '' %></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label for="imagen" class="form-label">Imagen (URL):</label>
+        <input type="text" id="imagen" name="imagen" class="form-control"
+               value="<%= isEditMode ? vehiculo.imagen : '' %>">
+      </div>
+
+    </fieldset>
+
+    <div class="d-flex justify-content-end mt-3 gap-2">
+      <a href="/vehiculos" class="btn btn-outline-secondary">Cancelar</a>
+      <button type="submit" class="btn btn-primary">
+        <%= isEditMode ? 'Actualizar Vehículo' : 'Crear Vehículo' %>
+      </button>
+    </div>
+  </form>
+</div>
+
+<script src="/js/vehiculoForm.js"></script>

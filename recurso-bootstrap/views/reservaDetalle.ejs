@@ -1,0 +1,117 @@
+<div class="reserva-detalle-content">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><%= title %></h1>
+
+        <% if (usuario && usuario.rol === 'Admin') { %>
+            <a href="/reserva/listareservas" class="btn btn-outline-secondary">
+                <span class="lang lang-es">Ver Todas las Reservas</span>
+                <span class="lang lang-en d-none">View All Bookings</span>
+            </a>
+        <% } else { %>
+            <a href="/reserva/mis-reservas" class="btn btn-outline-secondary">
+                <span class="lang lang-es">Mis Reservas</span>
+                <span class="lang lang-en d-none">My Bookings</span>
+            </a>
+        <% } %>
+    </div>
+
+
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <span class="lang lang-es">Detalles de la Reserva</span>
+            <span class="lang lang-en d-none">Booking Details</span>
+        </div>
+        <div class="card-body">
+
+            <div class="row mb-2">
+                <div class="col-sm-3 fw-bold">
+                    <span class="lang lang-es">Usuario</span>
+                    <span class="lang lang-en d-none">User</span>
+                </div>
+                <div class="col-sm-9">
+                    <%= reserva.nombre_usuario %> (<%= reserva.email_usuario %>)
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-sm-3 fw-bold">
+                    <span class="lang lang-es">Vehículo</span>
+                    <span class="lang lang-en d-none">Vehicle</span>
+                </div>
+                <div class="col-sm-9">
+                    <%= reserva.marca %> <%= reserva.modelo %> (<%= reserva.matricula %>)
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-sm-3 fw-bold">
+                    <span class="lang lang-es">Fecha de Inicio</span>
+                    <span class="lang lang-en d-none">Start Date</span>
+                </div>
+                <div class="col-sm-9">
+                    <%= new Date(reserva.fecha_inicio).toLocaleString() %>
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-sm-3 fw-bold">
+                    <span class="lang lang-es">Fecha de Fin</span>
+                    <span class="lang lang-en d-none">End Date</span>
+                </div>
+                <div class="col-sm-9">
+                    <%= new Date(reserva.fecha_fin).toLocaleString() %>
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-sm-3 fw-bold">
+                    <span class="lang lang-es">Estado</span>
+                    <span class="lang lang-en d-none">Status</span>
+                </div>
+                <div class="col-sm-9">
+                    <% if (reserva.estado === 'activa') { %>
+                        <span class="badge bg-success">Activa</span>
+                    <% } else if (reserva.estado === 'finalizada') { %>
+                        <span class="badge bg-secondary">Finalizada</span>
+                    <% } else if (reserva.estado === 'cancelada') { %>
+                        <span class="badge bg-danger">Cancelada</span>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-sm-3 fw-bold">
+                    <span class="lang lang-es">Kilómetros Recorridos</span>
+                    <span class="lang lang-en d-none">Distance Travelled</span>
+                </div>
+                <div class="col-sm-9">
+                    <%= reserva.kilometros_recorridos || 0 %> km
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-sm-3 fw-bold">
+                    <span class="lang lang-es">Incidencias Reportadas</span>
+                    <span class="lang lang-en d-none">Reported Issues</span>
+                </div>
+                <div class="col-sm-9">
+                    <%= reserva.incidencias_reportadas || 'Ninguna' %>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <% if (reserva.estado === 'activa') { %>
+            <form action="/reserva/<%= reserva.id_reserva %>/cancelar" method="POST">
+                <button type="submit" class="btn btn-danger">
+                    <span class="lang lang-es">Cancelar Reserva</span>
+                    <span class="lang lang-en d-none">Cancel Booking</span>
+                </button>
+            </form>
+        <% } %>
+    </div>
+
+</div>

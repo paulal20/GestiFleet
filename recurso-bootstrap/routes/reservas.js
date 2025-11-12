@@ -146,7 +146,7 @@ router.get('/:id(\\d+)', isAuth, async (req, res, next) => {
     }
 
     res.render('reservaDetalle', {
-      title: `Detalle Reserva #${reserva.id_reserva}`,
+      title: `Detalle Reserva ${reserva.id_reserva}`,
       reserva
     });
 

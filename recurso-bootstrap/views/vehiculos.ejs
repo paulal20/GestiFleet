@@ -1,7 +1,12 @@
 <div class="vehiculos-content">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>Vehículos ofertados en GestiFleet:</h1>
-
+    <% if (usuario && usuario.rol === 'Admin') { %>
+        <a href="/vehiculos/nuevo" class="btn btn-primary">
+            <span class="lang lang-es">Nuevo Vehículo</span>
+            <span class="lang lang-en d-none">New Vehicle</span>
+        </a>
+    <% } %>
   </div>   
   <div>
     <form method="GET" action="/vehiculos" class="d-flex gap-2 align-items-center">

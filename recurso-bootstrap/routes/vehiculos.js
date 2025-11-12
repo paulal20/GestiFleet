@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { isAuth, isAdmin } = require('../middleware/auth');
 
 // No necesitamos require('../data/db') porque usamos el middleware de conexión
 
@@ -81,8 +82,54 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // Aquí añadirás las rutas del LAB 8 (CRUD)
-// GET /vehiculos/nuevo -> Formulario para crear (Ruta: '/nuevo')
-// POST /vehiculos/nuevo -> Lógica para crear (Ruta: '/nuevo')
+// GET /vehiculos/nuevo
+router.get('/nuevo', isAuth, isAdmin, async (req, res) => {
+  res.render('vehiculoForm', {
+    title: 'Nuevo Vehículo',
+    vehiculo: {},
+    action: '/vehiculos/nuevo',
+    method: 'POST'
+  });
+});
+// POST /vehiculos/nuevo
+router.post('/nuevo', isAuth, isAdmin, async (req, res) => {
+  try {
+    const {
+      matricula, marca, modelo, anyo_matriculacion, descripcion,
+      tipo, precio, numero_plazas, autonomia_km, color,
+      imagen, estado, id_concesionario
+    } = req.body;
+
+    // Validación básica
+    if (!matricula || !marca || !modelo || !anyo_matriculacion || !precio || !id_concesionario) {
+      return res.status(400).render('vehiculoForm', {
+        title: 'Nuevo Vehículo',
+        vehiculo: req.body,
+        action: '/vehiculos/nuevo',
+        method: 'POST',
+        error: 'Los campos obligatorios no pueden estar vacíos.'
+      });
+    }
+
+    await req.db.query(
+      `INSERT INTO vehiculos 
+      (matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [matricula, marca, modelo, anyo_matriculacion, descripcion || null, tipo || 'coche', precio, numero_plazas || 5, autonomia_km || null, color || null, imagen || null, estado || 'disponible', id_concesionario]
+    );
+
+    res.redirect('/vehiculos');
+  } catch (err) {
+    console.error('Error creando vehículo:', err);
+    res.status(500).render('vehiculoForm', {
+      title: 'Nuevo Vehículo',
+      vehiculo: req.body,
+      action: '/vehiculos/nuevo',
+      method: 'POST',
+      error: 'No se pudo crear el vehículo.'
+    });
+  }
+});
 // GET /vehiculos/:id/editar -> Formulario para editar (Ruta: '/:id/editar')
 // POST /vehiculos/:id/editar -> Lógica para actualizar (Ruta: '/:id/editar')
 // POST /vehiculos/:id/eliminar -> Lógica para borrar (Ruta: '/:id/eliminar')

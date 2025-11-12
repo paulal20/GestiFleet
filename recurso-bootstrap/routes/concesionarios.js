@@ -3,7 +3,7 @@ const router = express.Router();
 const { isAuth, isAdmin } = require('../middleware/auth');
 
 // LISTADO: /concesionarios
-router.get('/', async (req, res) => {
+router.get('/', isAuth, async (req, res) => {
   try {
     const [concesionarios] = await req.db.query('SELECT * FROM concesionarios ORDER BY nombre');
     res.render('listaConcesionarios', {
@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
 });
 
 // DETALLE: /concesionarios/:id
-router.get('/:id(\\d+)', async (req, res, next) => {
+router.get('/:id(\\d+)', isAuth, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     const [rows] = await req.db.query('SELECT * FROM concesionarios WHERE id_concesionario = ?', [id]);
@@ -162,7 +162,7 @@ router.post('/:id(\\d+)/eliminar', isAuth, isAdmin, async (req, res) => {
 
     if (cnt > 0) {
       const [concesionarios] = await req.db.query('SELECT * FROM concesionarios ORDER BY nombre');
-      return res.status(400).render('concesionarios', {
+      return res.status(400).render('concesionarios-lista', {
         title: 'Concesionarios',
         concesionarios,
         error: 'No se puede eliminar el concesionario porque tiene vehículos asociados.'
@@ -170,7 +170,7 @@ router.post('/:id(\\d+)/eliminar', isAuth, isAdmin, async (req, res) => {
     }
 
     await req.db.query('DELETE FROM concesionarios WHERE id_concesionario = ?', [id]);
-    res.redirect('/concesionarios');
+    res.redirect('/concesionarios-lista');
   } catch (err) {
     console.error('Error al eliminar concesionario:', err);
     res.status(500).render('error', { mensaje: 'No se pudo eliminar el concesionario' });
