@@ -83,12 +83,20 @@ app.use((err, req, res, next) => {
   //----------------------------------------No sé si esto sobra----------------------------------------//
 
   if (req.accepts('html')) {
-      return res.render('error', {
-          status,
-          mensaje: mensajePublico,
-          details: detalles,
-          url: req.originalUrl
-      });
+    return res.render('error', {
+      status,
+      mensaje: mensajePublico,
+      details: detalles,
+      url: req.originalUrl
+    });
+  }else if (req.accepts('json')) {
+    return res.json({
+        status,
+        mensaje: mensajePublico,
+        details: detalles
+    });
+  } else {
+    return res.type('txt').send(`${status}: ${mensajePublico}`);
   }
 });
 

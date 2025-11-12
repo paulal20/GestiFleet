@@ -1,12 +1,20 @@
 <div class="reservas-content">
   <h1 lang="es" class="lang lang-es">Reserva tu coche!</h1>
   <h1 lang="en" class="lang lang-en d-none">Book your vehicle!</h1>
+  
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert alert-danger" role="alert" aria-live="assertive">
+      <%= error %>
+    </div>
+  <% } %>
+
   <div id="formProgressContainer">
     <label for="formProgress" lang="es" class="lang lang-es">Progreso del formulario:</label>
     <label for="formProgress" lang="en" class="lang lang-en">Form progress:</label>
     <progress id="formProgress" value="0" max="100"></progress>
     <span id="progressPercent">0%</span>
   </div>
+
   <form id="revistaForm" lang="es" class="lang lang-es" autocomplete="off" action="/reserva" method="POST" novalidate>
     <!-- <fieldset>
         <legend class="w-auto">Reserva tu vehículo</legend>

@@ -3,24 +3,31 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><%= title %></h1>
 
-        <!-- Filtro solo si hay usuarios (admin) -->
-        <% if (todosLosUsuarios && todosLosUsuarios.length > 0) { %>
+        <% if (esAdmin === true) { %>
             <form action="/reserva/listareservas" method="GET" class="d-flex gap-2">
                 <select name="id" id="filtroUsuario" class="form-select" style="min-width: 220px;">
                     <option value="0" <%= (idSeleccionado === 0) ? 'selected' : '' %>>
                         Ver Todas las Reservas
                     </option>
-                    <% todosLosUsuarios.forEach(u => { %>
-                        <option value="<%= u.id_usuario %>" <%= (u.id_usuario === idSeleccionado) ? 'selected' : '' %>>
-                            <%= u.nombre %> (<%= u.correo %>)
-                        </option>
-                    <% }) %>
+                    <% if (todosLosUsuarios && todosLosUsuarios.length > 0) { %>
+                        <% todosLosUsuarios.forEach(u => { %>
+                            <option value="<%= u.id_usuario %>" <%= (u.id_usuario === idSeleccionado) ? 'selected' : '' %>>
+                                <%= u.nombre %> (<%= u.correo %>)
+                            </option>
+                        <% }) %>
+                    <% } %>
                 </select>
 
                 <button type="submit" class="btn btn-primary">Filtrar</button>
             </form>
         <% } %>
     </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert alert-danger" role="alert" aria-live="assertive">
+        <%= error %>
+      </div>
+    <% } %>
 
     <% if (listaDeReservas && listaDeReservas.length > 0) { %>
 
