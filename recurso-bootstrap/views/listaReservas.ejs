@@ -29,6 +29,7 @@
       </div>
     <% } %>
 
+
     <% if (listaDeReservas && listaDeReservas.length > 0) { %>
 
         <div id="tabla-reservas-descripcion" class="visually-hidden"></div>
@@ -67,6 +68,10 @@
                             <span class="lang lang-es">Estado</span>
                             <span class="lang lang-en d-none">Status</span>
                         </th>
+                        <th scope="col">
+                            <span class="lang lang-es">Acciones</span>
+                            <span class="lang lang-en d-none">Actions</span>
+                        </th>
                     </tr>
                 </thead>
 
@@ -78,14 +83,38 @@
                             <td><%= reserva.marca %> <%= reserva.modelo %> (<%= reserva.matricula %>)</td>
                             <td><%= new Date(reserva.fecha_inicio).toLocaleString() %></td>
                             <td><%= new Date(reserva.fecha_fin).toLocaleString() %></td>
-                            <td><%= reserva.estado.charAt(0).toUpperCase() + reserva.estado.slice(1) %></td>
+                            <td>
+                                <% if (reserva.estado === 'activa') { %>
+                                    <span class="badge bg-success">Activa</span>
+                                <% } else if (reserva.estado === 'cancelada') { %>
+                                    <span class="badge bg-danger">Cancelada</span>
+                                <% } else { %>
+                                    <span class="badge bg-secondary"><%= reserva.estado.charAt(0).toUpperCase() + reserva.estado.slice(1) %></span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <a href="/reserva/<%= reserva.id_reserva %>" class="btn btn-primary btn-sm" title="Ver Detalle">
+                                    <span class="lang lang-es">Ver</span>
+                                    <span class="lang lang-en d-none">View</span>
+                                </a>
+                                
+                                <form action="/reserva/<%= reserva.id_reserva %>/cancelar" method="POST" style="display: inline-block; margin-left: 5px;">
+                                    <button type="submit" class="btn btn-primary btn-sm" 
+                                        title="Cancelar Reserva"
+                                        <%# Deshabilitamos el botón si la reserva no está activa %>
+                                        <%= (reserva.estado !== 'activa') ? 'disabled' : '' %>>
+                                        <span class="lang lang-es">Cancelar</span>
+                                        <span class="lang lang-en d-none">Cancel</span>
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                     <% }) %>
                 </tbody>
             </table>
         </div>
 
-    <% } else { %>
+    <% } else if (typeof error === 'undefined' || !error) { %> 
         <div class="alert alert-info text-center" role="alert">
             <h4 class="alert-heading lang lang-es">No hay reservas</h4>
             <h4 class="alert-heading lang lang-en d-none">No bookings found</h4>
