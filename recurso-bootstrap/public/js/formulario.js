@@ -158,6 +158,16 @@ document.addEventListener("DOMContentLoaded", function(){
             }
         }
 
+        function validarCamposIniciales() {
+            Object.keys(campos).forEach(key => {
+                const input = campos[key];
+                // Comprobamos si el input existe y si su valor no está vacío
+                if (input && !estaVacio(input.value)) {
+                    validarCampoEnTiempoReal(key);
+                }
+            });
+        }
+
         Object.keys(campos).forEach(key => {
             const el = campos[key];
             if (!el) return;
@@ -218,6 +228,8 @@ document.addEventListener("DOMContentLoaded", function(){
                 }, 0);
             }
         });
+
+        validarCamposIniciales();
 
         actualizarProgreso();
     }

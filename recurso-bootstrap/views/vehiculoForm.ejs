@@ -19,17 +19,17 @@
         <div class="col-md-4 mb-3">
           <label for="matricula" class="form-label obligatorio">Matrícula:</label>
           <input type="text" id="matricula" name="matricula" class="form-control"
-                 value="<%= isEditMode ? vehiculo.matricula : '' %>" placeholder="1234ABC" required>
+                 value="<%= (typeof vehiculo !== 'undefined' && vehiculo.matricula) ? vehiculo.matricula : '' %>" placeholder="1234ABC" required>
         </div>
         <div class="col-md-4 mb-3">
           <label for="marca" class="form-label obligatorio">Marca:</label>
           <input type="text" id="marca" name="marca" class="form-control"
-                 value="<%= isEditMode ? vehiculo.marca : '' %>" placeholder="BYD" required>
+                 value="<%= (typeof vehiculo !== 'undefined' && vehiculo.marca) ? vehiculo.marca : '' %>" placeholder="BYD" required>
         </div>
         <div class="col-md-4 mb-3">
           <label for="modelo" class="form-label obligatorio">Modelo:</label>
           <input type="text" id="modelo" name="modelo" class="form-control"
-                 value="<%= isEditMode ? vehiculo.modelo : '' %>" placeholder="Seal 1" required>
+                 value="<%= (typeof vehiculo !== 'undefined' && vehiculo.modelo) ? vehiculo.modelo : '' %>" placeholder="Seal 1" required>
         </div>
       </div>
 
@@ -37,17 +37,17 @@
         <div class="col-md-4 mb-3">
           <label for="anyo_matriculacion" class="form-label obligatorio">Año Matriculación:</label>
           <input type="number" id="anyo_matriculacion" name="anyo_matriculacion" class="form-control"
-                 value="<%= isEditMode ? vehiculo.anyo_matriculacion : '' %>" placeholder="2023" min="1900" max="2100" required>
+                 value="<%= (typeof vehiculo !== 'undefined' && vehiculo.anyo_matriculacion) ? vehiculo.anyo_matriculacion : '' %>" placeholder="2023" min="1900" max="2100" required>
         </div>
         <div class="col-md-4 mb-3">
           <label for="precio" class="form-label obligatorio">Precio (€):</label>
           <input type="number" step="0.01" id="precio" name="precio" class="form-control"
-                 value="<%= isEditMode ? vehiculo.precio : '' %>" placeholder="40000.00" required>
+                 value="<%= (typeof vehiculo !== 'undefined' && vehiculo.precio) ? vehiculo.precio : '' %>" placeholder="40000.00" required>
         </div>
         <div class="col-md-4 mb-3">
           <label for="numero_plazas" class="form-label NoObligatorio">Número de Plazas:</label>
           <input type="number" id="numero_plazas" name="numero_plazas" class="form-control"
-                 value="<%= isEditMode ? vehiculo.numero_plazas : 5 %>" placeholder="5">
+                 value="<%= (typeof vehiculo !== 'undefined' && vehiculo.numero_plazas) ? vehiculo.numero_plazas : 5 %>" placeholder="5">
         </div>
       </div>
 
@@ -55,19 +55,19 @@
         <div class="col-md-4 mb-3">
           <label for="autonomia_km" class="form-label NoObligatorio">Autonomía (km):</label>
           <input type="number" id="autonomia_km" name="autonomia_km" class="form-control"
-                 value="<%= isEditMode ? vehiculo.autonomia_km : '' %>" placeholder="520">
+                 value="<%= (typeof vehiculo !== 'undefined' && vehiculo.autonomia_km) ? vehiculo.autonomia_km : '' %>" placeholder="520">
         </div>
         <div class="col-md-4 mb-3">
           <label for="color" class="form-label NoObligatorio">Color:</label>
           <input type="text" id="color" name="color" class="form-control"
-                 value="<%= isEditMode ? vehiculo.color : '' %>" placeholder="Gris">
+                 value="<%= (typeof vehiculo !== 'undefined' && vehiculo.color) ? vehiculo.color : '' %>" placeholder="Gris">
         </div>
         <div class="col-md-4 mb-3">
           <label for="id_concesionario" class="form-label obligatorio">Concesionario:</label>
           <select id="id_concesionario" name="id_concesionario" class="form-select" required>
             <option value="0">-- Selecciona un concesionario --</option>
             <% concesionarios.forEach(c => { %>
-              <option value="<%= c.id_concesionario %>" <%= isEditMode && vehiculo.id_concesionario === c.id_concesionario ? 'selected' : '' %>><%= c.nombre %></option>
+              <option value="<%= c.id_concesionario %>" <%= (typeof vehiculo !== 'undefined' && vehiculo.id_concesionario === c.id_concesionario) ? 'selected' : '' %>><%= c.nombre %></option>
             <% }) %>
           </select>
         </div>
@@ -75,7 +75,7 @@
 
       <div class="mb-3">
         <label for="descripcion" class="form-label NoObligatorio">Descripción:</label>
-        <textarea id="descripcion" name="descripcion" class="form-control" rows="3" placeholder="Sedán eléctrico moderno con diseño aerodinámico y rendimiento eficiente para ciudad y carretera."><%= isEditMode ? vehiculo.descripcion : '' %></textarea>
+        <textarea id="descripcion" name="descripcion" class="form-control" rows="3" placeholder="Sedán eléctrico moderno con diseño aerodinámico y rendimiento eficiente para ciudad y carretera."><%= (typeof vehiculo !== 'undefined' && vehiculo.descripcion) ? vehiculo.descripcion : '' %></textarea>
       </div>
 
       <div class="mb-3">
@@ -90,7 +90,7 @@
           <input type="hidden" name="imagen_actual" value="<%= vehiculo.imagen %>">
         <% } %>
 
-        <input type="file" id="imagen" name="imagen" class="form-control" accept=".png" <%= isEditMode ? '' : 'required' %>>
+        <input type="file" id="imagen" name="imagen" class="form-control" accept=".png" <%= (typeof vehiculo !== 'undefined' && vehiculo.imagen) ? '' : 'required' %>>
         <% if (isEditMode) { %>
           <small class="text-muted">Si no seleccionas una nueva imagen, se mantendrá la actual.</small>
         <% } %>

@@ -137,6 +137,18 @@ document.addEventListener("DOMContentLoaded", function () {
       actualizarEstadoCampo(input, span);
     }
 
+    function validarCamposIniciales() {
+      Object.keys(campos).forEach(key => {
+        const input = campos[key];
+        
+        if (input) {
+          if (!estaVacio(input.value)) {
+              validarCampoEnTiempoReal(key);
+          }
+        }
+      });
+    }
+
     // Listeners en tiempo real
     Object.keys(campos).forEach((key) => {
       const el = campos[key];
@@ -183,5 +195,9 @@ document.addEventListener("DOMContentLoaded", function () {
         limpiarErrores();
       }, 0);
     });
+
+    // Validar campos ya rellenos al cargar
+    validarCamposIniciales();
+
   }
 });

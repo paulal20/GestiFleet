@@ -94,34 +94,53 @@ router.get('/nuevo', isAuth, isAdmin, async (req, res) => {
 });
 
 // POST /vehiculos/nuevo
-router.post('/nuevo', upload.single('imagen'), async (req, res) => {
-  try {
-    const {
-      matricula, marca, modelo, anyo_matriculacion, descripcion,
-      tipo, precio, numero_plazas, autonomia_km, color,
-      estado, id_concesionario
-    } = req.body;
+router.post('/nuevo', isAdmin, upload.single('imagen'), async (req, res) => {
+  const {
+    matricula, marca, modelo, anyo_matriculacion, descripcion,
+    tipo, precio, numero_plazas, autonomia_km, color,
+    estado, id_concesionario
+  } = req.body;
+  
+  let concesionarios = [];
 
-    // Validación básica de campos obligatorios
+  try {
+    [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
+
+    let errorMsg = null;
+    const actual = new Date().getFullYear();
+
     if (!matricula || !marca || !modelo || !anyo_matriculacion || !precio || !id_concesionario) {
-      return res.render('vehiculoForm', {
+      errorMsg = 'Faltan campos obligatorios (Matrícula, Marca, Modelo, Año, Precio, Concesionario).';
+    } else if (!/^\d{4}[A-Z]{3}$/i.test(matricula)) {
+      errorMsg = 'La matrícula debe tener 4 números seguidos de 3 letras (ej: 1234ABC).';
+    } else if (parseInt(anyo_matriculacion, 10) < 1900 || parseInt(anyo_matriculacion, 10) > actual) {
+      errorMsg = `El año de matriculación debe estar entre 1900 y ${actual}.`;
+    } else if (parseFloat(precio) <= 0) {
+      errorMsg = 'El precio debe ser un número positivo.';
+    } else if (id_concesionario === '0') {
+      errorMsg = 'Debe seleccionar un concesionario válido.';
+    } else if (!req.file) {
+      errorMsg = 'La imagen es obligatoria al crear un vehículo nuevo.';
+    }
+
+    if (errorMsg) {
+      return res.status(400).render('vehiculoForm', {
         title: 'Nuevo Vehículo',
         action: '/vehiculos/nuevo',
-        error: 'Faltan campos obligatorios',
-        vehiculo: req.body
+        error: errorMsg,
+        vehiculo: req.body, 
+        concesionarios     
       });
     }
 
-    // Ruta de la imagen si se sube
-    const imagen = req.file ? `/img/vehiculos/${req.file.filename}` : null;
+    const imagen = `/img/vehiculos/${req.file.filename}`;
 
-    // Insertar en la base de datos
     await req.db.query(
       `INSERT INTO vehiculos
       (matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        matricula,
+        matricula.toUpperCase(), 
         marca,
         modelo,
         anyo_matriculacion,
@@ -138,13 +157,31 @@ router.post('/nuevo', upload.single('imagen'), async (req, res) => {
     );
 
     res.redirect('/vehiculos');
+
   } catch (err) {
     console.error('Error al crear vehículo:', err);
-    res.render('vehiculoForm', {
+    
+    if (concesionarios.length === 0) {
+        try {
+            [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
+        } catch (dbErr) {
+            console.error("Error fatal, no se pueden cargar concesionarios", dbErr);
+        }
+    }
+
+    let error = 'Error al crear vehículo';
+    if (err.code === 'ER_DUP_ENTRY') {
+      error = 'La matrícula introducida ya existe.';
+    } else {
+      error = err.message || error;
+    }
+
+    res.status(500).render('vehiculoForm', {
       title: 'Nuevo Vehículo',
       action: '/vehiculos/nuevo',
-      error: err.message || 'Error al crear vehículo',
-      vehiculo: req.body
+      error: error,
+      vehiculo: req.body, 
+      concesionarios     
     });
   }
 });
@@ -182,12 +219,51 @@ router.get('/:id/editar', isAuth, isAdmin, async (req, res) => {
 
 // POST /vehiculos/:id/editar
 router.post('/:id/editar', isAuth, isAdmin, upload.single('imagen'), async (req, res) => {
-  try {
-    const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) return res.redirect('/vehiculos');
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) return res.redirect('/vehiculos');
+  
+  const { matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas,
+    autonomia_km, color, estado, id_concesionario, imagen_actual } = req.body;
 
-    const { matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas,
-      autonomia_km, color, estado, id_concesionario, imagen_actual } = req.body;
+  let concesionarios = [];
+
+  try {
+    [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
+    
+    let errorMsg = null;
+    const actual = new Date().getFullYear();
+
+    if (!matricula || !marca || !modelo || !anyo_matriculacion || !precio || !id_concesionario) {
+      errorMsg = 'Faltan campos obligatorios (Matrícula, Marca, Modelo, Año, Precio, Concesionario).';
+    } else if (!/^\d{4}[A-Z]{3}$/i.test(matricula)) {
+      errorMsg = 'La matrícula debe tener 4 números seguidos de 3 letras (ej: 1234ABC).';
+    } else if (parseInt(anyo_matriculacion, 10) < 1900 || parseInt(anyo_matriculacion, 10) > actual) {
+      errorMsg = `El año de matriculación debe estar entre 1900 y ${actual}.`;
+    } else if (parseFloat(precio) <= 0) {
+      errorMsg = 'El precio debe ser un número positivo.';
+    } else if (id_concesionario === '0') {
+      errorMsg = 'Debe seleccionar un concesionario válido.';
+    }
+    
+    if (!errorMsg) {
+      const [duplicados] = await req.db.query(
+        'SELECT id_vehiculo FROM vehiculos WHERE matricula = ? AND id_vehiculo != ?',
+        [matricula.toUpperCase(), id]
+      );
+      if (duplicados.length > 0) {
+        errorMsg = 'La matrícula introducida ya pertenece a otro vehículo.';
+      }
+    }
+
+    if (errorMsg) {
+      return res.status(400).render('vehiculoForm', {
+        title: 'Editar Vehículo',
+        action: `/vehiculos/${id}/editar`,
+        error: errorMsg,
+        vehiculo: { ...req.body, id_vehiculo: id, imagen: imagen_actual }, // Reconstruimos el vehiculo
+        concesionarios
+      });
+    }
 
     const imagen = req.file
       ? `/img/vehiculos/${req.file.filename}`
@@ -199,19 +275,43 @@ router.post('/:id/editar', isAuth, isAdmin, upload.single('imagen'), async (req,
         tipo = ?, precio = ?, numero_plazas = ?, autonomia_km = ?, color = ?, 
         imagen = ?, estado = ?, id_concesionario = ?
       WHERE id_vehiculo = ?`,
-      [ matricula, marca, modelo, anyo_matriculacion, descripcion || null, tipo || 'coche', precio,
-        numero_plazas || 5, autonomia_km || null, color || null, imagen, estado || 'disponible', id_concesionario,
-        id ]);
+      [ matricula.toUpperCase(),
+        marca,
+        modelo,
+        anyo_matriculacion,
+        descripcion || null,
+        tipo || 'coche',
+        precio,
+        numero_plazas || 5,
+        autonomia_km || null,
+        color || null,
+        imagen,
+        estado || 'disponible',
+        id_concesionario,
+        id 
+      ]);
 
     res.redirect(`/vehiculos/${id}`);
+
   } catch (err) {
     console.error('Error al actualizar vehículo:', err);
-    const [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
-    res.render('vehiculoForm', {
+
+    if (concesionarios.length === 0) {
+        try { [concesionarios] = await req.db.query('SELECT * FROM concesionarios'); } catch (dbErr) { /* ... */ }
+    }
+    
+    let error = 'Error al actualizar vehículo';
+    if (err.code === 'ER_DUP_ENTRY') {
+      error = 'La matrícula introducida ya existe.';
+    } else {
+      error = err.message || error;
+    }
+
+    res.status(500).render('vehiculoForm', {
       title: 'Editar Vehículo',
       action: `/vehiculos/${req.params.id}/editar`,
-      error: err.message || 'Error al actualizar vehículo',
-      vehiculo: { ...req.body, id_vehiculo: req.params.id },
+      error: error,
+      vehiculo: { ...req.body, id_vehiculo: req.params.id, imagen: imagen_actual }, 
       concesionarios,
     });
   }

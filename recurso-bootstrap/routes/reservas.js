@@ -84,7 +84,6 @@ router.post('/', isAuth, async (req, res) => {
         title: 'Reserva tu coche!',
         vehiculos,
         idVehiculoSeleccionado: idVehiculo,
-        formData: req.body,
         error: 'El vehículo no está disponible en las fechas seleccionadas. Ya existe otra reserva.'
       });
     }
