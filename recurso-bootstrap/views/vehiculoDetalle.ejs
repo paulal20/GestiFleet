@@ -50,12 +50,51 @@
           <p class="text-muted">Desde <%= vehiculo.precio %> €</p>
         </div>
 
-        <div class="perfil-actions d-flex">
-          <a href="/vehiculos" class="btn btn-secondary w-50">Volver a la lista</a>
-          <a href="/reserva" class="btn btn-primary w-50">Reservar</a>
+        <div class="perfil-actions d-flex gap-2 mt-3">
+          <a href="/vehiculos" class="btn btn-secondary flex-fill">Volver a la lista</a>
+
+          <% if (usuario && usuario.rol === 'Admin') { %>
+            <button type="button"
+                    class="btn btn-outline-secondary flex-fill"
+                    data-bs-toggle="modal"
+                    data-bs-target="#confirmarEliminarModal"
+                    data-id="<%= vehiculo.id_vehiculo %>"
+                    data-name="<%= vehiculo.marca + ' ' + vehiculo.modelo %>">
+              Eliminar
+            </button>
+            <a href="/vehiculos/<%= vehiculo.id_vehiculo %>/editar" class="btn btn-primary flex-fill">
+              Editar
+            </a>
+          <% } else { %>
+            <a href="/reserva?idVehiculo=<%= vehiculo.id_vehiculo %>" class="btn btn-primary flex-fill">Reservar</a>
+          <% } %>
         </div>
+
         
       </div> 
     </div> 
   </div> 
 </div>
+
+<div class="modal fade" id="confirmarEliminarModal" tabindex="-1" aria-labelledby="confirmarEliminarModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmarEliminarModalLabel">Eliminar Vehículo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro de que quieres eliminar <span id="vehiculoAEliminar"></span>?
+        <br>
+        <div class="d-flex justify-content-end mt-3 gap-2">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <form id="formEliminar" action="" method="POST" class="m-0 p-0">
+            <button type="submit" class="btn btn-primary">Eliminar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/modal.js"></script>
