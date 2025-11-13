@@ -184,56 +184,24 @@ router.get('/:id/editar', isAuth, isAdmin, async (req, res) => {
 router.post('/:id/editar', isAuth, isAdmin, upload.single('imagen'), async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) {
-      return res.redirect('/vehiculos');
-    }
+    if (isNaN(id)) return res.redirect('/vehiculos');
 
-    const {
-      matricula, marca, modelo, anyo_matriculacion, descripcion,
-      tipo, precio, numero_plazas, autonomia_km, color,
-      estado, id_concesionario
-    } = req.body;
+    const { matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas,
+      autonomia_km, color, estado, id_concesionario, imagen_actual } = req.body;
 
-    // Validación básica
-    if (!matricula || !marca || !modelo || !anyo_matriculacion || !precio || !id_concesionario) {
-      const [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
-      return res.render('vehiculoForm', {
-        title: 'Editar Vehículo',
-        action: `/vehiculos/${id}/editar`,
-        error: 'Faltan campos obligatorios',
-        vehiculo: { ...req.body, id_vehiculo: id },
-        concesionarios
-      });
-    }
+    const imagen = req.file
+      ? `/img/vehiculos/${req.file.filename}`
+      : imagen_actual || null;
 
-    // Validar matrícula (4 números + 3 letras)
-    if (!/^\d{4}[A-Z]{3}$/i.test(matricula)) {
-      const [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
-      return res.render('vehiculoForm', {
-        title: 'Editar Vehículo',
-        action: `/vehiculos/${id}/editar`,
-        error: 'La matrícula debe tener 4 números seguidos de 3 letras (ej: 1234ABC).',
-        vehiculo: { ...req.body, id_vehiculo: id },
-        concesionarios
-      });
-    }
-
-    // Ruta de la imagen si se sube
-    const imagen = req.file ? `/img/vehiculos/${req.file.filename}` : req.body.imagen || null;
-
-    // Actualizar en la base de datos
     await req.db.query(
       `UPDATE vehiculos SET 
         matricula = ?, marca = ?, modelo = ?, anyo_matriculacion = ?, descripcion = ?, 
-        tipo = ?, precio = ?, numero_plazas = ?, autonomia_km = ?, color = ?, imagen = ?, 
-        estado = ?, id_concesionario = ?
+        tipo = ?, precio = ?, numero_plazas = ?, autonomia_km = ?, color = ?, 
+        imagen = ?, estado = ?, id_concesionario = ?
       WHERE id_vehiculo = ?`,
-      [
-        matricula, marca, modelo, anyo_matriculacion, descripcion || null,
-        tipo || 'coche', precio, numero_plazas || 5, autonomia_km || null, color || null,
-        imagen, estado || 'disponible', id_concesionario, id
-      ]
-    );
+      [ matricula, marca, modelo, anyo_matriculacion, descripcion || null, tipo || 'coche', precio,
+        numero_plazas || 5, autonomia_km || null, color || null, imagen, estado || 'disponible', id_concesionario,
+        id ]);
 
     res.redirect(`/vehiculos/${id}`);
   } catch (err) {
@@ -244,7 +212,7 @@ router.post('/:id/editar', isAuth, isAdmin, upload.single('imagen'), async (req,
       action: `/vehiculos/${req.params.id}/editar`,
       error: err.message || 'Error al actualizar vehículo',
       vehiculo: { ...req.body, id_vehiculo: req.params.id },
-      concesionarios
+      concesionarios,
     });
   }
 });

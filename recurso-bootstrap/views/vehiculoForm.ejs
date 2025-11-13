@@ -19,17 +19,17 @@
         <div class="col-md-4 mb-3">
           <label for="matricula" class="form-label obligatorio">Matrícula:</label>
           <input type="text" id="matricula" name="matricula" class="form-control"
-                 value="<%= isEditMode ? vehiculo.matricula : '' %>" placeholder="Ej: MAD0001A" required>
+                 value="<%= isEditMode ? vehiculo.matricula : '' %>" placeholder="1234ABC" required>
         </div>
         <div class="col-md-4 mb-3">
           <label for="marca" class="form-label obligatorio">Marca:</label>
           <input type="text" id="marca" name="marca" class="form-control"
-                 value="<%= isEditMode ? vehiculo.marca : '' %>" placeholder="Ej: BYD" required>
+                 value="<%= isEditMode ? vehiculo.marca : '' %>" placeholder="BYD" required>
         </div>
         <div class="col-md-4 mb-3">
           <label for="modelo" class="form-label obligatorio">Modelo:</label>
           <input type="text" id="modelo" name="modelo" class="form-control"
-                 value="<%= isEditMode ? vehiculo.modelo : '' %>" placeholder="Ej: Seal 1" required>
+                 value="<%= isEditMode ? vehiculo.modelo : '' %>" placeholder="Seal 1" required>
         </div>
       </div>
 
@@ -37,17 +37,17 @@
         <div class="col-md-4 mb-3">
           <label for="anyo_matriculacion" class="form-label obligatorio">Año Matriculación:</label>
           <input type="number" id="anyo_matriculacion" name="anyo_matriculacion" class="form-control"
-                 value="<%= isEditMode ? vehiculo.anyo_matriculacion : '' %>" placeholder="Ej: 2023" min="1900" max="2100" required>
+                 value="<%= isEditMode ? vehiculo.anyo_matriculacion : '' %>" placeholder="2023" min="1900" max="2100" required>
         </div>
         <div class="col-md-4 mb-3">
           <label for="precio" class="form-label obligatorio">Precio (€):</label>
           <input type="number" step="0.01" id="precio" name="precio" class="form-control"
-                 value="<%= isEditMode ? vehiculo.precio : '' %>" placeholder="Ej: 40000.00" required>
+                 value="<%= isEditMode ? vehiculo.precio : '' %>" placeholder="40000.00" required>
         </div>
         <div class="col-md-4 mb-3">
           <label for="numero_plazas" class="form-label NoObligatorio">Número de Plazas:</label>
           <input type="number" id="numero_plazas" name="numero_plazas" class="form-control"
-                 value="<%= isEditMode ? vehiculo.numero_plazas : 5 %>" placeholder="Ej: 5">
+                 value="<%= isEditMode ? vehiculo.numero_plazas : 5 %>" placeholder="5">
         </div>
       </div>
 
@@ -55,12 +55,12 @@
         <div class="col-md-4 mb-3">
           <label for="autonomia_km" class="form-label NoObligatorio">Autonomía (km):</label>
           <input type="number" id="autonomia_km" name="autonomia_km" class="form-control"
-                 value="<%= isEditMode ? vehiculo.autonomia_km : '' %>" placeholder="Ej: 520">
+                 value="<%= isEditMode ? vehiculo.autonomia_km : '' %>" placeholder="520">
         </div>
         <div class="col-md-4 mb-3">
           <label for="color" class="form-label NoObligatorio">Color:</label>
           <input type="text" id="color" name="color" class="form-control"
-                 value="<%= isEditMode ? vehiculo.color : '' %>" placeholder="Ej: Gris">
+                 value="<%= isEditMode ? vehiculo.color : '' %>" placeholder="Gris">
         </div>
         <div class="col-md-4 mb-3">
           <label for="id_concesionario" class="form-label obligatorio">Concesionario:</label>
@@ -75,13 +75,27 @@
 
       <div class="mb-3">
         <label for="descripcion" class="form-label NoObligatorio">Descripción:</label>
-        <textarea id="descripcion" name="descripcion" class="form-control" rows="3" placeholder="Ej: Sedán eléctrico moderno con diseño aerodinámico y rendimiento eficiente para ciudad y carretera."><%= isEditMode ? vehiculo.descripcion : '' %></textarea>
+        <textarea id="descripcion" name="descripcion" class="form-control" rows="3" placeholder="Sedán eléctrico moderno con diseño aerodinámico y rendimiento eficiente para ciudad y carretera."><%= isEditMode ? vehiculo.descripcion : '' %></textarea>
       </div>
 
       <div class="mb-3">
-        <label for="imagen" class="form-label obligatorio">Imagen (solo PNG):</label>
-        <input type="file" id="imagen" name="imagen" class="form-control" accept=".png" required>
+        <label for="imagen" class="form-label <%= isEditMode ? '' : 'obligatorio' %>">Imagen (solo PNG):</label>
+        
+        <% if (isEditMode && vehiculo.imagen) { %>
+          <div class="mb-2">
+            <p class="mb-1 fw-semibold">Imagen actual:</p>
+            <img src="<%= vehiculo.imagen %>" alt="Imagen actual del vehículo"
+                class="img-thumbnail shadow-sm" style="max-width: 250px; height: auto;">
+          </div>
+          <input type="hidden" name="imagen_actual" value="<%= vehiculo.imagen %>">
+        <% } %>
+
+        <input type="file" id="imagen" name="imagen" class="form-control" accept=".png" <%= isEditMode ? '' : 'required' %>>
+        <% if (isEditMode) { %>
+          <small class="text-muted">Si no seleccionas una nueva imagen, se mantendrá la actual.</small>
+        <% } %>
       </div>
+
 
     </fieldset>
 

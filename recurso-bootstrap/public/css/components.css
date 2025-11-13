@@ -100,7 +100,7 @@
  margin-top: auto;
 }
 
-.vehiculo-card .card-footer:hover {
+/* .vehiculo-card .card-footer:hover {
  background-color: var(--btn-hover);
  color: #fff;
 }
@@ -108,7 +108,7 @@
 .vehiculo-card .card-footer:active {
  background-color: var(--btn-active);
  color: #fff;
-}
+} */
 
 .perfil-card {
   @extend .vehiculo-card;
