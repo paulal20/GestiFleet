@@ -19,19 +19,19 @@
     <form method="GET" action="/vehiculos" class="d-flex gap-2 align-items-center">
       <label for="tipo" class="mb-0">Filtrar por tipo:</label>
       <select name="tipo" id="tipo" class="form-select w-auto">
-        <option value="">Todos</option>
+        <option value="" <%= (tipoSeleccionado === '') ? 'selected' : '' %>>Todos</option>
         <% if (tiposDisponibles && tiposDisponibles.length > 0) { %>
           <% tiposDisponibles.forEach(function(t) { %>
-            <option value="<%= t %>"> <%= t %> </option>
+            <option value="<%= t %>" <%= (tipoSeleccionado === t) ? 'selected' : '' %>> <%= t %> </option>
           <% }) %>
         <% } %>
       </select>
       <label for="estado" class="mb-0">Filtrar por estado:</label>
       <select name="estado" id="estado" class="form-select w-auto">
-        <option value="">Todos</option>
+        <option value="" <%= (estadoSeleccionado === '') ? 'selected' : '' %>>Todos</option>
         <% if (estadosDisponibles && estadosDisponibles.length > 0) { %>
           <% estadosDisponibles.forEach(function(e) { %>
-            <option value="<%= e %>"> <%= e %> </option>
+            <option value="<%= e %>" <%= (estadoSeleccionado === e) ? 'selected' : '' %>> <%= e %> </option>
           <% }) %>
         <% } %>
       </select>

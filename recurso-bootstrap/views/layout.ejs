@@ -55,14 +55,14 @@
                             </a>
                         </li>
                         <% if (usuario) { %>
-                            <li class="nav-item">
-                                <a href="/reserva" class="nav-link">
-                                    <span lang="es" class="lang lang-es">Reservar</span>
-                                    <span lang="en" class="lang lang-en d-none">Book</span>
-                                </a>
-                            </li>
                             <% if (usuario.rol === 'Admin') { %>
                                 <li class="nav-item">
+                                    <a href="/administrar" class="nav-link">
+                                        <span lang="es" class="lang lang-es">Administrar</span>
+                                        <span lang="en" class="lang lang-en d-none">Managedment</span>
+                                    </a>
+                                </li>
+                                <!-- <li class="nav-item">
                                     <a href="/reserva/listareservas" class="nav-link">
                                         <span lang="es" class="lang lang-es">Ver Todas las Reservas</span>
                                         <span lang="en" class="lang lang-en d-none">View All Bookings</span>
@@ -73,21 +73,27 @@
                                         <span lang="es" class="lang lang-es">Añadir Concesionario</span>
                                         <span lang="en" class="lang lang-en d-none">Add Car Dealer</span>
                                     </a>
-                                </li>
-                            <% } else { %>
-                                <li class="nav-item">
-                                    <a href="/reserva/mis-reservas" class="nav-link">
-                                        <span lang="es" class="lang lang-es">Mis Reservas</span>
-                                        <span lang="en" class="lang lang-en d-none">My Bookings</span>
-                                    </a>
-                                </li>
+                                </li> -->
+                                <% } else { %>
+                                    <li class="nav-item">
+                                        <a href="/reserva" class="nav-link">
+                                            <span lang="es" class="lang lang-es">Reservar</span>
+                                            <span lang="en" class="lang lang-en d-none">Book</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="/reserva/mis-reservas" class="nav-link">
+                                            <span lang="es" class="lang lang-es">Mis Reservas</span>
+                                            <span lang="en" class="lang lang-en d-none">My Bookings</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="/concesionarios" class="nav-link">
+                                            <span lang="es" class="lang lang-es">Ver Todos los Concesionarios</span>
+                                            <span lang="en" class="lang lang-en d-none">View All Car Dealers</span>
+                                        </a>
+                                    </li>
                             <% } %>
-                            <li class="nav-item">
-                                <a href="/concesionarios" class="nav-link">
-                                    <span lang="es" class="lang lang-es">Ver Todos los Concesionarios</span>
-                                    <span lang="en" class="lang lang-en d-none">View All Car Dealers</span>
-                                </a>
-                            </li>
                         <% } %>
                     </ul>
 
@@ -164,6 +170,7 @@
                       <% } else { %>
                         <div class="dropdown">
                             <a href="#" class="dropdown-toggle nav-link" id="perfilDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span><%= usuario.nombre %></span>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
                                     <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
                                   </svg>
@@ -244,8 +251,8 @@
         </div>
 
     </div>  
-    <script src="/js/bootstrap.min.js"></script>
-    <script src="js/bootstrap.bundle.min.js"></script>
+    <!-- <script src="/js/bootstrap.min.js"></script> -->
+    <script src="/js/bootstrap.bundle.min.js"></script>
     <script src="/js/ajustes.js"></script>
 </body>
 </html>

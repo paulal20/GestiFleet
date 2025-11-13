@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { isGuest } = require('../middleware/auth');
+const { isGuest, isAdmin } = require('../middleware/auth');
 const bcrypt = require('bcrypt');
 // npm install bcrypt
 // npm install mysql2
@@ -160,6 +160,14 @@ router.get('/perfil', (req, res) => {
   res.render('perfil', { title: 'Mi Información', usuario });
 });
 
+router.get('/administrar', isAdmin, (req, res) => {
+  const usuario = req.session.usuario;
+  if (!usuario || usuario.rol !== 'Admin') {
+    req.session.errorMessage = 'No tienes permisos para acceder a esta página';
+    return res.redirect('/login');
+  }
+  res.render('administrar', { title: 'Administración', usuario });
+});
 
 // --- Rutas Estáticas ---
 

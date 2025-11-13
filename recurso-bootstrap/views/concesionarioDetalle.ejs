@@ -5,47 +5,59 @@
     <a href="/concesionarios" class="btn btn-outline-secondary">Volver al listado</a>
   </div>
 
-  <div class="vehiculo-card card mb-4">
-    
-    <!-- Encabezado de la tarjeta -->
-    <div class="card-header">
-      <h5 class="mb-0 fw-bold">Información de Contacto</h5>
+  <div class="vehiculo-card card mx-auto" style="max-width: 900px;">
+    <div class="row g-0">
+
+      <div class="col-md-4">
+        <div class="vehiculo-img-container h-100 d-flex align-items-center justify-content-center bg-light">
+          <img src="/img/concesionario.png" 
+               class="rounded-end img-cover" 
+               alt="<%= concesionario.nombre %>" 
+               style="max-height: 300px; object-fit: cover;">
+        </div>
+      </div>
+
+      <div class="col-md-8 d-flex flex-column">
+        <div class="card-body flex-grow-1">
+          <h5 class="card-title">Información de Contacto</h5>
+          
+          <div class="row mb-2">
+            <div class="col-sm-6 fw-bold">Ciudad:</div>
+            <div class="col-sm-6"><%= concesionario.ciudad %></div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-sm-6 fw-bold">Dirección:</div>
+            <div class="col-sm-6"><%= concesionario.direccion %></div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-sm-6 fw-bold">Teléfono:</div>
+            <div class="col-sm-6"><%= concesionario.telefono_contacto %></div>
+          </div>
+        </div>
+
+        <!-- Acciones de Admin -->
+        <% if (usuario && usuario.rol === 'Admin') { %>
+          <div class="perfil-actions d-flex gap-2 mt-3">
+            <button type="button"
+                    class="btn btn-outline-secondary flex-fill"
+                    data-bs-toggle="modal"
+                    data-bs-target="#confirmarEliminarConcesionarioModal"
+                    data-id="<%= concesionario.id_concesionario %>"
+                    data-name="<%= concesionario.nombre %>">
+              Eliminar
+            </button>
+            <a href="/concesionarios/<%= concesionario.id_concesionario %>/editar" class="btn btn-primary flex-fill">
+              Editar
+            </a>
+          </div>
+        <% } %>
+
+      </div>
     </div>
-    
-    <!-- Cuerpo de la tarjeta -->
-    <div class="card-body">
-      <!-- Reemplazamos la lista 'ul' por el sistema 'row/col' -->
-      <div class="row mb-2">
-        <div class="col-sm-3 fw-bold">Ciudad:</div>
-        <div class="col-sm-9"><%= concesionario.ciudad %></div>
-      </div>
-      <div class="row mb-2">
-        <div class="col-sm-3 fw-bold">Dirección:</div>
-        <div class="col-sm-9"><%= concesionario.direccion %></div>
-      </div>
-      <div class="row mb-2">
-        <div class="col-sm-3 fw-bold">Teléfono:</div>
-        <div class="col-sm-9"><%= concesionario.telefono_contacto %></div>
-      </div>
-    </div>
-    
-    <!-- Acciones de Admin (Usando la clase 'perfil-actions') -->
-    <% if (usuario && usuario.rol === 'Admin') { %>
-      <div class="perfil-actions d-flex justify-content-end gap-2">
-        <a href="/concesionarios/<%= concesionario.id_concesionario %>/editar" class="btn btn-secondary">
-          Editar
-        </a>
-        <form action="/concesionarios/<%= concesionario.id_concesionario %>/eliminar" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este concesionario? Esta acción no se puede deshacer.');">
-          <button type="submit" class="btn btn-danger">
-            Eliminar
-          </button>
-        </form>
-      </div>
-    <% } %>
   </div>
 
   <!-- Lista de Vehículos Asociados -->
-  <h2>Vehículos en esta base</h2>
+  <h2 class="mt-4">Vehículos en esta base</h2>
   <% if (vehiculos && vehiculos.length > 0) { %>
     <div class="table-responsive-md">
       <table class="table table-hover">
@@ -92,3 +104,40 @@
   <% } %>
 
 </div>
+
+<!-- Modal de confirmación de eliminación de concesionario -->
+<div class="modal fade" id="confirmarEliminarConcesionarioModal" tabindex="-1" aria-labelledby="confirmarEliminarConcesionarioModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmarEliminarConcesionarioModalLabel">Eliminar Concesionario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro de que quieres eliminar <span id="concesionarioAEliminar"></span>?
+        <br>
+        <div class="d-flex justify-content-end mt-3 gap-2">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <form id="formEliminarConcesionario" action="" method="POST" class="m-0 p-0">
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const modalConcesionario = document.getElementById('confirmarEliminarConcesionarioModal');
+  modalConcesionario.addEventListener('show.bs.modal', event => {
+    const button = event.relatedTarget;
+    const id = button.getAttribute('data-id');
+    const name = button.getAttribute('data-name');
+
+    const modalTitle = modalConcesionario.querySelector('#concesionarioAEliminar');
+    modalTitle.textContent = name;
+
+    const form = modalConcesionario.querySelector('#formEliminarConcesionario');
+    form.action = '/concesionarios/' + id + '/eliminar';
+  });
+</script>

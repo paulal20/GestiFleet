@@ -265,8 +265,5 @@ router.get('/:id', async (req, res, next) => {
     res.status(500).render('error', { mensaje: 'Error al cargar el vehículo' });
   }
 });
-// GET /vehiculos/:id/editar -> Formulario para editar (Ruta: '/:id/editar')
-// POST /vehiculos/:id/editar -> Lógica para actualizar (Ruta: '/:id/editar')
-// POST /vehiculos/:id/eliminar -> Lógica para borrar (Ruta: '/:id/eliminar')
 
 module.exports = router;
