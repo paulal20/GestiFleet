@@ -114,6 +114,33 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
 
+        function validarCamposIniciales() {
+            const initValid = Array.isArray(window.initialValidFields) ? window.initialValidFields : [];
+            const initFieldErrors = (window.initialFieldErrors && typeof window.initialFieldErrors === 'object') ? window.initialFieldErrors : {};
+
+            Object.keys(campos).forEach(key => {
+                const input = campos[key];
+                const span = errores[key];
+
+                if (initValid.includes(key)) {
+                if (span) span.textContent = "";
+                if (input) {
+                    input.classList.add("is-valid");
+                }
+                } else {
+                // campo no válido => borrar valor (el servidor ya lo dejó vacío)
+                if (input) {
+                    input.value = '';
+                    input.classList.remove("is-valid", "is-invalid");
+                }
+                if (span) {
+                    span.textContent = initFieldErrors[key] || "";
+                    if (span.textContent && input) input.classList.add("is-invalid");
+                }
+                }
+            });
+        }
+
         // 6. Asignar los listeners (sin la barra de progreso)
         Object.keys(campos).forEach(key => {
             const el = campos[key];
@@ -167,5 +194,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }, 0);
             }
         });
+
+        validarCamposIniciales();
     }
 });

@@ -63,4 +63,12 @@
     </div>
   </form>
 </div>
-<script src="/js/concesionarioForm.js"></script> 
+
+<script>
+  const initialValidFields = JSON.stringify(typeof validFields !== 'undefined' ? validFields : []).replace(/</g, '\\u003c');
+  const initialFieldErrors = JSON.stringify(typeof fieldErrors !== 'undefined' ? fieldErrors : {}).replace(/</g, '\\u003c');
+  window.initialValidFields = initialValidFields;
+  window.initialFieldErrors = initialFieldErrors;
+</script>
+
+<script src="/js/concesionarioForm.js"></script>

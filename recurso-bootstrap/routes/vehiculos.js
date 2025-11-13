@@ -7,11 +7,11 @@ const path = require('path');
 const multer = require('multer');
 
 // --------------------
-// CONFIGURACIÓN MULTER
+// CONFIGURACION MULTER
 // --------------------
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'public/img/vehiculos'); // carpeta donde se guardarán las imágenes
+    cb(null, 'public/img/vehiculos'); // carpeta donde se guardaran las imagenes
   },
   filename: (req, file, cb) => {
     const nombre = Date.now() + '-' + file.originalname;
@@ -58,7 +58,7 @@ router.get('/', async (req, res) => {
     const tiposDisponibles = tipos.map(t => t.tipo);
     const estadosDisponibles = estados.map(e => e.estado);
 
-    res.render('vehiculos', {
+    res.render('listaVehiculos', {
       title: 'Vehículos ofertados en GestiFleet',
       vehiculos,
       tiposDisponibles,
@@ -116,8 +116,8 @@ router.post('/nuevo', isAdmin, upload.single('imagen'), async (req, res) => {
     } else if (!/^\d{4}[A-Z]{3}$/i.test(matricula)) {
       errorMsg = 'La matrícula debe tener 4 números seguidos de 3 letras (ej: 1234ABC).';
       campoErroneo = 'matricula';
-    } else if (parseInt(anyo_matriculacion, 10) < 1900 || parseInt(anyo_matriculacion, 10) > actual) {
-      errorMsg = `El año de matriculación debe estar entre 1900 y ${actual}.`;
+    } else if (parseInt(anyo_matriculacion, 10) < 1 || parseInt(anyo_matriculacion, 10) > actual) {
+      errorMsg = `El año de matriculación debe estar entre 1901 y ${actual}.`;
     } else if (parseFloat(precio) <= 0) {
       errorMsg = 'El precio debe ser un número positivo.';
     } else if (id_concesionario === '0') {
@@ -247,8 +247,8 @@ router.post('/:id/editar', isAuth, isAdmin, upload.single('imagen'), async (req,
     } else if (!/^\d{4}[A-Z]{3}$/i.test(matricula)) {
       errorMsg = 'La matrícula debe tener 4 números seguidos de 3 letras (ej: 1234ABC).';
       campoErroneo = 'matricula';
-    } else if (parseInt(anyo_matriculacion, 10) < 1900 || parseInt(anyo_matriculacion, 10) > actual) {
-      errorMsg = `El año de matriculación debe estar entre 1900 y ${actual}.`;
+    } else if (parseInt(anyo_matriculacion, 10) < 1901 || parseInt(anyo_matriculacion, 10) > actual) {
+      errorMsg = `El año de matriculación debe estar entre 1901 y ${actual}.`;
     } else if (parseFloat(precio) <= 0) {
       errorMsg = 'El precio debe ser un número positivo.';
     } else if (id_concesionario === '0') {

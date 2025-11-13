@@ -4,7 +4,7 @@
     <h1><%= title %></h1>
     
     <% if (usuario && usuario.rol === 'Admin') { %>
-        <a href="/concesionarios/nuevo" class="btn btn-primary">
+        <a href="/concesionarios/nuevo" class="btn btn-primary btn-lg">
             <span class="lang lang-es">Nuevo Concesionario</span>
             <span class="lang lang-en d-none">New Dealership</span>
         </a>
@@ -59,17 +59,12 @@
         <tbody>
           <% concesionarios.forEach(c => { %>
             <tr>
-              <td><a href="/concesionarios/<%= c.id_concesionario %>"><%= c.nombre %></a></td>
-              <td><a href="/concesionarios/<%= c.id_concesionario %>"><%= c.ciudad %></a></td>
-              <td><a href="/concesionarios/<%= c.id_concesionario %>"><%= c.direccion %></a></td>
-              <td><a href="/concesionarios/<%= c.id_concesionario %>"><%= c.telefono_contacto %></a></td>
+              <td class="fila-click" data-href="/concesionarios/<%= c.id_concesionario %>"><%= c.nombre %></td>
+              <td class="fila-click" data-href="/concesionarios/<%= c.id_concesionario %>"><%= c.ciudad %></td>
+              <td class="fila-click" data-href="/concesionarios/<%= c.id_concesionario %>"><%= c.direccion %></td>
+              <td class="fila-click" data-href="/concesionarios/<%= c.id_concesionario %>"><%= c.telefono_contacto %></td>
               <% if (usuario && usuario.rol === 'Admin') { %>
                 <td>                
-                  <a href="/concesionarios/<%= c.id_concesionario %>/editar" class="btn btn-primary btn-sm" title="Editar">
-                    <span class="lang lang-es">Editar</span>
-                    <span class="lang lang-en d-none">Edit</span>
-                  </a>
-
                   <button type="button"
                           class="btn btn-outline-secondary btn-sm"
                           data-bs-toggle="modal"
@@ -79,6 +74,11 @@
                     <span class="lang lang-es">Eliminar</span>
                     <span class="lang lang-en d-none">Delete</span>
                   </button>
+                  <a href="/concesionarios/<%= c.id_concesionario %>/editar" class="btn btn-primary btn-sm" title="Editar">
+                    <span class="lang lang-es">Editar</span>
+                    <span class="lang lang-en d-none">Edit</span>
+                  </a>
+
                 </td>
               <% } %>
             </tr>
@@ -120,17 +120,4 @@
   </div>
 </div>
 
-<script>
-  const modalConcesionario = document.getElementById('confirmarEliminarConcesionarioModal');
-  modalConcesionario.addEventListener('show.bs.modal', event => {
-    const button = event.relatedTarget;
-    const id = button.getAttribute('data-id');
-    const name = button.getAttribute('data-name');
-
-    const modalTitle = modalConcesionario.querySelector('#concesionarioAEliminar');
-    modalTitle.textContent = name;
-
-    const form = modalConcesionario.querySelector('#formEliminarConcesionario');
-    form.action = '/concesionarios/' + id + '/eliminar';
-  });
-</script>
+<script src="/js/modal.js"></script>

@@ -23,7 +23,7 @@ router.get('/', isAuth, async (req, res) => {
       ? parseInt(req.query.idVehiculo, 10)
       : null;
 
-    res.render('reservas', {
+    res.render('reservaForm', {
       title: 'Reserva tu coche!',
       vehiculos,
       idVehiculoSeleccionado,

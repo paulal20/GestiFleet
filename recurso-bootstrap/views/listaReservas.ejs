@@ -2,7 +2,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><%= title %></h1>
-
+    
         <% if (usuario && usuario.rol === 'Admin') { %>
             <form action="/reserva/listareservas" method="GET" class="d-flex gap-2">
                 <select name="id" id="filtroUsuario" class="form-select" style="min-width: 220px;">
@@ -16,111 +16,112 @@
                             </option>
                         <% }) %>
                     <% } %>
-                </select>
-
+                </select>  
                 <button type="submit" class="btn btn-primary">Filtrar</button>
             </form>
         <% } %>
+
+        <% if (usuario && usuario.rol === 'Admin') { %>
+            <a href="/reserva" class="btn btn-primary btn-lg">
+                <span class="lang lang-es">Nueva Reserva</span>
+                <span class="lang lang-en d-none">New Booking</span>
+            </a>
+        <% } %>
     </div>
-
     <% if (typeof error !== 'undefined' && error) { %>
-      <div class="alert alert-danger" role="alert" aria-live="assertive">
-        <%= error %>
-      </div>
+        <div class="alert alert-danger" role="alert" aria-live="assertive">
+            <%= error %>
+        </div>
     <% } %>
-
-
+        
     <% if (listaDeReservas && listaDeReservas.length > 0) { %>
-
         <div id="tabla-reservas-descripcion" class="visually-hidden"></div>
 
         <div class="table-responsive-md">
-            <table class="table table-hover" aria-describedby="tabla-reservas-descripcion">
-                <caption class="text-center">
-                    <span class="lang lang-es">Reservas mostradas: </span>
-                    <span class="lang lang-en d-none">Bookings shown: </span>
-                    <strong><%= listaDeReservas.length %></strong>
-                </caption>
+        <table class="table table-hover" aria-describedby="tabla-reservas-descripcion">
+            <caption class="text-center">
+            <span class="lang lang-es">Reservas mostradas: </span>
+            <span class="lang lang-en d-none">Bookings shown: </span>
+            <strong><%= listaDeReservas.length %></strong>
+            </caption>
 
-                <thead class="table-dark">
+            <thead class="table-dark">
+            <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Email</th>
+                <th scope="col">Vehículo</th>
+                <th scope="col">Fecha de Inicio</th>
+                <th scope="col">Fecha de Fin</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Acciones</th>
+            </tr>
+            </thead>
+
+            <tbody>
+                <% listaDeReservas.forEach(reserva => { %>
                     <tr>
-                        <th scope="col">
-                            <span class="lang lang-es">Nombre</span>
-                            <span class="lang lang-en d-none">Name</span>
-                        </th>
-                        <th scope="col">
-                            <span class="lang lang-es">Email</span>
-                            <span class="lang lang-en d-none">Email</span>
-                        </th>
-                        <th scope="col">
-                            <span class="lang lang-es">Vehículo</span>
-                            <span class="lang lang-en d-none">Vehicle</span>
-                        </th>
-                        <th scope="col">
-                            <span class="lang lang-es">Fecha de Inicio</span>
-                            <span class="lang lang-en d-none">Start Date</span>
-                        </th>
-                        <th scope="col">
-                            <span class="lang lang-es">Fecha de Fin</span>
-                            <span class="lang lang-en d-none">End Date</span>
-                        </th>
-                        <th scope="col">
-                            <span class="lang lang-es">Estado</span>
-                            <span class="lang lang-en d-none">Status</span>
-                        </th>
-                        <th scope="col">
-                            <span class="lang lang-es">Acciones</span>
-                            <span class="lang lang-en d-none">Actions</span>
-                        </th>
+                    <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= reserva.nombre_usuario %></td>
+                    <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= reserva.email_usuario %></td>
+                    <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= reserva.marca %> <%= reserva.modelo %> (<%= reserva.matricula %>)</td>
+                    <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= new Date(reserva.fecha_inicio).toLocaleString() %></td>
+                    <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= new Date(reserva.fecha_fin).toLocaleString() %></td>
+                    <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>">
+                        <% if (reserva.estado === 'activa') { %>
+                        <span class="badge bg-success">Activa</span>
+                        <% } else if (reserva.estado === 'cancelada') { %>
+                        <span class="badge bg-danger">Cancelada</span>
+                        <% } else { %>
+                        <span class="badge bg-secondary"><%= reserva.estado.charAt(0).toUpperCase() + reserva.estado.slice(1) %></span>
+                        <% } %>
+                    </td>
+                    <td>
+                        <button type="button"
+                                class="btn btn-primary btn-sm"
+                                title="Cancelar Reserva"
+                                data-bs-toggle="modal"
+                                data-bs-target="#confirmarCancelarReservaModal"
+                                data-id="<%= reserva.id_reserva %>"
+                                data-name="<%= reserva.nombre_usuario %>"
+                                <%= (reserva.estado !== 'activa') ? 'disabled' : '' %>>
+                        <span class="lang lang-es">Cancelar</span>
+                        <span class="lang lang-en d-none">Cancel</span>
+                        </button>
+                    </td>
                     </tr>
-                </thead>
-
-                <tbody>
-                    <% listaDeReservas.forEach(reserva => { %>
-                        <tr>
-                            <td><a href="/reserva/<%= reserva.id_reserva %>"><%= reserva.nombre_usuario %></a></td>
-                            <td><a href="/reserva/<%= reserva.id_reserva %>"><%= reserva.email_usuario %></a></td>
-                            <td><a href="/reserva/<%= reserva.id_reserva %>"><%= reserva.marca %> <%= reserva.modelo %> (<%= reserva.matricula %>)</a></td>
-                            <td><a href="/reserva/<%= reserva.id_reserva %>"><%= new Date(reserva.fecha_inicio).toLocaleString() %></a></td>
-                            <td><a href="/reserva/<%= reserva.id_reserva %>"><%= new Date(reserva.fecha_fin).toLocaleString() %></a></td>
-                            <td><a href="/reserva/<%= reserva.id_reserva %>">
-                                <% if (reserva.estado === 'activa') { %>
-                                    <span class="badge bg-success">Activa</span>
-                                <% } else if (reserva.estado === 'cancelada') { %>
-                                    <span class="badge bg-danger">Cancelada</span>
-                                <% } else { %>
-                                    <span class="badge bg-secondary"><%= reserva.estado.charAt(0).toUpperCase() + reserva.estado.slice(1) %></span>
-                                <% } %>
-                            </td>
-                            <td>
-                                <!-- <a href="/reserva/<%= reserva.id_reserva %>" class="btn btn-primary btn-sm" title="Ver Detalle">
-                                    <span class="lang lang-es">Ver</span>
-                                    <span class="lang lang-en d-none">View</span>
-                                </a> -->
-                                
-                                <form action="/reserva/<%= reserva.id_reserva %>/cancelar" method="POST" style="display: inline-block; margin-left: 5px;">
-                                    <button type="submit" class="btn btn-primary btn-sm" 
-                                        title="Cancelar Reserva"
-                                        <%# Deshabilitamos el botón si la reserva no está activa %>
-                                        <%= (reserva.estado !== 'activa') ? 'disabled' : '' %>>
-                                        <span class="lang lang-es">Cancelar</span>
-                                        <span class="lang lang-en d-none">Cancel</span>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
+                <% }) %>
+            </tbody>
+        </table>
         </div>
 
     <% } else if (typeof error === 'undefined' || !error) { %> 
         <div class="alert alert-info text-center" role="alert">
-            <h4 class="alert-heading lang lang-es">No hay reservas</h4>
-            <h4 class="alert-heading lang lang-en d-none">No bookings found</h4>
-            <p class="lang lang-es mb-0">No se encontraron reservas para la selección actual.</p>
-            <p class="lang lang-en d-none mb-0">No bookings were found for the current selection.</p>
+        <h4 class="alert-heading lang lang-es">No hay reservas</h4>
+        <h4 class="alert-heading lang lang-en d-none">No bookings found</h4>
+        <p class="lang lang-es mb-0">No se encontraron reservas para la selección actual.</p>
+        <p class="lang lang-en d-none mb-0">No bookings were found for the current selection.</p>
         </div>
     <% } %>
-
+    
 </div>
+
+<div class="modal fade" id="confirmarCancelarReservaModal" tabindex="-1" aria-labelledby="confirmarCancelarReservaModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmarCancelarReservaModalLabel">Cancelar Reserva</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro de que quieres cancelar la reserva?
+        <br>
+        <div class="d-flex justify-content-end mt-3 gap-2">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <form id="formCancelarReserva" action="" method="POST" class="m-0 p-0">
+            <button type="submit" class="btn btn-primary">Confirmar Cancelación</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/modal.js"></script>

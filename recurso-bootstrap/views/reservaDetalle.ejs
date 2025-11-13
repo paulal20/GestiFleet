@@ -121,7 +121,7 @@
         <div class="perfil-actions d-flex">
           <% if (reserva.estado === 'activa') { %>
             <form action="/reserva/<%= reserva.id_reserva %>/cancelar" method="POST" class="w-100">
-              <button type="submit" class="btn btn-danger w-100">
+              <button type="submit" class="btn btn-primary w-100">
                 <span class="lang lang-es">Cancelar Reserva</span>
                 <span class="lang lang-en d-none">Cancel Booking</span>
               </button>
