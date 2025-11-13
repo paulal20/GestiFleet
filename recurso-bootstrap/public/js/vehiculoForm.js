@@ -141,11 +141,10 @@ document.addEventListener("DOMContentLoaded", function () {
       Object.keys(campos).forEach(key => {
         const input = campos[key];
         
-        if (input) {
-          if (!estaVacio(input.value)) {
-              validarCampoEnTiempoReal(key);
-          }
+        if (input && !estaVacio(input.value) && input.value !== '0') {
+          validarCampoEnTiempoReal(key);
         }
+        
       });
     }
 

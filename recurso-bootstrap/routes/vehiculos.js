@@ -95,13 +95,15 @@ router.get('/nuevo', isAuth, isAdmin, async (req, res) => {
 
 // POST /vehiculos/nuevo
 router.post('/nuevo', isAdmin, upload.single('imagen'), async (req, res) => {
+  const formData = req.body;
   const {
     matricula, marca, modelo, anyo_matriculacion, descripcion,
     tipo, precio, numero_plazas, autonomia_km, color,
     estado, id_concesionario
-  } = req.body;
+  } = formData;
   
   let concesionarios = [];
+  let campoErroneo = null;
 
   try {
     [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
@@ -113,6 +115,7 @@ router.post('/nuevo', isAdmin, upload.single('imagen'), async (req, res) => {
       errorMsg = 'Faltan campos obligatorios (Matrícula, Marca, Modelo, Año, Precio, Concesionario).';
     } else if (!/^\d{4}[A-Z]{3}$/i.test(matricula)) {
       errorMsg = 'La matrícula debe tener 4 números seguidos de 3 letras (ej: 1234ABC).';
+      campoErroneo = 'matricula';
     } else if (parseInt(anyo_matriculacion, 10) < 1900 || parseInt(anyo_matriculacion, 10) > actual) {
       errorMsg = `El año de matriculación debe estar entre 1900 y ${actual}.`;
     } else if (parseFloat(precio) <= 0) {
@@ -124,12 +127,15 @@ router.post('/nuevo', isAdmin, upload.single('imagen'), async (req, res) => {
     }
 
     if (errorMsg) {
+      if (campoErroneo === 'matricula') {
+        formData.matricula = '';
+      }
       return res.status(400).render('vehiculoForm', {
         title: 'Nuevo Vehículo',
         action: '/vehiculos/nuevo',
         error: errorMsg,
-        vehiculo: req.body, 
-        concesionarios     
+        vehiculo: formData, 
+        concesionarios
       });
     }
 
@@ -172,6 +178,7 @@ router.post('/nuevo', isAdmin, upload.single('imagen'), async (req, res) => {
     let error = 'Error al crear vehículo';
     if (err.code === 'ER_DUP_ENTRY') {
       error = 'La matrícula introducida ya existe.';
+      formData.matricula = '';
     } else {
       error = err.message || error;
     }
@@ -180,8 +187,8 @@ router.post('/nuevo', isAdmin, upload.single('imagen'), async (req, res) => {
       title: 'Nuevo Vehículo',
       action: '/vehiculos/nuevo',
       error: error,
-      vehiculo: req.body, 
-      concesionarios     
+      vehiculo: formData,
+      concesionarios
     });
   }
 });
@@ -222,10 +229,12 @@ router.post('/:id/editar', isAuth, isAdmin, upload.single('imagen'), async (req,
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) return res.redirect('/vehiculos');
   
+  const formData = req.body;
   const { matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas,
-    autonomia_km, color, estado, id_concesionario, imagen_actual } = req.body;
+    autonomia_km, color, estado, id_concesionario, imagen_actual } = formData;
 
   let concesionarios = [];
+  let campoErroneo = null;
 
   try {
     [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
@@ -237,6 +246,7 @@ router.post('/:id/editar', isAuth, isAdmin, upload.single('imagen'), async (req,
       errorMsg = 'Faltan campos obligatorios (Matrícula, Marca, Modelo, Año, Precio, Concesionario).';
     } else if (!/^\d{4}[A-Z]{3}$/i.test(matricula)) {
       errorMsg = 'La matrícula debe tener 4 números seguidos de 3 letras (ej: 1234ABC).';
+      campoErroneo = 'matricula';
     } else if (parseInt(anyo_matriculacion, 10) < 1900 || parseInt(anyo_matriculacion, 10) > actual) {
       errorMsg = `El año de matriculación debe estar entre 1900 y ${actual}.`;
     } else if (parseFloat(precio) <= 0) {
@@ -252,15 +262,19 @@ router.post('/:id/editar', isAuth, isAdmin, upload.single('imagen'), async (req,
       );
       if (duplicados.length > 0) {
         errorMsg = 'La matrícula introducida ya pertenece a otro vehículo.';
+        campoErroneo = 'matricula';
       }
     }
 
     if (errorMsg) {
+      if (campoErroneo === 'matricula') {
+        formData.matricula = '';
+      }
       return res.status(400).render('vehiculoForm', {
         title: 'Editar Vehículo',
         action: `/vehiculos/${id}/editar`,
         error: errorMsg,
-        vehiculo: { ...req.body, id_vehiculo: id, imagen: imagen_actual }, // Reconstruimos el vehiculo
+        vehiculo: { ...formData, id_vehiculo: id, imagen: imagen_actual },
         concesionarios
       });
     }
@@ -303,6 +317,7 @@ router.post('/:id/editar', isAuth, isAdmin, upload.single('imagen'), async (req,
     let error = 'Error al actualizar vehículo';
     if (err.code === 'ER_DUP_ENTRY') {
       error = 'La matrícula introducida ya existe.';
+      formData.matricula = '';
     } else {
       error = err.message || error;
     }
@@ -311,7 +326,7 @@ router.post('/:id/editar', isAuth, isAdmin, upload.single('imagen'), async (req,
       title: 'Editar Vehículo',
       action: `/vehiculos/${req.params.id}/editar`,
       error: error,
-      vehiculo: { ...req.body, id_vehiculo: req.params.id, imagen: imagen_actual }, 
+      vehiculo: { ...formData, id_vehiculo: req.params.id, imagen: imagen_actual }, 
       concesionarios,
     });
   }

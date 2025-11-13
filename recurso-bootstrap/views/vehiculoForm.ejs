@@ -67,7 +67,7 @@
           <select id="id_concesionario" name="id_concesionario" class="form-select" required>
             <option value="0">-- Selecciona un concesionario --</option>
             <% concesionarios.forEach(c => { %>
-              <option value="<%= c.id_concesionario %>" <%= (typeof vehiculo !== 'undefined' && vehiculo.id_concesionario === c.id_concesionario) ? 'selected' : '' %>><%= c.nombre %></option>
+              <option value="<%= c.id_concesionario %>" <%= (typeof vehiculo !== 'undefined' && vehiculo.id_concesionario == c.id_concesionario) ? 'selected' : '' %>><%= c.nombre %></option>
             <% }) %>
           </select>
         </div>
