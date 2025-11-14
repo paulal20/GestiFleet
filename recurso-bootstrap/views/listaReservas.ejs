@@ -10,9 +10,9 @@
     <% } %>
   </div>
 
-  <% if (usuario && usuario.rol === 'Admin') { %>
-    <form action="/reserva/listareservas" method="GET" class="row g-3 mb-4 p-3 border rounded bg-light">
-      
+  <form action="<%= (usuario && usuario.rol === 'Admin') ? '/reserva/listareservas' : '/reserva/mis-reservas' %>" method="GET" class="row g-3 mb-4 p-3 border rounded bg-light">
+    
+    <% if (usuario && usuario.rol === 'Admin') { %>
       <div class="col-md-6 col-lg-4">
         <label for="filtroUsuario" class="form-label">Usuario</label>
         <select name="id" id="filtroUsuario" class="form-select">
@@ -28,55 +28,55 @@
           <% } %>
         </select>
       </div>
+    <% } %>
 
-      <div class="col-md-6 col-lg-4">
-        <label for="filtroVehiculo" class="form-label">Vehículo</label>
-        <select name="vehiculo" id="filtroVehiculo" class="form-select">
-          <option value="0" <%= (vehiculoSeleccionado === 0) ? 'selected' : '' %>>
-            Todos los Vehículos
-          </option>
-          <% if (todosVehiculos && todosVehiculos.length > 0) { %>
-            <% todosVehiculos.forEach(v => { %>
-              <option value="<%= v.id_vehiculo %>" <%= (v.id_vehiculo == vehiculoSeleccionado) ? 'selected' : '' %>>
-                <%= v.marca %> <%= v.modelo %> (<%= v.matricula %>)
-              </option>
-            <% }) %>
-          <% } %>
-        </select>
-      </div>
+    <div class="col-md-6 <%= (usuario && usuario.rol === 'Admin') ? 'col-lg-4' : 'col-lg-4' %>">
+      <label for="filtroVehiculo" class="form-label">Vehículo</label>
+      <select name="vehiculo" id="filtroVehiculo" class="form-select">
+        <option value="0" <%= (vehiculoSeleccionado === 0) ? 'selected' : '' %>>
+          Todos los Vehículos
+        </option>
+        <% if (todosVehiculos && todosVehiculos.length > 0) { %>
+          <% todosVehiculos.forEach(v => { %>
+            <option value="<%= v.id_vehiculo %>" <%= (v.id_vehiculo == vehiculoSeleccionado) ? 'selected' : '' %>>
+              <%= v.marca %> <%= v.modelo %> (<%= v.matricula %>)
+            </option>
+          <% }) %>
+        <% } %>
+      </select>
+    </div>
 
-      <div class="col-md-6 col-lg-4">
-        <label for="filtroEstado" class="form-label">Estado</label>
-        <select name="estado" id="filtroEstado" class="form-select">
-          <option value="" <%= (estadoSeleccionado === '') ? 'selected' : '' %>>
-            Todos los Estados
-          </option>
-          <% if (estadosDisponibles && estadosDisponibles.length > 0) { %>
-            <% estadosDisponibles.forEach(e => { %>
-              <option value="<%= e %>" <%= (e === estadoSeleccionado) ? 'selected' : '' %>>
-                <%= e.charAt(0).toUpperCase() + e.slice(1) %>
-              </option>
-            <% }) %>
-          <% } %>
-        </select>
-      </div>
+    <div class="col-md-6 <%= (usuario && usuario.rol === 'Admin') ? 'col-lg-4' : 'col-lg-4' %>">
+      <label for="filtroEstado" class="form-label">Estado</label>
+      <select name="estado" id="filtroEstado" class="form-select">
+        <option value="" <%= (estadoSeleccionado === '') ? 'selected' : '' %>>
+          Todos los Estados
+        </option>
+        <% if (estadosDisponibles && estadosDisponibles.length > 0) { %>
+          <% estadosDisponibles.forEach(e => { %>
+            <option value="<%= e %>" <%= (e === estadoSeleccionado) ? 'selected' : '' %>>
+              <%= e.charAt(0).toUpperCase() + e.slice(1) %>
+            </option>
+          <% }) %>
+        <% } %>
+      </select>
+    </div>
 
-      <div class="col-md-6 col-lg-4">
-        <label for="filtroFechaDesde" class="form-label">Desde (Fecha Inicio)</label>
-        <input type="date" class="form-control" id="filtroFechaDesde" name="fecha_desde" value="<%= fechaDesdeSeleccionada %>">
-      </div>
+    <div class="col-md-6 col-lg-4">
+      <label for="filtroFechaDesde" class="form-label">Desde (Fecha Inicio)</label>
+      <input type="datetime-local" class="form-control" id="filtroFechaDesde" name="fecha_desde" value="<%= fechaDesdeSeleccionada %>">
+    </div>
 
-      <div class="col-md-6 col-lg-4">
-        <label for="filtroFechaHasta" class="form-label">Hasta (Fecha Fin)</label>
-        <input type="date" class="form-control" id="filtroFechaHasta" name="fecha_hasta" value="<%= fechaHastaSeleccionada %>">
-      </div>
+    <div class="col-md-6 col-lg-4">
+      <label for="filtroFechaHasta" class="form-label">Hasta (Fecha Fin)</label>
+      <input type="datetime-local" class="form-control" id="filtroFechaHasta" name="fecha_hasta" value="<%= fechaHastaSeleccionada %>">
+    </div>
 
-      <div class="col-md-6 col-lg-4 d-flex align-items-end gap-2">
-        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-        <a href="/reserva/listareservas" class="btn btn-outline-secondary w-100">Limpiar</a>
-      </div>
-    </form>
-  <% } %>
+    <div class="col-md-6 col-lg-4 d-flex align-items-end gap-2">
+      <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+      <a href="<%= (usuario && usuario.rol === 'Admin') ? '/reserva/listareservas' : '/reserva/mis-reservas' %>" class="btn btn-outline-secondary w-100">Limpiar</a>
+    </div>
+  </form>
 
 
   <% if (typeof error !== 'undefined' && error) { %>
@@ -153,8 +153,7 @@
     </div>
   <% } %>
   
-</div> 
-<div class="modal fade" id="confirmarCancelarReservaModal" tabindex="-1" aria-labelledby="confirmarCancelarReservaModalLabel" aria-hidden="true">
+</div> <div class="modal fade" id="confirmarCancelarReservaModal" tabindex="-1" aria-labelledby="confirmarCancelarReservaModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">

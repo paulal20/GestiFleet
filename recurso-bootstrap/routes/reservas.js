@@ -260,7 +260,7 @@ router.get('/listareservas', isAdmin, async (req, res) => {
     }
     if (fecha_hasta) {
       condiciones.push('r.fecha_fin <= ?');
-      params.push(fecha_hasta + ' 23:59:59');
+      params.push(fecha_hasta);
     }
 
     if (condiciones.length > 0) {
@@ -285,6 +285,7 @@ router.get('/listareservas', isAdmin, async (req, res) => {
     res.render('listareservas', {
       title: 'Reservas',
       listaDeReservas: reservas,
+      usuario: req.session.usuario,
       todosLosUsuarios: usuarios,
       todosVehiculos: vehiculos,
       estadosDisponibles: estadosDisponibles,
@@ -300,6 +301,7 @@ router.get('/listareservas', isAdmin, async (req, res) => {
     res.status(500).render('listareservas', {
       title: 'Reservas',
       listaDeReservas: [],
+      usuario: req.session.usuario,
       todosLosUsuarios: [],
       todosVehiculos: [],
       estadosDisponibles: [],
@@ -317,31 +319,73 @@ router.get('/mis-reservas', isAuth, async (req, res) => {
   try {
     const usuarioActual = req.session.usuario;
 
-    const [reservasDelUsuario] = await req.db.query(
-      `SELECT r.id_reserva, r.fecha_inicio, r.fecha_fin, r.estado,
+    const {
+      vehiculo,
+      estado,
+      fecha_desde,
+      fecha_hasta
+    } = req.query;
+
+    const vehiculoFiltrado = vehiculo ? parseInt(vehiculo, 10) : 0;
+
+    let query = `
+      SELECT r.id_reserva, r.fecha_inicio, r.fecha_fin, r.estado,
          u.nombre AS nombre_usuario, u.correo AS email_usuario,
          v.marca, v.modelo, v.matricula
        FROM reservas r
        JOIN usuarios u ON r.id_usuario = u.id_usuario
        JOIN vehiculos v ON r.id_vehiculo = v.id_vehiculo
-       WHERE r.id_usuario = ?
-       ORDER BY r.fecha_inicio DESC`,
-      [usuarioActual.id_usuario]
-    );
+    `;
+    
+    const condiciones = [];
+    const params = [];
 
+    condiciones.push('r.id_usuario = ?');
+    params.push(usuarioActual.id_usuario);
+
+    if (vehiculoFiltrado > 0) {
+      condiciones.push('r.id_vehiculo = ?');
+      params.push(vehiculoFiltrado);
+    }
+    if (estado) {
+      condiciones.push('r.estado = ?');
+      params.push(estado);
+    }
+    if (fecha_desde) {
+      condiciones.push('r.fecha_inicio >= ?');
+      params.push(fecha_desde);
+    }
+    if (fecha_hasta) {
+      condiciones.push('r.fecha_fin <= ?');
+      params.push(fecha_hasta);
+    }
+
+    query += ' WHERE ' + condiciones.join(' AND ');
+    query += ' ORDER BY r.fecha_inicio DESC';
+
+    const [reservasDelUsuario] = await req.db.query(query, params);
+
+    const [vehiculos, estados] = await Promise.all([
+        getVehiculosDisponibles(req.db, usuarioActual),
+        req.db.query('SELECT DISTINCT estado FROM reservas WHERE id_usuario = ?', [usuarioActual.id_usuario])
+    ]);
+    
+    const estadosDisponibles = estados[0].map(e => e.estado);
+    
     res.render('listareservas', {
       title: 'Mis Reservas',
       listaDeReservas: reservasDelUsuario,
       usuario: usuarioActual,
 
-      todosLosUsuarios: [],
-      todosVehiculos: [],
-      estadosDisponibles: [],
-      idSeleccionado: 0,
-      vehiculoSeleccionado: 0,
-      estadoSeleccionado: '',
-      fechaDesdeSeleccionada: '',
-      fechaHastaSeleccionada: ''
+      todosLosUsuarios: [], 
+      todosVehiculos: vehiculos, 
+      estadosDisponibles: estadosDisponibles, 
+      
+      idSeleccionado: usuarioActual.id_usuario,
+      vehiculoSeleccionado: vehiculoFiltrado,
+      estadoSeleccionado: estado || '',
+      fechaDesdeSeleccionada: fecha_desde || '',
+      fechaHastaSeleccionada: fecha_hasta || ''
     });
 
   } catch (err) {
@@ -349,9 +393,8 @@ router.get('/mis-reservas', isAuth, async (req, res) => {
     res.status(500).render('listareservas', {
       title: 'Mis Reservas',
       listaDeReservas: [],
-      usuario: req.session.usuario, 
+      usuario: req.session.usuario,
       error: 'No se pudieron cargar tus reservas',
-
       todosLosUsuarios: [],
       todosVehiculos: [],
       estadosDisponibles: [],
