@@ -29,34 +29,52 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter });
 
-router.get('/', async (req, res) => {
+// GET /vehiculos
+router.get('/', isAuth, async (req, res) => {
   try {
     const { tipo, estado } = req.query;
+    const usuario = req.session.usuario; // o de donde lo guardes
 
     let sql = 'SELECT * FROM vehiculos';
     const params = [];
+    const condiciones = [];
 
-    if (tipo || estado) {
-      sql += ' WHERE';
-      const condiciones = [];
-      if (tipo) {
-        condiciones.push(' tipo = ? ');
-        params.push(tipo);
-      }
+    if (!usuario || usuario.rol !== 'Admin') {
+      condiciones.push(' id_concesionario = ? ');
+      params.push(usuario.id_concesionario);
+
+      condiciones.push(" estado = 'disponible' ");
+    }
+
+    if (tipo) {
+      condiciones.push(' tipo = ? ');
+      params.push(tipo);
+    }
+    if (usuario && usuario.rol === 'Admin') {
       if (estado) {
         condiciones.push(' estado = ? ');
         params.push(estado);
       }
-      sql += condiciones.join(' AND ');
     }
 
-    // Consultas usando req.db
-    const [vehiculos] = await req.db.query(sql, params);
-    const [tipos] = await req.db.query('SELECT DISTINCT tipo FROM vehiculos');
-    const [estados] = await req.db.query('SELECT DISTINCT estado FROM vehiculos');
+    if (condiciones.length > 0) {
+      sql += ' WHERE ' + condiciones.join(' AND ');
+    }
 
-    const tiposDisponibles = tipos.map(t => t.tipo);
-    const estadosDisponibles = estados.map(e => e.estado);
+    // Ejecutar consulta
+    const [vehiculos] = await req.db.query(sql, params);
+
+    // Estos valores solo se necesitan para Admin (filtros)
+    let tiposDisponibles = [];
+    let estadosDisponibles = [];
+
+    const [tipos] = await req.db.query('SELECT DISTINCT tipo FROM vehiculos');
+    tiposDisponibles = tipos.map(t => t.tipo);
+
+    if (usuario && usuario.rol === 'Admin') {
+      const [estados] = await req.db.query('SELECT DISTINCT estado FROM vehiculos');
+      estadosDisponibles = estados.map(e => e.estado);
+    }
 
     res.render('listaVehiculos', {
       title: 'Vehículos ofertados en GestiFleet',
@@ -64,7 +82,8 @@ router.get('/', async (req, res) => {
       tiposDisponibles,
       estadosDisponibles,
       tipoSeleccionado: tipo || '',
-      estadoSeleccionado: estado || ''
+      estadoSeleccionado: estado || '',
+      usuario
     });
 
   } catch (err) {
@@ -72,6 +91,7 @@ router.get('/', async (req, res) => {
     res.status(500).render('error', { mensaje: 'Error al cargar los vehículos' });
   }
 });
+
 
 
 // GET /vehiculos/nuevo

@@ -26,15 +26,17 @@
           <% }) %>
         <% } %>
       </select>
-      <label for="estado" class="mb-0">Filtrar por estado:</label>
-      <select name="estado" id="estado" class="form-select w-auto">
-        <option value="" <%= (estadoSeleccionado === '') ? 'selected' : '' %>>Todos</option>
-        <% if (estadosDisponibles && estadosDisponibles.length > 0) { %>
-          <% estadosDisponibles.forEach(function(e) { %>
-            <option value="<%= e %>" <%= (estadoSeleccionado === e) ? 'selected' : '' %>> <%= e %> </option>
-          <% }) %>
-        <% } %>
-      </select>
+      <% if (usuario && usuario.rol === 'Admin') { %>
+        <label for="estado" class="mb-0">Filtrar por estado:</label>
+        <select name="estado" id="estado" class="form-select w-auto">
+          <option value="" <%= (estadoSeleccionado === '') ? 'selected' : '' %>>Todos</option>
+          <% if (estadosDisponibles && estadosDisponibles.length > 0) { %>
+            <% estadosDisponibles.forEach(function(e) { %>
+              <option value="<%= e %>" <%= (estadoSeleccionado === e) ? 'selected' : '' %>> <%= e %> </option>
+            <% }) %>
+          <% } %>
+        </select>
+      <% } %>
       <button type="submit" class="btn btn-primary">Filtrar</button>
     </form>
   </div>     
@@ -51,6 +53,16 @@
             <div class="card-body">
               <h5 class="card-title"><%= v.marca %></h5>
               <p class="card-text"><%= v.descripcion %></p>
+              <p class="card-text">
+                <strong>Estado:</strong>
+                <% if (v.estado==='disponible' ) { %>
+                <span class="badge bg-success">Disponible</span>
+                <% } else if (v.estado==='reservado' ) { %>
+                <span class="badge bg-warning text-dark">Reservado</span>
+                <% } else { %>
+                <span class="badge bg-danger">Mantenimiento</span>
+                <% } %>
+              </p>
               <p class="text-muted">Desde <%= v.precio %> €</p>
             </div>
           </a> 

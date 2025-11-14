@@ -7,9 +7,7 @@ const bcrypt = require('bcrypt');
 
 /*
 VALIDACIONES A METER:
-- Q EL ADMIN PUEDA RESERVAR COCHES DE CUALQUIER CONCESIONARIO
 - Q UN USUARIO NO PUEDA RESERVAR MÁS DE UN COCHE EN UN MISMO PERIODO DE TIEMPO
-- Q UN USUARIO SOLO PUEDA RESERVAS VEHICULOS QUE ESTÉN DISPONIBLES DE SU CONCESIONARIO, EN TODOS LOS SELECT TMB
 */
 
 const SALT_ROUNDS = 10;
@@ -74,8 +72,15 @@ router.post('/login', isGuest, async (req, res) => {
   } else {
     req.session.cookie.maxAge = null;
   }
-  req.session.usuario = usuario;
-  console.log(usuario.rol);
+
+  req.session.usuario = {
+    id_usuario: usuario.id_usuario,
+    nombre: usuario.nombre,
+    rol: usuario.rol,
+    id_concesionario: usuario.id_concesionario
+};
+
+  console.log(usuario);
 
   if(usuario.rol === 'Admin'){
     req.session.usuario.rol = 'Admin';

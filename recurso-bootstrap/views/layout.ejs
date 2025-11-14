@@ -48,12 +48,6 @@
                             <span lang="en" class="lang lang-en d-none">Home</span>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="/vehiculos" class="nav-link">
-                            <span lang="es" class="lang lang-es">Vehículos</span>
-                            <span lang="en" class="lang lang-en d-none">Vehicles</span>
-                            </a>
-                        </li>
                         <% if (usuario) { %>
                             <% if (usuario.rol === 'Admin') { %>
                                 <li class="nav-item">
@@ -62,19 +56,13 @@
                                         <span lang="en" class="lang lang-en d-none">Managedment</span>
                                     </a>
                                 </li>
-                                <!-- <li class="nav-item">
-                                    <a href="/reserva/listareservas" class="nav-link">
-                                        <span lang="es" class="lang lang-es">Ver Todas las Reservas</span>
-                                        <span lang="en" class="lang lang-en d-none">View All Bookings</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/concesionarios/nuevo" class="nav-link">
-                                        <span lang="es" class="lang lang-es">Añadir Concesionario</span>
-                                        <span lang="en" class="lang lang-en d-none">Add Car Dealer</span>
-                                    </a>
-                                </li> -->
                                 <% } else { %>
+                                    <li class="nav-item">
+                                        <a href="/vehiculos" class="nav-link">
+                                        <span lang="es" class="lang lang-es">Vehículos</span>
+                                        <span lang="en" class="lang lang-en d-none">Vehicles</span>
+                                        </a>
+                                    </li>
                                     <li class="nav-item">
                                         <a href="/reserva" class="nav-link">
                                             <span lang="es" class="lang lang-es">Reservar</span>
@@ -89,8 +77,8 @@
                                     </li>
                                     <li class="nav-item">
                                         <a href="/concesionarios" class="nav-link">
-                                            <span lang="es" class="lang lang-es">Ver Todos los Concesionarios</span>
-                                            <span lang="en" class="lang lang-en d-none">View All Car Dealers</span>
+                                            <span lang="es" class="lang lang-es">Concesionarios</span>
+                                            <span lang="en" class="lang lang-en d-none">Car Dealers</span>
                                         </a>
                                     </li>
                             <% } %>
@@ -194,10 +182,6 @@
             </div>
         </main>
 
-        <!-- <footer>
-            <p lang="es" class="lang lang-es">Precios desde 30.000 &euro; &nbsp; | &copy; 2025 </p>
-            <p lang="en" class="lang lang-en d-none">Prices from €30,000 &nbsp; | &copy; 2025</p>
-        </footer> -->
         <footer class="mt-5">
             <div class="container py-4">
               <div class="row gy-3">

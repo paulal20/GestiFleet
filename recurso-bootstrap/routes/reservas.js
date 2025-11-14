@@ -3,22 +3,36 @@ const router = express.Router();
 
 const { isAuth, isAdmin } = require('../middleware/auth');
 
-async function getVehiculosDisponibles(db) {
+async function getVehiculosDisponibles(db, usuario) {
   try {
-    const [vehiculos] = await db.query(
-      "SELECT id_vehiculo, marca, modelo, matricula FROM vehiculos WHERE estado = 'disponible' ORDER BY marca, modelo"
-    );
+    let sql = `
+      SELECT id_vehiculo, marca, modelo, matricula 
+      FROM vehiculos
+      WHERE estado = 'disponible'
+    `;
+    
+    const params = [];
+    if (!usuario || usuario.rol !== 'Admin') {
+      sql += ' AND id_concesionario = ? ';
+      params.push(usuario.id_concesionario);
+    }
+
+    sql += ' ORDER BY marca, modelo';
+
+    const [vehiculos] = await db.query(sql, params);
     return vehiculos;
+
   } catch (err) {
     console.error('Error al obtener vehículos disponibles:', err);
-    return []; 
+    return [];
   }
 }
+
 
 // Get Reserva
 router.get('/', isAuth, async (req, res) => {
   try {
-    const vehiculos = await getVehiculosDisponibles(req.db);
+    const vehiculos = await getVehiculosDisponibles(req.db, req.session.usuario);
     const idVehiculoSeleccionado = req.query.idVehiculo
       ? parseInt(req.query.idVehiculo, 10)
       : null;
