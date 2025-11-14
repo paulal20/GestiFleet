@@ -120,7 +120,7 @@ router.post('/nuevo', isAuth, isAdmin, async (req, res) => {
         concesionario: formData,
         action: '/concesionarios/nuevo',
         method: 'POST',
-        error: 'Corrige los campos indicados.',
+        error: 'El nombre, dirección o teléfono ya existen o hay errores en el formulario.',
         fieldErrors,
         validFields
       });
@@ -243,7 +243,7 @@ router.post('/:id(\\d+)/editar', isAuth, isAdmin, async (req, res) => {
         concesionario: { id_concesionario: id, ...formData },
         action: `/concesionarios/${id}/editar`,
         method: 'POST',
-        error: 'Corrige los campos indicados.',
+        error: 'El nombre, dirección o teléfono ya existen o hay errores en el formulario.',
         fieldErrors,
         validFields
       });
