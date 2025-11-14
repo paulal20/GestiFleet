@@ -13,30 +13,35 @@
             <div class="row name">
                 <div class="col-md-4 campo-nombre">
                     <label for="nombre" class="form-label obligatorio">Nombre: </label>
-                    <input type="text" id="nombre" name="nombre" class="form-control" aria-describedby="error-nombre" required> <!-- TODO esto hay q tenerlo en cuenta-->
+                    <input type="text" id="nombre" name="nombre" class="form-control" aria-describedby="error-nombre" 
+                           value="<%= (typeof formData !== 'undefined' && formData.nombre) ? formData.nombre : '' %>" required>
                     <span class="error" id="error-nombre" aria-live="polite"></span>
                 </div>
                 <div class="col-md-4 campo-apellido1">
                     <label for="apellido1" class="form-label obligatorio">Primer apellido: </label>
-                    <input type="text" id="apellido1" name="apellido1" class="form-control" aria-describedby="error-apellido1" required>
+                    <input type="text" id="apellido1" name="apellido1" class="form-control" aria-describedby="error-apellido1" 
+                           value="<%= (typeof formData !== 'undefined' && formData.apellido1) ? formData.apellido1 : '' %>" required>
                     <span class="error" id="error-apellido1" aria-live="polite"></span>
                 </div>
                 <div class="col-md-4 campo-apellido2">
                     <label for="apellido2" class="form-label NoObligatorio">Segundo apellido: </label>
-                    <input type="text" id="apellido2" name="apellido2" class="form-control" aria-describedby="error-apellido2">
+                    <input type="text" id="apellido2" name="apellido2" class="form-control" aria-describedby="error-apellido2"
+                           value="<%= (typeof formData !== 'undefined' && formData.apellido2) ? formData.apellido2 : '' %>">
                     <span class="error" id="error-apellido2" aria-live="polite"></span>
                 </div>
             </div>
             <div class="row mail">
                 <div class="col-md-6 campo-email">
                     <label for="email" class="form-label obligatorio">Correo electrónico:</label>
-                    <input type="email" id="email" name="email" class="form-control" placeholder="tunombre@correo.com" required>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="tunombre@correo.com" 
+                           value="<%= (typeof formData !== 'undefined' && formData.email) ? formData.email : '' %>" required>
                     <span class="error" id="error-email" aria-live="polite"></span>
                 </div>
 
                 <div class="col-md-6 campo-confemail">
                     <label for="confemail" class="form-label obligatorio">Confirmar correo:</label>
-                    <input type="confemail" id="confemail" name="confemail" class="form-control" placeholder="tunombre@correo.com" required>
+                    <input type="email" id="confemail" name="confemail" class="form-control" placeholder="tunombre@correo.com" 
+                           value="<%= (typeof formData !== 'undefined' && formData.confemail) ? formData.confemail : '' %>" required>
                     <span class="error" id="error-confemail" aria-live="polite"></span>
                 </div>
             </div>
@@ -56,23 +61,25 @@
                         <option value="">Seleccione un concesionario</option>
                         <% if (concesionarios && concesionarios.length > 0) { %>
                             <% concesionarios.forEach(concesionario => { %> 
-                                <option value="<%= concesionario.id_concesionario %>">
+                                <option value="<%= concesionario.id_concesionario %>"
+                                        <%= (typeof formData !== 'undefined' && formData.concesionario == concesionario.id_concesionario) ? 'selected' : '' %>>
                                     <%= concesionario.id_concesionario %> <%= concesionario.nombre %> (<%= concesionario.ciudad %>) 
                                 </option>
                             <% }); %>
                         <% } %>
                     </select>
                     <span class="error" id="error-concesionario" aria-live="polite"></span>
-                </div>
+           </div>
                 <div class="col-md-3">
                     <label for="telefono" class="form-label obligatorio">Teléfono:</label>
-                    <input type="tel" id="telefono" name="telefono" class="form-control" placeholder="600123456" required>
-                    <span class="error" id="error-telefono" aria-live="polite"></span>
+                    <input type="tel" id="telefono" name="telefono" class="form-control" placeholder="600123456" 
+                           value="<%= (typeof formData !== 'undefined' && formData.telefono) ? formData.telefono : '' %>" required>
+                   <span class="error" id="error-telefono" aria-live="polite"></span>
                 </div>
             </div>
         </fieldset>
         <div class="d-flex justify-content-end mt-3 gap-2">
-            <button type="reset" class="btn btn-outline-secondary">Borrar formulario</button>
+          <button type="reset" class="btn btn-outline-secondary">Borrar formulario</button>
             <button type="submit" class="btn btn-primary">Enviar</button>
         </div>
     </form>

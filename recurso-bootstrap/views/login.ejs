@@ -1,83 +1,84 @@
 <div class="login-content">
-    <h1><%= title %></h1>
-  
-    <form id="loginForm" action="/login" method="POST" novalidate autocomplete="off">
-        <fieldset>
-            <legend class="w-auto">Accede a tu cuenta</legend>
-            <% if (error) { %>
-                <div class="alert alert-danger mt-2" role="alert">
-                  <%= error %>
-                </div>
-              <% } %>
-            <br>
+  <h1><%= title %></h1>
+ 
+  <form id="loginForm" action="/login" method="POST" novalidate autocomplete="off">
+    <fieldset>
+      <legend class="w-auto">Accede a tu cuenta</legend>
+      <% if (error) { %>
+        <div class="alert alert-danger mt-2" role="alert">
+         <%= error %>
+        </div>
+       <% } %>
+      <br>
 
-            <div class="row mail">
-                <div class="col-md-6 campo-email">
-                    <label for="email" class="form-label obligatorio">Correo electrónico:</label>
-                    <input type="email" id="email" name="email" class="form-control" placeholder="tunombre@correo.com" required>
-                    <span class="error" id="error-email" aria-live="polite"></span>
-                </div>
-                
-                <div class="col-md-6 campo-contrasenya">
-                    <label for="contrasenya" class="form-label obligatorio">Contraseña: </label>
-                    <input type="password" id="contrasenya" name="contrasenya" class="form-control" required>
-                    <span class="error" id="error-contrasenya" aria-live="polite"></span>
-                    <div class="mostrar-contrasenya" style="margin-top:6px; display:flex; align-items:center; gap:8px;">
-                        <input type="checkbox" id="mostrarContrasenya" aria-controls="contrasenya" />
-                        <label for="mostrarContrasenya" style="cursor:pointer; user-select:none;">Mostrar contraseña</label>
-                    </div>
-                </div>
-            </div>
-        </fieldset>
-        <div class="form-check my-3">
-            <input class="form-check-input" type="checkbox" name="remember" id="rememberMe">
-            <label class="form-check-label" for="rememberMe">Recordar sesión</label>
+      <div class="row mail">
+        <div class="col-md-6 campo-email">
+          <label for="email" class="form-label obligatorio">Correo electrónico:</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="tunombre@correo.com" 
+             value="<%= (typeof email !== 'undefined' && email) ? email : '' %>" required>
+          <span class="error" id="error-email" aria-live="polite"></span>
         </div>
-        <div class="d-flex justify-content-end align-items-center mt-3 gap-3">
-            <a href="#" data-bs-toggle="modal" data-bs-target="#modalOlvidoPassword">
-                ¿Has olvidado la contraseña?
-            </a>
-            <button type="submit" class="btn btn-primary">Enviar</button>
+        
+        <div class="col-md-6 campo-contrasenya">
+          <label for="contrasenya" class="form-label obligatorio">Contraseña: </label>
+          <input type="password" id="contrasenya" name="contrasenya" class="form-control" required>
+          <span class="error" id="error-contrasenya" aria-live="polite"></span>
+          <div class="mostrar-contrasenya" style="margin-top:6px; display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="mostrarContrasenya" aria-controls="contrasenya" />
+            <label for="mostrarContrasenya" style="cursor:pointer; user-select:none;">Mostrar contraseña</label>
+          </div>
         </div>
-    </form>
-    <hr class="my-4">
-    <div class="text-center">
-        <label class="d-block mb-2">¿No tienes cuenta?</span>
-        <a href="/register" class="btn btn-primary">Regístrate</a>
+      </div>
+    </fieldset>
+    <div class="form-check my-3">
+      <input class="form-check-input" type="checkbox" name="remember" id="rememberMe">
+      <label class="form-check-label" for="rememberMe">Recordar sesión</label>
     </div>
+    <div class="d-flex justify-content-end align-items-center mt-3 gap-3">
+      <a href="#" data-bs-toggle="modal" data-bs-target="#modalOlvidoPassword">
+        ¿Has olvidado la contraseña?
+      </a>
+      <button type="submit" class="btn btn-primary">Enviar</button>
+    </div>
+  </form>
+  <hr class="my-4">
+  <div class="text-center">
+    <label class="d-block mb-2">¿No tienes cuenta?</span>
+    <a href="/register" class="btn btn-primary">Regístrate</a>
+  </div>
 
-    <div class="modal fade" id="modalOlvidoPassword" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
+  <div class="modal fade" id="modalOlvidoPassword" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+      
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLabel">Restablecer contraseña</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        
+        <div class="modal-body">
+          <p>Introduce tu dirección de correo electrónico y te enviaremos un enlace para restablecer tu contraseña.</p>
+          
+          <div id="error-modal-general" class="alert alert-danger mt-2 d-none" role="alert"></div>
+
+          <form id="formOlvidoPassword">
+            <div class="mb-3">
+              <label for="email-reset" class="form-label obligatorio">Email:</label>
+              <input type="email" class="form-control" id="email-reset" placeholder="tunombre@correo.com" required>
+             
+              <span class="error" id="error-email-reset" aria-live="polite"></span>
+            </div>
+          </form>
+          <div class="d-flex justify-content-end mt-3 gap-2">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
             
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalLabel">Restablecer contraseña</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                
-                <div class="modal-body">
-                    <p>Introduce tu dirección de correo electrónico y te enviaremos un enlace para restablecer tu contraseña.</p>
-                    
-                    <div id="error-modal-general" class="alert alert-danger mt-2 d-none" role="alert"></div>
-
-                    <form id="formOlvidoPassword">
-                        <div class="mb-3">
-                            <label for="email-reset" class="form-label obligatorio">Email:</label>
-                            <input type="email" class="form-control" id="email-reset" placeholder="tunombre@correo.com" required>
-                            
-                            <span class="error" id="error-email-reset" aria-live="polite"></span>
-                        </div>
-                    </form>
-                    <div class="d-flex justify-content-end mt-3 gap-2">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        
-                        <button type="button" id="btnEnviarEnlaceModal" class="btn btn-primary">Enviar enlace</button>
-                    </div>
-                </div>
-
-            </div>
+            <button type="button" id="btnEnviarEnlaceModal" class="btn btn-primary">Enviar enlace</button>
+         </div>
         </div>
+
+      </div>
     </div>
+  </div>
 
 </div>
 <script src="/js/login.js"></script>
