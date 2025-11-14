@@ -5,14 +5,41 @@ const { isAuth, isAdmin } = require('../middleware/auth');
 // LISTADO: /concesionarios
 router.get('/', isAuth, async (req, res) => {
   try {
-    const [concesionarios] = await req.db.query('SELECT * FROM concesionarios ORDER BY nombre');
+    const { ciudad } = req.query;
+    const ciudadSeleccionada = ciudad || '';
+
+    let sql = 'SELECT * FROM concesionarios';
+    const params = [];
+
+    if (ciudadSeleccionada) {
+      sql += ' WHERE ciudad = ?';
+      params.push(ciudadSeleccionada);
+    }
+
+    sql += ' ORDER BY nombre';
+    
+    const [concesionarios] = await req.db.query(sql, params);
+
+    const [ciudades] = await req.db.query('SELECT DISTINCT ciudad FROM concesionarios ORDER BY ciudad');
+    const ciudadesDisponibles = ciudades.map(c => c.ciudad);
+
     res.render('listaConcesionarios', {
       title: 'Concesionarios',
-      concesionarios
+      concesionarios,
+      ciudadesDisponibles,
+      ciudadSeleccionada,
+      usuario: req.session.usuario
     });
   } catch (err) {
     console.error('Error cargando concesionarios:', err);
-    res.status(500).render('error', { mensaje: 'Error al cargar los concesionarios' });
+    res.status(500).render('listaConcesionarios', { 
+      title: 'Concesionarios',
+      concesionarios: [],
+      ciudadesDisponibles: [],
+      ciudadSeleccionada: '',
+      usuario: req.session.usuario,
+      error: 'Error al cargar los concesionarios' 
+    });
   }
 });
 
@@ -46,7 +73,7 @@ router.get('/:id(\\d+)', isAuth, async (req, res, next) => {
 });
 
 // FORMULARIO NUEVO: GET /concesionarios/nuevo  (admin)
-router.get('/nuevo', isAuth, isAdmin, (req, res) => {
+router.get('/nuevo', isAdmin, (req, res) => {
   res.render('concesionarioForm', {
     title: 'Nuevo Concesionario',
     concesionario: {},
@@ -56,7 +83,7 @@ router.get('/nuevo', isAuth, isAdmin, (req, res) => {
 });
 
 // CREAR: POST /concesionarios/nuevo  (admin)
-router.post('/nuevo', isAuth, isAdmin, async (req, res) => {
+router.post('/nuevo', isAdmin, async (req, res) => {
   const formData = { ...req.body };
   const { nombre, ciudad, direccion, telefono_contacto } = formData;
 
@@ -153,7 +180,7 @@ router.post('/nuevo', isAuth, isAdmin, async (req, res) => {
 });
 
 // FORMULARIO EDITAR: GET /concesionarios/:id/editar  (admin)
-router.get('/:id(\\d+)/editar', isAuth, isAdmin, async (req, res, next) => {
+router.get('/:id(\\d+)/editar', isAdmin, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     const [rows] = await req.db.query('SELECT * FROM concesionarios WHERE id_concesionario = ?', [id]);
@@ -176,7 +203,7 @@ router.get('/:id(\\d+)/editar', isAuth, isAdmin, async (req, res, next) => {
 });
 
 // ACTUALIZAR: POST /concesionarios/:id/editar  (admin)
-router.post('/:id(\\d+)/editar', isAuth, isAdmin, async (req, res) => {
+router.post('/:id(\\d+)/editar', isAdmin, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) return res.redirect('/concesionarios');
 
@@ -274,7 +301,7 @@ router.post('/:id(\\d+)/editar', isAuth, isAdmin, async (req, res) => {
 });
 
 // ELIMINAR: POST /concesionarios/:id/eliminar  (admin)
-router.post('/:id(\\d+)/eliminar', isAuth, isAdmin, async (req, res) => {
+router.post('/:id(\\d+)/eliminar', isAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
 

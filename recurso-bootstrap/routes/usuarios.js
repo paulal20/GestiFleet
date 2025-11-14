@@ -3,25 +3,50 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const { isAdmin } = require('../middleware/auth');
 
-
+// GET LISTA USUARIOS
 router.get('/', isAdmin, async (req, res) => {
   try {
-    const [usuarios] = await req.db.query(`
+    const { concesionario } = req.query;
+    const concesionarioSeleccionado = concesionario ? parseInt(concesionario, 10) : 0; 
+
+    let sql = `
       SELECT u.*, c.nombre AS nombre_concesionario
       FROM usuarios u
       LEFT JOIN concesionarios c ON u.id_concesionario = c.id_concesionario
-      ORDER BY u.nombre
-    `);
+    `;
+    const params = [];
+
+    if (concesionarioSeleccionado > 0) {
+      sql += ' WHERE u.id_concesionario = ?';
+      params.push(concesionarioSeleccionado);
+    }
+
+    sql += ' ORDER BY u.nombre';
+
+    const [usuarios] = await req.db.query(sql, params);
+
+    const [concesionarios] = await req.db.query(
+      'SELECT id_concesionario, nombre, ciudad FROM concesionarios ORDER BY nombre'
+    );
 
     res.render('listaUsuarios', {
       title: 'Gestión de Usuarios',
       usuarios,
+      concesionariosDisponibles: concesionarios,
+      concesionarioSeleccionado: concesionarioSeleccionado, 
       usuario: req.session.usuario
     });
 
   } catch (err) {
     console.error("Error al obtener usuarios:", err);
-    res.status(500).render('error', { mensaje: "Error al cargar usuarios" });
+    res.status(500).render('listaUsuarios', {
+      title: 'Gestión de Usuarios',
+      usuarios: [],
+      concesionariosDisponibles: [],
+      concesionarioSeleccionado: 0,
+      usuario: req.session.usuario,
+      error: "Error al cargar usuarios"
+    });
   }
 });
 
