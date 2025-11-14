@@ -29,8 +29,12 @@ input[type="text"],
 input[type="email"],
 input[type="confemail"],
 input[type="password"],
+input[type="search"],
 input[type="datetime-local"],
-input[type="number"] {
+input[type="tel"],
+input[type="number"],
+textarea,
+select {
   display: block;
   width: 100%;
   box-sizing: border-box;
@@ -129,8 +133,10 @@ select option:focus {
 .dark-theme input[type="text"],
 .dark-theme input[type="email"],
 .dark-theme input[type="confemail"],
+.dark-theme input[type="password"],
 .dark-theme input[type="search"],
 .dark-theme input[type="datetime-local"],
+.dark-theme input[type="tel"],
 .dark-theme input[type="number"],
 .dark-theme textarea,
 .dark-theme select {

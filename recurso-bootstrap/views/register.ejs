@@ -31,14 +31,22 @@
                 </div>
             </div>
             <div class="row mail">
-                <div class="col-md-6 campo-email">
+
+                <div class="col-md-4 campo-telefono">
+                    <label for="telefono" class="form-label obligatorio">Teléfono:</label>
+                    <input type="tel" id="telefono" name="telefono" class="form-control" placeholder="600123456" 
+                           value="<%= (typeof formData !== 'undefined' && formData.telefono) ? formData.telefono : '' %>" required>
+                   <span class="error" id="error-telefono" aria-live="polite"></span>
+                </div>
+
+                <div class="col-md-4 campo-email">
                     <label for="email" class="form-label obligatorio">Correo electrónico:</label>
                     <input type="email" id="email" name="email" class="form-control" placeholder="tunombre@correo.com" 
                            value="<%= (typeof formData !== 'undefined' && formData.email) ? formData.email : '' %>" required>
                     <span class="error" id="error-email" aria-live="polite"></span>
                 </div>
 
-                <div class="col-md-6 campo-confemail">
+                <div class="col-md-4 campo-confemail">
                     <label for="confemail" class="form-label obligatorio">Confirmar correo:</label>
                     <input type="email" id="confemail" name="confemail" class="form-control" placeholder="tunombre@correo.com" 
                            value="<%= (typeof formData !== 'undefined' && formData.confemail) ? formData.confemail : '' %>" required>
@@ -69,12 +77,6 @@
                         <% } %>
                     </select>
                     <span class="error" id="error-concesionario" aria-live="polite"></span>
-           </div>
-                <div class="col-md-3">
-                    <label for="telefono" class="form-label obligatorio">Teléfono:</label>
-                    <input type="tel" id="telefono" name="telefono" class="form-control" placeholder="600123456" 
-                           value="<%= (typeof formData !== 'undefined' && formData.telefono) ? formData.telefono : '' %>" required>
-                   <span class="error" id="error-telefono" aria-live="polite"></span>
                 </div>
             </div>
         </fieldset>
