@@ -1,122 +1,279 @@
-<div class="vehiculos-content">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><%= title %></h1>
-    <% if (usuario && usuario.rol === 'Admin') { %>
-        <a href="/vehiculos/nuevo" class="btn btn-primary btn-lg">
+<div class="container-fluid vehiculos-content">
+  <div class="row">
+
+    <div class="col-lg-3 col-md-4">
+      <h3 class="mb-3">FILTROS</h3> 
+
+      <form method="GET" action="/vehiculos">
+        <div class="accordion" id="accordionFiltros">
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingPrecio">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrecio" aria-expanded="true" aria-controls="collapsePrecio">
+                Precio
+              </button>
+            </h2>
+            <div id="collapsePrecio" class="accordion-collapse collapse show" aria-labelledby="headingPrecio">
+              <div class="accordion-body">
+                <label for="precio_max" class="form-label">
+                  Hasta: <span id="precio-val"><%= parseFloat(precioMaxSeleccionado).toFixed(0) %></span> €
+                </label>
+                <input type="range" class="form-range" 
+                  name="precio_max" 
+                  id="precio_max" 
+                  min="<%= rangos.minPrecio %>" 
+                  max="<%= rangos.maxPrecio %>" 
+                  value="<%= precioMaxSeleccionado %>"
+                  oninput="document.getElementById('precio-val').textContent = parseFloat(this.value).toFixed(0)">
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingAutonomia">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAutonomia" aria-expanded="true" aria-controls="collapseAutonomia">
+                Autonomía (mínima)
+              </button>
+            </h2>
+            <div id="collapseAutonomia" class="accordion-collapse collapse show" aria-labelledby="headingAutonomia">
+              <div class="accordion-body">
+                <label for="autonomia_min" class="form-label">
+                  Desde: <span id="autonomia-val"><%= autonomiaMinSeleccionado %></span> km
+                </label>
+                <input type="range" class="form-range" 
+                  name="autonomia_min" 
+                  id="autonomia_min" 
+                  min="<%= rangos.minAutonomia %>" 
+                  max="<%= rangos.maxAutonomia %>" 
+                  value="<%= autonomiaMinSeleccionado %>"
+                  oninput="document.getElementById('autonomia-val').textContent = this.value">
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTipo">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTipo" aria-expanded="false" aria-controls="collapseTipo">
+                Tipo
+              </button>
+            </h2>
+            <div id="collapseTipo" class="accordion-collapse collapse" aria-labelledby="headingTipo">
+              <div class="accordion-body">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="tipo" id="tipo-todos" value="" <%= (tipoSeleccionado === '') ? 'checked' : '' %>>
+                  <label class="form-check-label" for="tipo-todos">Todos</label>
+                </div>
+                <% if (tiposDisponibles && tiposDisponibles.length > 0) { %>
+                  <% tiposDisponibles.forEach(function(t) { %>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="tipo" id="tipo-<%= t %>" value="<%= t %>" <%= (tipoSeleccionado === t) ? 'checked' : '' %>>
+                      <label class="form-check-label" for="tipo-<%= t %>"><%= t %></label>
+                    </div>
+                  <% }) %>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingPlazas">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePlazas" aria-expanded="false" aria-controls="collapsePlazas">
+                Nº de Plazas
+              </button>
+            </h2>
+            <div id="collapsePlazas" class="accordion-collapse collapse" aria-labelledby="headingPlazas">
+              <div class="accordion-body">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="plazas" id="plazas-todos" value="" <%= (plazasSeleccionado === '') ? 'checked' : '' %>>
+                  <label class="form-check-label" for="plazas-todos">Cualquiera</label>
+                </div>
+                <% if (plazasDisponibles && plazasDisponibles.length > 0) { %>
+                  <% plazasDisponibles.forEach(function(p) { %>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="plazas" id="plazas-<%= p %>" value="<%= p %>" <%= (plazasSeleccionado == p) ? 'checked' : '' %>>
+                      <label class="form-check-label" for="plazas-<%= p %>"><%= p %> plazas</label>
+                    </div>
+                  <% }) %>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingColor">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseColor" aria-expanded="false" aria-controls="collapseColor">
+                Color
+              </button>
+            </h2>
+            <div id="collapseColor" class="accordion-collapse collapse" aria-labelledby="headingColor">
+              <div class="accordion-body">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="color" id="color-todos" value="" <%= (colorSeleccionado === '') ? 'checked' : '' %>>
+                  <label class="form-check-label" for="color-todos">Todos</label>
+                </div>
+                <% if (coloresDisponibles && coloresDisponibles.length > 0) { %>
+                  <% coloresDisponibles.forEach(function(c) { %>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="color" id="color-<%= c %>" value="<%= c %>" <%= (colorSeleccionado === c) ? 'checked' : '' %>>
+                      <label class="form-check-label" for="color-<%= c %>"><%= c %></label>
+                    </div>
+                  <% }) %>
+                <% } %>
+              </div>
+            </div>
+          </div>
+          
+          <% if (usuario && usuario.rol === 'Admin') { %>
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingEstado">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEstado" aria-expanded="false" aria-controls="collapseEstado">
+                  Estado (Admin)
+                </button>
+              </h2>
+              <div id="collapseEstado" class="accordion-collapse collapse" aria-labelledby="headingEstado">
+                <div class="accordion-body">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="estado" id="estado-todos" value="" <%= (estadoSeleccionado === '') ? 'checked' : '' %>>
+                    <label class="form-check-label" for="estado-todos">Todos</label>
+                  </div>
+                  <% if (estadosDisponibles && estadosDisponibles.length > 0) { %>
+                    <% estadosDisponibles.forEach(function(e) { %>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="estado" id="estado-<%= e %>" value="<%= e %>" <%= (estadoSeleccionado === e) ? 'checked' : '' %>>
+                        <label class="form-check-label" for="estado-<%= e %>"><%= e %></label>
+                      </div>
+                    <% }) %>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingConcesionario">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseConcesionario" aria-expanded="false" aria-controls="collapseConcesionario">
+                  Concesionario (Admin)
+                </button>
+              </h2>
+              <div id="collapseConcesionario" class="accordion-collapse collapse" aria-labelledby="headingConcesionario">
+                <div class="accordion-body">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="concesionario" id="concesionario-todos" value="" <%= (concesionarioSeleccionado === '') ? 'checked' : '' %>>
+                    <label class="form-check-label" for="concesionario-todos">Todos</label>
+                  </div>
+                  <% if (concesionariosDisponibles && concesionariosDisponibles.length > 0) { %>
+                    <% concesionariosDisponibles.forEach(function(c) { %>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="concesionario" id="concesionario-<%= c.id_concesionario %>" value="<%= c.id_concesionario %>" <%= (concesionarioSeleccionado == c.id_concesionario) ? 'checked' : '' %>>
+                        <label class="form-check-label" for="concesionario-<%= c.id_concesionario %>"><%= c.nombre %></label>
+                      </div>
+                    <% }) %>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          <% } %>
+          
+        </div> <div class="d-grid gap-2 mt-3">
+          <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
+          <a href="/vehiculos" class="btn btn-outline-secondary">Limpiar Filtros</a>
+        </div>
+
+      </form>
+    </div> 
+    <div class="col-lg-9 col-md-8">
+      
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><%= title %></h1>
+        <% if (usuario && usuario.rol === 'Admin') { %>
+          <a href="/vehiculos/nuevo" class="btn btn-primary btn-lg">
             <span class="lang lang-es">Nuevo Vehículo</span>
             <span class="lang lang-en d-none">New Vehicle</span>
-        </a>
-    <% } %>
-  </div>   
-
-  <% if (typeof error !== 'undefined' && error) { %>
-    <div class="alert alert-danger" role="alert" aria-live="assertive">
-      <%= error %>
-    </div>
-  <% } %>
-
-  <div>
-    <form method="GET" action="/vehiculos" class="d-flex gap-2 align-items-center">
-      <label for="tipo" class="mb-0">Filtrar por tipo:</label>
-      <select name="tipo" id="tipo" class="form-select w-auto">
-        <option value="" <%= (tipoSeleccionado === '') ? 'selected' : '' %>>Todos</option>
-        <% if (tiposDisponibles && tiposDisponibles.length > 0) { %>
-          <% tiposDisponibles.forEach(function(t) { %>
-            <option value="<%= t %>" <%= (tipoSeleccionado === t) ? 'selected' : '' %>> <%= t %> </option>
-          <% }) %>
+          </a>
         <% } %>
-      </select>
-      <% if (usuario && usuario.rol === 'Admin') { %>
-        <label for="estado" class="mb-0">Filtrar por estado:</label>
-        <select name="estado" id="estado" class="form-select w-auto">
-          <option value="" <%= (estadoSeleccionado === '') ? 'selected' : '' %>>Todos</option>
-          <% if (estadosDisponibles && estadosDisponibles.length > 0) { %>
-            <% estadosDisponibles.forEach(function(e) { %>
-              <option value="<%= e %>" <%= (estadoSeleccionado === e) ? 'selected' : '' %>> <%= e %> </option>
-            <% }) %>
-          <% } %>
-        </select>
+      </div> 
+
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger" role="alert" aria-live="assertive">
+          <%= error %>
+        </div>
       <% } %>
-      <button type="submit" class="btn btn-primary">Filtrar</button>
-    </form>
-  </div>     
-  <br>
-  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-    <% if (vehiculos && vehiculos.length > 0) { %>
-      <% vehiculos.forEach(v => { %>
-      <div class="col">
-        <a href="/vehiculos/<%= v.id_vehiculo %>" class="d-block" style="  text-decoration: none !important;">
-          <div class="vehiculo-card card-base h-100 d-flex flex-column">
-            <div class="vehiculo-img-container">
-              <img src="<%= v.imagen%>" class="card-img-top" alt="<%= v.marca %>">
-            </div>
-            <div class="card-body">
-              <h5 class="card-title"><%= v.marca %></h5>
-              <p class="card-text"><%= v.descripcion %></p>
-              <p class="card-text">
-                <strong>Estado:</strong>
-                <% if (v.estado==='disponible' ) { %>
-                <span class="badge bg-success">Disponible</span>
-                <% } else if (v.estado==='reservado' ) { %>
-                <span class="badge bg-warning text-dark">Reservado</span>
+
+      <% if (vehiculos && vehiculos.length > 0) { %>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+          
+          <% vehiculos.forEach(v => { %>
+            <div class="col">
+              <a href="/vehiculos/<%= v.id_vehiculo %>" class="d-block" style="text-decoration: none !important;">
+                <div class="vehiculo-card card-base h-100 d-flex flex-column">
+                  <div class="vehiculo-img-container">
+                    <img src="<%= v.imagen%>" class="card-img-top" alt="<%= v.marca %>">
+                  </div>
+                  <div class="card-body">
+                    <h5 class="card-title"><%= v.marca %></h5>
+                    <p class="card-text"><%= v.descripcion %></p>
+                    <p class="card-text">
+                      <strong>Estado:</strong>
+                      <% if (v.estado==='disponible' ) { %>
+                        <span class="badge bg-success">Disponible</span>
+                      <% } else if (v.estado==='reservado' ) { %>
+                        <span class="badge bg-warning text-dark">Reservado</span>
+                      <% } else { %>
+                        <span class="badge bg-danger">Mantenimiento</span>
+                      <% } %>
+                    </p>
+                    <p class="text-muted">Desde <%= v.precio %> €</p>
+                  </div>
+                </a> 
+                <% if (usuario && usuario.rol === 'Admin') { %>
+                  <div class="card-footer p-2 d-flex gap-2">
+                    <button type="button"
+                            class="btn btn-outline-secondary w-50 rounded-2"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmarEliminarModal"
+                            data-id="<%= v.id_vehiculo %>"
+                            data-name="<%= v.marca + ' ' + v.modelo %>">
+                      Eliminar
+                    </button>
+                    <a href="/vehiculos/<%= v.id_vehiculo %>/editar" class="btn btn-primary flex-fill rounded-2 text-center">
+                      Editar
+                    </a>
+                  </div>
                 <% } else { %>
-                <span class="badge bg-danger">Mantenimiento</span>
+                  <div class="card-footer p-0">
+                    <a href="/reserva?idVehiculo=<%= v.id_vehiculo %>" class="btn btn-primary w-100 rounded-0">Reservar</a>
+                  </div>
                 <% } %>
-              </p>
-              <p class="text-muted">Desde <%= v.precio %> €</p>
-            </div>
-          </a> 
-            <% if (usuario && usuario.rol === 'Admin') { %>
-              <div class="card-footer p-2 d-flex gap-2">
-                <button type="button"
-                        class="btn btn-outline-secondary w-50 rounded-2"
-                        data-bs-toggle="modal"
-                        data-bs-target="#confirmarEliminarModal"
-                        data-id="<%= v.id_vehiculo %>"
-                        data-name="<%= v.marca + ' ' + v.modelo %>">
-                  Eliminar
-                </button>
-                <a href="/vehiculos/<%= v.id_vehiculo %>/editar" class="btn btn-primary flex-fill rounded-2 text-center">
-                  Editar
-                </a>
-              </div>
-              <% } else { %>
-                <div class="card-footer p-0">
-                  <a href="/reserva?idVehiculo=<%= v.id_vehiculo %>" class="btn btn-primary w-100 rounded-0">Reservar</a>
                 </div>
-              <% } %>
-
-          </div>
-      </div>
-      <% }) %>
-    <% } else { %>
-      <p>No se encontraron vehículos para este tipo.</p>
-    <% } %>
-    <% if (usuario && usuario.rol === 'Admin') { %>
-      <div class="col">
-        <a href="/vehiculos/nuevo" class="d-block text-decoration-none h-100">
-          <div class="vehiculo-card card-base h-100 d-flex flex-column align-items-center justify-content-center">
-            <div class="vehiculo-img-container d-flex align-items-center justify-content-center">
-              <!-- <i class="bi bi-plus-lg" style="font-size: 4rem; color: var(--color-primary-hover);"></i> -->
-               <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16" 
-                style="font-size: 4rem; color: var(--color-primary-hover);">
-                <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
-              </svg>
             </div>
-            <div class="card-body align-content-center text-center">
-              <h5 class="card-title" style="color: var(--color-primary-hover);">Añadir Vehículo</h5>
-              <p class="card-text" style="color: var(--color-text);">Agrega un nuevo vehículo al catálogo</p>
+          <% }) %>
+
+          <% if (usuario && usuario.rol === 'Admin') { %>
+            <div class="col">
+              <a href="/vehiculos/nuevo" class="d-block text-decoration-none h-100">
+                <div class="vehiculo-card card-base h-100 d-flex flex-column align-items-center justify-content-center">
+                  <div class="vehiculo-img-container d-flex align-items-center justify-content-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16" 
+                      style="font-size: 4rem; color: var(--color-primary-hover);">
+                      <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                    </svg>
+                  </div>
+                  <div class="card-body align-content-center text-center">
+                    <h5 class="card-title" style="color: var(--color-primary-hover);">Añadir Vehículo</h5>
+                    <p class="card-text" style="color: var(--color-text);">Agrega un nuevo vehículo al catálogo</p>
+                  </div>
+                </div>
+              </a>
             </div>
-          </div>
-        </a>
+          <% } %>
+
+      </div> <% } else if (typeof error === 'undefined' || !error) { %>
+      <div class="alert alert-info text-center" role="alert">
+        <h4 class="alert-heading">No hay vehículos</h4>
+        <p class="mb-0">No se encontraron vehículos que coincidan con los filtros seleccionados.</p>
       </div>
-    <% } %>
+      <% } %>
 
-
-  </div>
-</div>
-
-<div class="modal fade" id="confirmarEliminarModal" tabindex="-1" aria-labelledby="confirmarEliminarModalLabel" aria-hidden="true">
+      </div> <div class="modal fade" id="confirmarEliminarModal" tabindex="-1" aria-labelledby="confirmarEliminarModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -138,4 +295,3 @@
 </div>
 
 <script src="/js/modal.js"></script>
-

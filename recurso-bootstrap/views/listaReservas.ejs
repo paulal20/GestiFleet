@@ -1,109 +1,159 @@
 <div class="listareservas-content">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><%= title %></h1>
-    
-        <% if (usuario && usuario.rol === 'Admin') { %>
-            <form action="/reserva/listareservas" method="GET" class="d-flex gap-2">
-                <select name="id" id="filtroUsuario" class="form-select" style="min-width: 220px;">
-                    <option value="0" <%= (idSeleccionado === 0) ? 'selected' : '' %>>
-                        Ver Todas las Reservas
-                    </option>
-                    <% if (todosLosUsuarios && todosLosUsuarios.length > 0) { %>
-                        <% todosLosUsuarios.forEach(u => { %>
-                            <option value="<%= u.id_usuario %>" <%= (u.id_usuario === idSeleccionado) ? 'selected' : '' %>>
-                                <%= u.nombre %> (<%= u.correo %>)
-                            </option>
-                        <% }) %>
-                    <% } %>
-                </select>  
-                <button type="submit" class="btn btn-primary">Filtrar</button>
-            </form>
-        <% } %>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><%= title %></h1>
+    <% if (usuario && usuario.rol === 'Admin') { %>
+      <a href="/reserva" class="btn btn-primary btn-lg">
+        <span class="lang lang-es">Nueva Reserva</span>
+        <span class="lang lang-en d-none">New Booking</span>
+      </a>
+    <% } %>
+  </div>
 
-        <% if (usuario && usuario.rol === 'Admin') { %>
-            <a href="/reserva" class="btn btn-primary btn-lg">
-                <span class="lang lang-es">Nueva Reserva</span>
-                <span class="lang lang-en d-none">New Booking</span>
-            </a>
-        <% } %>
+  <% if (usuario && usuario.rol === 'Admin') { %>
+    <form action="/reserva/listareservas" method="GET" class="row g-3 mb-4 p-3 border rounded bg-light">
+      
+      <div class="col-md-6 col-lg-4">
+        <label for="filtroUsuario" class="form-label">Usuario</label>
+        <select name="id" id="filtroUsuario" class="form-select">
+          <option value="0" <%= (idSeleccionado === 0) ? 'selected' : '' %>>
+            Todos los Usuarios
+          </option>
+          <% if (todosLosUsuarios && todosLosUsuarios.length > 0) { %>
+            <% todosLosUsuarios.forEach(u => { %>
+              <option value="<%= u.id_usuario %>" <%= (u.id_usuario === idSeleccionado) ? 'selected' : '' %>>
+                <%= u.nombre %> (<%= u.correo %>)
+              </option>
+            <% }) %>
+          <% } %>
+        </select>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <label for="filtroVehiculo" class="form-label">Vehículo</label>
+        <select name="vehiculo" id="filtroVehiculo" class="form-select">
+          <option value="0" <%= (vehiculoSeleccionado === 0) ? 'selected' : '' %>>
+            Todos los Vehículos
+          </option>
+          <% if (todosVehiculos && todosVehiculos.length > 0) { %>
+            <% todosVehiculos.forEach(v => { %>
+              <option value="<%= v.id_vehiculo %>" <%= (v.id_vehiculo == vehiculoSeleccionado) ? 'selected' : '' %>>
+                <%= v.marca %> <%= v.modelo %> (<%= v.matricula %>)
+              </option>
+            <% }) %>
+          <% } %>
+        </select>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <label for="filtroEstado" class="form-label">Estado</label>
+        <select name="estado" id="filtroEstado" class="form-select">
+          <option value="" <%= (estadoSeleccionado === '') ? 'selected' : '' %>>
+            Todos los Estados
+          </option>
+          <% if (estadosDisponibles && estadosDisponibles.length > 0) { %>
+            <% estadosDisponibles.forEach(e => { %>
+              <option value="<%= e %>" <%= (e === estadoSeleccionado) ? 'selected' : '' %>>
+                <%= e.charAt(0).toUpperCase() + e.slice(1) %>
+              </option>
+            <% }) %>
+          <% } %>
+        </select>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <label for="filtroFechaDesde" class="form-label">Desde (Fecha Inicio)</label>
+        <input type="date" class="form-control" id="filtroFechaDesde" name="fecha_desde" value="<%= fechaDesdeSeleccionada %>">
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <label for="filtroFechaHasta" class="form-label">Hasta (Fecha Fin)</label>
+        <input type="date" class="form-control" id="filtroFechaHasta" name="fecha_hasta" value="<%= fechaHastaSeleccionada %>">
+      </div>
+
+      <div class="col-md-6 col-lg-4 d-flex align-items-end gap-2">
+        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+        <a href="/reserva/listareservas" class="btn btn-outline-secondary w-100">Limpiar</a>
+      </div>
+    </form>
+  <% } %>
+
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert alert-danger" role="alert" aria-live="assertive">
+      <%= error %>
     </div>
-    <% if (typeof error !== 'undefined' && error) { %>
-        <div class="alert alert-danger" role="alert" aria-live="assertive">
-            <%= error %>
-        </div>
-    <% } %>
-        
-    <% if (listaDeReservas && listaDeReservas.length > 0) { %>
-        <div id="tabla-reservas-descripcion" class="visually-hidden"></div>
+  <% } %>
+      
+  <% if (listaDeReservas && listaDeReservas.length > 0) { %>
+    <div id="tabla-reservas-descripcion" class="visually-hidden"></div>
 
-        <div class="table-responsive-md">
-        <table class="table table-hover" aria-describedby="tabla-reservas-descripcion">
-            <caption class="text-center">
-            <span class="lang lang-es">Reservas mostradas: </span>
-            <span class="lang lang-en d-none">Bookings shown: </span>
-            <strong><%= listaDeReservas.length %></strong>
-            </caption>
+    <div class="table-responsive-md">
+      <table class="table table-hover" aria-describedby="tabla-reservas-descripcion">
+        <caption class="text-center">
+          <span class="lang lang-es">Reservas mostradas: </span>
+          <span class="lang lang-en d-none">Bookings shown: </span>
+          <strong><%= listaDeReservas.length %></strong>
+        </caption>
 
-            <thead class="table-dark">
+        <thead class="table-dark">
+          <tr>
+            <th scope="col">Nombre</th>
+            <th scope="col">Email</th>
+            <th scope="col">Vehículo</th>
+            <th scope="col">Fecha de Inicio</th>
+            <th scope="col">Fecha de Fin</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% listaDeReservas.forEach(reserva => { %>
             <tr>
-                <th scope="col">Nombre</th>
-                <th scope="col">Email</th>
-                <th scope="col">Vehículo</th>
-                <th scope="col">Fecha de Inicio</th>
-                <th scope="col">Fecha de Fin</th>
-                <th scope="col">Estado</th>
-                <th scope="col">Acciones</th>
+              <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= reserva.nombre_usuario %></td>
+              <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= reserva.email_usuario %></td>
+              <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= reserva.marca %> <%= reserva.modelo %> (<%= reserva.matricula %>)</td>
+              <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= new Date(reserva.fecha_inicio).toLocaleString() %></td>
+              <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= new Date(reserva.fecha_fin).toLocaleString() %></td>
+              <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>">
+                <% if (reserva.estado === 'activa') { %>
+                  <span class="badge bg-success">Activa</span>
+                <% } else if (reserva.estado === 'cancelada') { %>
+                  <span class="badge bg-danger">Cancelada</span>
+                <% } else { %>
+                  <span class="badge bg-secondary"><%= reserva.estado.charAt(0).toUpperCase() + reserva.estado.slice(1) %></span>
+                <% } %>
+              </td>
+              <td>
+                <button type="button"
+                        class="btn btn-primary btn-sm"
+                        title="Cancelar Reserva"
+                        data-bs-toggle="modal"
+                        data-bs-target="#confirmarCancelarReservaModal"
+                        data-id="<%= reserva.id_reserva %>"
+                        data-name="<%= reserva.nombre_usuario %>"
+                        <%= (reserva.estado !== 'activa') ? 'disabled' : '' %>>
+                  <span class="lang lang-es">Cancelar</span>
+                  <span class="lang lang-en d-none">Cancel</span>
+                </button>
+              </td>
             </tr>
-            </thead>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
 
-            <tbody>
-                <% listaDeReservas.forEach(reserva => { %>
-                    <tr>
-                    <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= reserva.nombre_usuario %></td>
-                    <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= reserva.email_usuario %></td>
-                    <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= reserva.marca %> <%= reserva.modelo %> (<%= reserva.matricula %>)</td>
-                    <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= new Date(reserva.fecha_inicio).toLocaleString() %></td>
-                    <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= new Date(reserva.fecha_fin).toLocaleString() %></td>
-                    <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>">
-                        <% if (reserva.estado === 'activa') { %>
-                        <span class="badge bg-success">Activa</span>
-                        <% } else if (reserva.estado === 'cancelada') { %>
-                        <span class="badge bg-danger">Cancelada</span>
-                        <% } else { %>
-                        <span class="badge bg-secondary"><%= reserva.estado.charAt(0).toUpperCase() + reserva.estado.slice(1) %></span>
-                        <% } %>
-                    </td>
-                    <td>
-                        <button type="button"
-                                class="btn btn-primary btn-sm"
-                                title="Cancelar Reserva"
-                                data-bs-toggle="modal"
-                                data-bs-target="#confirmarCancelarReservaModal"
-                                data-id="<%= reserva.id_reserva %>"
-                                data-name="<%= reserva.nombre_usuario %>"
-                                <%= (reserva.estado !== 'activa') ? 'disabled' : '' %>>
-                        <span class="lang lang-es">Cancelar</span>
-                        <span class="lang lang-en d-none">Cancel</span>
-                        </button>
-                    </td>
-                    </tr>
-                <% }) %>
-            </tbody>
-        </table>
-        </div>
-
-    <% } else if (typeof error === 'undefined' || !error) { %> 
-        <div class="alert alert-info text-center" role="alert">
-        <h4 class="alert-heading lang lang-es">No hay reservas</h4>
-        <h4 class="alert-heading lang lang-en d-none">No bookings found</h4>
-        <p class="lang lang-es mb-0">No se encontraron reservas para la selección actual.</p>
-        <p class="lang lang-en d-none mb-0">No bookings were found for the current selection.</p>
-        </div>
-    <% } %>
-    
-</div>
-
+  <% } else if (typeof error === 'undefined' || !error) { %> 
+    <div class="alert alert-info text-center" role="alert">
+      <h4 class="alert-heading lang lang-es">No hay reservas</h4>
+      <h4 class="alert-heading lang lang-en d-none">No bookings found</h4>
+      <p class="lang lang-es mb-0">No se encontraron reservas para la selección actual.</p>
+      <p class="lang lang-en d-none mb-0">No bookings were found for the current selection.</p>
+    </div>
+  <% } %>
+  
+</div> 
 <div class="modal fade" id="confirmarCancelarReservaModal" tabindex="-1" aria-labelledby="confirmarCancelarReservaModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">

@@ -45,12 +45,14 @@ const vehiculosRoutes = require('./routes/vehiculos');
 const reservasRoutes = require('./routes/reservas');
 const apiRoutes = require('./routes/api');
 const concesionariosRoutes = require('./routes/concesionarios');
+const usuariosRoutes = require('./routes/usuarios');
 
 app.use('/', indexRoutes);
 app.use('/vehiculos', vehiculosRoutes);
 app.use('/reserva', reservasRoutes);
 app.use('/api', apiRoutes);
 app.use('/concesionarios', concesionariosRoutes);
+app.use('/usuarios', usuariosRoutes);
 
 // Forzar error 500
 app.get('/error', (req, res, next) => {

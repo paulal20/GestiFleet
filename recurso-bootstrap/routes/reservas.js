@@ -220,7 +220,16 @@ router.post('/:id(\\d+)/cancelar', isAuth, async (req, res, next) => {
 
 router.get('/listareservas', isAdmin, async (req, res) => {
   try {
-    const idFiltrado = req.query.id ? parseInt(req.query.id, 10) : 0;
+    const {
+      id,
+      vehiculo,
+      estado,
+      fecha_desde,
+      fecha_hasta
+    } = req.query;
+
+    const idFiltrado = id ? parseInt(id, 10) : 0;
+    const vehiculoFiltrado = vehiculo ? parseInt(vehiculo, 10) : 0;
 
     let query = `
       SELECT r.id_reserva, r.fecha_inicio, r.fecha_fin, r.estado,
@@ -231,32 +240,74 @@ router.get('/listareservas', isAdmin, async (req, res) => {
       JOIN vehiculos v ON r.id_vehiculo = v.id_vehiculo
     `;
     const params = [];
+    const condiciones = [];
 
     if (idFiltrado > 0) {
-      query += ' WHERE r.id_usuario = ?';
+      condiciones.push('r.id_usuario = ?');
       params.push(idFiltrado);
     }
-    
+    if (vehiculoFiltrado > 0) {
+      condiciones.push('r.id_vehiculo = ?');
+      params.push(vehiculoFiltrado);
+    }
+    if (estado) {
+      condiciones.push('r.estado = ?');
+      params.push(estado);
+    }
+    if (fecha_desde) {
+      condiciones.push('r.fecha_inicio >= ?');
+      params.push(fecha_desde);
+    }
+    if (fecha_hasta) {
+      condiciones.push('r.fecha_fin <= ?');
+      params.push(fecha_hasta + ' 23:59:59');
+    }
+
+    if (condiciones.length > 0) {
+      query += ' WHERE ' + condiciones.join(' AND ');
+    }
+
     query += ' ORDER BY r.fecha_inicio DESC';
 
     const [reservas] = await req.db.query(query, params);
+
     const [usuarios] = await req.db.query(
       'SELECT id_usuario, nombre, correo FROM usuarios ORDER BY nombre'
     );
+    const [vehiculos] = await req.db.query(
+      'SELECT id_vehiculo, marca, modelo, matricula FROM vehiculos ORDER BY marca, modelo'
+    );
+    const [estados] = await req.db.query(
+      'SELECT DISTINCT estado FROM reservas ORDER BY estado'
+    );
+    const estadosDisponibles = estados.map(e => e.estado);
 
     res.render('listareservas', {
-      title: 'Lista de Reservas',
+      title: 'Reservas',
       listaDeReservas: reservas,
       todosLosUsuarios: usuarios,
-      idSeleccionado: idFiltrado
+      todosVehiculos: vehiculos,
+      estadosDisponibles: estadosDisponibles,
+      idSeleccionado: idFiltrado,
+      vehiculoSeleccionado: vehiculoFiltrado,
+      estadoSeleccionado: estado || '',
+      fechaDesdeSeleccionada: fecha_desde || '',
+      fechaHastaSeleccionada: fecha_hasta || ''
     });
+
   } catch (err) {
     console.error('Error al cargar la lista de reservas:', err);
     res.status(500).render('listareservas', {
-      title: 'Lista de Reservas',
+      title: 'Reservas',
       listaDeReservas: [],
       todosLosUsuarios: [],
+      todosVehiculos: [],
+      estadosDisponibles: [],
       idSeleccionado: 0,
+      vehiculoSeleccionado: 0,
+      estadoSeleccionado: '',
+      fechaDesdeSeleccionada: '',
+      fechaHastaSeleccionada: '',
       error: 'No se pudieron cargar las reservas'
     });
   }
@@ -268,8 +319,8 @@ router.get('/mis-reservas', isAuth, async (req, res) => {
 
     const [reservasDelUsuario] = await req.db.query(
       `SELECT r.id_reserva, r.fecha_inicio, r.fecha_fin, r.estado,
-          u.nombre AS nombre_usuario, u.correo AS email_usuario,
-          v.marca, v.modelo, v.matricula
+         u.nombre AS nombre_usuario, u.correo AS email_usuario,
+         v.marca, v.modelo, v.matricula
        FROM reservas r
        JOIN usuarios u ON r.id_usuario = u.id_usuario
        JOIN vehiculos v ON r.id_vehiculo = v.id_vehiculo
@@ -281,17 +332,34 @@ router.get('/mis-reservas', isAuth, async (req, res) => {
     res.render('listareservas', {
       title: 'Mis Reservas',
       listaDeReservas: reservasDelUsuario,
-      todosLosUsuarios: [], 
-      idSeleccionado: 0
+      usuario: usuarioActual,
+
+      todosLosUsuarios: [],
+      todosVehiculos: [],
+      estadosDisponibles: [],
+      idSeleccionado: 0,
+      vehiculoSeleccionado: 0,
+      estadoSeleccionado: '',
+      fechaDesdeSeleccionada: '',
+      fechaHastaSeleccionada: ''
     });
+
   } catch (err) {
     console.error('Error al cargar mis reservas:', err);
     res.status(500).render('listareservas', {
       title: 'Mis Reservas',
       listaDeReservas: [],
+      usuario: req.session.usuario, 
+      error: 'No se pudieron cargar tus reservas',
+
       todosLosUsuarios: [],
+      todosVehiculos: [],
+      estadosDisponibles: [],
       idSeleccionado: 0,
-      error: 'No se pudieron cargar tus reservas'
+      vehiculoSeleccionado: 0,
+      estadoSeleccionado: '',
+      fechaDesdeSeleccionada: '',
+      fechaHastaSeleccionada: ''
     });
   }
 });

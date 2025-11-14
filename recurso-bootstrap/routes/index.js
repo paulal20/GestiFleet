@@ -186,10 +186,10 @@ router.post('/register', isGuest, async (req, res) => {
    [nombre, correo, hash, 'Empleado', telefono, parseInt(concesionario)]
   );
 
-  const [nuevoUsuario] = await req.db.query('SELECT * FROM usuarios WHERE id_usuario = ?', [result.insertId]);
-  req.session.usuario = nuevoUsuario[0];
-  req.session.usuario.rol = 'Empleado';
-  res.redirect('/');
+  // const [nuevoUsuario] = await req.db.query('SELECT * FROM usuarios WHERE id_usuario = ?', [result.insertId]);
+  // req.session.usuario = nuevoUsuario[0];
+  // req.session.usuario.rol = 'Empleado';
+  res.redirect('/listaUsuarios'); 
 
  } catch(err) {
    console.error('Error en el registro:', err);

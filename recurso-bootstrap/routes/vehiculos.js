@@ -32,8 +32,16 @@ const upload = multer({ storage, fileFilter });
 // GET /vehiculos
 router.get('/', isAuth, async (req, res) => {
   try {
-    const { tipo, estado } = req.query;
-    const usuario = req.session.usuario; // o de donde lo guardes
+    const { 
+      tipo, 
+      estado, 
+      color, 
+      plazas, 
+      concesionario,
+      precio_max,
+      autonomia_min
+    } = req.query;
+    const usuario = req.session.usuario;
 
     let sql = 'SELECT * FROM vehiculos';
     const params = [];
@@ -42,7 +50,6 @@ router.get('/', isAuth, async (req, res) => {
     if (!usuario || usuario.rol !== 'Admin') {
       condiciones.push(' id_concesionario = ? ');
       params.push(usuario.id_concesionario);
-
       condiciones.push(" estado = 'disponible' ");
     }
 
@@ -50,10 +57,31 @@ router.get('/', isAuth, async (req, res) => {
       condiciones.push(' tipo = ? ');
       params.push(tipo);
     }
+    if (color) {
+      condiciones.push(' color = ? ');
+      params.push(color);
+    }
+    if (plazas) {
+      condiciones.push(' numero_plazas = ? ');
+      params.push(plazas);
+    }
+    if (precio_max) {
+      condiciones.push(' precio <= ? ');
+      params.push(precio_max);
+    }
+    if (autonomia_min) {
+      condiciones.push(' autonomia_km >= ? ');
+      params.push(autonomia_min);
+    }
+
     if (usuario && usuario.rol === 'Admin') {
       if (estado) {
         condiciones.push(' estado = ? ');
         params.push(estado);
+      }
+      if (concesionario) {
+        condiciones.push(' id_concesionario = ? ');
+        params.push(concesionario);
       }
     }
 
@@ -61,29 +89,41 @@ router.get('/', isAuth, async (req, res) => {
       sql += ' WHERE ' + condiciones.join(' AND ');
     }
 
-    // Ejecutar consulta
     const [vehiculos] = await req.db.query(sql, params);
 
-    // Estos valores solo se necesitan para Admin (filtros)
-    let tiposDisponibles = [];
-    let estadosDisponibles = [];
+    const [tipos, estados, colores, plazasRes, concesionariosRes, rangosRes] = await Promise.all([
+      req.db.query('SELECT DISTINCT tipo FROM vehiculos'),
+      req.db.query('SELECT DISTINCT estado FROM vehiculos'),
+      req.db.query('SELECT DISTINCT color FROM vehiculos WHERE color IS NOT NULL ORDER BY color'),
+      req.db.query('SELECT DISTINCT numero_plazas FROM vehiculos ORDER BY numero_plazas ASC'),
+      req.db.query('SELECT id_concesionario, nombre FROM concesionarios ORDER BY nombre'),
+      req.db.query('SELECT MIN(precio) as minPrecio, MAX(precio) as maxPrecio, MIN(autonomia_km) as minAutonomia, MAX(autonomia_km) as maxAutonomia FROM vehiculos')
+    ]);
 
-    const [tipos] = await req.db.query('SELECT DISTINCT tipo FROM vehiculos');
-    tiposDisponibles = tipos.map(t => t.tipo);
-
-    if (usuario && usuario.rol === 'Admin') {
-      const [estados] = await req.db.query('SELECT DISTINCT estado FROM vehiculos');
-      estadosDisponibles = estados.map(e => e.estado);
-    }
+    const tiposDisponibles = tipos[0].map(t => t.tipo);
+    const estadosDisponibles = estados[0].map(e => e.estado);
+    const coloresDisponibles = colores[0].map(c => c.color);
+    const plazasDisponibles = plazasRes[0].map(p => p.numero_plazas);
+    const concesionariosDisponibles = concesionariosRes[0];
+    const rangos = rangosRes[0][0]; 
 
     res.render('listaVehiculos', {
-      title: 'Vehículos ofertados en GestiFleet',
+      title: 'Vehículos',
       vehiculos,
+      usuario,
       tiposDisponibles,
       estadosDisponibles,
+      coloresDisponibles,
+      plazasDisponibles,
+      concesionariosDisponibles,
+      rangos,
       tipoSeleccionado: tipo || '',
       estadoSeleccionado: estado || '',
-      usuario
+      colorSeleccionado: color || '',
+      plazasSeleccionado: plazas || '',
+      concesionarioSeleccionado: concesionario || '',
+      precioMaxSeleccionado: precio_max || rangos.maxPrecio,
+      autonomiaMinSeleccionado: autonomia_min || rangos.minAutonomia,
     });
 
   } catch (err) {
@@ -91,8 +131,6 @@ router.get('/', isAuth, async (req, res) => {
     res.status(500).render('error', { mensaje: 'Error al cargar los vehículos' });
   }
 });
-
-
 
 // GET /vehiculos/nuevo
 router.get('/nuevo', isAuth, isAdmin, async (req, res) => {
