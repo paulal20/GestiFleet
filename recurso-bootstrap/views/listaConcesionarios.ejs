@@ -1,6 +1,5 @@
 <div class="listaconcesionarios-content">
 
-  <!-- Encabezado: Título y botón "Nuevo" (si es Admin) -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><%= title %></h1>
     <% if (usuario && usuario.rol === 'Admin') { %>
@@ -11,40 +10,39 @@
     <% } %>
   </div>
 
-  <form action="/concesionarios" method="GET" class="row g-3 mb-4 p-3 border rounded bg-light">
-    
-    <!-- Filtro Ciudad -->
-    <div class="col-md-6 col-lg-4">
-      <label for="filtroCiudad" class="form-label">Ciudad</label>
-      <select name="ciudad" id="filtroCiudad" class="form-select">
-        <option value="" <%= (ciudadSeleccionada === '') ? 'selected' : '' %>>
-          Todas las Ciudades
-        </option>
-        <% if (ciudadesDisponibles && ciudadesDisponibles.length > 0) { %>
-          <% ciudadesDisponibles.forEach(c => { %>
-            <option value="<%= c %>" <%= (c === ciudadSeleccionada) ? 'selected' : '' %>>
-              <%= c %>
+  <form action="/concesionarios" method="GET" class="mb-4">
+    <fieldset>
+      <legend class="w-auto">Filtros</legend>
+
+      <div class="row g-3">
+        <div class="col-md-6 col-lg-4">
+          <label for="filtroCiudad" class="form-label">Ciudad</label>
+          <select name="ciudad" id="filtroCiudad" class="form-select">
+            <option value="" <%= (ciudadSeleccionada === '') ? 'selected' : '' %>>
+              Todas las Ciudades
             </option>
-          <% }) %>
-        <% } %>
-      </select>
-    </div>
+            <% if (ciudadesDisponibles && ciudadesDisponibles.length > 0) { %>
+              <% ciudadesDisponibles.forEach(c => { %>
+                <option value="<%= c %>" <%= (c === ciudadSeleccionada) ? 'selected' : '' %>>
+                  <%= c %>
+                </option>
+              <% }) %>
+            <% } %>
+          </select>
+        </div>
 
-    <!-- Botones -->
-    <div class="col-md-6 col-lg-4 d-flex align-items-end gap-2">
-      <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-      <a href="/concesionarios" class="btn btn-outline-secondary w-100">Limpiar</a>
-    </div>
+        <div class="col-md-6 col-lg-4 d-flex align-items-end gap-2">
+          <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+          <a href="/concesionarios" class="btn btn-outline-secondary w-100">Limpiar</a>
+        </div>
+      </div> </fieldset>
   </form>
-
-  <!-- Alerta de Error -->
   <% if (typeof error !== 'undefined' && error) { %>
     <div class="alert alert-danger" role="alert" aria-live="assertive">
       <%= error %>
     </div>
   <% } %>
       
-  <!-- TABLA DE CONCESIONARIOS -->
   <% if (concesionarios && concesionarios.length > 0) { %>
     <div class="table-responsive-md">
       <table class="table table-hover" aria-describedby="tabla-concesionarios-descripcion">

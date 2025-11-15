@@ -309,8 +309,51 @@ font-weight: 600;
   color: #fff;
 }
 
-@media (max-width: 768px) {
-  .panel-col {
-    margin-bottom: 1rem;
-  }
+.accordion-item {
+  background-color: var(--color-input-bg);
+  border: 1.5px solid var(--color-field-border);
+  margin-bottom: -1.5px;
+}
+
+.accordion-item:first-of-type {
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.accordion-item:last-of-type {
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.accordion-header {
+  border-bottom: 1.5px solid var(--color-field-border);
+}
+
+.accordion-button {
+  background-color: var(--color-field-bg);
+  color: var(--color-text);
+  font-weight: 600;
+  box-shadow: none !important; 
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: var(--color-legend-bg);
+  color: var(--color-primary-hover);
+}
+
+.accordion-button:focus {
+  border-color: var(--color-primary-hover);
+  box-shadow: var(--shadow-focus) !important; 
+}
+
+.accordion-button::after {
+  filter: var(--color-text) invert(20%) sepia(10%) saturate(1500%) hue-rotate(180deg) brightness(90%) contrast(90%);
+}
+
+.dark-theme .accordion-button::after {
+  filter: none;
+}
+
+.accordion-button:not(.collapsed)::after {
+  filter: var(--color-primary-hover) invert(40%) sepia(20%) saturate(1500%) hue-rotate(180deg) brightness(90%) contrast(90%);
 }

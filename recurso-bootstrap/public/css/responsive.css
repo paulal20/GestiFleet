@@ -71,4 +71,9 @@
   font-size: 0.9rem;
   padding: 0.8rem;
  }
+
+ .panel-col {
+    margin-bottom: 1rem;
+  }
+
 }
