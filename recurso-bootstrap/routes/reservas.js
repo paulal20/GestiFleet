@@ -41,6 +41,7 @@ router.get('/', isAuth, async (req, res) => {
       title: 'Reserva tu coche!',
       vehiculos,
       idVehiculoSeleccionado,
+      usuarioSesion: req.session.usuario,
       formData: req.body || {}
     });
   } catch (err) {
@@ -77,6 +78,7 @@ router.post('/', isAuth, async (req, res) => {
         title: 'Reserva tu coche!',
         vehiculos,
         idVehiculoSeleccionado: idVehiculo,
+        usuarioSesion: req.session.usuario,
         error: errorFecha
       });
     }
@@ -121,6 +123,7 @@ router.post('/', isAuth, async (req, res) => {
       title: 'Reserva tu coche!',
       vehiculos,
       idVehiculoSeleccionado: idVehiculo,
+      usuarioSesion: req.session.usuario,
       formData: req.body,
       error: 'No se pudo crear la reserva debido a un error del servidor.'
     });
@@ -160,6 +163,7 @@ router.get('/:id(\\d+)', isAuth, async (req, res, next) => {
 
     res.render('reservaDetalle', {
       title: `Detalle Reserva ${reserva.id_reserva}`,
+      usuarioSesion: req.session.usuario,
       reserva
     });
 
@@ -286,6 +290,7 @@ router.get('/listareservas', isAdmin, async (req, res) => {
       title: 'Reservas',
       listaDeReservas: reservas,
       usuario: req.session.usuario,
+      usuarioSesion: req.session.usuario,
       todosLosUsuarios: usuarios,
       todosVehiculos: vehiculos,
       estadosDisponibles: estadosDisponibles,
@@ -302,6 +307,7 @@ router.get('/listareservas', isAdmin, async (req, res) => {
       title: 'Reservas',
       listaDeReservas: [],
       usuario: req.session.usuario,
+      usuarioSesion: req.session.usuario,
       todosLosUsuarios: [],
       todosVehiculos: [],
       estadosDisponibles: [],
@@ -376,6 +382,7 @@ router.get('/mis-reservas', isAuth, async (req, res) => {
       title: 'Mis Reservas',
       listaDeReservas: reservasDelUsuario,
       usuario: usuarioActual,
+      usuarioSesion: req.session.usuario,
 
       todosLosUsuarios: [], 
       todosVehiculos: vehiculos, 
@@ -394,6 +401,7 @@ router.get('/mis-reservas', isAuth, async (req, res) => {
       title: 'Mis Reservas',
       listaDeReservas: [],
       usuario: req.session.usuario,
+      usuarioSesion: req.session.usuario,
       error: 'No se pudieron cargar tus reservas',
       todosLosUsuarios: [],
       todosVehiculos: [],

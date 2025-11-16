@@ -35,7 +35,8 @@ router.get('/', isAdmin, async (req, res) => {
       usuarios,
       concesionariosDisponibles: concesionarios,
       concesionarioSeleccionado: concesionarioSeleccionado, 
-      usuario: req.session.usuario
+      usuario: req.session.usuario,
+      usuarioSesion: req.session.usuario
     });
 
   } catch (err) {
@@ -46,6 +47,7 @@ router.get('/', isAdmin, async (req, res) => {
       concesionariosDisponibles: [],
       concesionarioSeleccionado: 0,
       usuario: req.session.usuario,
+      usuarioSesion: req.session.usuario,
       error: "Error al cargar usuarios"
     });
   }
@@ -63,6 +65,7 @@ router.get('/nuevo', isAdmin, async (req, res) => {
       action: '/usuarios/nuevo',
       method: 'POST',
       usuario: {},
+      usuarioSesion: req.session.usuario,
       concesionarios
     });
   } catch (err) {
@@ -110,6 +113,7 @@ router.post('/nuevo', isAdmin, async (req, res) => {
         action: '/usuarios/nuevo',
         error: errorMsg,
         usuario: usuarioParaRender,
+        usuarioSesion: req.session.usuario,
         concesionarios
       });
     }
@@ -145,6 +149,7 @@ router.post('/nuevo', isAdmin, async (req, res) => {
       action: '/usuarios/nuevo',
       error,
       usuario: usuarioParaRender,
+      usuarioSesion: req.session.usuario,
       concesionarios
     });
   }
@@ -172,6 +177,7 @@ router.get('/:id/editar', isAdmin, async (req, res) => {
       action: `/usuarios/${id}/editar`,
       method: 'POST',
       usuario,
+      usuarioSesion: req.session.usuario,
       concesionarios
     });
   } catch (err) {
@@ -231,6 +237,7 @@ router.post('/:id/editar', isAdmin, async (req, res) => {
         action: `/usuarios/${id}/editar`,
         error: errorMsg,
         usuario: usuarioParaRender,
+        usuarioSesion: req.session.usuario,
         concesionarios
       });
     }
@@ -285,6 +292,7 @@ router.post('/:id/editar', isAdmin, async (req, res) => {
         action: `/usuarios/${id}/editar`,
         error,
         usuario: usuarioParaRender,
+        usuarioSesion: req.session.usuario,
         concesionarios
       });
     }

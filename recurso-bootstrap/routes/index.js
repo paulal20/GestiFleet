@@ -24,6 +24,7 @@ router.get('/', (req, res) => {
  res.render('index', { 
     title: 'Inicio', 
     nombre,
+    usuarioSesion: req.session.usuario,
     error: errorMessage || null
   });
 });
@@ -35,6 +36,7 @@ router.get('/login', isGuest, (req, res) => {
  res.render('login', { 
   title: 'Inicio de Sesión', 
   error: errorMessage || null,
+  usuarioSesion: req.session.usuario,
   mensaje: null
  });
 })
@@ -53,6 +55,7 @@ router.post('/login', isGuest, async (req, res) => {
   if(!usuario){
    return res.render('login', {
     title: 'Inicio de Sesión',
+    usuarioSesion: req.session.usuario,
     error: 'Usuario no encontrado',
     mensaje: null
    });
@@ -99,114 +102,114 @@ router.post('/login', isGuest, async (req, res) => {
  }
 });
 
-router.get('/register', isGuest, async (req, res) => {
- try{
-  const [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
-  res.render('register', { title: 'Registro' , error: null, concesionarios});
+// router.get('/register', isGuest, async (req, res) => {
+//  try{
+//   const [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
+//   res.render('register', { title: 'Registro' , error: null, concesionarios});
 
- } catch(err){
-  console.error('Error al cargar los concesionarios:', err);
-  return res.status(500).render('register', { title: 'Registro de usuario', error: 'Error interno en el servidor', concesionarios: [] });
- }
-})
+//  } catch(err){
+//   console.error('Error al cargar los concesionarios:', err);
+//   return res.status(500).render('register', { title: 'Registro de usuario', error: 'Error interno en el servidor', concesionarios: [] });
+//  }
+// })
 
-router.post('/register', isGuest, async (req, res) => {
- const formData = { ...req.body };
- const { email: correo, confemail, contrasenya, concesionario, nombre, apellido1, apellido2, telefono } = formData;
- let concesionarios = []; 
+// router.post('/register', isGuest, async (req, res) => {
+//  const formData = { ...req.body };
+//  const { email: correo, confemail, contrasenya, concesionario, nombre, apellido1, apellido2, telefono } = formData;
+//  let concesionarios = []; 
 
- try {
-  [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
+//  try {
+//   [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
   
-  const fieldErrors = {};
+//   const fieldErrors = {};
 
-  if (!nombre || nombre.trim().length < 3) {
-   fieldErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
-  }
-  if (!apellido1 || apellido1.trim().length < 3) {
-   fieldErrors.apellido1 = 'El primer apellido debe tener al menos 3 caracteres.';
-  }
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  if (!correo || !emailRegex.test(correo)) {
-   fieldErrors.email = 'El formato del correo no es válido.';
-  }
-  if (correo !== confemail) {
-   fieldErrors.confemail = 'Los correos no coinciden.';
-  }
-  const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-  if (!contrasenya || !passRegex.test(contrasenya)) {
-   fieldErrors.contrasenya = 'La contraseña debe tener mín. 8 caracteres, una mayúscula, un número y un símbolo.';
-  }
-  const telRegex = /^[0-9]{9,15}$/;
-  if (!telefono || !telRegex.test(telefono)) {
-   fieldErrors.telefono = 'El teléfono debe tener entre 9 y 15 números.';
-  }
-  if (!concesionario || concesionario === "") {
-   fieldErrors.concesionario = 'Debe seleccionar un concesionario.';
-  }
+//   if (!nombre || nombre.trim().length < 3) {
+//    fieldErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
+//   }
+//   if (!apellido1 || apellido1.trim().length < 3) {
+//    fieldErrors.apellido1 = 'El primer apellido debe tener al menos 3 caracteres.';
+//   }
+//   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+//   if (!correo || !emailRegex.test(correo)) {
+//    fieldErrors.email = 'El formato del correo no es válido.';
+//   }
+//   if (correo !== confemail) {
+//    fieldErrors.confemail = 'Los correos no coinciden.';
+//   }
+//   const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+//   if (!contrasenya || !passRegex.test(contrasenya)) {
+//    fieldErrors.contrasenya = 'La contraseña debe tener mín. 8 caracteres, una mayúscula, un número y un símbolo.';
+//   }
+//   const telRegex = /^[0-9]{9,15}$/;
+//   if (!telefono || !telRegex.test(telefono)) {
+//    fieldErrors.telefono = 'El teléfono debe tener entre 9 y 15 números.';
+//   }
+//   if (!concesionario || concesionario === "") {
+//    fieldErrors.concesionario = 'Debe seleccionar un concesionario.';
+//   }
 
-  if (!fieldErrors.email) {
-   const [usuarios] = await req.db.query('SELECT * FROM usuarios WHERE correo = ?', [correo]);
-   if(usuarios.length > 0){
-    fieldErrors.email = 'El correo ya está registrado';
-   }
-  }
-  if (!fieldErrors.telefono) {
-   const [telefonos] = await req.db.query('SELECT * FROM usuarios WHERE telefono = ?', [telefono]);
-   if(telefonos.length > 0){
-    fieldErrors.telefono = 'El teléfono ya está registrado';
-   }
-  }
+//   if (!fieldErrors.email) {
+//    const [usuarios] = await req.db.query('SELECT * FROM usuarios WHERE correo = ?', [correo]);
+//    if(usuarios.length > 0){
+//     fieldErrors.email = 'El correo ya está registrado';
+//    }
+//   }
+//   if (!fieldErrors.telefono) {
+//    const [telefonos] = await req.db.query('SELECT * FROM usuarios WHERE telefono = ?', [telefono]);
+//    if(telefonos.length > 0){
+//     fieldErrors.telefono = 'El teléfono ya está registrado';
+//    }
+//   }
 
-  if (Object.keys(fieldErrors).length > 0) {
+//   if (Object.keys(fieldErrors).length > 0) {
    
-   formData.contrasenya = '';
+//    formData.contrasenya = '';
    
-   if (fieldErrors.email || fieldErrors.confemail) {
-    formData.email = '';
-    formData.confemail = '';
-   }
-   if (fieldErrors.telefono) {
-    formData.telefono = '';
-   }
-   if (fieldErrors.nombre) formData.nombre = '';
-   if (fieldErrors.apellido1) formData.apellido1 = '';
+//    if (fieldErrors.email || fieldErrors.confemail) {
+//     formData.email = '';
+//     formData.confemail = '';
+//    }
+//    if (fieldErrors.telefono) {
+//     formData.telefono = '';
+//    }
+//    if (fieldErrors.nombre) formData.nombre = '';
+//    if (fieldErrors.apellido1) formData.apellido1 = '';
 
-   return res.status(400).render('register', { 
-    title: 'Registro de usuario', 
-    error: 'El correo o el teléfono ya están registrados', 
-    concesionarios,
-    formData
-   });
-  }
-  const hash = await bcrypt.hash(password, SALT_ROUNDS);
+//    return res.status(400).render('register', { 
+//     title: 'Registro de usuario', 
+//     error: 'El correo o el teléfono ya están registrados', 
+//     concesionarios,
+//     formData
+//    });
+//   }
+//   const hash = await bcrypt.hash(password, SALT_ROUNDS);
 
-  const [result] = await req.db.query(
-   'INSERT INTO usuarios (nombre, correo, contrasenya, rol, telefono, id_concesionario) VALUES (?, ?, ?, ?, ?, ?)', 
-   [nombre, correo, hash, 'Empleado', telefono, parseInt(concesionario)]
-  );
+//   const [result] = await req.db.query(
+//    'INSERT INTO usuarios (nombre, correo, contrasenya, rol, telefono, id_concesionario) VALUES (?, ?, ?, ?, ?, ?)', 
+//    [nombre, correo, hash, 'Empleado', telefono, parseInt(concesionario)]
+//   );
 
-  // const [nuevoUsuario] = await req.db.query('SELECT * FROM usuarios WHERE id_usuario = ?', [result.insertId]);
-  // req.session.usuario = nuevoUsuario[0];
-  // req.session.usuario.rol = 'Empleado';
-  res.redirect('/listaUsuarios'); 
+//   // const [nuevoUsuario] = await req.db.query('SELECT * FROM usuarios WHERE id_usuario = ?', [result.insertId]);
+//   // req.session.usuario = nuevoUsuario[0];
+//   // req.session.usuario.rol = 'Empleado';
+//   res.redirect('/listaUsuarios'); 
 
- } catch(err) {
-   console.error('Error en el registro:', err);
-   if (concesionarios.length === 0) {
-    try {
-     [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
-    } catch (dbErr) {}
-   }
+//  } catch(err) {
+//    console.error('Error en el registro:', err);
+//    if (concesionarios.length === 0) {
+//     try {
+//      [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
+//     } catch (dbErr) {}
+//    }
    
-   return res.status(500).render('register', { 
-    title: 'Registro de usuario', 
-    error: 'Error interno en el servidor', 
-    concesionarios: concesionarios,
-    formData: req.body
-   });
- }
-});
+//    return res.status(500).render('register', { 
+//     title: 'Registro de usuario', 
+//     error: 'Error interno en el servidor', 
+//     concesionarios: concesionarios,
+//     formData: req.body
+//    });
+//  }
+// });
 
 router.get('/logout', (req, res) => {
   req.session.destroy(err => {
@@ -263,13 +266,13 @@ router.get('/administrar', isAdmin, (req, res) => {
     req.session.errorMessage = 'No tienes permisos para acceder a esta página';
     return res.redirect('/login');
   }
-  res.render('administrar', { title: 'Administración', usuario });
+  res.render('administrar', { title: 'Administración', usuario, usuarioSesion: req.session.usuario });
 });
 
 // --- Rutas Estáticas ---
 
 router.get('/contacto', (req, res) => {
-  res.render('contacto', { title: 'Contacto' });
+  res.render('contacto', { title: 'Contacto', usuarioSesion: req.session.usuario });
 });
 
 module.exports = router;

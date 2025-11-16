@@ -48,8 +48,8 @@
                             <span lang="en" class="lang lang-en d-none">Home</span>
                             </a>
                         </li>
-                        <% if (usuario) { %>
-                            <% if (usuario.rol === 'Admin') { %>
+                        <% if (usuarioSesion) { %>
+                            <% if (usuarioSesion.rol === 'Admin') { %>
                                 <li class="nav-item">
                                     <a href="/administrar" class="nav-link">
                                         <span lang="es" class="lang lang-es">Administrar</span>

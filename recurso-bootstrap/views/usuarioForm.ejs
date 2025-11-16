@@ -70,15 +70,15 @@
           </div>
         </div>
 
+      </div>
+      
+      <div class="row">
         <div class="col-md-4 mb-3">
           <label for="telefono" class="form-label NoObligatorio">Teléfono:</label>
           <input type="text" id="telefono" name="telefono" class="form-control"
                  value="<%= usuario?.telefono || '' %>" aria-describedby="error-telefono">
           <span class="error" id="error-telefono" aria-live="polite"></span>
         </div>
-      </div>
-
-      <div class="row">
         <div class="col-md-4 mb-3">
           <label for="rol" class="form-label obligatorio">Rol:</label>
           <select id="rol" name="rol" class="form-select" required aria-describedby="error-rol">
@@ -95,18 +95,18 @@
                    aria-describedby="error-id_concesionario">
             <option value="0">Selecciona un concesionario</option>
             <% concesionarios.forEach(c => { %>
-              <option value="<%= c.id_concesionario %>" <%= (usuario?.id_concesionario == c.id_concesionario) ? 'selected' : '' %>>
+              <option value="<%= c.id_concesionario %>" <%= (typeof usuario !== 'undefined' && usuario.id_concesionario == c.id_concesionario) ? 'selected' : '' %>>
                 <%= c.nombre %>
               </option>
             <% }) %>
           </select>
           <span class="error" id="error-id_concesionario" aria-live="polite"></span>
         </div>
+      </div>
 
-        <div class="col-md-4 mb-3">
-          <label for="preferencias_accesibilidad" class="form-label NoObligatorio">Preferencias de Accesibilidad:</label>
-          <textarea id="preferencias_accesibilidad" name="preferencias_accesibilidad" class="form-control" rows="3"><%= usuario?.preferencias_accesibilidad || '' %></textarea>
-        </div>
+      <div class="col-md-4 mb-3">
+        <label for="preferencias_accesibilidad" class="form-label NoObligatorio">Preferencias de Accesibilidad:</label>
+        <textarea id="preferencias_accesibilidad" name="preferencias_accesibilidad" class="form-control" rows="3"><%= usuario?.preferencias_accesibilidad || '' %></textarea>
       </div>
 
     </fieldset>

@@ -111,6 +111,7 @@ router.get('/', isAuth, async (req, res) => {
       title: 'Vehículos',
       vehiculos,
       usuario,
+      usuarioSesion: req.session.usuario,
       tiposDisponibles,
       estadosDisponibles,
       coloresDisponibles,
@@ -141,6 +142,7 @@ router.get('/nuevo', isAuth, isAdmin, async (req, res) => {
     res.render('vehiculoForm', {
       title: 'Nuevo Vehículo',
       vehiculo: {},
+      usuarioSesion: req.session.usuario,
       action: '/vehiculos/nuevo',
       method: 'POST',
       concesionarios // <-- pasamos la lista al EJS
@@ -190,6 +192,7 @@ router.post('/nuevo', isAdmin, upload.single('imagen'), async (req, res) => {
       }
       return res.status(400).render('vehiculoForm', {
         title: 'Nuevo Vehículo',
+        usuarioSesion: req.session.usuario,
         action: '/vehiculos/nuevo',
         error: errorMsg,
         vehiculo: formData, 
@@ -243,6 +246,7 @@ router.post('/nuevo', isAdmin, upload.single('imagen'), async (req, res) => {
 
     res.status(500).render('vehiculoForm', {
       title: 'Nuevo Vehículo',
+      usuarioSesion: req.session.usuario,
       action: '/vehiculos/nuevo',
       error: error,
       vehiculo: formData,
@@ -272,6 +276,7 @@ router.get('/:id/editar', isAuth, isAdmin, async (req, res) => {
     res.render('vehiculoForm', {
       title: 'Editar Vehículo',
       vehiculo,
+      usuarioSesion: req.session.usuario,
       action: `/vehiculos/${id}/editar`,
       method: 'POST',
       concesionarios
@@ -332,6 +337,7 @@ router.post('/:id/editar', isAuth, isAdmin, upload.single('imagen'), async (req,
         title: 'Editar Vehículo',
         action: `/vehiculos/${id}/editar`,
         error: errorMsg,
+        usuarioSesion: req.session.usuario,
         vehiculo: { ...formData, id_vehiculo: id, imagen: imagen_actual },
         concesionarios
       });
@@ -382,6 +388,7 @@ router.post('/:id/editar', isAuth, isAdmin, upload.single('imagen'), async (req,
 
     res.status(500).render('vehiculoForm', {
       title: 'Editar Vehículo',
+      usuarioSesion: req.session.usuario,
       action: `/vehiculos/${req.params.id}/editar`,
       error: error,
       vehiculo: { ...formData, id_vehiculo: req.params.id, imagen: imagen_actual }, 
@@ -431,6 +438,7 @@ router.get('/:id', async (req, res, next) => {
 
     res.render('vehiculoDetalle', {
       vehiculo,
+      usuarioSesion: req.session.usuario,
       concesionario: concesionario || { nombre: 'Sin asignar' }
     });
   } catch (err) {

@@ -28,7 +28,8 @@ router.get('/', isAuth, async (req, res) => {
       concesionarios,
       ciudadesDisponibles,
       ciudadSeleccionada,
-      usuario: req.session.usuario
+      usuario: req.session.usuario,
+      usuarioSesion: req.session.usuario
     });
   } catch (err) {
     console.error('Error cargando concesionarios:', err);
@@ -38,6 +39,7 @@ router.get('/', isAuth, async (req, res) => {
       ciudadesDisponibles: [],
       ciudadSeleccionada: '',
       usuario: req.session.usuario,
+      usuarioSesion: req.session.usuario,
       error: 'Error al cargar los concesionarios' 
     });
   }
@@ -64,6 +66,7 @@ router.get('/:id(\\d+)', isAuth, async (req, res, next) => {
     res.render('concesionarioDetalle', {
       title: `Concesionario - ${concesionario.nombre}`,
       concesionario,
+      usuarioSesion: req.session.usuario,
       vehiculos
     });
   } catch (err) {
@@ -77,6 +80,7 @@ router.get('/nuevo', isAdmin, (req, res) => {
   res.render('concesionarioForm', {
     title: 'Nuevo Concesionario',
     concesionario: {},
+    usuarioSesion: req.session.usuario,
     action: '/concesionarios/nuevo',
     method: 'POST'
   });
@@ -145,6 +149,7 @@ router.post('/nuevo', isAdmin, async (req, res) => {
       return res.status(400).render('concesionarioForm', {
         title: 'Nuevo Concesionario',
         concesionario: formData,
+        usuarioSesion: req.session.usuario,
         action: '/concesionarios/nuevo',
         method: 'POST',
         error: 'El nombre, dirección o teléfono ya existen o hay errores en el formulario.',
@@ -170,6 +175,7 @@ router.post('/nuevo', isAdmin, async (req, res) => {
     res.status(500).render('concesionarioForm', {
       title: 'Nuevo Concesionario',
       concesionario: formData,
+      usuarioSesion: req.session.usuario,
       action: '/concesionarios/nuevo',
       method: 'POST',
       error: err.message || 'No se pudo crear el concesionario',
@@ -193,6 +199,7 @@ router.get('/:id(\\d+)/editar', isAdmin, async (req, res, next) => {
     res.render('concesionarioForm', {
       title: 'Editar Concesionario',
       concesionario,
+      usuarioSesion: req.session.usuario,
       action: `/concesionarios/${id}/editar`,
       method: 'POST'
     });
@@ -268,6 +275,7 @@ router.post('/:id(\\d+)/editar', isAdmin, async (req, res) => {
       return res.status(400).render('concesionarioForm', {
         title: 'Editar Concesionario',
         concesionario: { id_concesionario: id, ...formData },
+        usuarioSesion: req.session.usuario,
         action: `/concesionarios/${id}/editar`,
         method: 'POST',
         error: 'El nombre, dirección o teléfono ya existen o hay errores en el formulario.',
@@ -291,6 +299,7 @@ router.post('/:id(\\d+)/editar', isAdmin, async (req, res) => {
     res.status(500).render('concesionarioForm', {
       title: 'Editar Concesionario',
       concesionario: { id_concesionario: id, ...formData },
+      usuarioSesion: req.session.usuario,
       action: `/concesionarios/${id}/editar`,
       method: 'POST',
       error: err.message || 'No se pudo actualizar el concesionario',
@@ -314,6 +323,7 @@ router.post('/:id(\\d+)/eliminar', isAdmin, async (req, res) => {
       return res.status(400).render('concesionarios-lista', {
         title: 'Concesionarios',
         concesionarios,
+        usuarioSesion: req.session.usuario,
         error: 'No se puede eliminar el concesionario porque tiene vehículos asociados.'
       });
     }

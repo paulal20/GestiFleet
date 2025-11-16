@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 return "";
 
             case "id_concesionario":
-                if (v === "0" || estaVacio(v)) return "Debes seleccionar un concesionario.";
+                if (estaVacio(v) || v === "0") return "Debes seleccionar un concesionario.";
                 return "";
 
             default:
