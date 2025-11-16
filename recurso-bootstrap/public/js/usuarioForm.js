@@ -3,12 +3,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
     if (!form) return;
 
+    const isEditMode = form.dataset.editmode === 'true';
+
     const campos = {
         nombre: document.getElementById("nombre"),
         apellido1: document.getElementById("apellido1"),
         apellido2: document.getElementById("apellido2"),
         email: document.getElementById("email"),
-        confemail: document.getElementById("confemail"),
+        confemail: document.getElementById("confemail"), 
         contrasenya: document.getElementById("contrasenya"),
         telefono: document.getElementById("telefono"),
         rol: document.getElementById("rol"),
@@ -20,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function() {
         apellido1: document.getElementById("error-apellido1"),
         apellido2: document.getElementById("error-apellido2"),
         email: document.getElementById("error-email"),
-        confemail: document.getElementById("error-confemail"),
+        confemail: document.getElementById("error-confemail"), 
         contrasenya: document.getElementById("error-contrasenya"),
         telefono: document.getElementById("error-telefono"),
         rol: document.getElementById("error-rol"),
@@ -39,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function calcularErrorCampo(key) {
         const input = campos[key];
-        if (!input) return "";
+        if (!input) return ""; 
 
         const v = String(input.value || "").trim();
 
@@ -66,11 +68,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 return "";
 
             case "contrasenya":
-                // Solo validar si no estamos en modo edición con campo vacío
                 if (!estaVacio(v)) {
                     const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
                     if (!re.test(v)) return "Mín. 8 caracteres, mayúscula, número y símbolo.";
-                } else if (!form.dataset.editmode) {
+                } else if (!isEditMode) {
                     return "La contraseña es obligatoria.";
                 }
                 return "";
@@ -84,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 return "";
 
             case "id_concesionario":
-                if (v === "0") return "Debes seleccionar un concesionario.";
+                if (v === "0" || estaVacio(v)) return "Debes seleccionar un concesionario.";
                 return "";
 
             default:
@@ -95,8 +96,16 @@ document.addEventListener("DOMContentLoaded", function() {
     function actualizarEstadoCampo(input, errorSpan) {
         if(!input) return;
         input.classList.remove("is-valid", "is-invalid");
-        if (errorSpan && errorSpan.textContent.trim() !== "") input.classList.add("is-invalid");
-        else if (!estaVacio(input.value)) input.classList.add("is-valid");
+
+        const msg = errorSpan ? errorSpan.textContent : '';
+        if (msg && msg.trim() !== "") {
+            input.classList.add("is-invalid");
+        } else if (!estaVacio(input.value)) {
+            if (input.type === 'password' && isEditMode && estaVacio(input.value)) {
+            } else {
+                input.classList.add("is-valid");
+            }
+        }
     }
 
     function validarCampoEnTiempoReal(key) {
@@ -107,14 +116,22 @@ document.addEventListener("DOMContentLoaded", function() {
         const msg = calcularErrorCampo(key);
         if (span) span.textContent = msg;
 
-        input.classList.remove("is-valid", "is-invalid");
-        if (msg) input.classList.add("is-invalid");
-        else if (!estaVacio(input.value)) input.classList.add("is-valid");
+        actualizarEstadoCampo(input, span);
 
-        if (key === "email" && !estaVacio(campos.confemail?.value)) {
+        if (key === "email" && campos.confemail) {
             validarCampoEnTiempoReal("confemail");
         }
     }
+
+    function validarCamposIniciales() {
+        Object.keys(campos).forEach(key => {
+            const input = campos[key];
+            if (input && !estaVacio(input.value)) {
+                validarCampoEnTiempoReal(key);
+            }
+        });
+    }
+
 
     Object.keys(campos).forEach(key => {
         const el = campos[key];
@@ -130,19 +147,28 @@ document.addEventListener("DOMContentLoaded", function() {
 
         let valido = true;
         Object.keys(campos).forEach(key => {
-            const msg = calcularErrorCampo(key);
-            if(msg) {
-                if (errores[key]) errores[key].textContent = msg;
-                valido = false;
+            if (campos[key]) {
+                const msg = calcularErrorCampo(key);
+                if(msg) {
+                    if (errores[key]) errores[key].textContent = msg;
+                    valido = false;
+                }
             }
         });
 
-        Object.keys(campos).forEach(key => actualizarEstadoCampo(campos[key], errores[key]));
+        Object.keys(campos).forEach(key => {
+            if (campos[key]) {
+                actualizarEstadoCampo(campos[key], errores[key]);
+            }
+        });
 
-        if(valido) form.submit();
-        else {
+        if(valido) {
+            form.submit();
+        } else {
             const primeraClaveInvalida = Object.keys(campos).find(k => errores[k] && errores[k].textContent);
-            if(primeraClaveInvalida && campos[primeraClaveInvalida]) campos[primeraClaveInvalida].focus();
+            if(primeraClaveInvalida && campos[primeraClaveInvalida]) {
+                campos[primeraClaveInvalida].focus();
+            }
         }
     });
 
@@ -152,4 +178,6 @@ document.addEventListener("DOMContentLoaded", function() {
             Object.values(errores).forEach(span => { if(span) span.textContent = ""; });
         }, 0);
     });
+
+    validarCamposIniciales();
 });
