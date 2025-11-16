@@ -43,7 +43,7 @@
         <div class="col-md-4 mb-3">
           <label for="email" class="form-label obligatorio">Correo electrónico:</label>
           <input type="email" id="email" name="email" class="form-control"
-                 value="<%= usuario?.correo || '' %>" required aria-describedby="error-email">
+                 value="<%= usuario?.correo || '' %>" required aria-describedby="error-email" placeholder="@gestifleet.com/es">
           <span class="error" id="error-email" aria-live="polite"></span>
         </div>
 
@@ -64,6 +64,10 @@
                  placeholder="<%= isEditMode ? '••••••••' : '' %>" <%= isEditMode ? '' : 'required' %>
                  aria-describedby="error-contrasenya">
           <span class="error" id="error-contrasenya" aria-live="polite"></span>
+          <div class="mostrar-contrasenya" style="margin-top:6px; display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="mostrarContrasenya" aria-controls="contrasenya" />
+            <label for="mostrarContrasenya" style="cursor:pointer; user-select:none;">Mostrar contraseña</label>
+          </div>
         </div>
 
         <div class="col-md-4 mb-3">
@@ -78,7 +82,7 @@
         <div class="col-md-4 mb-3">
           <label for="rol" class="form-label obligatorio">Rol:</label>
           <select id="rol" name="rol" class="form-select" required aria-describedby="error-rol">
-            <option value="">-- Selecciona un rol --</option>
+            <option value="">Selecciona un rol</option>
             <option value="Admin" <%= (usuario?.rol === 'Admin') ? 'selected' : '' %>>Admin</option>
             <option value="Empleado" <%= (usuario?.rol === 'Empleado') ? 'selected' : '' %>>Empleado</option>
           </select>
@@ -89,7 +93,7 @@
           <label for="id_concesionario" class="form-label obligatorio">Concesionario:</label>
           <select id="id_concesionario" name="id_concesionario" class="form-select" required 
                    aria-describedby="error-id_concesionario">
-            <option value="0">-- Selecciona un concesionario --</option>
+            <option value="0">Selecciona un concesionario</option>
             <% concesionarios.forEach(c => { %>
               <option value="<%= c.id_concesionario %>" <%= (usuario?.id_concesionario == c.id_concesionario) ? 'selected' : '' %>>
                 <%= c.nombre %>

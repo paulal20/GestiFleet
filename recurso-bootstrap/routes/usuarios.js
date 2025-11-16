@@ -5,6 +5,7 @@ const { isAdmin } = require('../middleware/auth');
 
 // GET LISTA USUARIOS
 router.get('/', isAdmin, async (req, res) => {
+  console.log('Cargando lista de usuarios');
   try {
     const { concesionario } = req.query;
     const concesionarioSeleccionado = concesionario ? parseInt(concesionario, 10) : 0; 
@@ -50,42 +51,13 @@ router.get('/', isAdmin, async (req, res) => {
   }
 });
 
-// GET DETALLE USUARIO
-router.get('/:id', isAdmin, async (req, res) => {
-  try {
-    const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) return res.redirect('/usuarios');
-
-    const [usuarios] = await req.db.query(`
-      SELECT u.*, c.nombre AS nombre_concesionario
-      FROM usuarios u
-      LEFT JOIN concesionarios c ON u.id_concesionario = c.id_concesionario
-      WHERE u.id_usuario = ?
-    `, [id]);
-
-    if (usuarios.length === 0) {
-      return res.status(404).render('error', { mensaje: 'Usuario no encontrado.' });
-    }
-
-    const usuario = usuarios[0];
-
-    res.render('perfil', {
-      title: 'Detalle del Usuario',
-      usuario,
-      usuarioSesion: req.session.usuario
-    });
-
-  } catch (err) {
-    console.error('Error al obtener detalle del usuario:', err);
-    res.status(500).render('error', { mensaje: 'Error al cargar el usuario.' });
-  }
-});
 
 // GET NUEVO USUARIO
 router.get('/nuevo', isAdmin, async (req, res) => {
+  console.log('Cargando formulario para nuevo usuario');
   try {
     const [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
-
+    
     res.render('usuarioForm', {
       title: 'Nuevo Usuario',
       action: '/usuarios/nuevo',
@@ -101,15 +73,15 @@ router.get('/nuevo', isAdmin, async (req, res) => {
 
 // POST NUEVO USUARIO
 router.post('/nuevo', isAdmin, async (req, res) => {
-    const formData = req.body;
+  const formData = req.body;
   const { nombre, apellido1, apellido2, email, confemail, contrasenya, rol, telefono, id_concesionario, preferencias_accesibilidad } = formData;
-
+  
   let concesionarios = [];
   try {
     [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
-
+    
     let errorMsg = null;
-
+    
     if (!nombre || !apellido1 || !email || !contrasenya || !rol) {
       errorMsg = 'Nombre, primer apellido, correo, contraseña y rol son obligatorios.';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -119,18 +91,18 @@ router.post('/nuevo', isAdmin, async (req, res) => {
     } else if (!['Admin', 'Empleado'].includes(rol)) {
       errorMsg = 'Rol inválido.';
     }
-
+    
     if (!errorMsg && rol === 'Empleado' && (!id_concesionario || id_concesionario === '0')) {
       errorMsg = 'Los empleados deben pertenecer a un concesionario.';
     }
-
+    
     if (!errorMsg) {
       const [duplicados] = await req.db.query('SELECT id_usuario FROM usuarios WHERE correo = ?', [email]);
       if (duplicados.length > 0) {
         errorMsg = 'El correo introducido ya está en uso.';
       }
     }
-
+    
     if (errorMsg) {
       const usuarioParaRender = { ...formData, correo: formData.email };
       return res.status(400).render('usuarioForm', {
@@ -141,15 +113,15 @@ router.post('/nuevo', isAdmin, async (req, res) => {
         concesionarios
       });
     }
-
+    
     const hashedPassword = await bcrypt.hash(contrasenya, 10);
     
     const nombreCompleto = [nombre, apellido1, apellido2].filter(Boolean).join(' ').trim();
-
+    
     await req.db.query(
       `INSERT INTO usuarios 
         (nombre, correo, contrasenya, rol, telefono, id_concesionario, preferencias_accesibilidad)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         nombreCompleto,
         email,
@@ -160,9 +132,9 @@ router.post('/nuevo', isAdmin, async (req, res) => {
         preferencias_accesibilidad || null
       ]
     );
-
+    
     res.redirect('/usuarios');
-
+    
   } catch (err) {
     console.error('Error al crear usuario:', err);
     let error = 'Error al crear usuario';
@@ -183,10 +155,10 @@ router.get('/:id/editar', isAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) return res.redirect('/usuarios');
-
+    
     const [usuarios] = await req.db.query('SELECT * FROM usuarios WHERE id_usuario = ?', [id]);
     if (usuarios.length === 0) return res.redirect('/usuarios');
-
+    
     let usuario = usuarios[0];
     const nombreParts = usuario.nombre ? usuario.nombre.split(' ') : [];
     usuario.nombre = nombreParts[0] || '';
@@ -194,7 +166,7 @@ router.get('/:id/editar', isAdmin, async (req, res) => {
     usuario.apellido2 = nombreParts.slice(2).join(' ') || '';
 
     const [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
-
+    
     res.render('usuarioForm', {
       title: 'Editar Usuario',
       action: `/usuarios/${id}/editar`,
@@ -212,7 +184,7 @@ router.get('/:id/editar', isAdmin, async (req, res) => {
 router.post('/:id/editar', isAdmin, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) return res.redirect('/usuarios');
-
+  
   const { 
     nombre, apellido1, apellido2, 
     email, contrasenya, rol, 
@@ -220,12 +192,12 @@ router.post('/:id/editar', isAdmin, async (req, res) => {
   } = req.body;
   
   let concesionarios = [];
-
+  
   try {
     [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
-
+    
     let errorMsg = null;
-
+    
     if (!nombre || !apellido1 || !email || !rol) {
       errorMsg = 'Nombre, primer apellido, correo y rol son obligatorios.';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -233,11 +205,11 @@ router.post('/:id/editar', isAdmin, async (req, res) => {
     } else if (!['Admin', 'Empleado'].includes(rol)) {
       errorMsg = 'Rol inválido.';
     }
-
+    
     if (!errorMsg && rol === 'Empleado' && (!id_concesionario || id_concesionario === '0')) {
       errorMsg = 'Los empleados deben pertenecer a un concesionario.';
     }
-
+    
     if (!errorMsg) {
       const [duplicados] = await req.db.query(
         'SELECT id_usuario FROM usuarios WHERE correo = ? AND id_usuario != ?',
@@ -247,7 +219,7 @@ router.post('/:id/editar', isAdmin, async (req, res) => {
         errorMsg = 'El correo introducido ya está en uso por otro usuario.';
       }
     }
-
+    
     if (errorMsg) {
       const usuarioParaRender = {
         ...req.body,
@@ -262,17 +234,17 @@ router.post('/:id/editar', isAdmin, async (req, res) => {
         concesionarios
       });
     }
-
+    
     const nombreCompleto = [nombre, apellido1, apellido2].filter(Boolean).join(' ').trim();
     
     let sql = `
-      UPDATE usuarios SET 
-        nombre = ?, 
-        correo = ?, 
-        rol = ?, 
-        telefono = ?, 
-        id_concesionario = ?,
-        preferencias_accesibilidad = ?
+    UPDATE usuarios SET 
+    nombre = ?, 
+    correo = ?, 
+    rol = ?, 
+    telefono = ?, 
+    id_concesionario = ?,
+    preferencias_accesibilidad = ?
     `;
     
     const params = [
@@ -283,61 +255,92 @@ router.post('/:id/editar', isAdmin, async (req, res) => {
       rol === 'Empleado' ? id_concesionario : null,
       preferencias_accesibilidad || null
     ];
-
+    
     if (contrasenya) {
       const hashedPassword = await bcrypt.hash(contrasenya, 10);
       sql += ', contrasenya = ?';
       params.push(hashedPassword);
     }
-
+    
     sql += ' WHERE id_usuario = ?';
     params.push(id);
 
     await req.db.query(sql, params);
-
+    
     res.redirect(`/usuarios`); 
-
-a } catch (err) {
-    console.error('Error al actualizar usuario:', err);
-    let error = 'Error al actualizar usuario';
-    if (err.code === 'ER_DUP_ENTRY') error = 'El correo introducido ya existe.';
     
-    const usuarioParaRender = {
-      ...req.body,
-      id_usuario: id,
-      correo: req.body.email
-    };
-    
-    res.status(500).render('usuarioForm', {
-      title: 'Editar Usuario',
-      action: `/usuarios/${id}/editar`,
-      error,
-      usuario: usuarioParaRender,
-      concesionarios
-    });
-  }
-});
-
-// POST ELIMINAR USUARIO
-router.post('/:id/eliminar', isAdmin, async (req, res) => {
-  try {
-    const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) return res.redirect('/usuarios');
-
-    //-------------------------TODO-------------------------
-    // (Opcional) No dejar que un admin se elimine a sí mismo
-    if (req.session.usuario && req.session.usuario.id_usuario === id) {
-      // O renderizar un error
-      return res.redirect('/usuarios?error=no_self_delete'); 
+    a } catch (err) {
+      console.error('Error al actualizar usuario:', err);
+      let error = 'Error al actualizar usuario';
+      if (err.code === 'ER_DUP_ENTRY') error = 'El correo introducido ya existe.';
+      
+      const usuarioParaRender = {
+        ...req.body,
+        id_usuario: id,
+        correo: req.body.email
+      };
+      
+      res.status(500).render('usuarioForm', {
+        title: 'Editar Usuario',
+        action: `/usuarios/${id}/editar`,
+        error,
+        usuario: usuarioParaRender,
+        concesionarios
+      });
     }
-    //-------------------------TODO--------------------------
-
-    await req.db.query('DELETE FROM usuarios WHERE id_usuario = ?', [id]);
-    res.redirect('/usuarios');
-  } catch (err) {
-    console.error('Error al eliminar usuario:', err);
-    res.status(500).render('error', { mensaje: 'Error al eliminar el usuario' });
-  }
-});
-
+  });
+  
+  // POST ELIMINAR USUARIO
+  router.post('/:id/eliminar', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) return res.redirect('/usuarios');
+      
+      //-------------------------TODO-------------------------
+      // (Opcional) No dejar que un admin se elimine a sí mismo
+      if (req.session.usuario && req.session.usuario.id_usuario === id) {
+        // O renderizar un error
+        return res.redirect('/usuarios?error=no_self_delete'); 
+      }
+      //-------------------------TODO--------------------------
+      
+      await req.db.query('DELETE FROM usuarios WHERE id_usuario = ?', [id]);
+      res.redirect('/usuarios');
+    } catch (err) {
+      console.error('Error al eliminar usuario:', err);
+      res.status(500).render('error', { mensaje: 'Error al eliminar el usuario' });
+    }
+  });
+  
+  // GET DETALLE USUARIO
+  router.get('/:id', isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) return res.redirect('/usuarios');
+  
+      const [usuarios] = await req.db.query(`
+        SELECT u.*, c.nombre AS nombre_concesionario
+        FROM usuarios u
+        LEFT JOIN concesionarios c ON u.id_concesionario = c.id_concesionario
+        WHERE u.id_usuario = ?
+      `, [id]);
+  
+      if (usuarios.length === 0) {
+        return res.status(404).render('error', { mensaje: 'Usuario no encontrado.' });
+      }
+  
+      const usuario = usuarios[0];
+  
+      res.render('perfil', {
+        title: 'Detalle del Usuario',
+        usuario,
+        lista: true,
+        usuarioSesion: req.session.usuario
+      });
+  
+    } catch (err) {
+      console.error('Error al obtener detalle del usuario:', err);
+      res.status(500).render('error', { mensaje: 'Error al cargar el usuario.' });
+    }
+  });
 module.exports = router;

@@ -236,13 +236,25 @@ router.post('/check-email', async (req, res) => {
   }
 });
 
-router.get('/perfil', (req, res) => {
+router.get('/perfil', async (req, res) => {
   const usuario = req.session.usuario;
   if (!usuario) {
     req.session.errorMessage = 'Debes iniciar sesión para ver tu perfil';
     return res.redirect('/login');
   }
-  res.render('perfil', { title: 'Mi Información', usuario });
+
+  const [usuarios] = await req.db.query(`
+      SELECT u.*, c.nombre AS nombre_concesionario
+      FROM usuarios u
+      LEFT JOIN concesionarios c ON u.id_concesionario = c.id_concesionario
+      WHERE u.id_usuario = ?
+    `, [usuario.id_usuario]);
+    
+  if (usuarios.length === 0) {
+      return res.status(404).render('error', { mensaje: 'Usuario no encontrado.' });
+    }
+  const usuarioDetalle = usuarios[0];
+  res.render('perfil', { title: 'Mi Información', usuario: usuarioDetalle, lista: false, usuarioSesion: usuario });
 });
 
 router.get('/administrar', isAdmin, (req, res) => {

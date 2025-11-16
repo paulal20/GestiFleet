@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             case "email":
                 if (estaVacio(v)) return "El correo es obligatorio.";
-                if (!/^[\w.%+-]+@[\w.-]+\.[A-Za-z]{2,}$/.test(v)) return "Formato de correo no válido.";
+                if (!/^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/.test(v)) return "Formato de correo no válido.";
                 return "";
 
             case "confemail":
@@ -140,6 +140,12 @@ document.addEventListener("DOMContentLoaded", function() {
         el.addEventListener("change", () => validarCampoEnTiempoReal(key));
         el.addEventListener("blur", () => validarCampoEnTiempoReal(key));
     });
+
+    if (mostrarContrasenya && campos.contrasenya) {
+        mostrarContrasenya.addEventListener("change", function () {
+            campos.contrasenya.type = this.checked ? "text" : "password";
+        });
+    }
 
     form.addEventListener("submit", function(e){
         e.preventDefault();

@@ -36,17 +36,24 @@
                 <div class="perfil-info-item">
                     <span class="label">Concesionario:</span>
                     <span class="value">
-                        <%= usuario.id_concesionario %>
+                        <%= usuario.nombre_concesionario %>
                     </span>
                 </div>
             </div>
 
             <!-- Botones -->
             <div class="perfil-actions d-flex">
-                <a href="/" class="btn btn-outline-secondary">
-                    <span lang="es" class="lang lang-es">Volver al inicio</span>
-                    <span lang="en" class="lang lang-en d-none">Back to Home</span>
-                </a>
+                <% if (lista) { %>
+                    <a href="/usuarios" class="btn btn-outline-secondary">
+                        <span lang="es" class="lang lang-es">Volver a la lista</span>
+                        <span lang="en" class="lang lang-en d-none">Back to List</span>
+                    </a>
+                <% } else { %>
+                    <a href="/" class="btn btn-outline-secondary">
+                        <span lang="es" class="lang lang-es">Volver al inicio</span>
+                        <span lang="en" class="lang lang-en d-none">Back to Home</span>
+                    </a>
+                <% } %>
                 <a href="/perfil/editar" class="btn btn-primary">
                     <span lang="es" class="lang lang-es">Editar Información</span>
                     <span lang="en" class="lang lang-en d-none">Edit Info</span>

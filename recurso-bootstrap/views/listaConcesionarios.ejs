@@ -55,6 +55,9 @@
             <th scope="col">Ciudad</th>
             <th scope="col">Dirección</th>
             <th scope="col">Teléfono</th>
+            <% if (usuario && usuario.rol === 'Admin') { %>
+              <th scope="col">Acciones</th>
+            <% } %>
           </tr>
         </thead>
         <tbody>
@@ -64,6 +67,25 @@
               <td class="fila-click" data-href="/concesionarios/<%= c.id_concesionario %>"><%= c.ciudad %></td>
               <td class="fila-click" data-href="/concesionarios/<%= c.id_concesionario %>"><%= c.direccion %></td>
               <td class="fila-click" data-href="/concesionarios/<%= c.id_concesionario %>"><%= c.telefono_contacto %></td>
+              <% if (usuario && usuario.rol === 'Admin') { %>
+                <td>
+                  <button 
+                    type="button" 
+                    class="btn btn-secondary btn-sm mb1"
+                    data-bs-toggle="modal"
+                    data-bs-target="#confirmarEliminarConcesionarioModal"
+                    data-id="<%= c.id_concesionario %>"
+                    data-name="<%= c.nombre %>">
+                    <span class="lang lang-es">Eliminar</span>
+                    <span class="lang lang-en d-none">Delete</span>
+                  </button>
+                  <a href="/concesionarios/<%= c.id_concesionario %>/editar" 
+                    class="btn btn-primary btn-sm me-2 mb-1">
+                    <span class="lang lang-es">Editar</span>
+                    <span class="lang lang-en d-none">Edit</span>
+                  </a>
+                </td>
+              <% } %>
             </tr>
           <% }) %>
         </tbody>
@@ -79,5 +101,33 @@
       <p class="mb-0">No se encontraron concesionarios para la selección actual.</p>
     </div>
   <% } %>
-  
 </div>
+
+<div class="modal fade" id="confirmarEliminarConcesionarioModal" tabindex="-1" aria-labelledby="confirmarEliminarConcesionarioModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmarEliminarConcesionarioModalLabel">Eliminar Concesionario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body">
+        <p id="textoConfirmacionConcesionario">
+          ¿Estás seguro de que deseas eliminar este concesionario?
+        </p>
+
+        <div class="d-flex justify-content-end mt-3 gap-2">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+
+          <form id="formEliminarConcesionario" action="" method="POST" class="m-0 p-0">
+            <button type="submit" class="btn btn-primary">Eliminar</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="/js/modal.js"></script>

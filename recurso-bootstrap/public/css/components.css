@@ -13,6 +13,20 @@
   color: var(--color-link);
 }
 
+.btn.btn-secondary {
+  background-color: var(--btn-bg);
+  border-color: var(--btn-bg);
+  color: var(--color-link);
+  margin-right: 0.5rem;
+}
+
+.btn.btn-secondary:hover,
+.btn.btn-secondary:active {
+  background-color: var(--btn-hover);
+  border-color: var(--btn-hover);
+  color: var(--color-text);
+}
+
 .btn-outline-secondary {
  color: var(--color-primary) !important;
  border: 2px solid var(--color-primary) !important;

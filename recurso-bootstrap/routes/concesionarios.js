@@ -319,7 +319,7 @@ router.post('/:id(\\d+)/eliminar', isAdmin, async (req, res) => {
     }
 
     await req.db.query('DELETE FROM concesionarios WHERE id_concesionario = ?', [id]);
-    res.redirect('/concesionarios-lista');
+    res.redirect('/concesionarios');
   } catch (err) {
     console.error('Error al eliminar concesionario:', err);
     res.status(500).render('error', { mensaje: 'No se pudo eliminar el concesionario' });

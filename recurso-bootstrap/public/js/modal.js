@@ -1,66 +1,65 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById('confirmarEliminarModal');
-  if (modal)  {
-    modal.addEventListener('show.bs.modal', function (event) {
+
+  /* --------------------- VEHÍCULOS --------------------- */
+  const modalVehiculo = document.getElementById('confirmarEliminarModal');
+  if (modalVehiculo) {
+    modalVehiculo.addEventListener('show.bs.modal', event => {
       const button = event.relatedTarget;
       const id = button.getAttribute('data-id');
       const name = button.getAttribute('data-name');
-      const spanVehiculo = modal.querySelector('#vehiculoAEliminar');
-      const form = modal.querySelector('#formEliminar');
-  
-      spanVehiculo.textContent = `"${name}"`;
-      form.setAttribute('action', `/vehiculos/${id}/eliminar`);
+      modalVehiculo.querySelector('#vehiculoAEliminar').textContent = `"${name}"`;
+      modalVehiculo.querySelector('#formEliminar').action = `/vehiculos/${id}/eliminar`;
     });
   }
 
+
+  /* --------------------- CONCESIONARIOS --------------------- */
   const modalConcesionario = document.getElementById('confirmarEliminarConcesionarioModal');
-  if (modalConcesionario){
+  if (modalConcesionario) {
     modalConcesionario.addEventListener('show.bs.modal', event => {
+
       const button = event.relatedTarget;
       const id = button.getAttribute('data-id');
       const name = button.getAttribute('data-name');
 
-      const modalTitle = modalConcesionario.querySelector('#concesionarioAEliminar');
-      modalTitle.textContent = name;
+      modalConcesionario.querySelector("#textoConfirmacionConcesionario")
+        .textContent = `¿Estás seguro de que deseas eliminar el concesionario "${name}"?`;
 
-      const form = modalConcesionario.querySelector('#formEliminarConcesionario');
-      form.action = '/concesionarios/' + id + '/eliminar';
+      modalConcesionario.querySelector('#formEliminarConcesionario')
+        .action = `/concesionarios/${id}/eliminar`;
     });
   }
-  
 
+
+  /* --------------------- RESERVAS --------------------- */
   const modalReserva = document.getElementById('confirmarCancelarReservaModal');
-  if(modalReserva) {
+  if (modalReserva) {
     modalReserva.addEventListener('show.bs.modal', event => {
       const button = event.relatedTarget;
       const id = button.getAttribute('data-id');
       const name = button.getAttribute('data-name');
 
-      const modalTitle = modalReserva.querySelector('#reservaACancelar');
-      modalTitle.textContent = name;
-
-      const form = modalReserva.querySelecor('#formCancelarReserva');
-      form.action = '/reserva/' + id + '/cancelar';
+      modalReserva.querySelector('#reservaACancelar').textContent = name;
+      modalReserva.querySelector('#formCancelarReserva').action =
+        `/reserva/${id}/cancelar`;
     });
   }
 
+
+  /* --------------------- USUARIOS --------------------- */
   const modalUsuario = document.getElementById("confirmarEliminarUsuarioModal");
   if (modalUsuario) {
-    modalUsuario.addEventListener("show.bs.modal", function (event) {
-        const button = event.relatedTarget;
-        const id = button.getAttribute("data-id");
-        const nombre = button.getAttribute("data-name");
-        console.log("Eliminar usuario:", id, nombre);
-        
-        // Elementos dentro del modal
-        const texto = modalUsuario.querySelector("#textoConfirmacion");
-        const form = modalUsuario.querySelector("#formEliminarUsuario");
-  
-        texto.textContent = `¿Estás seguro de que quieres eliminar al usuario "${nombre}"?`;
-  
-        // Actualizar acción del formulario
-        form.setAttribute('action', `/usuarios/${id}/eliminar`);
-        // form.action = `/usuarios/${id}/eliminar`;
+    modalUsuario.addEventListener("show.bs.modal", event => {
+      const button = event.relatedTarget;
+      const id = button.getAttribute("data-id");
+      const nombre = button.getAttribute("data-name");
+
+      modalUsuario.querySelector("#textoConfirmacion")
+        .textContent = `¿Estás seguro de que quieres eliminar al usuario "${nombre}"?`;
+
+      modalUsuario.querySelector("#formEliminarUsuario")
+        .action = `/usuarios/${id}/eliminar`;
     });
   }
+
 });

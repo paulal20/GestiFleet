@@ -76,16 +76,22 @@
                 <%= u.nombre_concesionario || '—' %>
               </td>
               <td>
-                <button 
-                    type="button"
-                    class="btn btn-outline-secondary btn-sm"
-                    data-bs-toggle="modal"
-                    data-bs-target="#confirmarEliminarUsuarioModal"
-                    data-id="<%= u.id_usuario %>"
-                    data-name="<%= u.nombre %>"
-                >
-                  Eliminar
-                </button>
+                <% if (u.rol === 'Admin') { %>
+                  <button type="button" class="btn btn-secondary btn-sm" disabled title="No se puede eliminar un administrador">
+                    Eliminar
+                  </button>
+                <% } else { %>
+                  <button 
+                      type="button"
+                      class="btn btn-secondary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#confirmarEliminarUsuarioModal"
+                      data-id="<%= u.id_usuario %>"
+                      data-name="<%= u.nombre %>"
+                  >
+                    Eliminar
+                  </button>
+                <% } %>
                 <a href="/usuarios/<%= u.id_usuario %>/editar" class="btn btn-primary btn-sm" title="Editar">
                   <span class="lang lang-es">Editar</span>
                   <span class="lang lang-en d-none">Edit</span>
@@ -121,7 +127,7 @@
         <div class="d-flex justify-content-end mt-3 gap-2">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
           <form id="formEliminarUsuario" action="" method="POST" class="m-0 p-0">
-            <button type="submit" class="btn btn-danger">Eliminar</button>
+            <button type="submit" class="btn btn-primary">Eliminar</button>
           </form>
         </div>
       </div>
