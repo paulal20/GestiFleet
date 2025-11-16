@@ -123,7 +123,7 @@
             </div>
           </div>
           
-          <% if (usuario && usuario.rol === 'Admin') { %>
+          <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
             <div class="accordion-item">
               <h2 class="accordion-header" id="headingEstado">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEstado" aria-expanded="false" aria-controls="collapseEstado">
@@ -184,7 +184,7 @@
       
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><%= title %></h1>
-        <% if (usuario && usuario.rol === 'Admin') { %>
+        <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
           <a href="/vehiculos/nuevo" class="btn btn-primary btn-lg">
             <span class="lang lang-es">Nuevo Vehículo</span>
             <span class="lang lang-en d-none">New Vehicle</span>
@@ -224,7 +224,7 @@
                     <p class="text-muted">Desde <%= v.precio %> €</p>
                   </div>
                 </a> 
-                <% if (usuario && usuario.rol === 'Admin') { %>
+                <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
                   <div class="card-footer p-2 d-flex gap-2">
                     <button type="button"
                             class="btn btn-outline-secondary w-50 rounded-2"
@@ -247,7 +247,7 @@
             </div>
           <% }) %>
 
-          <% if (usuario && usuario.rol === 'Admin') { %>
+          <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
             <div class="col">
               <a href="/vehiculos/nuevo" class="d-block text-decoration-none h-100">
                 <div class="vehiculo-card card-base h-100 d-flex flex-column align-items-center justify-content-center">

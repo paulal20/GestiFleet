@@ -2,7 +2,7 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><%= title %></h1>
-    <% if (usuario && usuario.rol === 'Admin') { %>
+    <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
       <a href="/concesionarios/nuevo" class="btn btn-primary btn-lg">
         <span class="lang lang-es">Nuevo Concesionario</span>
         <span class="lang lang-en d-none">New Dealership</span>
@@ -55,7 +55,7 @@
             <th scope="col">Ciudad</th>
             <th scope="col">Dirección</th>
             <th scope="col">Teléfono</th>
-            <% if (usuario && usuario.rol === 'Admin') { %>
+            <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
               <th scope="col">Acciones</th>
             <% } %>
           </tr>
@@ -67,7 +67,7 @@
               <td class="fila-click" data-href="/concesionarios/<%= c.id_concesionario %>"><%= c.ciudad %></td>
               <td class="fila-click" data-href="/concesionarios/<%= c.id_concesionario %>"><%= c.direccion %></td>
               <td class="fila-click" data-href="/concesionarios/<%= c.id_concesionario %>"><%= c.telefono_contacto %></td>
-              <% if (usuario && usuario.rol === 'Admin') { %>
+              <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
                 <td>
                   <button 
                     type="button" 

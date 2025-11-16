@@ -36,7 +36,7 @@
         </div>
 
         <!-- Acciones de Admin -->
-        <% if (usuario && usuario.rol === 'Admin') { %>
+        <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
           <div class="perfil-actions d-flex gap-2 mt-3">
             <button type="button"
                     class="btn btn-outline-secondary flex-fill"

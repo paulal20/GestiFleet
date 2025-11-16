@@ -1,0 +1,128 @@
+<div class="container-fluid estadisticas-content">
+
+   <!-- Cabecera -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><%= title %></h1>
+  </div>
+
+  <!-- Tarjetas resumen -->
+  <div class="row mb-4">
+
+    <!-- Total Reservas -->
+    <div class="col-md-4">
+      <div class="vehiculo-card card-base stat-card text-center p-3 h-100 d-flex flex-column justify-content-center align-items-center">
+        <h2 class="card-title display-4 mb-2"><%= total_reservas %></h2>
+        <p class="card-text">Total Reservas</p>
+      </div>
+    </div>
+
+    <!-- Vehículo más usado -->
+    <div class="col-md-4">
+    <% if (vehiculoMasUsado) { %>
+        <a href="/vehiculos/<%= vehiculoMasUsado.id_vehiculo %>" 
+        class="text-decoration-none w-100">
+        <div class="vehiculo-card card-base stat-card text-center p-3 h-100 d-flex flex-column justify-content-center align-items-center">
+            <h5 class="card-title mb-1"><%= vehiculoMasUsado.marca %> <%= vehiculoMasUsado.modelo %></h5>
+            <span class="badge bg-custom mb-2"><%= vehiculoMasUsado.total_reservas %> reservas</span>
+            <p class="card-text">Vehículo más usado</p>
+        </div>
+        </a>
+    <% } else { %>
+        <div class="vehiculo-card card-base stat-card text-center p-3 h-100 d-flex flex-column justify-content-center align-items-center">
+        <p>No hay datos</p>
+        <p class="card-text">Vehículo más usado</p>
+        </div>
+    <% } %>
+    </div>
+
+
+    <!-- Concesionario con más reservas -->
+    <div class="col-md-4">
+    <% if (reservasPorConcesionario && reservasPorConcesionario.length > 0) { %>
+        <a href="/concesionarios/<%= reservasPorConcesionario[0].id_concesionario %>" 
+        class="text-decoration-none w-100">
+        <div class="vehiculo-card card-base stat-card text-center p-3 h-100 d-flex flex-column justify-content-center align-items-center">
+            <h5 class="card-title mb-1"><%= reservasPorConcesionario[0].concesionario %></h5>
+            <span class="badge bg-custom mb-2"><%= reservasPorConcesionario[0].total_reservas %> reservas</span>
+            <p class="card-text">Concesionario con más reservas</p>
+        </div>
+        </a>
+    <% } else { %>
+        <div class="vehiculo-card card-base stat-card text-center p-3 h-100 d-flex flex-column justify-content-center align-items-center">
+        <p>No hay datos</p>
+        <p class="card-text">Concesionario con más reservas</p>
+        </div>
+    <% } %>
+    </div>
+
+
+  </div>
+
+  <!-- Tabla reservas por concesionario -->
+    <div class="table-responsive-md">
+        <h1 class="mb-3">Reservas por Concesionario</h1>
+        <table class="table table-hover" aria-describedby="tabla-reservas-descripcion">
+            <!-- <caption class="text-center">
+                <span class="lang lang-es">Reservas por concesionarios: </span>
+                <span class="lang lang-en d-none">Bookings shown: </span>
+                <strong><%= reservasPorConcesionario.length %></strong>
+            </caption> -->
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Concesionario</th>
+                    <th scope="col">Total Reservas</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% reservasPorConcesionario.forEach(r => { %>
+                    <tr>
+                    <td><%= r.concesionario %></td>
+                    <td><%= r.total_reservas %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+  </div>
+
+  <!-- Gráfico reservas por mes -->
+  <!-- <div class="card card-base mb-4">
+    <div class="card-header">
+      <strong>Reservas por Mes</strong>
+    </div>
+    <div class="card-body">
+      <canvas id="reservasMesChart" height="100"></canvas>
+    </div>
+  </div> -->
+
+</div>
+
+<!-- Chart.js -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('reservasMesChart').getContext('2d');
+
+  const labels = <%- JSON.stringify(reservasPorMes.map(r => r.mes)) %>;
+  const data = <%- JSON.stringify(reservasPorMes.map(r => r.total)) %>;
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Reservas',
+        data,
+        backgroundColor: 'rgba(111, 133, 192, 0.7)',
+        borderColor: 'rgba(111, 133, 192, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+</script> -->

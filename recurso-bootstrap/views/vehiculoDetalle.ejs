@@ -53,7 +53,7 @@
         <div class="perfil-actions d-flex gap-2 mt-3">
           <a href="/vehiculos" class="btn btn-secondary flex-fill">Volver a la lista</a>
 
-          <% if (usuario && usuario.rol === 'Admin') { %>
+          <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
             <button type="button"
                     class="btn btn-outline-secondary flex-fill"
                     data-bs-toggle="modal"

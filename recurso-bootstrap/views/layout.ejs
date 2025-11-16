@@ -56,6 +56,12 @@
                                         <span lang="en" class="lang lang-en d-none">Managedment</span>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="/estadisticas" class="nav-link">
+                                        <span lang="es" class="lang lang-es">Estadísticas</span>
+                                        <span lang="en" class="lang lang-en d-none"></span>
+                                    </a>
+                                </li>
                                 <% } else { %>
                                     <li class="nav-item">
                                         <a href="/vehiculos" class="nav-link">
@@ -153,12 +159,12 @@
                         <span lang="es" class="lang lang-es">Identifícate</span>
                         <span lang="en" class="lang lang-en d-none">Login</span>
                     </a> -->
-                    <% if (!usuario) { %>
+                    <% if (!usuarioSesion) { %>
                         <a href="/login" class="nav-link" aria-current="page">Identifícate</a>
                       <% } else { %>
                         <div class="dropdown">
                             <a href="#" class="dropdown-toggle nav-link" id="perfilDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span><%= usuario.nombre %></span>
+                                <span><%= usuarioSesion.nombre %></span>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
                                     <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
                                   </svg>

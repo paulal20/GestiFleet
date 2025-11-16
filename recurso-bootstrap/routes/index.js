@@ -269,6 +269,69 @@ router.get('/administrar', isAdmin, (req, res) => {
   res.render('administrar', { title: 'Administración', usuario, usuarioSesion: req.session.usuario });
 });
 
+router.get('/estadisticas', isAdmin, async (req, res) => {
+  try {
+    const usuario = req.session.usuario;
+
+    // Total de reservas
+    const [[{ total_reservas }]] = await req.db.query(`
+      SELECT COUNT(*) AS total_reservas FROM reservas
+    `);
+
+    // Reservas por concesionario
+    const [reservasPorConcesionario] = await req.db.query(`
+      SELECT 
+          c.nombre AS concesionario,
+          COUNT(r.id_reserva) AS total_reservas,
+          c.id_concesionario
+      FROM concesionarios c
+      LEFT JOIN vehiculos v ON v.id_concesionario = c.id_concesionario
+      LEFT JOIN reservas r ON r.id_vehiculo = v.id_vehiculo
+      GROUP BY c.id_concesionario
+      ORDER BY total_reservas DESC
+    `);
+
+    // Vehículo más usado
+    const [vehiculoMasUsado] = await req.db.query(`
+      SELECT 
+          v.marca,
+          v.modelo,
+          COUNT(r.id_reserva) AS total_reservas,
+          v.id_vehiculo
+      FROM vehiculos v
+      LEFT JOIN reservas r ON r.id_vehiculo = v.id_vehiculo
+      GROUP BY v.id_vehiculo
+      ORDER BY total_reservas DESC
+      LIMIT 1
+    `);
+
+    // Reservas por mes (YYYY-MM)
+    const [reservasPorMes] = await req.db.query(`
+      SELECT 
+          DATE_FORMAT(fecha_inicio, '%Y-%m') AS mes,
+          COUNT(*) AS total
+      FROM reservas
+      GROUP BY mes
+      ORDER BY mes
+    `);
+
+    res.render('estadisticasAdmin', {
+      title: 'Estadísticas',
+      usuarioSesion: usuario,
+      total_reservas,
+      reservasPorConcesionario,
+      vehiculoMasUsado: vehiculoMasUsado[0] || null,
+      reservasPorMes,
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('error', { mensaje: 'Error al cargar estadísticas' });
+  }
+});
+
+
+
 // --- Rutas Estáticas ---
 
 router.get('/contacto', (req, res) => {

@@ -42,6 +42,11 @@
  border-color: var(--color-primary-hover) !important;
 }
 
+.bg-custom {
+ background-color: var(--color-primary-hover) !important;
+ color: var(--color-link) !important;
+}
+
 .vehiculo-card {
  background-color: var(--color-input-bg);
  border: 2px solid var(--color-field-border);
