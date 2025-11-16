@@ -110,7 +110,6 @@ router.post('/nuevo', isAdmin, async (req, res) => {
 
     let errorMsg = null;
 
-    // Validación (el JS de frontend ya hace esto, pero es bueno tenerlo en backend)
     if (!nombre || !apellido1 || !email || !contrasenya || !rol) {
       errorMsg = 'Nombre, primer apellido, correo, contraseña y rol son obligatorios.';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -133,7 +132,6 @@ router.post('/nuevo', isAdmin, async (req, res) => {
     }
 
     if (errorMsg) {
-      // CORREGIDO: Mapear 'email' a 'correo' para repoblar el formulario
       const usuarioParaRender = { ...formData, correo: formData.email };
       return res.status(400).render('usuarioForm', {
         title: 'Nuevo Usuario',
@@ -146,7 +144,6 @@ router.post('/nuevo', isAdmin, async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(contrasenya, 10);
     
-    // Concatenar nombre
     const nombreCompleto = [nombre, apellido1, apellido2].filter(Boolean).join(' ').trim();
 
     await req.db.query(
@@ -191,13 +188,10 @@ router.get('/:id/editar', isAdmin, async (req, res) => {
     if (usuarios.length === 0) return res.redirect('/usuarios');
 
     let usuario = usuarios[0];
-
-    // Separar nombre y apellidos para el formulario
     const nombreParts = usuario.nombre ? usuario.nombre.split(' ') : [];
     usuario.nombre = nombreParts[0] || '';
     usuario.apellido1 = nombreParts[1] || '';
     usuario.apellido2 = nombreParts.slice(2).join(' ') || '';
-    // 'usuario.correo' ya viene bien desde la BD
 
     const [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
 
@@ -215,14 +209,10 @@ router.get('/:id/editar', isAdmin, async (req, res) => {
 });
 
 
-// =================================================================
-// POST EDITAR USUARIO (SECCIÓN CORREGIDA)
-// =================================================================
 router.post('/:id/editar', isAdmin, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) return res.redirect('/usuarios');
 
-  // 1. Usar los nombres correctos del formulario: 'email', 'contrasenya', 'apellido1', etc.
   const { 
     nombre, apellido1, apellido2, 
     email, contrasenya, rol, 
@@ -236,7 +226,6 @@ router.post('/:id/editar', isAdmin, async (req, res) => {
 
     let errorMsg = null;
 
-    // 2. Validar con 'email' y 'apellido1' (campo obligatorio)
     if (!nombre || !apellido1 || !email || !rol) {
       errorMsg = 'Nombre, primer apellido, correo y rol son obligatorios.';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -250,7 +239,6 @@ router.post('/:id/editar', isAdmin, async (req, res) => {
     }
 
     if (!errorMsg) {
-      // 3. Validar duplicados con 'email'
       const [duplicados] = await req.db.query(
         'SELECT id_usuario FROM usuarios WHERE correo = ? AND id_usuario != ?',
         [email, id]
@@ -261,11 +249,10 @@ router.post('/:id/editar', isAdmin, async (req, res) => {
     }
 
     if (errorMsg) {
-      // 4. Al re-renderizar, mapear 'email' a 'correo' para que el EJS lo lea
       const usuarioParaRender = {
         ...req.body,
         id_usuario: id,
-        correo: req.body.email // El EJS espera 'usuario.correo'
+        correo: req.body.email 
       };
       return res.status(400).render('usuarioForm', {
         title: 'Editar Usuario',
@@ -276,9 +263,6 @@ router.post('/:id/editar', isAdmin, async (req, res) => {
       });
     }
 
-    // 5. Construir la consulta de actualización dinámicamente
-    
-    // Re-concatenar el nombre
     const nombreCompleto = [nombre, apellido1, apellido2].filter(Boolean).join(' ').trim();
     
     let sql = `
@@ -293,28 +277,25 @@ router.post('/:id/editar', isAdmin, async (req, res) => {
     
     const params = [
       nombreCompleto,
-      email, // Usar 'email' del formulario
+      email,
       rol,
       telefono || null,
       rol === 'Empleado' ? id_concesionario : null,
       preferencias_accesibilidad || null
     ];
 
-    // 6. Actualizar contraseña SOLO si se proporcionó una nueva
     if (contrasenya) {
       const hashedPassword = await bcrypt.hash(contrasenya, 10);
       sql += ', contrasenya = ?';
       params.push(hashedPassword);
     }
 
-    // Terminar la consulta
     sql += ' WHERE id_usuario = ?';
     params.push(id);
 
-    // Ejecutar la consulta
     await req.db.query(sql, params);
 
-    res.redirect(`/usuarios`); // Redirigir a la lista (o a /usuarios/${id} si prefieres)
+    res.redirect(`/usuarios`); 
 
 a } catch (err) {
     console.error('Error al actualizar usuario:', err);
@@ -336,10 +317,6 @@ a } catch (err) {
     });
   }
 });
-// =================================================================
-// FIN SECCIÓN CORREGIDA
-// =================================================================
-
 
 // POST ELIMINAR USUARIO
 router.post('/:id/eliminar', isAdmin, async (req, res) => {
@@ -347,11 +324,13 @@ router.post('/:id/eliminar', isAdmin, async (req, res) => {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) return res.redirect('/usuarios');
 
+    //-------------------------TODO-------------------------
     // (Opcional) No dejar que un admin se elimine a sí mismo
     if (req.session.usuario && req.session.usuario.id_usuario === id) {
       // O renderizar un error
       return res.redirect('/usuarios?error=no_self_delete'); 
     }
+    //-------------------------TODO--------------------------
 
     await req.db.query('DELETE FROM usuarios WHERE id_usuario = ?', [id]);
     res.redirect('/usuarios');
