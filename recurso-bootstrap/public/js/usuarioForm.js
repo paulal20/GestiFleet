@@ -58,21 +58,28 @@ document.addEventListener("DOMContentLoaded", function() {
 
             case "email":
                 if (estaVacio(v)) return "El correo es obligatorio.";
-                if (!/^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/.test(v)) return "Formato de correo no válido.";
+                if (!/^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/.test(v)) return "Formato de correo no válido (gestifleet.es/com).";
                 return "";
 
             case "confemail":
                 if (estaVacio(v)) return "Debes confirmar el correo.";
-                if (!/^[\w.%+-]+@[\w.-]+\.[A-Za-z]{2,}$/.test(v)) return "Formato de correo no válido.";
+                if (!/^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/.test(v)) return "Formato de correo no válido (gestifleet.es/com).";
                 if (v !== String(campos.email?.value || "").trim()) return "Los correos no coinciden.";
                 return "";
 
             case "contrasenya":
-                if (!estaVacio(v)) {
-                    const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-                    if (!re.test(v)) return "Mín. 8 caracteres, mayúscula, número y símbolo.";
-                } else if (!isEditMode) {
-                    return "La contraseña es obligatoria.";
+                if(!isEditMode) {
+                    if (estaVacio(v)){ return "La contraseña es obligatoria.";
+                    } else{
+                        const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+                        if (!re.test(v)) return "Mín. 8 caracteres, mayúscula, número y símbolo.";
+                    }
+                } else{
+                    if (estaVacio(v)){ return "";
+                    } else{
+                        const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+                        if (!re.test(v)) return "Mín. 8 caracteres, mayúscula, número y símbolo.";
+                    }
                 }
                 return "";
 

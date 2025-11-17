@@ -217,10 +217,18 @@ document.addEventListener("DOMContentLoaded", function(){
         form.addEventListener("reset", function () {
             if (form) {
                 setTimeout(() => {
+                    
                     Object.values(campos).forEach(input => {
-                        if (input) input.classList.remove("is-valid", "is-invalid");
+                        if (input) {
+                            input.classList.remove("is-valid", "is-invalid");
+                            
+                            if (input.tagName === 'SELECT') {
+                                input.selectedIndex = 0; 
+                            } else {
+                                input.value = "";
+                            }
+                        }
                     });
-
                     Object.values(errores).forEach(span => { if (span) span.textContent = ""; });
                     if (campos.contrasenya) campos.contrasenya.type = "password";
                     if (mostrarContrasenya) mostrarContrasenya.checked = false;
