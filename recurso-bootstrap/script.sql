@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS vehiculos (
   numero_plazas TINYINT NOT NULL DEFAULT 5,
   autonomia_km INT,
   color VARCHAR(30),
-  imagen VARCHAR(255),
+  imagen LONGBLOB,
   estado ENUM('disponible','reservado','mantenimiento') DEFAULT 'disponible',
   id_concesionario INT,
   FOREIGN KEY (id_concesionario) REFERENCES concesionarios(id_concesionario)

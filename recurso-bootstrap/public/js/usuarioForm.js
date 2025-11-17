@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     if (!form) return;
 
-    const isEditMode = form.dataset.editmode === 'true';
+    const isEditMode = form.action.includes('/editar');
 
     const campos = {
         nombre: document.getElementById("nombre"),
