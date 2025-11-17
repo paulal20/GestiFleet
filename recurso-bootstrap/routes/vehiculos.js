@@ -9,15 +9,7 @@ const multer = require('multer');
 // --------------------
 // CONFIGURACION MULTER
 // --------------------
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'public/img/vehiculos'); // carpeta donde se guardaran las imagenes
-  },
-  filename: (req, file, cb) => {
-    const nombre = Date.now() + '-' + file.originalname;
-    cb(null, nombre);
-  }
-});
+const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
   if (path.extname(file.originalname).toLowerCase() === '.png') {
@@ -43,7 +35,7 @@ router.get('/', isAuth, async (req, res) => {
     } = req.query;
     const usuario = req.session.usuario;
 
-    let sql = 'SELECT * FROM vehiculos';
+    let sql = `SELECT id_vehiculo, matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, estado, id_concesionario FROM vehiculos`;
     const params = [];
     const condiciones = [];
 
@@ -176,7 +168,7 @@ router.post('/nuevo', isAdmin, upload.single('imagen'), async (req, res) => {
     } else if (!/^\d{4}[A-Z]{3}$/i.test(matricula)) {
       errorMsg = 'La matrícula debe tener 4 números seguidos de 3 letras (ej: 1234ABC).';
       campoErroneo = 'matricula';
-    } else if (parseInt(anyo_matriculacion, 10) < 1 || parseInt(anyo_matriculacion, 10) > actual) {
+    } else if (parseInt(anyo_matriculacion, 10) < 1901 || parseInt(anyo_matriculacion, 10) > actual) {
       errorMsg = `El año de matriculación debe estar entre 1901 y ${actual}.`;
     } else if (parseFloat(precio) <= 0) {
       errorMsg = 'El precio debe ser un número positivo.';
@@ -184,6 +176,17 @@ router.post('/nuevo', isAdmin, upload.single('imagen'), async (req, res) => {
       errorMsg = 'Debe seleccionar un concesionario válido.';
     } else if (!req.file) {
       errorMsg = 'La imagen es obligatoria al crear un vehículo nuevo.';
+    }
+
+    if (!errorMsg) {
+      const [duplicados] = await req.db.query(
+        'SELECT id_vehiculo FROM vehiculos WHERE matricula = ?', 
+        [matricula.toUpperCase()]
+      );
+      if (duplicados.length > 0) {
+        errorMsg = 'La matrícula introducida ya existe.';
+        campoErroneo = 'matricula';
+      }
     }
 
     if (errorMsg) {
@@ -200,7 +203,7 @@ router.post('/nuevo', isAdmin, upload.single('imagen'), async (req, res) => {
       });
     }
 
-    const imagen = `/img/vehiculos/${req.file.filename}`;
+    const imagenBuffer = req.file ? req.file.buffer : null;
 
     await req.db.query(
       `INSERT INTO vehiculos
@@ -217,7 +220,7 @@ router.post('/nuevo', isAdmin, upload.single('imagen'), async (req, res) => {
         numero_plazas || 5,
         autonomia_km || null,
         color || null,
-        imagen,
+        imagenBuffer,
         estado || 'disponible',
         id_concesionario
       ]
@@ -236,13 +239,7 @@ router.post('/nuevo', isAdmin, upload.single('imagen'), async (req, res) => {
         }
     }
 
-    let error = 'Error al crear vehículo';
-    if (err.code === 'ER_DUP_ENTRY') {
-      error = 'La matrícula introducida ya existe.';
-      formData.matricula = '';
-    } else {
-      error = err.message || error;
-    }
+    let error = 'Error al crear vehículo: ' + err.message;
 
     res.status(500).render('vehiculoForm', {
       title: 'Nuevo Vehículo',
@@ -256,7 +253,7 @@ router.post('/nuevo', isAdmin, upload.single('imagen'), async (req, res) => {
 });
 
 // GET /vehiculos/:id/editar
-router.get('/:id/editar', isAuth, isAdmin, async (req, res) => {
+router.get('/:id/editar', isAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
@@ -288,13 +285,13 @@ router.get('/:id/editar', isAuth, isAdmin, async (req, res) => {
 });
 
 // POST /vehiculos/:id/editar
-router.post('/:id/editar', isAuth, isAdmin, upload.single('imagen'), async (req, res) => {
+router.post('/:id/editar', isAdmin, upload.single('imagen'), async (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) return res.redirect('/vehiculos');
   
   const formData = req.body;
   const { matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas,
-    autonomia_km, color, estado, id_concesionario, imagen_actual } = formData;
+    autonomia_km, color, estado, id_concesionario } = formData;
 
   let concesionarios = [];
   let campoErroneo = null;
@@ -338,36 +335,32 @@ router.post('/:id/editar', isAuth, isAdmin, upload.single('imagen'), async (req,
         action: `/vehiculos/${id}/editar`,
         error: errorMsg,
         usuarioSesion: req.session.usuario,
-        vehiculo: { ...formData, id_vehiculo: id, imagen: imagen_actual },
+        vehiculo: { ...formData, id_vehiculo: id },
         concesionarios
       });
     }
 
-    const imagen = req.file
-      ? `/img/vehiculos/${req.file.filename}`
-      : imagen_actual || null;
-
-    await req.db.query(
-      `UPDATE vehiculos SET 
+    let sql = `UPDATE vehiculos SET 
         matricula = ?, marca = ?, modelo = ?, anyo_matriculacion = ?, descripcion = ?, 
         tipo = ?, precio = ?, numero_plazas = ?, autonomia_km = ?, color = ?, 
-        imagen = ?, estado = ?, id_concesionario = ?
-      WHERE id_vehiculo = ?`,
-      [ matricula.toUpperCase(),
-        marca,
-        modelo,
-        anyo_matriculacion,
-        descripcion || null,
-        tipo || 'coche',
-        precio,
-        numero_plazas || 5,
-        autonomia_km || null,
-        color || null,
-        imagen,
-        estado || 'disponible',
-        id_concesionario,
-        id 
-      ]);
+        estado = ?, id_concesionario = ?`;
+    
+    let params = [
+      matricula.toUpperCase(), marca, modelo, anyo_matriculacion,
+      descripcion || null, tipo || 'coche', precio, numero_plazas || 5,
+      autonomia_km || null, color || null, estado || 'disponible',
+      id_concesionario
+    ];
+
+    if (req.file) {
+      sql += ', imagen = ?';
+      params.push(req.file.buffer);
+    }
+
+    sql += ' WHERE id_vehiculo = ?';
+    params.push(id);
+
+    await req.db.query(sql, params);
 
     res.redirect(`/vehiculos/${id}`);
 
@@ -389,10 +382,10 @@ router.post('/:id/editar', isAuth, isAdmin, upload.single('imagen'), async (req,
     res.status(500).render('vehiculoForm', {
       title: 'Editar Vehículo',
       usuarioSesion: req.session.usuario,
-      action: `/vehiculos/${req.params.id}/editar`,
+      action: `/vehiculos/${id}/editar`,
       error: error,
-      vehiculo: { ...formData, id_vehiculo: req.params.id, imagen: imagen_actual }, 
-      concesionarios,
+      vehiculo: { ...formData, id_vehiculo: id }, 
+      concesionarios
     });
   }
 });
@@ -411,6 +404,34 @@ router.post('/:id/eliminar', isAuth, isAdmin, async (req, res) => {
   } catch (err) {
     console.error('Error al eliminar vehículo:', err);
     res.status(500).render('error', { mensaje: 'Error al eliminar el vehículo' });
+  }
+});
+
+// GET /vehiculos/:id/imagen
+router.get('/:id/imagen', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      return res.status(400).send('ID no válido');
+    }
+
+    const [vehiculos] = await req.db.query(
+      'SELECT imagen FROM vehiculos WHERE id_vehiculo = ?',
+      [id]
+    );
+
+    if (vehiculos.length === 0 || !vehiculos[0].imagen) {
+      return res.status(404).send('Imagen no encontrada');
+    }
+
+    const imagenBuffer = vehiculos[0].imagen;
+
+    res.setHeader('Content-Type', 'image/png');
+    res.end(imagenBuffer);
+
+  } catch (err) {
+    console.error('Error al servir imagen:', err);
+    res.status(500).send('Error al cargar la imagen');
   }
 });
 

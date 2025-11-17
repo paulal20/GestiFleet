@@ -1,10 +1,13 @@
 <div class="vehiculo-detalle-content">
+  <div class="d-flex justify-content-end">
+    <a href="/vehiculos" class="btn btn-outline-secondary">Volver a la lista</a>
+  </div>
   <div class="vehiculo-card card mx-auto" style="max-width: 900px;">
     <div class="row g-0">
 
       <div class="col-md-6">
         <div class="vehiculo-img-container h-100">
-          <img src="<%= vehiculo.imagen %>" class="rounded-start img-cover"
+          <img src="/vehiculos/<%= vehiculo.id_vehiculo %>/imagen" class="rounded-start img-cover"
             alt="<%= vehiculo.marca %>">
         </div>
       </div>
@@ -51,8 +54,8 @@
         </div>
 
         <div class="perfil-actions d-flex gap-2 mt-3">
-          <a href="/vehiculos" class="btn btn-secondary flex-fill">Volver a la lista</a>
 
+          <a href="/reserva?idVehiculo=<%= vehiculo.id_vehiculo %>" class="btn btn-primary flex-fill">Reservar</a>
           <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
             <button type="button"
                     class="btn btn-outline-secondary flex-fill"
@@ -65,9 +68,7 @@
             <a href="/vehiculos/<%= vehiculo.id_vehiculo %>/editar" class="btn btn-primary flex-fill">
               Editar
             </a>
-          <% } else { %>
-            <a href="/reserva?idVehiculo=<%= vehiculo.id_vehiculo %>" class="btn btn-primary flex-fill">Reservar</a>
-          <% } %>
+            <% } %>
         </div>
 
         

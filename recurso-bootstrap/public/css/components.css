@@ -119,27 +119,16 @@
  margin-top: auto;
 }
 
-/* .vehiculo-card .card-footer:hover {
- background-color: var(--btn-hover);
- color: #fff;
-}
-
-.vehiculo-card .card-footer:active {
- background-color: var(--btn-active);
- color: #fff;
-} */
-
 .perfil-card {
-  @extend .vehiculo-card;
   background-color: var(--color-field-bg);
   border: 2px solid var(--color-field-border);
   border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   color: var(--color-text);
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
   max-width: 400px;
   margin: 2rem auto;
-  transition: transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 .perfil-card:hover {
@@ -147,6 +136,7 @@
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
   border-color: var(--color-primary-hover);
 }
+
 
 .perfil-card-header {
   background-color: var(--color-legend-bg);
