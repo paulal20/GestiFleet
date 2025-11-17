@@ -66,20 +66,20 @@ document.addEventListener("DOMContentLoaded", function(){
                 if (estaVacio(v)) {
                     return "El email es obligatorio.";
                 }
-                const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                const re = /^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/;
                 if (!re.test(v)) {
-                    return "El correo no tiene un formato válido.";
+                    return "El correo no tiene un formato válido (@gestifleet.es/com).";
                 }
                 return "";
-            }
+            }   
 
             if(key === "confemail") {
                 if (estaVacio(v)) {
                     return "El email es obligatorio.";
                 }
-                const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                const re = /^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/;
                 if (!re.test(v)) {
-                    return "El correo no tiene un formato válido.";
+                    return "El correo no tiene un formato válido (@gestifleet.es/com).";
                 }
                 const emailOriginal = String(campos.email?.value || "").trim();
                 if (v !== emailOriginal) {

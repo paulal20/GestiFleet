@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function(){
                 }
                 const re = /^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/;
                 if (!re.test(v)) {
-                    return "El correo no tiene un formato válido.";
+                    return "El correo no tiene un formato válido (@gestifleet.es/com).";
                 }
                 return "";
             }   
@@ -148,21 +148,6 @@ document.addEventListener("DOMContentLoaded", function(){
                 if (primeraClaveInvalida && campos[primeraClaveInvalida]) {
                     campos[primeraClaveInvalida].focus();
                 }
-            }
-        });
-
-        form.addEventListener("reset", function () {
-            if (form) {
-                setTimeout(() => {
-                    Object.values(campos).forEach(input => {
-                        if (input) input.classList.remove("is-valid", "is-invalid");
-                    });
-
-                    Object.values(errores).forEach(span => { if (span) span.textContent = ""; });
-                    if (campos.contrasenya) campos.contrasenya.type = "password";
-                    if (mostrarContrasenya) mostrarContrasenya.checked = false;
-                    
-                }, 0);
             }
         });
 

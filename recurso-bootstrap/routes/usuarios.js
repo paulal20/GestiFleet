@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { isAdmin } = require('../middleware/auth');
+const { isAdmin, isAdminOrSelf } = require('../middleware/auth');
 
 // GET LISTA USUARIOS
 router.get('/', isAdmin, async (req, res) => {
@@ -156,13 +156,19 @@ router.post('/nuevo', isAdmin, async (req, res) => {
 });
 
 // GET EDITAR USUARIO
-router.get('/:id/editar', isAdmin, async (req, res) => {
+router.get('/:id/editar', isAdminOrSelf, async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) return res.redirect('/usuarios');
+    if (isNaN(id)){
+      const redirectUrl = req.session.usuario.rol === 'Admin' ? '/usuarios' : '/perfil';
+      res.redirect(redirectUrl);
+    }
     
     const [usuarios] = await req.db.query('SELECT * FROM usuarios WHERE id_usuario = ?', [id]);
-    if (usuarios.length === 0) return res.redirect('/usuarios');
+    if (usuarios.length === 0){
+      const redirectUrl = req.session.usuario.rol === 'Admin' ? '/usuarios' : '/perfil';
+      res.redirect(redirectUrl);
+    }
     
     let usuario = usuarios[0];
     const nombreParts = usuario.nombre ? usuario.nombre.split(' ') : [];
@@ -186,10 +192,13 @@ router.get('/:id/editar', isAdmin, async (req, res) => {
   }
 });
 
-
-router.post('/:id/editar', isAdmin, async (req, res) => {
+// POST EDITAR USUARIO
+router.post('/:id/editar', isAdminOrSelf, async (req, res) => {
   const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) return res.redirect('/usuarios');
+  if (isNaN(id)){
+    const redirectUrl = req.session.usuario.rol === 'Admin' ? '/usuarios' : '/perfil';
+    res.redirect(redirectUrl);
+  }
   
   const { 
     nombre, apellido1, apellido2, 
@@ -274,7 +283,8 @@ router.post('/:id/editar', isAdmin, async (req, res) => {
 
     await req.db.query(sql, params);
     
-    res.redirect(`/usuarios`); 
+    const redirectUrl = req.session.usuario.rol === 'Admin' ? '/usuarios' : '/perfil';
+    res.redirect(redirectUrl);
     
     a } catch (err) {
       console.error('Error al actualizar usuario:', err);
