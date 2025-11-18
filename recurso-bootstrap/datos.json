@@ -91,50 +91,40 @@
       "id_reserva": 1,
       "id_usuario": 2,
       "id_vehiculo": 4,
-      "fecha_reserva": "2024-10-01",
       "fecha_inicio": "2024-10-05",
       "fecha_fin": "2024-10-10",
-      "precio_total": 500.00,
       "estado": "activa"
     },
     {
       "id_reserva": 2,
       "id_usuario": 3,
       "id_vehiculo": 8,
-      "fecha_reserva": "2024-10-02",
       "fecha_inicio": "2024-10-12",
       "fecha_fin": "2024-10-15",
-      "precio_total": 350.00,
       "estado": "activa"
     },
     {
       "id_reserva": 3,
       "id_usuario": 4,
       "id_vehiculo": 14,
-      "fecha_reserva": "2024-10-03",
       "fecha_inicio": "2024-11-01",
       "fecha_fin": "2024-11-07",
-      "precio_total": 450.00,
       "estado": "activa"
     },
     {
       "id_reserva": 4,
       "id_usuario": 2,
       "id_vehiculo": 1,
-      "fecha_reserva": "2024-09-15",
       "fecha_inicio": "2024-09-20",
       "fecha_fin": "2024-09-25",
-      "precio_total": 400.00,
       "estado": "finalizada"
     },
     {
       "id_reserva": 5,
       "id_usuario": 3,
       "id_vehiculo": 10,
-      "fecha_reserva": "2024-09-10",
       "fecha_inicio": "2024-09-12",
       "fecha_fin": "2024-09-14",
-      "precio_total": 300.00,
       "estado": "cancelada"
     }
   ]

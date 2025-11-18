@@ -58,7 +58,6 @@ async function cargarDatos() {
     console.log('Hasheando contraseñas e insertando usuarios...');
     for (const u of datos.usuarios) {
       let contrasenyaFinal;
-      // Si la contraseña ya parece un hash (empieza por $2b$), la dejamos tal cual. Si no, la hasheamos.
       if (u.contrasenya && !u.contrasenya.startsWith('$2b$')) {
         contrasenyaFinal = await bcrypt.hash(u.contrasenya, 10);
       } else {
@@ -90,11 +89,11 @@ async function cargarDatos() {
     // --- INSERTAR RESERVAS ---
     if (datos.reservas && datos.reservas.length > 0) {
         console.log('Cargando reservas...');
-        const reservaQuery = `INSERT INTO reservas (id_reserva, id_usuario, id_vehiculo, fecha_reserva, fecha_inicio, fecha_fin, precio_total, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+        const reservaQuery = `INSERT INTO reservas (id_reserva, id_usuario, id_vehiculo, fecha_inicio, fecha_fin, estado) VALUES (?, ?, ?, ?, ?, ?)`;
 
         for (const r of datos.reservas) {
             await connection.execute(reservaQuery, [
-                r.id_reserva, r.id_usuario, r.id_vehiculo, r.fecha_reserva, r.fecha_inicio, r.fecha_fin, r.precio_total, r.estado
+                r.id_reserva, r.id_usuario, r.id_vehiculo, r.fecha_inicio, r.fecha_fin, r.estado
             ]);
         }
         console.log(`Insertadas ${datos.reservas.length} reservas.`);
