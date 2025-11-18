@@ -257,18 +257,14 @@ router.post('/:id/editar', isAdminOrSelf, async (req, res) => {
     UPDATE usuarios SET 
     nombre = ?, 
     correo = ?, 
-    rol = ?, 
     telefono = ?, 
-    id_concesionario = ?,
     preferencias_accesibilidad = ?
     `;
     
     const params = [
       nombreCompleto,
       email,
-      rol,
       telefono || null,
-      rol === 'Empleado' ? id_concesionario : null,
       preferencias_accesibilidad || null
     ];
     
@@ -278,6 +274,27 @@ router.post('/:id/editar', isAdminOrSelf, async (req, res) => {
       params.push(hashedPassword);
     }
     
+    if (req.session.usuario.rol === 'Admin') {
+    
+      if (!(req.session.usuario.id_usuario === id)) {
+        sql += ', rol = ?, id_concesionario = ?';
+        
+        params.push(rol);
+        
+        params.push(rol === 'Empleado' ? id_concesionario : null);
+        
+      } else {
+        const rolActual = req.session.usuario.rol; 
+        
+        const id_concesionario_admin = null; 
+        
+        sql += ', rol = ?, id_concesionario = ?';
+        
+        params.push(rolActual);
+        params.push(id_concesionario_admin);
+      }
+    }
+
     sql += ' WHERE id_usuario = ?';
     params.push(id);
 

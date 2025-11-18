@@ -1,5 +1,13 @@
 <%
   const isEditMode = (typeof usuario !== 'undefined' && usuario.id_usuario);
+  
+  const cambiarConcesionario = (typeof usuarioSesion !== 'undefined') && (usuarioSesion.rol === 'Admin') && (!isEditMode || usuarioSesion.id_usuario !== usuario.id_usuario);
+  
+  const isSelfEdit = isEditMode && (typeof usuarioSesion !== 'undefined') && (usuario.id_usuario === usuarioSesion.id_usuario);
+  
+  const segundaFila = isEditMode ? 'col-md-6' : 'col-md-4';
+
+  const terceraFila = (isEditMode && !cambiarConcesionario) ? 'col-md-6' : 'col-md-4';
 %>
 
 <div class="usuario-form-content">
@@ -20,49 +28,49 @@
         <div class="col-md-4 mb-3">
           <label for="nombre" class="form-label obligatorio">Nombre:</label>
           <input type="text" id="nombre" name="nombre" class="form-control" 
-                 value="<%= usuario?.nombre || '' %>" required aria-describedby="error-nombre">
+                      value="<%= usuario?.nombre || '' %>" required aria-describedby="error-nombre">
           <span class="error" id="error-nombre" aria-live="polite"></span>
         </div>
 
         <div class="col-md-4 mb-3">
           <label for="apellido1" class="form-label obligatorio">Primer apellido:</label>
           <input type="text" id="apellido1" name="apellido1" class="form-control" 
-                 value="<%= usuario?.apellido1 || '' %>" required aria-describedby="error-apellido1">
+                      value="<%= usuario?.apellido1 || '' %>" required aria-describedby="error-apellido1">
           <span class="error" id="error-apellido1" aria-live="polite"></span>
         </div>
 
         <div class="col-md-4 mb-3">
           <label for="apellido2" class="form-label NoObligatorio">Segundo apellido:</label>
           <input type="text" id="apellido2" name="apellido2" class="form-control"
-                 value="<%= usuario?.apellido2 || '' %>" aria-describedby="error-apellido2">
+                      value="<%= usuario?.apellido2 || '' %>" aria-describedby="error-apellido2">
           <span class="error" id="error-apellido2" aria-live="polite"></span>
         </div>
       </div>
 
       <div class="row">
-        <div class="col-md-4 mb-3">
+        <div class="<%= segundaFila %> mb-3">
           <label for="email" class="form-label obligatorio">Correo electrónico:</label>
           <input type="email" id="email" name="email" class="form-control"
-                 value="<%= usuario?.correo || '' %>" required aria-describedby="error-email" placeholder="@gestifleet.com/es">
+                      value="<%= usuario?.correo || '' %>" required aria-describedby="error-email" placeholder="@gestifleet.com/es">
           <span class="error" id="error-email" aria-live="polite"></span>
         </div>
 
-                <% if (!isEditMode) { %>
+        <% if (!isEditMode) { %>
           <div class="col-md-4 mb-3">
             <label for="confemail" class="form-label obligatorio">Confirmar correo:</label>
             <input type="email" id="confemail" name="confemail" class="form-control" 
-                   required aria-describedby="error-confemail">
+                      required aria-describedby="error-confemail">
             <span class="error" id="error-confemail" aria-live="polite"></span>
           </div>
         <% } %>
 
-        <div class="col-md-4 mb-3">
+        <div class="<%= segundaFila %> mb-3">
           <label for="contrasenya" class="form-label <%= isEditMode ? 'NoObligatorio' : 'obligatorio' %>">
             Contraseña <%= isEditMode ? '(vacio = no se cambia)' : '' %>:
           </label>
           <input type="password" id="contrasenya" name="contrasenya" class="form-control" 
-                 placeholder="<%= isEditMode ? '••••••••' : '' %>" <%= isEditMode ? '' : 'required' %>
-                 aria-describedby="error-contrasenya">
+                      placeholder="<%= isEditMode ? '••••••••' : '' %>" <%= isEditMode ? '' : 'required' %>
+                      aria-describedby="error-contrasenya">
           <span class="error" id="error-contrasenya" aria-live="polite"></span>
           <div class="mostrar-contrasenya" style="margin-top:6px; display:flex; align-items:center; gap:8px;">
             <input type="checkbox" id="mostrarContrasenya" aria-controls="contrasenya" />
@@ -73,35 +81,48 @@
       </div>
       
       <div class="row">
-        <div class="col-md-4 mb-3">
+        <div class="<%= terceraFila %> mb-3">
           <label for="telefono" class="form-label NoObligatorio">Teléfono:</label>
           <input type="text" id="telefono" name="telefono" class="form-control"
-                 value="<%= usuario?.telefono || '' %>" aria-describedby="error-telefono">
+                      value="<%= usuario?.telefono || '' %>" aria-describedby="error-telefono">
           <span class="error" id="error-telefono" aria-live="polite"></span>
         </div>
-        <div class="col-md-4 mb-3">
+
+        <div class="<%= terceraFila %> mb-3">
           <label for="rol" class="form-label obligatorio">Rol:</label>
-          <select id="rol" name="rol" class="form-select" required aria-describedby="error-rol">
+          <select id="rol" name="rol" class="form-select" required aria-describedby="error-rol"
+            <%= (isSelfEdit) ? 'disabled' : '' %> >
             <option value="">Selecciona un rol</option>
             <option value="Admin" <%= (usuario?.rol === 'Admin') ? 'selected' : '' %>>Admin</option>
             <option value="Empleado" <%= (usuario?.rol === 'Empleado') ? 'selected' : '' %>>Empleado</option>
           </select>
           <span class="error" id="error-rol" aria-live="polite"></span>
+          <% if (isSelfEdit) { %>
+             <input type="hidden" name="rol" value="<%= usuario.rol %>">
+           <% } %>
         </div>
 
-        <div class="col-md-4 mb-3">
-          <label for="id_concesionario" class="form-label obligatorio">Concesionario:</label>
-          <select id="id_concesionario" name="id_concesionario" class="form-select" required 
-                   aria-describedby="error-id_concesionario">
-            <option value="0">Selecciona un concesionario</option>
-            <% concesionarios.forEach(c => { %>
-              <option value="<%= c.id_concesionario %>" <%= (typeof usuario !== 'undefined' && usuario.id_concesionario == c.id_concesionario) ? 'selected' : '' %>>
-                <%= c.nombre %>
-              </option>
-            <% }) %>
-          </select>
-          <span class="error" id="error-id_concesionario" aria-live="polite"></span>
-        </div>
+        <% if (cambiarConcesionario) { %>
+            <div class="col-md-4 mb-3">
+              <label for="id_concesionario" class="form-label obligatorio">Concesionario:</label>
+              <select id="id_concesionario" name="id_concesionario" class="form-select" required 
+                      aria-describedby="error-id_concesionario">
+                <option value="0">Selecciona un concesionario</option>
+                <% concesionarios.forEach(c => { %>
+                  <option value="<%= c.id_concesionario %>" <%= (typeof usuario !== 'undefined' && usuario.id_concesionario == c.id_concesionario) ? 'selected' : '' %>>
+                    <%= c.nombre %>
+                  </option>
+                <% }) %>
+              </select>
+              <span class="error" id="error-id_concesionario" aria-live="polite"></span>
+            </div>
+        <% } else if (isEditMode && usuario.rol === 'Empleado' && usuario.nombre_concesionario) { %>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Concesionario Asignado:</label>
+                <input type="text" class="form-control" value="<%= usuario.nombre_concesionario %>" disabled readonly>
+            </div>
+        <% } %>
+        
       </div>
 
       <div class="col-md-4 mb-3">

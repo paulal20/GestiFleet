@@ -32,7 +32,7 @@
   "usuarios": [
     {
       "id_usuario": 1,
-      "nombre": "Administrador",
+      "nombre": "Administrador Jefe",
       "correo": "admin@gestifleet.com",
       "contrasenya": "$2b$10$yRO//lNEE/HAs9/cG7r18efG02NZ6j53jpmHh0xXd/zvKvH9KAzfi",
       "rol": "Admin",
@@ -41,7 +41,7 @@
     },
     {
       "id_usuario": 2,
-      "nombre": "Empleado",
+      "nombre": "Empleado trabajador",
       "correo": "empleado@gestifleet.com",
       "contrasenya": "Empleado^1",
       "rol": "Empleado",
@@ -50,7 +50,7 @@
     },
     {
       "id_usuario": 3,
-      "nombre": "Empleado",
+      "nombre": "Arturo Gómez Izquierdo",
       "correo": "arturo@gestifleet.com",
       "contrasenya": "Arturo^12",
       "rol": "Empleado",
@@ -59,7 +59,7 @@
     },
     {
       "id_usuario": 4,
-      "nombre": "Empleado",
+      "nombre": "Paula Lopez Solla",
       "correo": "paula@gestifleet.com",
       "contrasenya": "Paula^12",
       "rol": "Empleado",
