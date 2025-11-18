@@ -37,6 +37,7 @@ async function cargarDatos() {
     const datos = JSON.parse(datosJson);
     console.log('Archivo JSON leído.');
 
+    // --- LIMPIEZA DE TABLAS ---
     await connection.query('SET FOREIGN_KEY_CHECKS = 0;');
     await connection.query('TRUNCATE TABLE reservas;');
     await connection.query('TRUNCATE TABLE vehiculos;');
@@ -45,6 +46,7 @@ async function cargarDatos() {
     await connection.query('SET FOREIGN_KEY_CHECKS = 1;');
     console.log('Tablas limpiadas.');
 
+    // --- INSERTAR CONCESIONARIOS ---
     const concesionariosQuery = `INSERT INTO concesionarios (id_concesionario, nombre, ciudad, direccion, telefono_contacto) VALUES ?`;
     const concesionariosData = datos.concesionarios.map(c => [
       c.id_concesionario, c.nombre, c.ciudad, c.direccion, c.telefono_contacto
@@ -52,9 +54,11 @@ async function cargarDatos() {
     await connection.query(concesionariosQuery, [concesionariosData]);
     console.log(`Insertados ${datos.concesionarios.length} concesionarios.`);
 
+    // --- INSERTAR USUARIOS ---
     console.log('Hasheando contraseñas e insertando usuarios...');
     for (const u of datos.usuarios) {
       let contrasenyaFinal;
+      // Si la contraseña ya parece un hash (empieza por $2b$), la dejamos tal cual. Si no, la hasheamos.
       if (u.contrasenya && !u.contrasenya.startsWith('$2b$')) {
         contrasenyaFinal = await bcrypt.hash(u.contrasenya, 10);
       } else {
@@ -68,6 +72,7 @@ async function cargarDatos() {
     }
     console.log(`Insertados ${datos.usuarios.length} usuarios.`);
 
+    // --- INSERTAR VEHÍCULOS ---
     console.log('Leyendo imágenes y cargando vehículos...');
     const vehiculoQuery = `INSERT INTO vehiculos (id_vehiculo, matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     
@@ -81,7 +86,21 @@ async function cargarDatos() {
       ]);
     }
     console.log(`Insertados ${datos.vehiculos.length} vehículos.`);
-    
+
+    // --- INSERTAR RESERVAS ---
+    if (datos.reservas && datos.reservas.length > 0) {
+        console.log('Cargando reservas...');
+        const reservaQuery = `INSERT INTO reservas (id_reserva, id_usuario, id_vehiculo, fecha_reserva, fecha_inicio, fecha_fin, precio_total, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+
+        for (const r of datos.reservas) {
+            await connection.execute(reservaQuery, [
+                r.id_reserva, r.id_usuario, r.id_vehiculo, r.fecha_reserva, r.fecha_inicio, r.fecha_fin, r.precio_total, r.estado
+            ]);
+        }
+        console.log(`Insertadas ${datos.reservas.length} reservas.`);
+    } else {
+        console.log('No hay reservas para insertar en el JSON.');
+    }
 
     console.log('¡Carga de datos completada con éxito!');
 

@@ -5,14 +5,28 @@
       "nombre": "GestiFleet Madrid",
       "ciudad": "Madrid",
       "direccion": "Calle Falsa 123",
-      "telefono_contacto": "000000000"
+      "telefono_contacto": "000000001"
     },
     {
       "id_concesionario": 2,
       "nombre": "GestiFleet Barcelona",
       "ciudad": "Barcelona",
       "direccion": "Avenida Siempre Viva 742",
-      "telefono_contacto": "000000000"
+      "telefono_contacto": "000000002"
+    },
+    {
+      "id_concesionario": 3,
+      "nombre": "GestiFleet Sevilla",
+      "ciudad": "Sevilla",
+      "direccion": "Avenida del Arte 15",
+      "telefono_contacto": "000000003"
+    },
+    {
+      "id_concesionario": 4,
+      "nombre": "GestiFleet Valencia",
+      "ciudad": "Valencia",
+      "direccion": "Calle de la Luz 45",
+      "telefono_contacto": "000000004"
     }
   ],
   "usuarios": [
@@ -27,12 +41,30 @@
     },
     {
       "id_usuario": 2,
-      "nombre": "Empleado Ejemplo",
+      "nombre": "Empleado",
       "correo": "empleado@gestifleet.com",
       "contrasenya": "Empleado^1",
       "rol": "Empleado",
       "telefono": "222222222",
       "id_concesionario": 2
+    },
+    {
+      "id_usuario": 3,
+      "nombre": "Empleado",
+      "correo": "arturo@gestifleet.com",
+      "contrasenya": "Arturo^12",
+      "rol": "Empleado",
+      "telefono": "333333333",
+      "id_concesionario": 3
+    },
+    {
+      "id_usuario": 4,
+      "nombre": "Empleado",
+      "correo": "paula@gestifleet.com",
+      "contrasenya": "Paula^12",
+      "rol": "Empleado",
+      "telefono": "444444444",
+      "id_concesionario": 4
     }
   ],
   "vehiculos": [
@@ -54,5 +86,56 @@
     { "id_vehiculo": 16, "matricula": "1234AAP", "marca": "Volkswagen", "modelo": "Tiguan Sport", "anyo_matriculacion": 2024, "descripcion": "Edición deportiva con mayor potencia y estilo moderno.", "tipo": "suv", "precio": 68000.00, "numero_plazas": 5, "autonomia_km": 610, "color": "Rojo", "imagen_nombre": "VW4.png", "estado": "disponible", "id_concesionario": 2 },
     { "id_vehiculo": 17, "matricula": "1234AAQ", "marca": "Volkswagen", "modelo": "Tiguan Family", "anyo_matriculacion": 2023, "descripcion": "Versión familiar con espacio extra y confort superior.", "tipo": "suv", "precio": 70000.00, "numero_plazas": 7, "autonomia_km": 600, "color": "Azul", "imagen_nombre": "VW5.png", "estado": "disponible", "id_concesionario": 1 }
   ],
-  "reservas": []
+  "reservas": [
+    {
+      "id_reserva": 1,
+      "id_usuario": 2,
+      "id_vehiculo": 4,
+      "fecha_reserva": "2024-10-01",
+      "fecha_inicio": "2024-10-05",
+      "fecha_fin": "2024-10-10",
+      "precio_total": 500.00,
+      "estado": "activa"
+    },
+    {
+      "id_reserva": 2,
+      "id_usuario": 3,
+      "id_vehiculo": 8,
+      "fecha_reserva": "2024-10-02",
+      "fecha_inicio": "2024-10-12",
+      "fecha_fin": "2024-10-15",
+      "precio_total": 350.00,
+      "estado": "activa"
+    },
+    {
+      "id_reserva": 3,
+      "id_usuario": 4,
+      "id_vehiculo": 14,
+      "fecha_reserva": "2024-10-03",
+      "fecha_inicio": "2024-11-01",
+      "fecha_fin": "2024-11-07",
+      "precio_total": 450.00,
+      "estado": "activa"
+    },
+    {
+      "id_reserva": 4,
+      "id_usuario": 2,
+      "id_vehiculo": 1,
+      "fecha_reserva": "2024-09-15",
+      "fecha_inicio": "2024-09-20",
+      "fecha_fin": "2024-09-25",
+      "precio_total": 400.00,
+      "estado": "finalizada"
+    },
+    {
+      "id_reserva": 5,
+      "id_usuario": 3,
+      "id_vehiculo": 10,
+      "fecha_reserva": "2024-09-10",
+      "fecha_inicio": "2024-09-12",
+      "fecha_fin": "2024-09-14",
+      "precio_total": 300.00,
+      "estado": "cancelada"
+    }
+  ]
 }
