@@ -55,7 +55,7 @@
       "contrasenya": "Arturo^12",
       "rol": "Empleado",
       "telefono": "333333333",
-      "id_concesionario": 3
+      "id_concesionario": 1
     },
     {
       "id_usuario": 4,
@@ -64,7 +64,7 @@
       "contrasenya": "Paula^12",
       "rol": "Empleado",
       "telefono": "444444444",
-      "id_concesionario": 4
+      "id_concesionario": 2
     }
   ],
   "vehiculos": [

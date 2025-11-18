@@ -1,5 +1,16 @@
 document.addEventListener("DOMContentLoaded", function(){
+    // Referencia al formulario principal (Español)
     const form = document.getElementById("revistaForm");
+    
+    // Referencias para el Modal
+    const confirmBtn = document.getElementById('confirmarReservaBtn');
+    const confirmacionModalEl = document.getElementById('confirmacionModal');
+    let modalInstance = null;
+
+    // Inicializamos la instancia del Modal de Bootstrap (asumiendo Bootstrap 5+)
+    if (confirmacionModalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        modalInstance = new bootstrap.Modal(confirmacionModalEl);
+    }
 
     if (form) {
 
@@ -10,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function(){
             condiciones: document.getElementById("condiciones")
         };
 
+        // LISTA DE ERRORES COMPLETA Y CORRECTA
         const errores = {
             vehiculo: document.getElementById("error-vehiculo"),
             fechaInicio: document.getElementById("error-fecha-inicio"),
@@ -29,11 +41,11 @@ document.addEventListener("DOMContentLoaded", function(){
 
             Object.keys(campos).forEach(key => {
                 const input = campos[key];
-                const error = errores[key];
+                // Quitamos la referencia a 'error' aquí ya que no se usa.
                 if (!input) return;
 
                 const esValido = input.classList.contains("is-valid");
-                const esVacio = !input.value || String(input.value).trim() === "";
+                const esVacio = (input.type !== 'checkbox') ? (!input.value || String(input.value).trim() === "") : !input.checked;
                 const esOpcional = !input.required;
 
                 if (esOpcional && !esVacio) {
@@ -71,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function(){
             const v = String(input.value || "").trim();
 
             if (key === "vehiculo") {
-                if (!v) return "Debes seleccionar un tipo de vehículo.";
+                if (!v) return "Debes seleccionar un vehículo."; // Corregido: 'tipo de vehículo' a 'vehículo'
                 return "";
             }
 
@@ -79,12 +91,14 @@ document.addEventListener("DOMContentLoaded", function(){
                 if (estaVacio(v)) return "La fecha y hora de inicio son obligatorias.";
                 const fechaI = new Date(v);
                 const ahora = new Date();
-                if (isNaN(fechaI.getTime()) || fechaI <= ahora) {
+                
+                // Aseguramos que la fecha es válida y es en el futuro (dando un pequeño margen)
+                if (isNaN(fechaI.getTime()) || fechaI.getTime() <= ahora.getTime() + 60000) { // +60s de margen
                     return "La fecha y hora introducidas deben ser posteriores a la presente.";
                 }
 
                 const fechaFinInput = campos.fechaFin;
-                if (!estaVacio(fechaFinInput.value)) {
+                if (fechaFinInput && !estaVacio(fechaFinInput.value)) {
                     const fechaFinDatos = new Date(fechaFinInput.value);
                     if (fechaI >= fechaFinDatos) {
                         return "La fecha de inicio debe ser anterior a la fecha de fin.";
@@ -98,12 +112,12 @@ document.addEventListener("DOMContentLoaded", function(){
                 const fechaF = new Date(v);
                 const ahora = new Date();
 
-                if (isNaN(fechaF.getTime()) || fechaF <= ahora) {
+                if (isNaN(fechaF.getTime()) || fechaF.getTime() <= ahora.getTime() + 60000) {
                     return "La fecha y hora introducidas deben ser posteriores a la presente.";
                 }
 
                 const fechaInicioInput = campos.fechaInicio;
-                if (!estaVacio(fechaInicioInput.value)) {
+                if (fechaInicioInput && !estaVacio(fechaInicioInput.value)) {
                     const fechaInicioDatos = new Date(fechaInicioInput.value);
                     if (fechaF <= fechaInicioDatos) {
                         return "La fecha de fin debe ser posterior a la fecha de inicio.";
@@ -114,7 +128,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
             if (key === "condiciones") {
                 if (!input.checked) {
-                    return "Debes aceptar las condiciones.";
+                    return "Debes aceptar los términos y condiciones.";
                 }
                 return "";
             }
@@ -125,6 +139,16 @@ document.addEventListener("DOMContentLoaded", function(){
         function actualizarEstadoCampo(input, errorSpan) {
             if (!input) return;
             input.classList.remove("is-valid", "is-invalid");
+
+            // Si es un checkbox, validamos si está marcado
+            if (input.type === 'checkbox') {
+                 if (errorSpan && errorSpan.textContent.trim() !== "") {
+                    input.classList.add("is-invalid");
+                 } else if (input.checked) {
+                    input.classList.add("is-valid");
+                 }
+                 return;
+            }
 
             if (errorSpan && errorSpan.textContent.trim() !== "") {
                 input.classList.add("is-invalid");
@@ -149,12 +173,21 @@ document.addEventListener("DOMContentLoaded", function(){
             if (span) {
                 span.textContent = msg;
             }
-
+            
+            // Lógica duplicada de actualizarEstadoCampo para la reactividad en tiempo real
             input.classList.remove("is-valid", "is-invalid");
             if (msg) {
                 input.classList.add("is-invalid");
-            } else if (!estaVacio(input.value)) {
+            } else if (input.type !== 'checkbox' && !estaVacio(input.value)) {
                 input.classList.add("is-valid");
+            } else if (input.type === 'checkbox' && input.checked) {
+                input.classList.add("is-valid");
+            }
+            // Disparamos la revalidación de la fecha opuesta si cambiamos una fecha
+            if (key === "fechaInicio" && campos.fechaFin) {
+                validarCampoEnTiempoReal("fechaFin");
+            } else if (key === "fechaFin" && campos.fechaInicio) {
+                validarCampoEnTiempoReal("fechaInicio");
             }
         }
 
@@ -162,7 +195,7 @@ document.addEventListener("DOMContentLoaded", function(){
             Object.keys(campos).forEach(key => {
                 const input = campos[key];
                 // Comprobamos si el input existe y si su valor no está vacío
-                if (input && !estaVacio(input.value)) {
+                if (input && (input.type === 'checkbox' ? input.checked : !estaVacio(input.value))) {
                     validarCampoEnTiempoReal(key);
                 }
             });
@@ -188,9 +221,11 @@ document.addEventListener("DOMContentLoaded", function(){
             });
         });
 
-
+        // ============================================================
+        // MODIFICACIÓN CLAVE: INTERCEPTAR SUBMIT Y ABRIR MODAL
+        // ============================================================
         form.addEventListener("submit", function (e){
-            e.preventDefault();
+            e.preventDefault(); // Detenemos el envío automático
             limpiarErrores();
 
             let valido = true;
@@ -206,8 +241,12 @@ document.addEventListener("DOMContentLoaded", function(){
             actualizarTodos();
 
             if (valido) {
-                console.log("Formulario válido. Enviando...");
-                form.submit();
+                console.log("Formulario válido. Abriendo modal...");
+                if (modalInstance) {
+                    modalInstance.show(); // Abrir el modal en lugar de enviar
+                } else {
+                    form.submit(); // Fallback si el modal no se pudo inicializar
+                }
             } else {
                 const primeraClaveInvalida = Object.keys(campos).find(k => errores[k] && errores[k].textContent);
                 if (primeraClaveInvalida && campos[primeraClaveInvalida]) {
@@ -215,6 +254,17 @@ document.addEventListener("DOMContentLoaded", function(){
                 }
             }
         });
+
+        // ============================================================
+        // NUEVO LISTENER: BOTÓN CONFIRMAR EN MODAL
+        // ============================================================
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', function () {
+                console.log("Confirmación recibida. Enviando formulario...");
+                // Esto envía el formulario al action definido en el HTML: /reserva
+                form.submit();
+            });
+        }
 
         form.addEventListener("reset", function () {
             if (form) {
@@ -230,7 +280,6 @@ document.addEventListener("DOMContentLoaded", function(){
         });
 
         validarCamposIniciales();
-
         actualizarProgreso();
     }
 });

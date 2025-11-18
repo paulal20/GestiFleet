@@ -101,4 +101,23 @@
     </div>
   </form>
 </div>
+
+<div class="modal fade" id="confirmacionModal" tabindex="-1" aria-labelledby="confirmacionModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmacionModalLabel">Confirmar Reserva</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro de que deseas guardar los datos de este vehículo?
+        <div class="d-flex justify-content-end mt-3 gap-2">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="confirmarReservaBtn">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="/js/reservaForm.js"></script>

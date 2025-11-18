@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       if (valido) {
-        console.log("✅ Formulario de vehículo válido. Enviando...");
+        console.log("Formulario de vehículo válido. Enviando...");
         form.submit();
       } else {
         const primeraInvalida = Object.keys(campos).find(
