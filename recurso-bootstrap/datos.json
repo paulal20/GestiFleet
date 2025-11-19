@@ -5,28 +5,32 @@
       "nombre": "GestiFleet Madrid",
       "ciudad": "Madrid",
       "direccion": "Calle Falsa 123",
-      "telefono_contacto": "000000001"
+      "telefono_contacto": "000000001",
+      "activo": true
     },
     {
       "id_concesionario": 2,
       "nombre": "GestiFleet Barcelona",
       "ciudad": "Barcelona",
       "direccion": "Avenida Siempre Viva 742",
-      "telefono_contacto": "000000002"
+      "telefono_contacto": "000000002",
+      "activo": true
     },
     {
       "id_concesionario": 3,
       "nombre": "GestiFleet Sevilla",
       "ciudad": "Sevilla",
       "direccion": "Avenida del Arte 15",
-      "telefono_contacto": "000000003"
+      "telefono_contacto": "000000003",
+      "activo": true
     },
     {
       "id_concesionario": 4,
       "nombre": "GestiFleet Valencia",
       "ciudad": "Valencia",
       "direccion": "Calle de la Luz 45",
-      "telefono_contacto": "000000004"
+      "telefono_contacto": "000000004",
+      "activo": true
     }
   ],
   "usuarios": [
@@ -37,7 +41,8 @@
       "contrasenya": "$2b$10$yRO//lNEE/HAs9/cG7r18efG02NZ6j53jpmHh0xXd/zvKvH9KAzfi",
       "rol": "Admin",
       "telefono": "111111111",
-      "id_concesionario": 1
+      "id_concesionario": 1,
+      "activo": true
     },
     {
       "id_usuario": 2,
@@ -46,7 +51,8 @@
       "contrasenya": "Empleado^1",
       "rol": "Empleado",
       "telefono": "222222222",
-      "id_concesionario": 2
+      "id_concesionario": 2,
+      "activo": true
     },
     {
       "id_usuario": 3,
@@ -55,7 +61,8 @@
       "contrasenya": "Arturo^12",
       "rol": "Empleado",
       "telefono": "333333333",
-      "id_concesionario": 1
+      "id_concesionario": 1,
+      "activo": true
     },
     {
       "id_usuario": 4,
@@ -64,68 +71,34 @@
       "contrasenya": "Paula^12",
       "rol": "Empleado",
       "telefono": "444444444",
-      "id_concesionario": 2
+      "id_concesionario": 2,
+      "activo": true
     }
   ],
   "vehiculos": [
-    { "id_vehiculo": 1, "matricula": "1234AAA", "marca": "BYD", "modelo": "Seal 1", "anyo_matriculacion": 2023, "descripcion": "Sedán eléctrico moderno con diseño aerodinámico y rendimiento eficiente para ciudad y carretera.", "tipo": "coche", "precio": 40000.00, "numero_plazas": 5, "autonomia_km": 520, "color": "Gris", "imagen_nombre": "byd_seal1.png", "estado": "disponible", "id_concesionario": 1 },
-    { "id_vehiculo": 2, "matricula": "1234AAB", "marca": "BYD", "modelo": "Seal 2", "anyo_matriculacion": 2023, "descripcion": "Sedán eléctrico eficiente con interiores tecnológicos y autonomía optimizada.", "tipo": "coche", "precio": 42000.00, "numero_plazas": 5, "autonomia_km": 500, "color": "Negro", "imagen_nombre": "byd_seal2.png", "estado": "disponible", "id_concesionario": 1 },
-    { "id_vehiculo": 3, "matricula": "1234AAC", "marca": "BYD", "modelo": "Seal 3", "anyo_matriculacion": 2024, "descripcion": "Versión deportiva con prestaciones mejoradas y diseño elegante.", "tipo": "coche", "precio": 45000.00, "numero_plazas": 5, "autonomia_km": 540, "color": "Blanco", "imagen_nombre": "byd_seal3.png", "estado": "mantenimiento", "id_concesionario": 2 },
-    { "id_vehiculo": 4, "matricula": "1234AAD", "marca": "Tesla", "modelo": "Model S", "anyo_matriculacion": 2023, "descripcion": "Sedán eléctrico de lujo con aceleración impresionante y tecnología avanzada.", "tipo": "coche", "precio": 95000.00, "numero_plazas": 5, "autonomia_km": 652, "color": "Negro", "imagen_nombre": "tesla1.png", "estado": "reservado", "id_concesionario": 1 },
-    { "id_vehiculo": 5, "matricula": "1234AAE", "marca": "Tesla", "modelo": "Model 3", "anyo_matriculacion": 2024, "descripcion": "Versión con interiores premium y sistema de conducción autónoma.", "tipo": "coche", "precio": 98000.00, "numero_plazas": 5, "autonomia_km": 560, "color": "Rojo", "imagen_nombre": "tesla2.png", "estado": "disponible", "id_concesionario": 1 },
-    { "id_vehiculo": 6, "matricula": "1234AAF", "marca": "Tesla", "modelo": "Model X", "anyo_matriculacion": 2023, "descripcion": "Modelo con batería de larga duración y autonomía extendida.", "tipo": "coche", "precio": 100000.00, "numero_plazas": 7, "autonomia_km": 600, "color": "Gris", "imagen_nombre": "tesla3.png", "estado": "disponible", "id_concesionario": 2 },
-    { "id_vehiculo": 7, "matricula": "1234AAG", "marca": "Tesla", "modelo": "Model Y", "anyo_matriculacion": 2024, "descripcion": "Edición deportiva con máxima aceleración y diseño moderno.", "tipo": "coche", "precio": 105000.00, "numero_plazas": 5, "autonomia_km": 540, "color": "Negro", "imagen_nombre": "tesla4.png", "estado": "disponible", "id_concesionario": 1 },
-    { "id_vehiculo": 8, "matricula": "1234AAH", "marca": "Tesla", "modelo": "Model 3 Urban", "anyo_matriculacion": 2023, "descripcion": "Versión urbana con eficiencia energética optimizada y máxima aceleración.", "tipo": "coche", "precio": 92000.00, "numero_plazas": 5, "autonomia_km": 430, "color": "Azul", "imagen_nombre": "tesla5.png", "estado": "reservado", "id_concesionario": 2 },
-    { "id_vehiculo": 9, "matricula": "1234AAI", "marca": "Tesla", "modelo": "Model X Family", "anyo_matriculacion": 2024, "descripcion": "Modelo familiar con tecnología de asistencia y confort superior.", "tipo": "coche", "precio": 97000.00, "numero_plazas": 7, "autonomia_km": 580, "color": "Blanco", "imagen_nombre": "tesla6.png", "estado": "disponible", "id_concesionario": 1 },
-    { "id_vehiculo": 10, "matricula": "1234AAJ", "marca": "Volvo", "modelo": "XC90", "anyo_matriculacion": 2023, "descripcion": "SUV seguro y confortable con interior espacioso y tecnología de asistencia.", "tipo": "suv", "precio": 70000.00, "numero_plazas": 7, "autonomia_km": 550, "color": "Gris", "imagen_nombre": "volvo1.png", "estado": "disponible", "id_concesionario": 2 },
-    { "id_vehiculo": 11, "matricula": "1234AAK", "marca": "Volvo", "modelo": "XC90 Advanced", "anyo_matriculacion": 2024, "descripcion": "Versión avanzada con sistemas de seguridad de última generación.", "tipo": "suv", "precio": 72000.00, "numero_plazas": 7, "autonomia_km": 560, "color": "Blanco", "imagen_nombre": "volvo2.png", "estado": "mantenimiento", "id_concesionario": 1 },
-    { "id_vehiculo": 12, "matricula": "1234AAL", "marca": "Volvo", "modelo": "XC90 Premium", "anyo_matriculacion": 2023, "descripcion": "SUV premium con interiores amplios y acabados de lujo.", "tipo": "suv", "precio": 75000.00, "numero_plazas": 7, "autonomia_km": 570, "color": "Amarillo", "imagen_nombre": "volvo3.png", "estado": "disponible", "id_concesionario": 2 },
-    { "id_vehiculo": 13, "matricula": "1234AAM", "marca": "Volkswagen", "modelo": "T-Cross", "anyo_matriculacion": 2023, "descripcion": "Compacto eficiente y versátil, ideal para la ciudad y viajes familiares.", "tipo": "suv", "precio": 62000.00, "numero_plazas": 5, "autonomia_km": 650, "color": "Azul", "imagen_nombre": "VW1.png", "estado": "disponible", "id_concesionario": 1 },
-    { "id_vehiculo": 14, "matricula": "1234AAN", "marca": "Volkswagen", "modelo": "T-Roc", "anyo_matriculacion": 2024, "descripcion": "Versión con diseño moderno y prestaciones equilibradas.", "tipo": "suv", "precio": 64000.00, "numero_plazas": 5, "autonomia_km": 630, "color": "Rojo", "imagen_nombre": "VW2.png", "estado": "reservado", "id_concesionario": 2 },
-    { "id_vehiculo": 15, "matricula": "1234AAO", "marca": "Volkswagen", "modelo": "Tiguan", "anyo_matriculacion": 2023, "descripcion": "Modelo urbano con eficiencia energética optimizada y diseño moderno.", "tipo": "suv", "precio": 66000.00, "numero_plazas": 5, "autonomia_km": 620, "color": "Azul", "imagen_nombre": "VW3.png", "estado": "disponible", "id_concesionario": 1 },
-    { "id_vehiculo": 16, "matricula": "1234AAP", "marca": "Volkswagen", "modelo": "Tiguan Sport", "anyo_matriculacion": 2024, "descripcion": "Edición deportiva con mayor potencia y estilo moderno.", "tipo": "suv", "precio": 68000.00, "numero_plazas": 5, "autonomia_km": 610, "color": "Rojo", "imagen_nombre": "VW4.png", "estado": "disponible", "id_concesionario": 2 },
-    { "id_vehiculo": 17, "matricula": "1234AAQ", "marca": "Volkswagen", "modelo": "Tiguan Family", "anyo_matriculacion": 2023, "descripcion": "Versión familiar con espacio extra y confort superior.", "tipo": "suv", "precio": 70000.00, "numero_plazas": 7, "autonomia_km": 600, "color": "Azul", "imagen_nombre": "VW5.png", "estado": "disponible", "id_concesionario": 1 }
+    { "id_vehiculo": 1, "matricula": "1234AAA", "marca": "BYD", "modelo": "Seal 1", "anyo_matriculacion": 2023, "descripcion": "Sedán eléctrico moderno con diseño aerodinámico y rendimiento eficiente para ciudad y carretera.", "tipo": "coche", "precio": 40000.00, "numero_plazas": 5, "autonomia_km": 520, "color": "Gris", "imagen_nombre": "byd_seal1.png", "estado": "disponible", "id_concesionario": 1, "activo": true },
+    { "id_vehiculo": 2, "matricula": "1234AAB", "marca": "BYD", "modelo": "Seal 2", "anyo_matriculacion": 2023, "descripcion": "Sedán eléctrico eficiente con interiores tecnológicos y autonomía optimizada.", "tipo": "coche", "precio": 42000.00, "numero_plazas": 5, "autonomia_km": 500, "color": "Negro", "imagen_nombre": "byd_seal2.png", "estado": "disponible", "id_concesionario": 1, "activo": true },
+    { "id_vehiculo": 3, "matricula": "1234AAC", "marca": "BYD", "modelo": "Seal 3", "anyo_matriculacion": 2024, "descripcion": "Versión deportiva con prestaciones mejoradas y diseño elegante.", "tipo": "coche", "precio": 45000.00, "numero_plazas": 5, "autonomia_km": 540, "color": "Blanco", "imagen_nombre": "byd_seal3.png", "estado": "mantenimiento", "id_concesionario": 2, "activo": true },
+    { "id_vehiculo": 4, "matricula": "1234AAD", "marca": "Tesla", "modelo": "Model S", "anyo_matriculacion": 2023, "descripcion": "Sedán eléctrico de lujo con aceleración impresionante y tecnología avanzada.", "tipo": "coche", "precio": 95000.00, "numero_plazas": 5, "autonomia_km": 652, "color": "Negro", "imagen_nombre": "tesla1.png", "estado": "reservado", "id_concesionario": 1, "activo": true },
+    { "id_vehiculo": 5, "matricula": "1234AAE", "marca": "Tesla", "modelo": "Model 3", "anyo_matriculacion": 2024, "descripcion": "Versión con interiores premium y sistema de conducción autónoma.", "tipo": "coche", "precio": 98000.00, "numero_plazas": 5, "autonomia_km": 560, "color": "Rojo", "imagen_nombre": "tesla2.png", "estado": "disponible", "id_concesionario": 1, "activo": true },
+    { "id_vehiculo": 6, "matricula": "1234AAF", "marca": "Tesla", "modelo": "Model X", "anyo_matriculacion": 2023, "descripcion": "Modelo con batería de larga duración y autonomía extendida.", "tipo": "coche", "precio": 100000.00, "numero_plazas": 7, "autonomia_km": 600, "color": "Gris", "imagen_nombre": "tesla3.png", "estado": "disponible", "id_concesionario": 2, "activo": true },
+    { "id_vehiculo": 7, "matricula": "1234AAG", "marca": "Tesla", "modelo": "Model Y", "anyo_matriculacion": 2024, "descripcion": "Edición deportiva con máxima aceleración y diseño moderno.", "tipo": "coche", "precio": 105000.00, "numero_plazas": 5, "autonomia_km": 540, "color": "Negro", "imagen_nombre": "tesla4.png", "estado": "disponible", "id_concesionario": 1, "activo": true },
+    { "id_vehiculo": 8, "matricula": "1234AAH", "marca": "Tesla", "modelo": "Model 3 Urban", "anyo_matriculacion": 2023, "descripcion": "Versión urbana con eficiencia energética optimizada y máxima aceleración.", "tipo": "coche", "precio": 92000.00, "numero_plazas": 5, "autonomia_km": 430, "color": "Azul", "imagen_nombre": "tesla5.png", "estado": "reservado", "id_concesionario": 2, "activo": true },
+    { "id_vehiculo": 9, "matricula": "1234AAI", "marca": "Tesla", "modelo": "Model X Family", "anyo_matriculacion": 2024, "descripcion": "Modelo familiar con tecnología de asistencia y confort superior.", "tipo": "coche", "precio": 97000.00, "numero_plazas": 7, "autonomia_km": 580, "color": "Blanco", "imagen_nombre": "tesla6.png", "estado": "disponible", "id_concesionario": 1, "activo": true },
+    { "id_vehiculo": 10, "matricula": "1234AAJ", "marca": "Volvo", "modelo": "XC90", "anyo_matriculacion": 2023, "descripcion": "SUV seguro y confortable con interior espacioso y tecnología de asistencia.", "tipo": "suv", "precio": 70000.00, "numero_plazas": 7, "autonomia_km": 550, "color": "Gris", "imagen_nombre": "volvo1.png", "estado": "disponible", "id_concesionario": 2, "activo": true },
+    { "id_vehiculo": 11, "matricula": "1234AAK", "marca": "Volvo", "modelo": "XC90 Advanced", "anyo_matriculacion": 2024, "descripcion": "Versión avanzada con sistemas de seguridad de última generación.", "tipo": "suv", "precio": 72000.00, "numero_plazas": 7, "autonomia_km": 560, "color": "Blanco", "imagen_nombre": "volvo2.png", "estado": "mantenimiento", "id_concesionario": 1, "activo": true }, 
+    { "id_vehiculo": 12, "matricula": "1234AAL", "marca": "Volvo", "modelo": "XC90 Premium", "anyo_matriculacion": 2023, "descripcion": "SUV premium con interiores amplios y acabados de lujo.", "tipo": "suv", "precio": 75000.00, "numero_plazas": 7, "autonomia_km": 570, "color": "Amarillo", "imagen_nombre": "volvo3.png", "estado": "disponible", "id_concesionario": 2, "activo": true  }, 
+    { "id_vehiculo": 13, "matricula": "1234AAM", "marca": "Volkswagen", "modelo": "T-Cross", "anyo_matriculacion": 2023, "descripcion": "Compacto eficiente y versátil, ideal para la ciudad y viajes familiares.", "tipo": "suv", "precio": 62000.00, "numero_plazas": 5, "autonomia_km": 650, "color": "Azul", "imagen_nombre": "VW1.png", "estado": "disponible", "id_concesionario": 1, "activo": true  }, 
+    { "id_vehiculo": 14, "matricula": "1234AAN", "marca": "Volkswagen", "modelo": "T-Roc", "anyo_matriculacion": 2024, "descripcion": "Versión con diseño moderno y prestaciones equilibradas.", "tipo": "suv", "precio": 64000.00, "numero_plazas": 5, "autonomia_km": 630, "color": "Rojo", "imagen_nombre": "VW2.png", "estado": "reservado", "id_concesionario": 2, "activo": true  }, 
+    { "id_vehiculo": 15, "matricula": "1234AAO", "marca": "Volkswagen", "modelo": "Tiguan", "anyo_matriculacion": 2023, "descripcion": "Modelo urbano con eficiencia energética optimizada y diseño moderno.", "tipo": "suv", "precio": 66000.00, "numero_plazas": 5, "autonomia_km": 620, "color": "Azul", "imagen_nombre": "VW3.png", "estado": "disponible", "id_concesionario": 1, "activo": true  }, 
+    { "id_vehiculo": 16, "matricula": "1234AAP", "marca": "Volkswagen", "modelo": "Tiguan Sport", "anyo_matriculacion": 2024, "descripcion": "Edición deportiva con mayor potencia y estilo moderno.", "tipo": "suv", "precio": 68000.00, "numero_plazas": 5, "autonomia_km": 610, "color": "Rojo", "imagen_nombre": "VW4.png", "estado": "disponible", "id_concesionario": 2, "activo": true  }, 
+    { "id_vehiculo": 17, "matricula": "1234AAQ", "marca": "Volkswagen", "modelo": "Tiguan Family", "anyo_matriculacion": 2023, "descripcion": "Versión familiar con espacio extra y confort superior.", "tipo": "suv", "precio": 70000.00, "numero_plazas": 7, "autonomia_km": 600, "color": "Azul", "imagen_nombre": "VW5.png", "estado": "disponible", "id_concesionario": 1, "activo": true  }
   ],
   "reservas": [
-    {
-      "id_reserva": 1,
-      "id_usuario": 2,
-      "id_vehiculo": 4,
-      "fecha_inicio": "2024-10-05",
-      "fecha_fin": "2024-10-10",
-      "estado": "activa"
-    },
-    {
-      "id_reserva": 2,
-      "id_usuario": 3,
-      "id_vehiculo": 8,
-      "fecha_inicio": "2024-10-12",
-      "fecha_fin": "2024-10-15",
-      "estado": "activa"
-    },
-    {
-      "id_reserva": 3,
-      "id_usuario": 4,
-      "id_vehiculo": 14,
-      "fecha_inicio": "2024-11-01",
-      "fecha_fin": "2024-11-07",
-      "estado": "activa"
-    },
-    {
-      "id_reserva": 4,
-      "id_usuario": 2,
-      "id_vehiculo": 1,
-      "fecha_inicio": "2024-09-20",
-      "fecha_fin": "2024-09-25",
-      "estado": "finalizada"
-    },
-    {
-      "id_reserva": 5,
-      "id_usuario": 3,
-      "id_vehiculo": 10,
-      "fecha_inicio": "2024-09-12",
-      "fecha_fin": "2024-09-14",
-      "estado": "cancelada"
-    }
+    { "id_reserva": 1, "id_usuario": 2, "id_vehiculo": 4, "fecha_inicio": "2024-10-05", "fecha_fin": "2024-10-10", "estado": "activa", "activo": true },
+    { "id_reserva": 2, "id_usuario": 3, "id_vehiculo": 8, "fecha_inicio": "2024-10-12", "fecha_fin": "2024-10-15", "estado": "activa", "activo": true },
+    { "id_reserva": 3, "id_usuario": 4, "id_vehiculo": 14, "fecha_inicio": "2024-11-01", "fecha_fin": "2024-11-07", "estado": "activa", "activo": true },
+    { "id_reserva": 4, "id_usuario": 2, "id_vehiculo": 1, "fecha_inicio": "2024-09-20", "fecha_fin": "2024-09-25", "estado": "finalizada", "activo": true },
+    { "id_reserva": 5, "id_usuario": 3, "id_vehiculo": 10, "fecha_inicio": "2024-09-12", "fecha_fin": "2024-09-14", "estado": "cancelada", "activo": true }
   ]
 }

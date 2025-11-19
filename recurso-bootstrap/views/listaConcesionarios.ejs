@@ -10,99 +10,58 @@
     <% } %>
   </div>
 
-  <form action="/concesionarios" method="GET" class="mb-4">
+  <!-- FILTRO -->
+  <div class="mb-4">
     <fieldset>
       <legend class="w-auto">Filtros</legend>
-
       <div class="row g-3">
         <div class="col-md-6 col-lg-4">
           <label for="filtroCiudad" class="form-label">Ciudad</label>
-          <select name="ciudad" id="filtroCiudad" class="form-select">
-            <option value="" <%= (ciudadSeleccionada === '') ? 'selected' : '' %>>
-              Todas las Ciudades
-            </option>
-            <% if (ciudadesDisponibles && ciudadesDisponibles.length > 0) { %>
-              <% ciudadesDisponibles.forEach(c => { %>
-                <option value="<%= c %>" <%= (c === ciudadSeleccionada) ? 'selected' : '' %>>
-                  <%= c %>
-                </option>
-              <% }) %>
-            <% } %>
+          <select id="filtroCiudad" class="form-select">
+            <option value="">Todas las Ciudades</option>
+            <!-- Opciones se llenan con JS -->
           </select>
         </div>
 
         <div class="col-md-6 col-lg-4 d-flex align-items-end gap-2">
-          <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-          <a href="/concesionarios" class="btn btn-outline-secondary w-100">Limpiar</a>
+          <button type="button" id="btnFiltrar" class="btn btn-primary w-100">Filtrar</button>
+          <button type="button" id="btnLimpiar" class="btn btn-outline-secondary w-100">Limpiar</button>
         </div>
-      </div> </fieldset>
-  </form>
-  <% if (typeof error !== 'undefined' && error) { %>
-    <div class="alert alert-danger" role="alert" aria-live="assertive">
-      <%= error %>
-    </div>
-  <% } %>
-      
-  <% if (concesionarios && concesionarios.length > 0) { %>
-    <div class="table-responsive-md">
-      <table class="table table-hover" aria-describedby="tabla-concesionarios-descripcion">
-        <caption class="text-center">
-          Concesionarios mostrados: <strong><%= concesionarios.length %></strong>
-        </caption>
-        <thead class="table-dark">
-          <tr>
-            <th scope="col">Nombre</th>
-            <th scope="col">Ciudad</th>
-            <th scope="col">Dirección</th>
-            <th scope="col">Teléfono</th>
-            <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
-              <th scope="col">Acciones</th>
-            <% } %>
-          </tr>
-        </thead>
-        <tbody>
-          <% concesionarios.forEach(c => { %>
-            <tr>
-              <td class="fila-click" data-href="/concesionarios/<%= c.id_concesionario %>"><%= c.nombre %></td>
-              <td class="fila-click" data-href="/concesionarios/<%= c.id_concesionario %>"><%= c.ciudad %></td>
-              <td class="fila-click" data-href="/concesionarios/<%= c.id_concesionario %>"><%= c.direccion %></td>
-              <td class="fila-click" data-href="/concesionarios/<%= c.id_concesionario %>"><%= c.telefono_contacto %></td>
-              <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
-                <td>
-                  <button 
-                    type="button" 
-                    class="btn btn-secondary btn-sm mb1"
-                    data-bs-toggle="modal"
-                    data-bs-target="#confirmarEliminarConcesionarioModal"
-                    data-id="<%= c.id_concesionario %>"
-                    data-name="<%= c.nombre %>">
-                    <span class="lang lang-es">Eliminar</span>
-                    <span class="lang lang-en d-none">Delete</span>
-                  </button>
-                  <a href="/concesionarios/<%= c.id_concesionario %>/editar" 
-                    class="btn btn-primary btn-sm me-2 mb-1">
-                    <span class="lang lang-es">Editar</span>
-                    <span class="lang lang-en d-none">Edit</span>
-                  </a>
-                </td>
-              <% } %>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </div>
-    <div id="tabla-concesionarios-descripcion" class="visually-hidden">
-      Listado de concesionarios. Al hacer clic en una fila, se navega a su detalle.
-    </div>
+      </div>
+    </fieldset>
+  </div>
 
-  <% } else if (typeof error === 'undefined' || !error) { %> 
-    <div class="alert alert-info text-center" role="alert">
-      <h4 class="alert-heading">No hay concesionarios</h4>
-      <p class="mb-0">No se encontraron concesionarios para la selección actual.</p>
-    </div>
-  <% } %>
+  <!-- ALERTAS -->
+  <div id="alertas"></div>
+
+  <!-- TABLA -->
+  <div class="table-responsive-md">
+    <table class="table table-hover" aria-describedby="tabla-concesionarios-descripcion">
+      <caption class="text-center">
+        Concesionarios mostrados: <strong id="contadorConcesionarios">0</strong>
+      </caption>
+      <thead class="table-dark">
+        <tr>
+          <th scope="col">Nombre</th>
+          <th scope="col">Ciudad</th>
+          <th scope="col">Dirección</th>
+          <th scope="col">Teléfono</th>
+          <th scope="col">Activo</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tablaConcesionariosBody">
+        <!-- AJAX insertará filas aquí -->
+      </tbody>
+    </table>
+  </div>
+  <div id="tabla-concesionarios-descripcion" class="visually-hidden">
+    Listado de concesionarios. Al hacer clic en una fila, se navega a su detalle.
+  </div>
+
 </div>
 
+<!-- MODAL ELIMINAR -->
 <div class="modal fade" id="confirmarEliminarConcesionarioModal" tabindex="-1" aria-labelledby="confirmarEliminarConcesionarioModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
@@ -130,4 +89,6 @@
   </div>
 </div>
 
+<!-- SCRIPTS -->
 <script src="/js/modal.js"></script>
+<script src="/js/ajax/concesionarios.js"></script>

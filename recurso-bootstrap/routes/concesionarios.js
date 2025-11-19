@@ -4,45 +4,49 @@ const { isAuth, isAdmin } = require('../middleware/auth');
 
 // LISTADO: /concesionarios
 router.get('/', isAuth, async (req, res) => {
-  try {
-    const { ciudad } = req.query;
-    const ciudadSeleccionada = ciudad || '';
+  res.render('listaConcesionarios', {
+    title: 'Concesionarios',
+    usuarioSesion: req.session.usuario
+  });
+  // try {
+  //   const { ciudad } = req.query;
+  //   const ciudadSeleccionada = ciudad || '';
 
-    let sql = 'SELECT * FROM concesionarios';
-    const params = [];
+  //   let sql = 'SELECT * FROM concesionarios';
+  //   const params = [];
 
-    if (ciudadSeleccionada) {
-      sql += ' WHERE ciudad = ?';
-      params.push(ciudadSeleccionada);
-    }
+  //   if (ciudadSeleccionada) {
+  //     sql += ' WHERE ciudad = ?';
+  //     params.push(ciudadSeleccionada);
+  //   }
 
-    sql += ' ORDER BY nombre';
+  //   sql += ' ORDER BY nombre';
     
-    const [concesionarios] = await req.db.query(sql, params);
+  //   const [concesionarios] = await req.db.query(sql, params);
 
-    const [ciudades] = await req.db.query('SELECT DISTINCT ciudad FROM concesionarios ORDER BY ciudad');
-    const ciudadesDisponibles = ciudades.map(c => c.ciudad);
+  //   const [ciudades] = await req.db.query('SELECT DISTINCT ciudad FROM concesionarios ORDER BY ciudad');
+  //   const ciudadesDisponibles = ciudades.map(c => c.ciudad);
 
-    res.render('listaConcesionarios', {
-      title: 'Concesionarios',
-      concesionarios,
-      ciudadesDisponibles,
-      ciudadSeleccionada,
-      usuario: req.session.usuario,
-      usuarioSesion: req.session.usuario
-    });
-  } catch (err) {
-    console.error('Error cargando concesionarios:', err);
-    res.status(500).render('listaConcesionarios', { 
-      title: 'Concesionarios',
-      concesionarios: [],
-      ciudadesDisponibles: [],
-      ciudadSeleccionada: '',
-      usuario: req.session.usuario,
-      usuarioSesion: req.session.usuario,
-      error: 'Error al cargar los concesionarios' 
-    });
-  }
+  //   res.render('listaConcesionarios', {
+  //     title: 'Concesionarios',
+  //     concesionarios,
+  //     ciudadesDisponibles,
+  //     ciudadSeleccionada,
+  //     usuario: req.session.usuario,
+  //     usuarioSesion: req.session.usuario
+  //   });
+  // } catch (err) {
+  //   console.error('Error cargando concesionarios:', err);
+  //   res.status(500).render('listaConcesionarios', { 
+  //     title: 'Concesionarios',
+  //     concesionarios: [],
+  //     ciudadesDisponibles: [],
+  //     ciudadSeleccionada: '',
+  //     usuario: req.session.usuario,
+  //     usuarioSesion: req.session.usuario,
+  //     error: 'Error al cargar los concesionarios' 
+  //   });
+  // }
 });
 
 // DETALLE: /concesionarios/:id
@@ -159,9 +163,9 @@ router.post('/nuevo', isAdmin, async (req, res) => {
     }
 
     await req.db.query(
-      `INSERT INTO concesionarios (nombre, ciudad, direccion, telefono_contacto)
-       VALUES (?, ?, ?, ?)`,
-      [ String(nombre).trim(), String(ciudad).trim(), String(direccion).trim(), telefonoTrim ]
+      `INSERT INTO concesionarios (nombre, ciudad, direccion, telefono_contacto, activo)
+       VALUES (?, ?, ?, ?, ?)`,
+      [ String(nombre).trim(), String(ciudad).trim(), String(direccion).trim(), telefonoTrim, 1 ]
     );
 
     res.redirect('/concesionarios');
@@ -328,7 +332,7 @@ router.post('/:id(\\d+)/eliminar', isAdmin, async (req, res) => {
       });
     }
 
-    await req.db.query('DELETE FROM concesionarios WHERE id_concesionario = ?', [id]);
+    await req.db.query('UPDATE concesionarios SET activo = ? WHERE id_concesionario = ?', [0, id]);
     res.redirect('/concesionarios');
   } catch (err) {
     console.error('Error al eliminar concesionario:', err);

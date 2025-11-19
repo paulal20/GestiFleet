@@ -6,6 +6,7 @@ const session = require('express-session');
 const expressLayouts = require('express-ejs-layouts');
 const getConnection = require('./middleware/connection');
 
+const cargaInicial = require('./middleware/carga');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -39,20 +40,25 @@ app.set('layout', 'layout');
 // Get Connection
 app.use(getConnection);
 
+//Mirar carga inicial
+// app.use(cargaInicial);
+
 // --- Rutas ---
 const indexRoutes = require('./routes/index');
 const vehiculosRoutes = require('./routes/vehiculos');
 const reservasRoutes = require('./routes/reservas');
-const apiRoutes = require('./routes/api');
 const concesionariosRoutes = require('./routes/concesionarios');
 const usuariosRoutes = require('./routes/usuarios');
+const concesionarioAjax = require('./routes/api/concesionarios');
+// const cargaInicialRoutes = require('./routes/cargaInicial');
 
 app.use('/', indexRoutes);
 app.use('/vehiculos', vehiculosRoutes);
 app.use('/reserva', reservasRoutes);
-app.use('/api', apiRoutes);
 app.use('/concesionarios', concesionariosRoutes);
 app.use('/usuarios', usuariosRoutes);
+app.use('/api/concesionarios', concesionarioAjax);
+// app.use('/carga-inicial', cargaInicialRoutes);
 
 // Forzar error 500
 app.get('/error', (req, res, next) => {

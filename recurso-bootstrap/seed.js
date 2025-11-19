@@ -47,9 +47,9 @@ async function cargarDatos() {
     console.log('Tablas limpiadas.');
 
     // --- INSERTAR CONCESIONARIOS ---
-    const concesionariosQuery = `INSERT INTO concesionarios (id_concesionario, nombre, ciudad, direccion, telefono_contacto) VALUES ?`;
+    const concesionariosQuery = `INSERT INTO concesionarios (id_concesionario, nombre, ciudad, direccion, telefono_contacto, activo) VALUES ?`;
     const concesionariosData = datos.concesionarios.map(c => [
-      c.id_concesionario, c.nombre, c.ciudad, c.direccion, c.telefono_contacto
+      c.id_concesionario, c.nombre, c.ciudad, c.direccion, c.telefono_contacto, c.activo
     ]);
     await connection.query(concesionariosQuery, [concesionariosData]);
     console.log(`Insertados ${datos.concesionarios.length} concesionarios.`);
@@ -64,16 +64,16 @@ async function cargarDatos() {
         contrasenyaFinal = u.contrasenya;
       }
       
-      const usuarioQuery = `INSERT INTO usuarios (id_usuario, nombre, correo, contrasenya, rol, telefono, id_concesionario) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+      const usuarioQuery = `INSERT INTO usuarios (id_usuario, nombre, correo, contrasenya, rol, telefono, id_concesionario, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
       await connection.execute(usuarioQuery, [
-        u.id_usuario, u.nombre, u.correo, contrasenyaFinal, u.rol, u.telefono, u.id_concesionario
+        u.id_usuario, u.nombre, u.correo, contrasenyaFinal, u.rol, u.telefono, u.id_concesionario, u.activo
       ]);
     }
     console.log(`Insertados ${datos.usuarios.length} usuarios.`);
 
     // --- INSERTAR VEHÍCULOS ---
     console.log('Leyendo imágenes y cargando vehículos...');
-    const vehiculoQuery = `INSERT INTO vehiculos (id_vehiculo, matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const vehiculoQuery = `INSERT INTO vehiculos (id_vehiculo, matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     
     for (const v of datos.vehiculos) {
       const imagenBuffer = await leerImagen(v.imagen_nombre);
@@ -81,7 +81,7 @@ async function cargarDatos() {
       await connection.execute(vehiculoQuery, [
         v.id_vehiculo, v.matricula, v.marca, v.modelo, v.anyo_matriculacion, 
         v.descripcion, v.tipo, v.precio, v.numero_plazas, v.autonomia_km, 
-        v.color, imagenBuffer, v.estado, v.id_concesionario
+        v.color, imagenBuffer, v.estado, v.id_concesionario, v.activo
       ]);
     }
     console.log(`Insertados ${datos.vehiculos.length} vehículos.`);
@@ -89,11 +89,11 @@ async function cargarDatos() {
     // --- INSERTAR RESERVAS ---
     if (datos.reservas && datos.reservas.length > 0) {
         console.log('Cargando reservas...');
-        const reservaQuery = `INSERT INTO reservas (id_reserva, id_usuario, id_vehiculo, fecha_inicio, fecha_fin, estado) VALUES (?, ?, ?, ?, ?, ?)`;
+        const reservaQuery = `INSERT INTO reservas (id_reserva, id_usuario, id_vehiculo, fecha_inicio, fecha_fin, estado, activo) VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
         for (const r of datos.reservas) {
             await connection.execute(reservaQuery, [
-                r.id_reserva, r.id_usuario, r.id_vehiculo, r.fecha_inicio, r.fecha_fin, r.estado
+                r.id_reserva, r.id_usuario, r.id_vehiculo, r.fecha_inicio, r.fecha_fin, r.estado, r.activo
             ]);
         }
         console.log(`Insertadas ${datos.reservas.length} reservas.`);
