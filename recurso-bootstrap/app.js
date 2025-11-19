@@ -41,7 +41,7 @@ app.set('layout', 'layout');
 app.use(getConnection);
 
 //Mirar carga inicial
-// app.use(cargaInicial);
+app.use(cargaInicial);
 
 // --- Rutas ---
 const indexRoutes = require('./routes/index');
@@ -50,7 +50,7 @@ const reservasRoutes = require('./routes/reservas');
 const concesionariosRoutes = require('./routes/concesionarios');
 const usuariosRoutes = require('./routes/usuarios');
 const concesionarioAjax = require('./routes/api/concesionarios');
-// const cargaInicialRoutes = require('./routes/cargaInicial');
+const cargaInicialRoutes = require('./routes/cargaInicial');
 
 app.use('/', indexRoutes);
 app.use('/vehiculos', vehiculosRoutes);
@@ -58,7 +58,7 @@ app.use('/reserva', reservasRoutes);
 app.use('/concesionarios', concesionariosRoutes);
 app.use('/usuarios', usuariosRoutes);
 app.use('/api/concesionarios', concesionarioAjax);
-// app.use('/carga-inicial', cargaInicialRoutes);
+app.use('/carga-inicial', cargaInicialRoutes);
 
 // Forzar error 500
 app.get('/error', (req, res, next) => {

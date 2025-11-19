@@ -1,6 +1,6 @@
 module.exports = async (req, res, next) => {
     const rutasPermitidas = [
-        '/setup', 
+        '/carga-inicial/setup', 
         '/carga-inicial/previsualizar-importacion', 
         '/carga-inicial/ejecutar-importacion'
     ];
@@ -15,7 +15,7 @@ module.exports = async (req, res, next) => {
     try {
         const [rows] = await req.db.query('SELECT count(*) as count FROM usuarios');
         if (rows[0].count === 0) {
-            return res.redirect('/setup');
+            return res.redirect('/carga-inicial/setup');
         }
         next();
     } catch (err) {

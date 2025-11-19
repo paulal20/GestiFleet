@@ -17,11 +17,17 @@ router.post('/previsualizar', async (req, res) => {
     try {
         const datos = req.body.datosJSON;
 
-        if (!datos || !datos.vehiculos || !datos.concesionarios) {
-            return res.status(400).json({ exito: false, mensaje: "El JSON no es válido, no tiene vehículos o no tiene concesionarios." });
+        if (!datos || !datos.concesionarios || !datos.vehiculos) {
+            return res.status(400).json({ exito: false, mensaje: "El JSON debe contener 'concesionarios' y 'vehiculos'." });
         }
 
-        const informe = { nuevos: [], conflictos: [] };
+        const informe = { 
+            nuevos: [], 
+            conflictos: [],
+            infoConcesionarios: 0
+        };
+
+        informe.infoConcesionarios = datos.concesionarios.length;
 
         for (const v of datos.vehiculos) {
             const [rows] = await req.db.query('SELECT * FROM vehiculos WHERE matricula = ?', [v.matricula]);
@@ -37,7 +43,7 @@ router.post('/previsualizar', async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ exito: false, mensaje: "Error leyendo el JSON." });
+        res.status(500).json({ exito: false, mensaje: "Error procesando los datos." });
     }
 });
 
@@ -48,29 +54,30 @@ router.post('/ejecutar', async (req, res) => {
     try {
         await connection.beginTransaction();
 
-        if (datosCompletos.concesionarios) {
+        if (datosCompletos.concesionarios.length > 0) {
             for (const c of datosCompletos.concesionarios) {
                 await connection.query(
                     `INSERT IGNORE INTO concesionarios (id_concesionario, nombre, ciudad, direccion, telefono_contacto) VALUES (?, ?, ?, ?, ?)`,
                     [c.id_concesionario, c.nombre, c.ciudad, c.direccion, c.telefono_contacto]
                 );
             }
+            console.log(`> Procesados ${datosCompletos.concesionarios.length} concesionarios.`);
         }
 
-        if (datosCompletos.vehiculos) {
+        if (datosCompletos.vehiculos.length > 0) {
             for (const v of datosCompletos.vehiculos) {
                 let imagenBlob = null;
                 if (v.imagen_nombre) {
                     const rutaImagen = path.join(__dirname, '../public/img/vehiculos', v.imagen_nombre);
                     try {
                         if (fs.existsSync(rutaImagen)) imagenBlob = fs.readFileSync(rutaImagen);
-                    } catch (e) {}
+                    } catch (e) { console.error("Imagen no encontrada: ", v.imagen_nombre); }
                 }
 
                 if (matriculasAActualizar.includes(v.matricula)) {
                     await connection.query(
-                        `UPDATE vehiculos SET marca=?, modelo=?, precio=?, imagen=?, estado=? WHERE matricula=?`,
-                        [v.marca, v.modelo, v.precio, imagenBlob, v.estado, v.matricula]
+                        `UPDATE vehiculos SET marca=?, modelo=?, precio=?, imagen=?, estado=?, id_concesionario=? WHERE matricula=?`,
+                        [v.marca, v.modelo, v.precio, imagenBlob, v.estado, v.id_concesionario, v.matricula]
                     );
                 } else {
                     await connection.query(
@@ -91,14 +98,22 @@ router.post('/ejecutar', async (req, res) => {
         }
 
         await connection.commit();
-        res.json({ exito: true, mensaje: "Carga completada. Admin creado." });
+        res.json({ exito: true, mensaje: "Carga completada (Concesionarios, Vehículos y Admin)." });
 
     } catch (error) {
         await connection.rollback();
+        console.error(error);
         res.status(500).json({ exito: false, mensaje: error.message });
     } finally {
         connection.release();
     }
+});
+
+router.get('/setup', (req, res) => {
+    res.render('setup', { 
+        title: 'Instalación Inicial',
+        usuarioSesion: null 
+    });
 });
 
 module.exports = router;

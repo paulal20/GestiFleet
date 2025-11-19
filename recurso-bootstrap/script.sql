@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS concesionarios (
   nombre VARCHAR(100) NOT NULL,
   ciudad VARCHAR(50) NOT NULL,
   direccion VARCHAR(150) NOT NULL,
-  telefono_contacto VARCHAR(20) NOT NULL
+  telefono_contacto VARCHAR(20) NOT NULL,
+  activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE IF NOT EXISTS usuarios (
@@ -26,6 +27,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
   telefono VARCHAR(20),
   id_concesionario INT,
   preferencias_accesibilidad JSON,
+  activo BOOLEAN NOT NULL DEFAULT TRUE,
   FOREIGN KEY (id_concesionario) REFERENCES concesionarios(id_concesionario)
 );
 
@@ -44,6 +46,7 @@ CREATE TABLE IF NOT EXISTS vehiculos (
   imagen LONGBLOB,
   estado ENUM('disponible','reservado','mantenimiento') DEFAULT 'disponible',
   id_concesionario INT,
+  activo BOOLEAN NOT NULL DEFAULT TRUE,
   FOREIGN KEY (id_concesionario) REFERENCES concesionarios(id_concesionario)
 );
 
@@ -57,6 +60,7 @@ CREATE TABLE IF NOT EXISTS reservas (
   estado ENUM('activa','finalizada','cancelada') DEFAULT 'activa',
   kilometros_recorridos INT,
   incidencias_reportadas TEXT,
+  activo BOOLEAN NOT NULL DEFAULT TRUE,
   FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario),
   FOREIGN KEY (id_vehiculo) REFERENCES vehiculos(id_vehiculo)
 );
