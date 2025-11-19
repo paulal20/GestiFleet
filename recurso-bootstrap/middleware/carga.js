@@ -1,8 +1,8 @@
 module.exports = async (req, res, next) => {
     const rutasPermitidas = [
         '/carga-inicial/setup', 
-        '/carga-inicial/previsualizar-importacion', 
-        '/carga-inicial/ejecutar-importacion'
+        '/carga-inicial/previsualizar', 
+        '/carga-inicial/ejecutar'
     ];
 
     if (rutasPermitidas.includes(req.path) || 

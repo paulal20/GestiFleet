@@ -5,7 +5,7 @@ $(document).ready(function() {
     if (modalElement) {
         modalElement.addEventListener('show.bs.modal', event => {
             $('#inputArchivoJSON').val('');
-            $('#btnAnalizar').prop('disabled', true).text('Analizar Fichero');
+            $('#btnProcesarJSON').prop('disabled', true).html('<i class="bi bi-cloud-upload"></i> Cargar');
             $('#btnConfirmarCarga').prop('disabled', true);
             $('#zonaConflictos').hide();
             $('#zonaSinConflictos').hide();
@@ -16,20 +16,23 @@ $(document).ready(function() {
     $('#inputArchivoJSON').on('change', function(e) {
         const archivo = e.target.files[0];
         if (archivo) {
-            $('#btnAnalizar').prop('disabled', false);
+            $('#btnProcesarJSON').prop('disabled', false);
+            
             $('#zonaConflictos').hide();
             $('#zonaSinConflictos').hide();
             $('#btnConfirmarCarga').prop('disabled', true);
         } else {
-            $('#btnAnalizar').prop('disabled', true);
+            $('#btnProcesarJSON').prop('disabled', true);
         }
     });
 
-    $('#btnAnalizar').on('click', function() {
+    $('#btnProcesarJSON').on('click', function() {
         const archivo = $('#inputArchivoJSON')[0].files[0];
         if (!archivo) return;
 
         const btn = $(this);
+        const textoOriginal = btn.html();
+        
         btn.prop('disabled', true).text('Leyendo...');
 
         const reader = new FileReader();
@@ -39,29 +42,30 @@ $(document).ready(function() {
                 
                 if(!datosCargados.concesionarios || !datosCargados.vehiculos) {
                     alert("Error: El JSON debe tener 'concesionarios' y 'vehiculos'.");
-                    btn.prop('disabled', false).text('Analizar Fichero');
+                    btn.prop('disabled', false).html(textoOriginal);
                     return;
                 }
 
                 btn.text('Analizando en servidor...');
+                
                 $.ajax({
                     url: '/carga-inicial/previsualizar',
                     method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({ datosJSON: datosCargados }),
                     success: function(res) {
-                        btn.prop('disabled', false).text('Analizar Fichero'); 
+                        btn.prop('disabled', false).html(textoOriginal);
                         procesarResultadoAnalisis(res.data);
                     },
                     error: function(xhr) {
                         alert('Error del servidor: ' + (xhr.responseJSON?.mensaje || 'Desconocido'));
-                        btn.prop('disabled', false).text('Analizar Fichero');
+                        btn.prop('disabled', false).html(textoOriginal);
                     }
                 });
 
             } catch (error) {
                 alert("El archivo no es un JSON válido.");
-                btn.prop('disabled', false).text('Analizar Fichero');
+                btn.prop('disabled', false).html(textoOriginal);
             }
         };
         reader.readAsText(archivo);
@@ -70,11 +74,17 @@ $(document).ready(function() {
     function procesarResultadoAnalisis(data) {
         const { conflictos, nuevos } = data;
         
-        $('#btnConfirmarCarga').prop('disabled', false);
-
-        if (conflictos.length > 0) {
-            $('#zonaSinConflictos').hide();
-            $('#zonaConflictos').fadeIn();
+        if (conflictos.length === 0) {
+            if ($('.setup-content').length > 0) {
+                if(confirm(`Todo correcto. Se cargarán ${nuevos.length} vehículos y los datos base. ¿Proceder?`)) {
+                    enviarDatosDefinitivos([]);
+                }
+            } else {
+                $('#zonaConflictos').hide();
+                $('#zonaSinConflictos').fadeIn();
+                $('#btnConfirmarCarga').prop('disabled', false);
+            }
+        } else {
             
             $('#textoResumenConflictos').text(`Se han detectado ${conflictos.length} vehículos duplicados.`);
             
@@ -98,35 +108,43 @@ $(document).ready(function() {
                 $('.check-actualizar').prop('checked', $(this).is(':checked'));
             });
 
-        } else {
-            $('#zonaConflictos').hide();
-            $('#zonaSinConflictos').fadeIn();
+            if ($('#modalImportacion').hasClass('show')) {
+                 $('#zonaSinConflictos').hide();
+                 $('#zonaConflictos').fadeIn();
+                 $('#btnConfirmarCarga').prop('disabled', false);
+            } else {
+                const modalConflictos = new bootstrap.Modal(document.getElementById('modalConflictos'));
+                modalConflictos.show();
+            }
         }
     }
 
     $('#btnConfirmarCarga').on('click', function() {
         const matriculas = [];
         
-        if ($('#zonaConflictos').is(':visible')) {
-            $('.check-actualizar:checked').each(function() {
-                matriculas.push($(this).val());
-            });
-        }
+        $('.check-actualizar:checked').each(function() {
+            matriculas.push($(this).val());
+        });
+
+        enviarDatosDefinitivos(matriculas);
+    });
+
+    function enviarDatosDefinitivos(matriculasAActualizar) {
         $.ajax({
             url: '/carga-inicial/ejecutar',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
                 datosCompletos: datosCargados,
-                matriculasAActualizar: matriculas
+                matriculasAActualizar: matriculasAActualizar
             }),
             success: function(res) {
                 alert(res.mensaje);
-                window.location.reload();
+                window.location.href = '/'; 
             },
             error: function(xhr) {
                 alert('Error al guardar: ' + xhr.responseJSON?.mensaje);
             }
         });
-    });
+    }
 });

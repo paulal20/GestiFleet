@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcrypt');
 
+// DATOS DEL ADMINISTRADOR
 const ADMIN_DEFAULT = {
     nombre: "Administrador Jefe",
     correo: "admin@gestifleet.com",
@@ -13,6 +14,7 @@ const ADMIN_DEFAULT = {
     id_concesionario: null 
 };
 
+// RUTA 1: PREVISUALIZAR (Sin cambios, req.db.query funciona igual)
 router.post('/previsualizar', async (req, res) => {
     try {
         const datos = req.body.datosJSON;
@@ -21,13 +23,7 @@ router.post('/previsualizar', async (req, res) => {
             return res.status(400).json({ exito: false, mensaje: "El JSON debe contener 'concesionarios' y 'vehiculos'." });
         }
 
-        const informe = { 
-            nuevos: [], 
-            conflictos: [],
-            infoConcesionarios: 0
-        };
-
-        informe.infoConcesionarios = datos.concesionarios.length;
+        const informe = { nuevos: [], conflictos: [], infoConcesionarios: datos.concesionarios.length };
 
         for (const v of datos.vehiculos) {
             const [rows] = await req.db.query('SELECT * FROM vehiculos WHERE matricula = ?', [v.matricula]);
@@ -42,52 +38,68 @@ router.post('/previsualizar', async (req, res) => {
         res.json({ exito: true, data: informe, raw: datos });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ exito: false, mensaje: "Error procesando los datos." });
+        console.error("Error previsualizar:", error);
+        res.status(500).json({ exito: false, mensaje: "Error procesando los datos: " + error.message });
     }
 });
 
+// RUTA 2: EJECUTAR (AQUÍ ESTABA EL ERROR, CORREGIDO)
 router.post('/ejecutar', async (req, res) => {
+    console.log(">>> [DEBUG] Iniciando ejecución de carga...");
     const { matriculasAActualizar, datosCompletos } = req.body;
-    const connection = await req.db.getConnection();
     
-    try {
-        await connection.beginTransaction();
+    // CORRECCIÓN CLAVE: Usamos req.db directamente porque TU middleware ya nos da la conexión.
+    const connection = req.db; 
 
-        if (datosCompletos.concesionarios.length > 0) {
+    try {
+        // Iniciamos transacción sobre la conexión existente
+        await connection.beginTransaction();
+        console.log(">>> [DEBUG] Transacción iniciada");
+
+        // 1. CONCESIONARIOS
+        if (datosCompletos.concesionarios && datosCompletos.concesionarios.length > 0) {
             for (const c of datosCompletos.concesionarios) {
+                const esActivo = (c.activo !== undefined) ? c.activo : true;
                 await connection.query(
-                    `INSERT IGNORE INTO concesionarios (id_concesionario, nombre, ciudad, direccion, telefono_contacto) VALUES (?, ?, ?, ?, ?)`,
-                    [c.id_concesionario, c.nombre, c.ciudad, c.direccion, c.telefono_contacto]
+                    `INSERT IGNORE INTO concesionarios (id_concesionario, nombre, ciudad, direccion, telefono_contacto, activo) VALUES (?, ?, ?, ?, ?, ?)`,
+                    [c.id_concesionario, c.nombre, c.ciudad, c.direccion, c.telefono_contacto, esActivo]
                 );
             }
-            console.log(`> Procesados ${datosCompletos.concesionarios.length} concesionarios.`);
         }
 
-        if (datosCompletos.vehiculos.length > 0) {
+        // 2. VEHÍCULOS
+        if (datosCompletos.vehiculos && datosCompletos.vehiculos.length > 0) {
             for (const v of datosCompletos.vehiculos) {
                 let imagenBlob = null;
+                
                 if (v.imagen_nombre) {
                     const rutaImagen = path.join(__dirname, '../public/img/vehiculos', v.imagen_nombre);
                     try {
-                        if (fs.existsSync(rutaImagen)) imagenBlob = fs.readFileSync(rutaImagen);
-                    } catch (e) { console.error("Imagen no encontrada: ", v.imagen_nombre); }
+                        if (fs.existsSync(rutaImagen)) {
+                            imagenBlob = fs.readFileSync(rutaImagen);
+                        } else {
+                            console.log(`>>> [WARN] Imagen no encontrada en disco: ${v.imagen_nombre}`);
+                        }
+                    } catch (e) { console.error("Error lectura imagen:", e); }
                 }
+
+                const esActivo = (v.activo !== undefined) ? v.activo : true;
 
                 if (matriculasAActualizar.includes(v.matricula)) {
                     await connection.query(
-                        `UPDATE vehiculos SET marca=?, modelo=?, precio=?, imagen=?, estado=?, id_concesionario=? WHERE matricula=?`,
-                        [v.marca, v.modelo, v.precio, imagenBlob, v.estado, v.id_concesionario, v.matricula]
+                        `UPDATE vehiculos SET marca=?, modelo=?, precio=?, imagen=?, estado=?, id_concesionario=?, activo=? WHERE matricula=?`,
+                        [v.marca, v.modelo, v.precio, imagenBlob, v.estado, v.id_concesionario, esActivo, v.matricula]
                     );
                 } else {
                     await connection.query(
-                        `INSERT IGNORE INTO vehiculos (matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                        [v.matricula, v.marca, v.modelo, v.anyo_matriculacion, v.descripcion, v.tipo, v.precio, v.numero_plazas, v.autonomia_km, v.color, imagenBlob, v.estado, v.id_concesionario]
+                        `INSERT IGNORE INTO vehiculos (matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        [v.matricula, v.marca, v.modelo, v.anyo_matriculacion, v.descripcion, v.tipo, v.precio, v.numero_plazas, v.autonomia_km, v.color, imagenBlob, v.estado, v.id_concesionario, esActivo]
                     );
                 }
             }
         }
 
+        // 3. ADMIN
         const [usersExist] = await connection.query('SELECT count(*) as c FROM usuarios');
         if (usersExist[0].c === 0) {
             const hash = await bcrypt.hash(ADMIN_DEFAULT.pass_plana, 10);
@@ -95,20 +107,25 @@ router.post('/ejecutar', async (req, res) => {
                 `INSERT INTO usuarios (nombre, correo, contrasenya, rol, telefono, id_concesionario) VALUES (?, ?, ?, ?, ?, ?)`,
                 [ADMIN_DEFAULT.nombre, ADMIN_DEFAULT.correo, hash, ADMIN_DEFAULT.rol, ADMIN_DEFAULT.telefono, ADMIN_DEFAULT.id_concesionario]
             );
+            console.log(">>> [DEBUG] Admin insertado");
         }
 
         await connection.commit();
-        res.json({ exito: true, mensaje: "Carga completada (Concesionarios, Vehículos y Admin)." });
+        console.log(">>> [DEBUG] Commit realizado");
+        
+        res.json({ exito: true, mensaje: "Carga completada." });
 
     } catch (error) {
-        await connection.rollback();
-        console.error(error);
-        res.status(500).json({ exito: false, mensaje: error.message });
-    } finally {
-        connection.release();
-    }
+        console.error(">>> [ERROR EN CARGA]", error);
+        
+        // Rollback seguro
+        try { await connection.rollback(); } catch(e) { console.error("Error en rollback:", e); }
+
+        res.status(500).json({ exito: false, mensaje: "Error guardando: " + error.message });
+    } 
 });
 
+// RUTA SETUP (GET)
 router.get('/setup', (req, res) => {
     res.render('setup', { 
         title: 'Instalación Inicial',
