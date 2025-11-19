@@ -4,20 +4,22 @@ $(document).ready(function() {
     const modalElement = document.getElementById('modalImportacion');
     if (modalElement) {
         modalElement.addEventListener('show.bs.modal', event => {
-            $('#inputArchivoJSON').val('');
-            $('#btnProcesarJSON').prop('disabled', true).html('<i class="bi bi-cloud-upload"></i> Cargar');
-            $('#btnConfirmarCarga').prop('disabled', true);
-            $('#zonaConflictos').hide();
-            $('#zonaSinConflictos').hide();
-            datosCargados = null;
+            resetearModal();
         });
     }
 
+    function resetearModal() {
+        $('#inputArchivoJSON').val('');
+        $('#btnProcesarJSON').prop('disabled', true).html('<i class="bi bi-cloud-upload"></i> Cargar');
+        $('#btnConfirmarCarga').prop('disabled', true);
+        $('#zonaConflictos').hide();
+        $('#zonaSinConflictos').hide();
+        datosCargados = null;
+    }
+
     $('#inputArchivoJSON').on('change', function(e) {
-        const archivo = e.target.files[0];
-        if (archivo) {
+        if (e.target.files[0]) {
             $('#btnProcesarJSON').prop('disabled', false);
-            
             $('#zonaConflictos').hide();
             $('#zonaSinConflictos').hide();
             $('#btnConfirmarCarga').prop('disabled', true);
@@ -32,7 +34,6 @@ $(document).ready(function() {
 
         const btn = $(this);
         const textoOriginal = btn.html();
-        
         btn.prop('disabled', true).text('Leyendo...');
 
         const reader = new FileReader();
@@ -46,7 +47,7 @@ $(document).ready(function() {
                     return;
                 }
 
-                btn.text('Analizando en servidor...');
+                btn.text('Analizando...');
                 
                 $.ajax({
                     url: '/carga-inicial/previsualizar',
@@ -72,78 +73,119 @@ $(document).ready(function() {
     });
 
     function procesarResultadoAnalisis(data) {
-        const { conflictos, nuevos } = data;
+        const { nuevosVehiculos, conflictosVehiculos, nuevosConcesionarios, conflictosConcesionarios } = data;
         
-        if (conflictos.length === 0) {
-            if ($('.setup-content').length > 0) {
-                if(confirm(`Todo correcto. Se cargarán ${nuevos.length} vehículos y los datos base. ¿Proceder?`)) {
-                    enviarDatosDefinitivos([]);
-                }
-            } else {
-                $('#zonaConflictos').hide();
-                $('#zonaSinConflictos').fadeIn();
-                $('#btnConfirmarCarga').prop('disabled', false);
-            }
-        } else {
-            
-            $('#textoResumenConflictos').text(`Se han detectado ${conflictos.length} vehículos duplicados.`);
-            
-            const tbody = $('#cuerpoTablaConflictos');
-            tbody.empty();
+        let mensajeResumen = "Resumen del análisis:\n";
+        mensajeResumen += `• Concesionarios Nuevos: ${nuevosConcesionarios.length}\n`;
+        mensajeResumen += `• Concesionarios Conflictivos: ${conflictosConcesionarios.length}\n`;
+        mensajeResumen += `• Vehículos Nuevos: ${nuevosVehiculos.length}\n`;
+        mensajeResumen += `• Vehículos Conflictivos: ${conflictosVehiculos.length}`;
 
-            conflictos.forEach(c => {
-                tbody.append(`
+        if ($('.setup-content').length > 0 && conflictosVehiculos.length === 0 && conflictosConcesionarios.length === 0) {
+            if(confirm(`${mensajeResumen}\n\nTodo parece correcto. ¿Proceder con la carga?`)) {
+                enviarDatosDefinitivos([], []);
+            }
+            return;
+        }
+
+        const tbodyConc = $('#cuerpoTablaConcesionarios');
+        tbodyConc.empty();
+        if (conflictosConcesionarios.length > 0) {
+            $('#zonaConcesionarios').show();
+            conflictosConcesionarios.forEach(c => {
+                tbodyConc.append(`
                     <tr>
-                        <td><strong>${c.nuevo.matricula}</strong></td>
-                        <td class="text-danger">${c.viejo.modelo}</td>
-                        <td class="text-success">${c.nuevo.modelo}</td>
+                        <td><strong>${c.nuevo.id_concesionario}</strong></td>
+                        <td class="text-danger">${c.viejo.nombre}</td>
+                        <td class="text-success">${c.nuevo.nombre}</td>
                         <td class="text-center">
-                            <input type="checkbox" class="check-actualizar form-check-input" value="${c.nuevo.matricula}">
+                            <input type="checkbox" class="check-conc form-check-input" value="${c.nuevo.id_concesionario}">
                         </td>
                     </tr>
                 `);
             });
+        } else {
+            $('#zonaConcesionarios').hide();
+        }
 
-            $('#checkTodos').prop('checked', false).off('change').on('change', function() {
-                $('.check-actualizar').prop('checked', $(this).is(':checked'));
+        const tbodyVeh = $('#cuerpoTablaVehiculos');
+        tbodyVeh.empty();
+        if (conflictosVehiculos.length > 0) {
+            $('#zonaVehiculos').show();
+            conflictosVehiculos.forEach(v => {
+                tbodyVeh.append(`
+                    <tr>
+                        <td><strong>${v.nuevo.matricula}</strong></td>
+                        <td class="text-danger">${v.viejo.modelo}</td>
+                        <td class="text-success">${v.nuevo.modelo}</td>
+                        <td class="text-center">
+                            <input type="checkbox" class="check-veh form-check-input" value="${v.nuevo.matricula}">
+                        </td>
+                    </tr>
+                `);
+            });
+        } else {
+            $('#zonaVehiculos').hide();
+        }
+
+        if (conflictosVehiculos.length > 0 || conflictosConcesionarios.length > 0) {
+            $('#zonaSinConflictos').hide();
+            $('#zonaConflictos').fadeIn();
+            $('#textoResumenConflictos').text(mensajeResumen);
+            
+            $('#checkTodosConc').prop('checked', false).off('change').on('change', function() {
+                $('.check-conc').prop('checked', $(this).is(':checked'));
+            });
+            $('#checkTodosVeh').prop('checked', false).off('change').on('change', function() {
+                $('.check-veh').prop('checked', $(this).is(':checked'));
             });
 
-            if ($('#modalImportacion').hasClass('show')) {
-                 $('#zonaSinConflictos').hide();
-                 $('#zonaConflictos').fadeIn();
-                 $('#btnConfirmarCarga').prop('disabled', false);
-            } else {
-                const modalConflictos = new bootstrap.Modal(document.getElementById('modalConflictos'));
-                modalConflictos.show();
-            }
+        } else {
+            $('#zonaConflictos').hide();
+            $('#zonaSinConflictos').fadeIn();
+            $('#textoExitoResumen').text(mensajeResumen);
+        }
+
+        $('#btnConfirmarCarga').prop('disabled', false);
+
+        if (!$('#modalImportacion').hasClass('show')) {
+            const modal = new bootstrap.Modal(document.getElementById('modalImportacion'));
+            modal.show();
         }
     }
 
     $('#btnConfirmarCarga').on('click', function() {
         const matriculas = [];
+        const idsConcesionarios = [];
         
-        $('.check-actualizar:checked').each(function() {
-            matriculas.push($(this).val());
-        });
+        if ($('#zonaConflictos').is(':visible')) {
+            $('.check-veh:checked').each(function() { matriculas.push($(this).val()); });
+            $('.check-conc:checked').each(function() { idsConcesionarios.push($(this).val()); });
+        }
 
-        enviarDatosDefinitivos(matriculas);
+        enviarDatosDefinitivos(matriculas, idsConcesionarios);
     });
 
-    function enviarDatosDefinitivos(matriculasAActualizar) {
+    function enviarDatosDefinitivos(matriculas, idsConcesionarios) {
         $.ajax({
             url: '/carga-inicial/ejecutar',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
                 datosCompletos: datosCargados,
-                matriculasAActualizar: matriculasAActualizar
+                matriculasAActualizar: matriculas,
+                idsConcesionariosAActualizar: idsConcesionarios
             }),
             success: function(res) {
                 alert(res.mensaje);
-                window.location.href = '/'; 
+                if (window.location.pathname.includes('setup')) {
+                    window.location.href = '/login';
+                } else {
+                    window.location.reload();
+                }
             },
             error: function(xhr) {
-                alert('Error al guardar: ' + xhr.responseJSON?.mensaje);
+                alert('Error al guardar: ' + (xhr.responseJSON?.mensaje || 'Desconocido'));
             }
         });
     }

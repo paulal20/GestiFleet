@@ -36,7 +36,7 @@
 </div>
 
 <div class="modal fade" id="modalImportacion" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             
             <div class="modal-header bg-dark text-white">
@@ -45,56 +45,71 @@
             </div>
 
             <div class="modal-body">
+                <% if (typeof usuarioSesion !== 'undefined' && usuarioSesion) { %>
                 <div class="mb-4 p-3 border rounded bg-light">
-                    <label for="inputArchivoJSON" class="form-label fw-bold">1. Selecciona el fichero a cargar (JSON):</label>
+                    <label class="form-label fw-bold">Selecciona el fichero JSON:</label>
                     <div class="input-group">
                         <input class="form-control" type="file" id="inputArchivoJSON" accept=".json">
-                        
                         <button class="btn btn-primary" type="button" id="btnProcesarJSON" disabled>
-                            Analizar Fichero
+                            Analizar
                         </button>
                     </div>
                 </div>
+                <% } %>
 
                 <div id="zonaConflictos" style="display: none;">
                     <div class="alert alert-warning border-warning">
-                        <i class="bi bi-exclamation-triangle-fill"></i> 
-                        <span id="textoResumenConflictos">Se han detectado conflictos.</span>
+                        <i class="bi bi-info-circle-fill"></i> 
+                        <span id="textoResumenConflictos" style="white-space: pre-line;"></span>
                     </div>
 
-                    <p class="small text-muted">Marca los vehículos que deseas <b>ACTUALIZAR</b> (los desmarcados se ignorarán):</p>
-                    
-                    <div class="table-responsive border rounded" style="max-height: 300px;">
-                        <table class="table table-hover align-middle mb-0 small">
-                            <thead class="table-secondary sticky-top">
-                                <tr>
-                                    <th>Matrícula</th>
-                                    <th>Modelo Actual</th>
-                                    <th>Modelo Nuevo</th>
-                                    <th class="text-center">Actualizar</th>
-                                </tr>
-                            </thead>
-                            <tbody id="cuerpoTablaConflictos">
-                                </tbody>
-                        </table>
+                    <div id="zonaConcesionarios" class="mb-4">
+                        <h6 class="fw-bold text-primary border-bottom pb-2">Conflictos en Concesionarios</h6>
+                        <div class="table-responsive border rounded" style="max-height: 200px;">
+                            <table class="table table-hover table-sm mb-0 small align-middle">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th>ID</th><th>Nombre Actual</th><th>Nombre Nuevo</th><th class="text-center">Actualizar</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cuerpoTablaConcesionarios"></tbody>
+                            </table>
+                        </div>
+                        <div class="form-check mt-1 d-flex justify-content-end">
+                            <input class="form-check-input me-2" type="checkbox" id="checkTodosConc">
+                            <label class="form-check-label small" for="checkTodosConc">Todos los Concesionarios</label>
+                        </div>
                     </div>
-                    
-                    <div class="form-check mt-2 d-flex justify-content-end">
-                        <input class="form-check-input me-2" type="checkbox" id="checkTodos">
-                        <label class="form-check-label" for="checkTodos">Seleccionar todos</label>
+
+                    <div id="zonaVehiculos">
+                        <h6 class="fw-bold text-primary border-bottom pb-2">Conflictos en Vehículos</h6>
+                        <div class="table-responsive border rounded" style="max-height: 200px;">
+                            <table class="table table-hover table-sm mb-0 small align-middle">
+                                <thead class="table-light sticky-top">
+                                    <tr>
+                                        <th>Matrícula</th><th>Modelo Actual</th><th>Modelo Nuevo</th><th class="text-center">Actualizar</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cuerpoTablaVehiculos"></tbody>
+                            </table>
+                        </div>
+                        <div class="form-check mt-1 d-flex justify-content-end">
+                            <input class="form-check-input me-2" type="checkbox" id="checkTodosVeh">
+                            <label class="form-check-label small" for="checkTodosVeh">Todos los Vehículos</label>
+                        </div>
                     </div>
                 </div>
                 
                 <div id="zonaSinConflictos" class="alert alert-success text-center" style="display: none;">
                     <i class="bi bi-check-circle-fill fs-4"></i><br>
-                    <strong>¡El fichero es válido y no tiene conflictos!</strong><br>
-                    Se insertarán todos los datos nuevos.
+                    <strong class="d-block mb-2">¡Análisis Correcto!</strong>
+                    <span id="textoExitoResumen" style="white-space: pre-line;"></span>
+                    <br><br>Se insertarán todos los datos nuevos.
                 </div>
-
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" id="btnConfirmarCarga" class="btn btn-success" disabled>
                     Confirmar e Importar
                 </button>

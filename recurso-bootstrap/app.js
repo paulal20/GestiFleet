@@ -43,7 +43,7 @@ app.use(getConnection);
 //Mirar carga inicial
 app.use(cargaInicial);
 
-// --- Rutas ---
+// Rutas
 const indexRoutes = require('./routes/index');
 const vehiculosRoutes = require('./routes/vehiculos');
 const reservasRoutes = require('./routes/reservas');
