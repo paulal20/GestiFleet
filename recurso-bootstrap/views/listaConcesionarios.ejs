@@ -10,25 +10,15 @@
     <% } %>
   </div>
 
-  <!-- FILTRO -->
   <div class="mb-4">
-    <fieldset>
-      <legend class="w-auto">Filtros</legend>
       <div class="row g-3">
         <div class="col-md-6 col-lg-4">
           <label for="filtroCiudad" class="form-label">Ciudad</label>
           <select id="filtroCiudad" class="form-select">
             <option value="">Todas las Ciudades</option>
-            <!-- Opciones se llenan con JS -->
           </select>
         </div>
-
-        <div class="col-md-6 col-lg-4 d-flex align-items-end gap-2">
-          <button type="button" id="btnFiltrar" class="btn btn-primary w-100">Filtrar</button>
-          <button type="button" id="btnLimpiar" class="btn btn-outline-secondary w-100">Limpiar</button>
-        </div>
       </div>
-    </fieldset>
   </div>
 
   <!-- ALERTAS -->
@@ -46,7 +36,7 @@
           <th scope="col">Ciudad</th>
           <th scope="col">Dirección</th>
           <th scope="col">Teléfono</th>
-          <th scope="col">Activo</th>
+          <th scope="col">Estado</th>
           <th scope="col">Acciones</th>
         </tr>
       </thead>
@@ -91,4 +81,4 @@
 
 <!-- SCRIPTS -->
 <script src="/js/modal.js"></script>
-<script src="/js/ajax/concesionarios.js"></script>
+<script src="/js/ajax/concesionarios/concesionarios.js"></script>

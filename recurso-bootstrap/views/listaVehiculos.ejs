@@ -206,7 +206,13 @@
               <a href="/vehiculos/<%= v.id_vehiculo %>" class="d-block" style="text-decoration: none !important;">
                 <div class="vehiculo-card card-base h-100 d-flex flex-column">
                   <div class="vehiculo-img-container">
-                    <img src="/vehiculos/<%= v.id_vehiculo %>/imagen" class="card-img-top" alt="<%= v.marca %>">
+                      <% if (v) { %>
+                          <img src="/vehiculos/<%= v.id_vehiculo %>/imagen" class="card-img-top" alt="<%= v.marca %> <%= v.modelo %>">
+                      <% } else { %>
+                          <div class="d-flex align-items-center justify-content-center h-100 w-100 text-secondary">
+                              <i class="bi bi-car-front-fill" style="font-size: 4rem;"></i>
+                          </div>
+                      <% } %>
                   </div>
                   <div class="card-body">
                     <h5 class="card-title"><%= v.marca %></h5>

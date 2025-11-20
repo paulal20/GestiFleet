@@ -46,7 +46,7 @@
 
             <div class="modal-body">
                 <% if (typeof usuarioSesion !== 'undefined' && usuarioSesion) { %>
-                <div class="mb-4 p-3 border rounded bg-light">
+                <div class="mb-4 p-3">
                     <label class="form-label fw-bold">Selecciona el fichero JSON:</label>
                     <div class="input-group">
                         <input class="form-control" type="file" id="inputArchivoJSON" accept=".json">
@@ -58,44 +58,54 @@
                 <% } %>
 
                 <div id="zonaConflictos" style="display: none;">
-                    <div class="alert alert-warning border-warning">
+                    <div class="alert alert-info">
                         <i class="bi bi-info-circle-fill"></i> 
                         <span id="textoResumenConflictos" style="white-space: pre-line;"></span>
                     </div>
 
                     <div id="zonaConcesionarios" class="mb-4">
                         <h6 class="fw-bold text-primary border-bottom pb-2">Conflictos en Concesionarios</h6>
+                        
                         <div class="table-responsive border rounded" style="max-height: 200px;">
-                            <table class="table table-hover table-sm mb-0 small align-middle">
-                                <thead class="table-light sticky-top">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead class="sticky-top">
                                     <tr>
-                                        <th>ID</th><th>Nombre Actual</th><th>Nombre Nuevo</th><th class="text-center">Actualizar</th>
+                                        <th>ID</th>
+                                        <th>Nombre Actual</th>
+                                        <th>Nombre Nuevo</th>
+                                        <th class="text-center">Actualizar</th>
                                     </tr>
                                 </thead>
                                 <tbody id="cuerpoTablaConcesionarios"></tbody>
                             </table>
                         </div>
+                        
                         <div class="form-check mt-1 d-flex justify-content-end">
                             <input class="form-check-input me-2" type="checkbox" id="checkTodosConc">
-                            <label class="form-check-label small" for="checkTodosConc">Todos los Concesionarios</label>
+                            <label class="form-check-label" for="checkTodosConc">Todos los Concesionarios</label>
                         </div>
                     </div>
 
                     <div id="zonaVehiculos">
                         <h6 class="fw-bold text-primary border-bottom pb-2">Conflictos en Vehículos</h6>
+                        
                         <div class="table-responsive border rounded" style="max-height: 200px;">
-                            <table class="table table-hover table-sm mb-0 small align-middle">
-                                <thead class="table-light sticky-top">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead class="sticky-top">
                                     <tr>
-                                        <th>Matrícula</th><th>Modelo Actual</th><th>Modelo Nuevo</th><th class="text-center">Actualizar</th>
+                                        <th>Matrícula</th>
+                                        <th>Modelo Actual</th>
+                                        <th>Modelo Nuevo</th>
+                                        <th class="text-center">Actualizar</th>
                                     </tr>
                                 </thead>
                                 <tbody id="cuerpoTablaVehiculos"></tbody>
                             </table>
                         </div>
+                        
                         <div class="form-check mt-1 d-flex justify-content-end">
                             <input class="form-check-input me-2" type="checkbox" id="checkTodosVeh">
-                            <label class="form-check-label small" for="checkTodosVeh">Todos los Vehículos</label>
+                            <label class="form-check-label" for="checkTodosVeh">Todos los Vehículos</label>
                         </div>
                     </div>
                 </div>

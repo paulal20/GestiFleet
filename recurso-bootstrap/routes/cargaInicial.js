@@ -25,8 +25,7 @@ router.post('/previsualizar', isInstallationOrImport, async (req, res) => {
 
         const informe = { 
             nuevosVehiculos: [], conflictosVehiculos: [],
-            nuevosConcesionarios: [], conflictosConcesionarios: [],
-            infoConcesionarios: datos.concesionarios.length
+            nuevosConcesionarios: [], conflictosConcesionarios: []
         };
 
         for (const c of datos.concesionarios) {

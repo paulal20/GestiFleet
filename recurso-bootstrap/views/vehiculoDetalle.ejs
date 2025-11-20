@@ -7,8 +7,16 @@
 
       <div class="col-md-6">
         <div class="vehiculo-img-container h-100">
-          <img src="/vehiculos/<%= vehiculo.id_vehiculo %>/imagen" class="rounded-start img-cover"
-            alt="<%= vehiculo.marca %>">
+          <% if (vehiculo.imagen) { %>
+            <img src="/img/vehiculos/<%= vehiculo.imagen %>" 
+                 class="rounded-start img-cover"
+                 alt="<%= vehiculo.marca %> <%= vehiculo.modelo %>">
+          <% } else { %>
+            <div class="d-flex flex-column justify-content-center align-items-center h-100 w-100 bg-light text-secondary">
+                <i class="bi bi-car-front-fill" style="font-size: 5rem;"></i>
+                <span class="mt-2 fw-bold">Sin Imagen</span>
+            </div>
+          <% } %>
         </div>
       </div>
 

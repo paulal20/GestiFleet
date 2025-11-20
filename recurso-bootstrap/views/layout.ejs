@@ -81,12 +81,14 @@
                                             <span lang="en" class="lang lang-en d-none">My Bookings</span>
                                         </a>
                                     </li>
+                                   <% if (usuarioSesion.id_concesionario != null) { %>
                                     <li class="nav-item">
-                                        <a href="/concesionarios" class="nav-link">
-                                            <span lang="es" class="lang lang-es">Concesionarios</span>
+                                        <a href="/concesionarios/<%= usuarioSesion.id_concesionario %>" class="nav-link">
+                                            <span lang="es" class="lang lang-es">Mi Concesionario</span>
                                             <span lang="en" class="lang lang-en d-none">Car Dealers</span>
                                         </a>
                                     </li>
+                                <% } %>
                             <% } %>
                         <% } %>
                     </ul>

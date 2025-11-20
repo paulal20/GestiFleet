@@ -1,67 +1,68 @@
 <%
-  // Determinamos si estamos en modo "Editar"
   const isEditMode = (typeof concesionario !== 'undefined' && concesionario.id_concesionario);
 %>
 
 <div class="concesionario-form-content">
   <h1><%= title %></h1>
 
-  <form id="concesionarioForm" action="<%= action %>" method="POST" novalidate autocomplete="off">
+  <!-- data-id indica si es edición -->
+  <form id="concesionarioForm" novalidate autocomplete="off" data-id="<%= isEditMode ? concesionario.id_concesionario : '' %>">
     <fieldset>
-    <legend class="w-auto">Datos del Concesionario</legend>
-    
-    <% if (typeof error !== 'undefined' && error) { %>
-      <div class="alert alert-danger mt-2" role="alert" aria-live="assertive">
-      <%= error %>
-      </div>
-    <% } %>
-    <br>
+      <legend class="w-auto">Datos del Concesionario</legend>
 
-    <div class="row">
-      <div class="col-md-6 mb-3 campo-nombre">
-      <label for="nombre" class="form-label obligatorio">Nombre: </label>
-      <input type="text" id="nombre" name="nombre" class="form-control" 
-          value="<%= (typeof concesionario !== 'undefined' && concesionario.nombre) ? concesionario.nombre : '' %>" 
-          aria-describedby="error-nombre" required>
-      <span class="error" id="error-nombre" aria-live="polite"></span>
-      </div>
+      <!-- Mensaje de error general -->
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger mt-2" role="alert" aria-live="assertive">
+          <%= error %>
+        </div>
+      <% } %>
 
-      <div class="col-md-6 mb-3 campo-ciudad">
-      <label for="ciudad" class="form-label obligatorio">Ciudad: </label>
-      <input type="text" id="ciudad" name="ciudad" class="form-control" 
-          value="<%= (typeof concesionario !== 'undefined' && concesionario.ciudad) ? concesionario.ciudad : '' %>" 
-          aria-describedby="error-ciudad" required>
-      <span class="error" id="error-ciudad" aria-live="polite"></span>
-      </div>
-    </div>
+      <div class="row">
+        <div class="col-md-6 mb-3 campo-nombre">
+          <label for="nombre" class="form-label obligatorio">Nombre:</label>
+          <input type="text" id="nombre" name="nombre" class="form-control"
+            value="<%= concesionario?.nombre || '' %>"
+            aria-describedby="error-nombre" required>
+          <span class="error" id="error-nombre" aria-live="polite"></span>
+        </div>
 
-    <div class="row">
-      <div class="col-md-6 mb-3 campo-direccion">
-      <label for="direccion" class="form-label obligatorio">Dirección: </label>
-      <input type="text" id="direccion" name="direccion" class="form-control" 
-          value="<%= (typeof concesionario !== 'undefined' && concesionario.direccion) ? concesionario.direccion : '' %>" 
-          aria-describedby="error-direccion" required>
-      <span class="error" id="error-direccion" aria-live="polite"></span>
+        <div class="col-md-6 mb-3 campo-ciudad">
+          <label for="ciudad" class="form-label obligatorio">Ciudad:</label>
+          <input type="text" id="ciudad" name="ciudad" class="form-control"
+            value="<%= concesionario?.ciudad || '' %>"
+            aria-describedby="error-ciudad" required>
+          <span class="error" id="error-ciudad" aria-live="polite"></span>
+        </div>
       </div>
 
-      <div class="col-md-6 mb-3 campo-telefono">
-      <label for="telefono_contacto" class="form-label obligatorio">Teléfono de Contacto:</label>
-      <input type="tel" id="telefono_contacto" name="telefono_contacto" class="form-control" 
-          placeholder="Ej: 910123456" 
-          value="<%= (typeof concesionario !== 'undefined' && concesionario.telefono_contacto) ? concesionario.telefono_contacto : '' %>" 
-          aria-describedby="error-telefono" required>
-      <span class="error" id="error-telefono" aria-live="polite"></span>
+      <div class="row">
+        <div class="col-md-6 mb-3 campo-direccion">
+          <label for="direccion" class="form-label obligatorio">Dirección:</label>
+          <input type="text" id="direccion" name="direccion" class="form-control"
+            value="<%= concesionario?.direccion || '' %>"
+            aria-describedby="error-direccion" required>
+          <span class="error" id="error-direccion" aria-live="polite"></span>
+        </div>
+
+        <div class="col-md-6 mb-3 campo-telefono">
+          <label for="telefono_contacto" class="form-label obligatorio">Teléfono de Contacto:</label>
+          <input type="tel" id="telefono_contacto" name="telefono_contacto" class="form-control"
+            placeholder="Ej: 910123456"
+            value="<%= concesionario?.telefono_contacto || '' %>"
+            aria-describedby="error-telefono" required>
+          <span class="error" id="error-telefono" aria-live="polite"></span>
+        </div>
       </div>
-    </div>
     </fieldset>
 
     <div class="d-flex justify-content-end mt-3 gap-2">
-    <a href="/concesionarios" class="btn btn-outline-secondary">Cancelar</a>
-    <button type="submit" class="btn btn-primary">
-      <%= isEditMode ? 'Actualizar Concesionario' : 'Crear Concesionario' %>
-    </button>
+      <a href="/concesionarios" class="btn btn-outline-secondary">Cancelar</a>
+      <button type="submit" class="btn btn-primary">
+        <%= isEditMode ? 'Actualizar Concesionario' : 'Crear Concesionario' %>
+      </button>
     </div>
   </form>
 </div>
 
 <script src="/js/concesionarioForm.js"></script>
+<script src="/js/ajax/concesionarios/concesionarioForm.js"></script>

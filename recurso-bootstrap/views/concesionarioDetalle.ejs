@@ -1,143 +1,55 @@
 <div class="concesionario-detalle-content">
-  
+
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1><%= concesionario.nombre %></h1>
+    <h1 id="tituloConcesionario">Concesionario</h1>
+    <% if (usuarioSesion.rol === 'Admin') { %>
     <a href="/concesionarios" class="btn btn-outline-secondary">Volver al listado</a>
+    <% } %>
   </div>
 
-  <div class="vehiculo-card card mx-auto" style="max-width: 900px;">
-    <div class="row g-0">
+  <div id="infoConcesionario"></div>
 
-      <div class="col-md-4">
-        <div class="vehiculo-img-container h-100 d-flex align-items-center justify-content-center bg-light">
-          <img src="/img/concesionario.png" 
-               class="rounded-end img-cover" 
-               alt="<%= concesionario.nombre %>" 
-               style="max-height: 300px; object-fit: cover;">
-        </div>
-      </div>
+  <h2>Vehículos en esta base</h2>
 
-      <div class="col-md-8 d-flex flex-column">
-        <div class="card-body flex-grow-1">
-          <h5 class="card-title">Información de Contacto</h5>
-          
-          <div class="row mb-2">
-            <div class="col-sm-6 fw-bold">Ciudad:</div>
-            <div class="col-sm-6"><%= concesionario.ciudad %></div>
-          </div>
-          <div class="row mb-2">
-            <div class="col-sm-6 fw-bold">Dirección:</div>
-            <div class="col-sm-6"><%= concesionario.direccion %></div>
-          </div>
-          <div class="row mb-2">
-            <div class="col-sm-6 fw-bold">Teléfono:</div>
-            <div class="col-sm-6"><%= concesionario.telefono_contacto %></div>
-          </div>
-        </div>
-
-        <!-- Acciones de Admin -->
-        <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
-          <div class="perfil-actions d-flex gap-2 mt-3">
-            <button type="button"
-                    class="btn btn-outline-secondary flex-fill"
-                    data-bs-toggle="modal"
-                    data-bs-target="#confirmarEliminarConcesionarioModal"
-                    data-id="<%= concesionario.id_concesionario %>"
-                    data-name="<%= concesionario.nombre %>">
-              Eliminar
-            </button>
-            <a href="/concesionarios/<%= concesionario.id_concesionario %>/editar" class="btn btn-primary flex-fill">
-              Editar
-            </a>
-          </div>
-        <% } %>
-
-      </div>
-    </div>
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Matrícula</th>
+          <th>Marca</th>
+          <th>Modelo</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tablaVehiculosBody"></tbody>
+    </table>
   </div>
-
-  <!-- Lista de Vehículos Asociados -->
-  <h2 class="mt-4">Vehículos en esta base</h2>
-  <% if (vehiculos && vehiculos.length > 0) { %>
-    <div class="table-responsive-md">
-      <table class="table table-hover">
-        <thead class="table-light">
-          <tr>
-            <th scope="col">Matrícula</th>
-            <th scope="col">Marca</th>
-            <th scope="col">Modelo</th>
-            <th scope="col">Estado</th>
-            <th scope="col">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% vehiculos.forEach(v => { %>
-            <tr>
-              <td><%= v.matricula %></td>
-              <td><%= v.marca %></td>
-              <td><%= v.modelo %></td>
-              <td>
-                <% if (v.estado === 'disponible') { %>
-                  <span class="badge bg-success">Disponible</span>
-                <% } else if (v.estado === 'reservado') { %>
-                  <span class="badge bg-warning text-dark">Reservado</span>
-                <% } else if (v.estado === 'mantenimiento') { %>
-                  <span class="badge bg-secondary">Mantenimiento</span>
-                <% } else { %>
-                  <span class="badge bg-light text-dark"><%= v.estado %></span>
-                <% } %>
-              </td>
-              <td>
-                <a href="/vehiculos/<%= v.id_vehiculo %>" class="btn btn-primary btn-sm">
-                  Ver Vehículo
-                </a>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </div>
-  <% } else { %>
-    <div class="alert alert-info" role="alert">
-      Actualmente no hay vehículos asignados a este concesionario.
-    </div>
-  <% } %>
-
 </div>
 
-<!-- Modal de confirmación de eliminación de concesionario -->
-<div class="modal fade" id="confirmarEliminarConcesionarioModal" tabindex="-1" aria-labelledby="confirmarEliminarConcesionarioModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
+<div class="modal fade" id="modalEliminar" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="confirmarEliminarConcesionarioModalLabel">Eliminar Concesionario</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <h5 class="modal-title">Eliminar concesionario</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+
       <div class="modal-body">
-        ¿Estás seguro de que quieres eliminar <span id="concesionarioAEliminar"></span>?
-        <br>
-        <div class="d-flex justify-content-end mt-3 gap-2">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <form id="formEliminarConcesionario" action="" method="POST" class="m-0 p-0">
-            <button type="submit" class="btn btn-danger">Eliminar</button>
-          </form>
-        </div>
+        ¿Seguro que quieres eliminar <span id="nombreAEliminar"></span>?
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" id="btnConfirmarEliminar" class="btn btn-primary">Eliminar</button>
       </div>
     </div>
   </div>
 </div>
 
-<script>
-  const modalConcesionario = document.getElementById('confirmarEliminarConcesionarioModal');
-  modalConcesionario.addEventListener('show.bs.modal', event => {
-    const button = event.relatedTarget;
-    const id = button.getAttribute('data-id');
-    const name = button.getAttribute('data-name');
+<div id="pageData"
+     data-id="<%= idConcesionario %>"
+     data-user='<%- JSON.stringify(usuarioSesion || null) %>'>
+</div>
 
-    const modalTitle = modalConcesionario.querySelector('#concesionarioAEliminar');
-    modalTitle.textContent = name;
-
-    const form = modalConcesionario.querySelector('#formEliminarConcesionario');
-    form.action = '/concesionarios/' + id + '/eliminar';
-  });
-</script>
+<script src="/js/ajax/concesionarios/concesionarioDetalle.js"></script>

@@ -116,8 +116,8 @@ $(document).ready(function() {
                 tbodyVeh.append(`
                     <tr>
                         <td><strong>${v.nuevo.matricula}</strong></td>
-                        <td class="text-danger">${v.viejo.modelo}</td>
-                        <td class="text-success">${v.nuevo.modelo}</td>
+                        <td class="text-danger">${v.viejo.marca} ${v.viejo.modelo}</td>
+                        <td class="text-success">${v.nuevo.marca} ${v.nuevo.modelo}</td>
                         <td class="text-center">
                             <input type="checkbox" class="check-veh form-check-input" value="${v.nuevo.matricula}">
                         </td>

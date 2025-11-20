@@ -1,39 +1,46 @@
-<div class="setup-content">
-    <div class="row justify-content-center mt-5">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow-lg border-0">
-                <div class="card-body p-5 text-center">
-                    
-                    <div class="mb-4 text-primary">
-                        <i class="bi bi-database-fill-gear" style="font-size: 4rem;"></i>
-                    </div>
-
-                    <h2 class="fw-bold mb-3">Instalación Inicial</h2>
-                    
-                    <div class="alert alert-warning d-flex align-items-center justify-content-center" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        <div>La base de datos está vacía.</div>
-                    </div>
-
-                    <p class="text-muted mb-4">
-                        Para comenzar a utilizar <strong>GestiFleet</strong>, es necesario importar los datos maestros (Concesionarios y Vehículos) y generar el Administrador.
-                    </p>
-
-                    <hr class="my-4">
-
-                    <div class="mb-3 text-start">
-                        <label for="inputArchivoJSON" class="form-label fw-bold text-secondary">Selecciona el archivo JSON:</label>
-                        <input class="form-control" type="file" id="inputArchivoJSON" accept=".json">
-                    </div>
-
-                    <button id="btnProcesarJSON" class="btn btn-primary btn-lg w-100" disabled>
-                        <i class="bi bi-cloud-upload-fill me-2"></i> Iniciar Carga de Datos
-                    </button>
-
-                </div>
+<div class="setup-content setup-container d-flex justify-content-center align-items-center">
+    
+    <div class="perfil-card setup-card mx-auto w-75" style="max-width: 600px;" >
+        
+        <div class="perfil-card-header text-center">
+            <div class="setup-icon-wrapper">
+                <i class="bi bi-database-fill-gear"></i>
             </div>
+            <h2 class="perfil-title">
+                Instalación Inicial
+            </h2>
+        </div>
+
+        <div class="perfil-card-body text-center">
+            
+            <div class="alert alert-info text-center mb-4" role="alert">
+                <h4 class="alert-heading">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Base de datos vacía
+                </h4>
+                <p class="mb-0">No se han encontrado datos registrados en el sistema.</p>
+            </div>
+
+            <p class="mb-4 fs-5">
+                Bienvenido a <strong>GestiFleet</strong>. Para configurar el sistema, selecciona el archivo de datos (JSON) que contiene los concesionarios y los vehículos iniciales.
+            </p>
+
+            <div class="mb-4 text-start">
+                <label for="inputArchivoJSON" class="form-label fw-bold">Selecciona el archivo JSON:</label>
+                <input class="form-control" type="file" id="inputArchivoJSON" accept=".json">
+            </div>
+
+            <div class="perfil-actions d-grid">
+                <button id="btnProcesarJSON" class="btn btn-primary btn-lg" disabled>
+                    <i class="bi bi-cloud-upload-fill me-2"></i> Iniciar Carga de Datos
+                </button>
+            </div>
+
+            <p class="mt-4 mb-0 fs-7 small">
+                * Se generará automáticamente la cuenta de <strong>Administrador</strong> al finalizar.
+            </p>
         </div>
     </div>
+
 </div>
 
 <div class="modal fade" id="modalImportacion" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
@@ -42,31 +49,19 @@
             
             <div class="modal-header bg-dark text-white">
                 <h5 class="modal-title"><i class="bi bi-cloud-upload-fill"></i> Asistente de Importación</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body">
-                <% if (typeof usuarioSesion !== 'undefined' && usuarioSesion) { %>
-                <div class="mb-4 p-3 border rounded bg-light">
-                    <label class="form-label fw-bold">Selecciona el fichero JSON:</label>
-                    <div class="input-group">
-                        <input class="form-control" type="file" id="inputArchivoJSON" accept=".json">
-                        <button class="btn btn-primary" type="button" id="btnProcesarJSON" disabled>
-                            Analizar
-                        </button>
-                    </div>
-                </div>
-                <% } %>
-
+                
                 <div id="zonaConflictos" style="display: none;">
                     <div class="alert alert-warning border-warning">
                         <i class="bi bi-info-circle-fill"></i> 
-                        <span id="textoResumenConflictos" style="white-space: pre-line;"></span>
+                        <span id="textoResumenConflictos" class="text-pre-line"></span>
                     </div>
 
                     <div id="zonaConcesionarios" class="mb-4">
                         <h6 class="fw-bold text-primary border-bottom pb-2">Conflictos en Concesionarios</h6>
-                        <div class="table-responsive border rounded" style="max-height: 200px;">
+                        <div class="table-responsive border rounded table-scroll-container">
                             <table class="table table-hover table-sm mb-0 small align-middle">
                                 <thead class="table-light sticky-top">
                                     <tr>
@@ -84,7 +79,7 @@
 
                     <div id="zonaVehiculos">
                         <h6 class="fw-bold text-primary border-bottom pb-2">Conflictos en Vehículos</h6>
-                        <div class="table-responsive border rounded" style="max-height: 200px;">
+                        <div class="table-responsive border rounded table-scroll-container">
                             <table class="table table-hover table-sm mb-0 small align-middle">
                                 <thead class="table-light sticky-top">
                                     <tr>
@@ -104,14 +99,13 @@
                 <div id="zonaSinConflictos" class="alert alert-success text-center" style="display: none;">
                     <i class="bi bi-check-circle-fill fs-4"></i><br>
                     <strong class="d-block mb-2">¡Análisis Correcto!</strong>
-                    <span id="textoExitoResumen" style="white-space: pre-line;"></span>
-                    <br><br>Se insertarán todos los datos nuevos.
+                    <span id="textoExitoResumen" class="text-pre-line"></span>
+                    <br><br>Se insertarán todos los datos nuevos y se creará el administrador.
                 </div>
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" id="btnConfirmarCarga" class="btn btn-success" disabled>
+                <button type="button" id="btnConfirmarCarga" class="btn btn-success w-100" disabled>
                     Confirmar e Importar
                 </button>
             </div>
