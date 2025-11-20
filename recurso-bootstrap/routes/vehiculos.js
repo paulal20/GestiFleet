@@ -34,7 +34,7 @@ router.get('/', isAuth, async (req, res) => {
     } = req.query;
     const usuario = req.session.usuario;
 
-    let sql = `SELECT id_vehiculo, matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, estado, id_concesionario FROM vehiculos`;
+    let sql = `SELECT id_vehiculo, matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, estado, id_concesionario, (imagen IS NOT NULL AND LENGTH(imagen) > 0) AS tiene_imagen FROM vehiculos`;
     const params = [];
     const condiciones = [];
 
@@ -43,7 +43,6 @@ router.get('/', isAuth, async (req, res) => {
       params.push(usuario.id_concesionario);
       condiciones.push(" estado = 'disponible' ");
     }
-    
     
     if (tipo) {
       condiciones.push(' tipo = ? ');
@@ -446,15 +445,14 @@ router.get('/:id/imagen', async (req, res) => {
 router.get('/:id', async (req, res, next) => {
   try {
     const id = parseInt(req.params.id);
-    
-    const [vehiculos] = await req.db.query('SELECT * FROM vehiculos WHERE id_vehiculo = ?', [id]);
+    const [vehiculos] = await req.db.query('SELECT id_vehiculo, matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, estado, id_concesionario, (imagen IS NOT NULL AND LENGTH(imagen) > 0) AS tiene_imagen FROM vehiculos WHERE id_vehiculo = ?', [id]);
     if (vehiculos.length === 0) {
       const err = new Error(`Vehículo no encontrado (id_vehiculo=${id})`);
       err.status = 404;
       err.publicMessage = 'Vehículo no encontrado.';
       err.expose = true;
       return next(err);
-       }
+    }
 
     const vehiculo = vehiculos[0];
 

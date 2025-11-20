@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { isAuth, isAdmin } = require('../middleware/auth');
+const { isAuth, isAdmin, isAdminOrSelf } = require('../middleware/auth');
 
 async function getVehiculosDisponibles(db, usuario) {
   try {
@@ -131,7 +131,7 @@ router.post('/', isAuth, async (req, res) => {
 });
 
 // Detalle de una reserva
-router.get('/:id(\\d+)', isAuth, async (req, res, next) => {
+router.get('/:id(\\d+)', isAdminOrSelf, async (req, res, next) => {
   try {
     const idReserva = parseInt(req.params.id, 10);
     const usuarioActual = req.session.usuario;
@@ -139,7 +139,8 @@ router.get('/:id(\\d+)', isAuth, async (req, res, next) => {
     const [rows] = await req.db.query(
       `SELECT r.*,
               u.nombre AS nombre_usuario, u.correo AS email_usuario,
-              v.marca, v.modelo, v.matricula, v.imagen
+              v.marca, v.modelo, v.matricula,
+              (v.imagen IS NOT NULL AND LENGTH(v.imagen) > 0) AS tiene_imagen
        FROM reservas r
        JOIN usuarios u ON r.id_usuario = u.id_usuario
        JOIN vehiculos v ON r.id_vehiculo = v.id_vehiculo
@@ -154,12 +155,6 @@ router.get('/:id(\\d+)', isAuth, async (req, res, next) => {
     }
 
     const reserva = rows[0];
-
-    if (reserva.id_usuario !== usuarioActual.id_usuario && usuarioActual.rol !== 'Admin') {
-      const err = new Error('Acceso no autorizado');
-      err.status = 403;
-      return next(err);
-    }
 
     res.render('reservaDetalle', {
       title: `Detalle Reserva ${reserva.id_reserva}`,
