@@ -1,8 +1,11 @@
 const db = require('../data/db'); 
 
-async function getConnection(req, res, next) {
-  try {
-    const connection = await db.getConnection();
+function getConnection(req, res, next) {
+  db.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error obteniendo conexión del pool:', err);
+      return next(err);
+    }
 
     req.db = connection;
 
@@ -18,10 +21,7 @@ async function getConnection(req, res, next) {
     res.on('close', release);
 
     next();
-  } catch (err) {
-    console.error('Error obteniendo conexión del pool:', err);
-    next(err);
-  }
+  });
 }
 
 module.exports = getConnection;

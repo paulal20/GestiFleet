@@ -6,7 +6,73 @@ document.addEventListener("DOMContentLoaded", () => {
     cargarConcesionario(id);
     cargarVehiculos(id);
 
-    configurarModalEliminar(id);
+    const formEliminar = document.getElementById("formEliminarVehiculo");
+    if (formEliminar) {
+        formEliminar.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const btnModal = formEliminar.querySelector("button[type='submit']");
+            const modal = document.getElementById("confirmarEliminarVehiculoModal");
+            const idVehiculo = btnModal.dataset.id;
+
+            if (!idVehiculo) return;
+
+            try {
+                const res = await fetch(`/api/vehiculos/${idVehiculo}/eliminar`, {
+                    method: "DELETE"
+                });
+
+                const data = await res.json();
+
+                if (!data.ok) {
+                    mostrarAlerta('danger', data.error || 'Error al eliminar el vehículo.');
+                } else {
+                    mostrarAlerta('success', `Vehículo eliminado: ${btnModal.dataset.name}`);
+
+                    // Desactivar el botón de la tabla
+                    const btn = document.querySelector(`button[data-id="${idVehiculo}"]`);
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.textContent = "Eliminar";
+                        const filaActivo = btn.closest("tr").querySelector("td:nth-child(5)");
+                        if (filaActivo)
+                            filaActivo.innerHTML = `<span class="badge bg-danger">Eliminado</span>`;
+                    }
+
+                    // Cerrar modal
+                    const modalInstance = bootstrap.Modal.getInstance(modal);
+                    if (modalInstance) modalInstance.hide();
+                }
+
+            } catch (err) {
+                console.error("Error al eliminar vehículo:", err);
+                mostrarAlerta('danger', 'Error al eliminar el vehículo.');
+            } finally {
+                const modalInstance = bootstrap.Modal.getInstance(modal);
+                if (modalInstance) modalInstance.hide();
+            }
+        });
+    }
+
+    // EVENTO show.bs.modal (igual que concesionarios)
+    const modalEliminar = document.getElementById("confirmarEliminarVehiculoModal");
+    if (modalEliminar) {
+        modalEliminar.addEventListener("show.bs.modal", (event) => {
+
+            const button = event.relatedTarget;
+            const id = button.getAttribute("data-id");
+            const nombre = button.getAttribute("data-name");
+
+            const btnSubmit = formEliminar.querySelector("button[type='submit']");
+            btnSubmit.dataset.id = id;
+            btnSubmit.dataset.name = nombre;
+
+            const texto = modalEliminar.querySelector("#textoConfirmacionVehiculo");
+            if (texto) {
+                texto.textContent = `¿Estás seguro de que deseas eliminar el vehículo "${nombre}"?`;
+            }
+        });
+    }
 });
 
 function cargarConcesionario(id) {
@@ -73,7 +139,7 @@ function pintarInfoConcesionario(c) {
               </div>
               <div class="row mb-2">
                 <div class="col-sm-6 fw-bold">Estado:</div>
-                <div class="col-sm-6">${pintarEstadoConcesionario(c.activoBool)}</div>
+                <div class="col-sm-6">${pintarEstado(c.activoBool)}</div>
               </div>
             </div>
 
@@ -85,7 +151,7 @@ function pintarInfoConcesionario(c) {
     `;
 }
 
-function pintarEstadoConcesionario(activoBool) {
+function pintarEstado(activoBool) {
     if (activoBool) {
         return `<span class="badge bg-success">Activo</span>`;
     } else {
@@ -116,23 +182,44 @@ function pintarVehiculos(lista) {
     }
 
     lista.forEach(v => {
+
+        let accionesAdmin = "";
+
+        if (window.usuarioSesion?.rol === "Admin") {
+            accionesAdmin = `
+                <button type="button"
+                    class="btn btn-outline-secondary btn-sm me-2"
+                    data-bs-toggle="modal"
+                    data-bs-target="#confirmarEliminarModal"
+                    data-id="${v.id_vehiculo}"
+                    data-name="${v.marca} ${v.modelo}"
+                    ${!v.activoBool ? "disabled" : ""}>
+                    Eliminar
+                </button>
+
+                <a href="/vehiculos/${v.id_vehiculo}/editar" 
+                    class="btn btn-primary btn-sm">
+                    Editar
+                </a>
+            `;
+        }
+
         tbody.innerHTML += `
-            <tr>
+            <tr class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">
                 <td>${v.matricula}</td>
                 <td>${v.marca}</td>
                 <td>${v.modelo}</td>
-                <td>${pintarEstado(v.estado)}</td>
-                <td>
-                    <a href="/vehiculos/${v.id_vehiculo}" class="btn btn-primary btn-sm">
-                        Ver
-                    </a>
-                </td>
+                <td>${pintarSituacion(v.estado)}</td>
+                <td>${pintarEstado(v.activoBool)}</td>
+                <td>${accionesAdmin}</td>
+
             </tr>
         `;
     });
+    activarFilaClick();
 }
 
-function pintarEstado(est) {
+function pintarSituacion(est) {
     const clases = {
         disponible: "bg-success",
         reservado: "bg-warning text-dark",
@@ -143,27 +230,57 @@ function pintarEstado(est) {
     return `<span class="badge ${clase}">${est}</span>`;
 }
 
-function configurarModalEliminar(idConcesionario) {
-    const modal = document.getElementById("modalEliminar");
-    const nombreSpan = document.getElementById("nombreAEliminar");
-    const btnConfirmar = document.getElementById("btnConfirmarEliminar");
+function activarFilaClick() {
+    document.querySelectorAll(".fila-click").forEach(td => {
+        td.addEventListener("click", () => {
+            const destino = td.getAttribute("data-href");
+            if (destino) window.location.href = destino;
+        });
+    });
+}
 
-    modal.addEventListener("show.bs.modal", (ev) => {
-        const btn = ev.relatedTarget;
-        nombreSpan.textContent = btn.dataset.nombre;
+
+function configurarModalEliminar(idConcesionario) {
+
+    const formEliminar = document.getElementById("formEliminarConcesionario");
+    const modal = document.getElementById("confirmarEliminarConcesionarioModal");
+
+    if (!formEliminar || !modal) return;
+
+    modal.addEventListener("show.bs.modal", (event) => {
+        const btn = event.relatedTarget;
+
+        const id = btn.dataset.id;
+        const nombre = btn.dataset.name;
+
+        const btnSubmit = formEliminar.querySelector("button[type='submit']");
+        btnSubmit.dataset.id = id;
+        btnSubmit.dataset.name = nombre;
+
+        const txt = modal.querySelector("#textoConfirmacionConcesionario");
+        txt.textContent = `¿Estás seguro de que deseas eliminar el concesionario "${nombre}"?`;
     });
 
-    btnConfirmar.addEventListener("click", () => {
-        fetch(`/api/concesionarios/${idConcesionario}`, {
-            method: "DELETE"
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.ok) {
-                window.location.href = "/concesionarios";
-            } else {
-                alert("Error al eliminar");
+    formEliminar.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const btnSubmit = formEliminar.querySelector("button[type='submit']");
+        const id = btnSubmit.dataset.id;
+
+        try {
+            const res = await fetch(`/api/concesionarios/${id}/eliminar`, { method: "DELETE" });
+            const data = await res.json();
+
+            if (!data.ok) {
+                alert(data.error || "Error al eliminar concesionario");
+                return;
             }
-        });
+
+            window.location.href = "/concesionarios";
+
+        } catch (err) {
+            console.error("Error eliminando:", err);
+            alert("Error al eliminar concesionario");
+        }
     });
 }
