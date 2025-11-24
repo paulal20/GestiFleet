@@ -49,7 +49,10 @@ const vehiculosRoutes = require('./routes/vehiculos');
 const reservasRoutes = require('./routes/reservas');
 const concesionariosRoutes = require('./routes/concesionarios');
 const usuariosRoutes = require('./routes/usuarios');
-const concesionarioAjax = require('./routes/api/concesionarios');
+const concesionariosAjax = require('./routes/api/concesionarios');
+const usuariosAjax = require('./routes/api/usuarios');
+const vehiculosAjax = require('./routes/api/vehiculos');
+const reservasAjax = require('./routes/api/reservas');
 const cargaInicialRoutes = require('./routes/cargaInicial');
 
 app.use('/', indexRoutes);
@@ -57,7 +60,10 @@ app.use('/vehiculos', vehiculosRoutes);
 app.use('/reserva', reservasRoutes);
 app.use('/concesionarios', concesionariosRoutes);
 app.use('/usuarios', usuariosRoutes);
-app.use('/api/concesionarios', concesionarioAjax);
+app.use('/api/concesionarios', concesionariosAjax);
+app.use('/api/usuarios', usuariosAjax);
+app.use('/api/vehiculos', vehiculosAjax);
+app.use('/api/reservas', reservasAjax);
 app.use('/carga-inicial', cargaInicialRoutes);
 
 // Forzar error 500

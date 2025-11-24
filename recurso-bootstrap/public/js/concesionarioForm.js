@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (valido) {
-            // ✅ dispara evento custom para AJAX
+            //dispara evento custom para AJAX
             form.dispatchEvent(new CustomEvent("form-valid", { bubbles: true }));
         }
     });

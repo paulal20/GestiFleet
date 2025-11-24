@@ -22,31 +22,39 @@ document.addEventListener("DOMContentLoaded", () => {
                 : `/api/concesionarios/nuevo`;
             const method = isEditMode ? "PUT" : "POST";
 
-            const res = await fetch(url, {
+            fetch(url, {
                 method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData)
+            })
+            .then(res.json())
+            .then(data => {
+                if (!data.ok) {
+                    // errores por campo
+                    if (data.fieldErrors) {
+                        Object.keys(data.fieldErrors).forEach(field => {
+                            const errorEl = document.getElementById(`error-${field}`);
+                            if (errorEl) errorEl.textContent = data.fieldErrors[field];
+                            const input = document.getElementById(field);
+                            if (input) input.classList.add("is-invalid");
+                        });
+                    } else {
+                        const div = document.createElement("div");
+                        div.className = "alert alert-danger mt-2";
+                        div.textContent = data.error || "Error desconocido";
+                        form.prepend(div);
+                    }
+                    return;
+                }
+            })
+            .catch(err => {
+                console.error("Error enviando formulario:", err);
+                const div = document.createElement("div");
+                div.className = "alert alert-danger mt-2";
+                div.textContent = "AAError al enviar el formulario.";
+                form.prepend(div);
             });
 
-            const data = await res.json();
-
-            if (!data.ok) {
-                // errores por campo
-                if (data.fieldErrors) {
-                    Object.keys(data.fieldErrors).forEach(field => {
-                        const errorEl = document.getElementById(`error-${field}`);
-                        if (errorEl) errorEl.textContent = data.fieldErrors[field];
-                        const input = document.getElementById(field);
-                        if (input) input.classList.add("is-invalid");
-                    });
-                } else {
-                    const div = document.createElement("div");
-                    div.className = "alert alert-danger mt-2";
-                    div.textContent = data.error || "Error desconocido";
-                    form.prepend(div);
-                }
-                return;
-            }
 
             // redirigir al detalle
             const redirectId = isEditMode ? idConcesionario : data.id;
@@ -55,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Error enviando formulario:", err);
             const div = document.createElement("div");
             div.className = "alert alert-danger mt-2";
-            div.textContent = "Error al enviar el formulario.";
+            div.textContent = "BBError al enviar el formulario.";
             form.prepend(div);
         }
     });

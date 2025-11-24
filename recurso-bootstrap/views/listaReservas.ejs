@@ -111,38 +111,10 @@
           </tr>
         </thead>
 
-        <tbody>
-          <% listaDeReservas.forEach(reserva => { %>
-            <tr>
-              <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= reserva.nombre_usuario %></td>
-              <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= reserva.email_usuario %></td>
-              <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= reserva.marca %> <%= reserva.modelo %> (<%= reserva.matricula %>)</td>
-              <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= new Date(reserva.fecha_inicio).toLocaleString() %></td>
-              <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>"><%= new Date(reserva.fecha_fin).toLocaleString() %></td>
-              <td class="fila-click" data-href="/reserva/<%= reserva.id_reserva %>">
-                <% if (reserva.estado === 'activa') { %>
-                  <span class="badge bg-success">Activa</span>
-                <% } else if (reserva.estado === 'cancelada') { %>
-                  <span class="badge bg-danger">Cancelada</span>
-                <% } else { %>
-                  <span class="badge bg-secondary"><%= reserva.estado.charAt(0).toUpperCase() + reserva.estado.slice(1) %></span>
-                <% } %>
-              </td>
-              <td>
-                <button type="button"
-                        class="btn btn-primary btn-sm"
-                        title="Cancelar Reserva"
-                        data-bs-toggle="modal"
-                        data-bs-target="#confirmarCancelarReservaModal"
-                        data-id="<%= reserva.id_reserva %>"
-                        data-name="<%= reserva.nombre_usuario %>"
-                        <%= (reserva.estado !== 'activa') ? 'disabled' : '' %>>
-                  <span class="lang lang-es">Cancelar</span>
-                  <span class="lang lang-en d-none">Cancel</span>
-                </button>
-              </td>
-            </tr>
-          <% }) %>
+        <tbody id="tablaReservasBody">
+          <tr>
+            <td colspan="7" class="text-center">Cargando datos...</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -156,7 +128,7 @@
     </div>
   <% } %>
   
-</div> <div class="modal fade" id="confirmarCancelarReservaModal" tabindex="-1" aria-labelledby="confirmarCancelarReservaModalLabel" aria-hidden="true">
+</div> <div class="modal fade" id="confirmarCancelarModal" tabindex="-1" aria-labelledby="confirmarCancelarReservaModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -177,3 +149,4 @@
   </div>
 </div>
 <script src="/js/modal.js"></script>
+<script src="/js/ajax/reservas/reservasLista.js"></script>

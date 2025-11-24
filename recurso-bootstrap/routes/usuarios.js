@@ -1,65 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
 const { isAdmin, isAdminOrSelf } = require('../middleware/auth');
 
-// GET LISTA USUARIOS
-router.get('/', isAdmin, async (req, res) => {
-  console.log('Cargando lista de usuarios');
-  try {
-    const { concesionario } = req.query;
-    const concesionarioSeleccionado = concesionario ? parseInt(concesionario, 10) : 0; 
-
-    let sql = `
-      SELECT u.*, c.nombre AS nombre_concesionario
-      FROM usuarios u
-      LEFT JOIN concesionarios c ON u.id_concesionario = c.id_concesionario
-    `;
-    const params = [];
-
-    if (concesionarioSeleccionado > 0) {
-      sql += ' WHERE u.id_concesionario = ?';
-      params.push(concesionarioSeleccionado);
-    }
-
-    sql += ' ORDER BY u.nombre';
-
-    const [usuarios] = await req.db.query(sql, params);
-
-    const [concesionarios] = await req.db.query(
-      'SELECT id_concesionario, nombre, ciudad FROM concesionarios ORDER BY nombre'
-    );
+// VISTA LISTA: /usuarios
+// Renderiza la estructura base. El frontend se encargará de llamar a la API para llenar la tabla.
+router.get('/', isAdmin, (req, res) => {
+  // Opcional: Cargamos concesionarios para el desplegable de filtros (si lo usas en EJS)
+  req.db.query('SELECT id_concesionario, nombre FROM concesionarios ORDER BY nombre', (err, concesionarios) => {
+    if (err) concesionarios = []; // Si falla, simplemente enviamos vacío
 
     res.render('listaUsuarios', {
       title: 'Gestión de Usuarios',
-      usuarios,
       concesionariosDisponibles: concesionarios,
-      concesionarioSeleccionado: concesionarioSeleccionado, 
-      usuario: req.session.usuario,
-      usuarioSesion: req.session.usuario
-    });
-
-  } catch (err) {
-    console.error("Error al obtener usuarios:", err);
-    res.status(500).render('listaUsuarios', {
-      title: 'Gestión de Usuarios',
-      usuarios: [],
-      concesionariosDisponibles: [],
-      concesionarioSeleccionado: 0,
-      usuario: req.session.usuario,
       usuarioSesion: req.session.usuario,
-      error: "Error al cargar usuarios"
+      // Variables que antes se usaban y ahora quizás el frontend maneje,
+      // se pasan como null/vacío para evitar errores en la plantilla EJS
+      usuarios: [], 
+      concesionarioSeleccionado: 0
     });
-  }
+  });
 });
 
+// VISTA FORMULARIO NUEVO: /usuarios/nuevo
+router.get('/nuevo', isAdmin, (req, res) => {
+  req.db.query('SELECT * FROM concesionarios ORDER BY nombre', (err, concesionarios) => {
+    if (err) {
+      console.error('Error cargando concesionarios vista nuevo:', err);
+      return res.status(500).render('error', { mensaje: 'Error cargando formulario' });
+    }
 
-// GET NUEVO USUARIO
-router.get('/nuevo', isAdmin, async (req, res) => {
-  console.log('Cargando formulario para nuevo usuario');
-  try {
-    const [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
-    
     res.render('usuarioForm', {
       title: 'Nuevo Usuario',
       action: '/usuarios/nuevo',
@@ -68,314 +37,66 @@ router.get('/nuevo', isAdmin, async (req, res) => {
       usuarioSesion: req.session.usuario,
       concesionarios
     });
-  } catch (err) {
-    console.error('Error al obtener concesionarios:', err);
-    res.status(500).render('error', { mensaje: 'No se pudieron cargar los concesionarios' });
-  }
+  });
 });
 
-// POST NUEVO USUARIO
-router.post('/nuevo', isAdmin, async (req, res) => {
-  const formData = req.body;
-  const { nombre, apellido1, apellido2, email, confemail, contrasenya, rol, telefono, id_concesionario, preferencias_accesibilidad } = formData;
-  
-  let concesionarios = [];
-  try {
-    [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
-    
-    let errorMsg = null;
-    
-    if (!nombre || !apellido1 || !email || !contrasenya || !rol) {
-      errorMsg = 'Nombre, primer apellido, correo, contraseña y rol son obligatorios.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errorMsg = 'El correo no tiene un formato válido.';
-    } else if (email !== confemail) {
-      errorMsg = 'Los correos no coinciden.';
-    } else if (!['Admin', 'Empleado'].includes(rol)) {
-      errorMsg = 'Rol inválido.';
-    }
-    
-    if (!errorMsg && rol === 'Empleado' && (!id_concesionario || id_concesionario === '0')) {
-      errorMsg = 'Los empleados deben pertenecer a un concesionario.';
-    }
-    
-    if (!errorMsg) {
-      const [duplicados] = await req.db.query('SELECT id_usuario FROM usuarios WHERE correo = ?', [email]);
-      if (duplicados.length > 0) {
-        errorMsg = 'El correo introducido ya está en uso.';
-      }
-    }
-    
-    if (errorMsg) {
-      const usuarioParaRender = { ...formData, correo: formData.email };
-      return res.status(400).render('usuarioForm', {
-        title: 'Nuevo Usuario',
-        action: '/usuarios/nuevo',
-        error: errorMsg,
-        usuario: usuarioParaRender,
-        usuarioSesion: req.session.usuario,
-        concesionarios
-      });
-    }
-    
-    const hashedPassword = await bcrypt.hash(contrasenya, 10);
-    
-    const nombreCompleto = [nombre, apellido1, apellido2].filter(Boolean).join(' ').trim();
-    
-    await req.db.query(
-      `INSERT INTO usuarios 
-        (nombre, correo, contrasenya, rol, telefono, id_concesionario, preferencias_accesibilidad)
-        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [
-        nombreCompleto,
-        email,
-        hashedPassword,
-        rol,
-        telefono || null,
-        rol === 'Empleado' ? id_concesionario : null,
-        preferencias_accesibilidad || null
-      ]
-    );
-    
-    res.redirect('/usuarios');
-    
-  } catch (err) {
-    console.error('Error al crear usuario:', err);
-    let error = 'Error al crear usuario';
-    if (err.code === 'ER_DUP_ENTRY') error = 'El correo ya existe.';
-    const usuarioParaRender = { ...formData, correo: formData.email };
-    res.status(500).render('usuarioForm', {
-      title: 'Nuevo Usuario',
-      action: '/usuarios/nuevo',
-      error,
-      usuario: usuarioParaRender,
-      usuarioSesion: req.session.usuario,
-      concesionarios
-    });
-  }
-});
+// VISTA FORMULARIO EDITAR: /usuarios/:id/editar
+router.get('/:id(\\d+)/editar', isAdminOrSelf, (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const redirectUrl = req.session.usuario.rol === 'Admin' ? '/usuarios' : '/perfil';
 
-// GET EDITAR USUARIO
-router.get('/:id/editar', isAdminOrSelf, async (req, res) => {
-  try {
-    const id = parseInt(req.params.id, 10);
-    if (isNaN(id)){
-      const redirectUrl = req.session.usuario.rol === 'Admin' ? '/usuarios' : '/perfil';
-      res.redirect(redirectUrl);
-    }
-    
-    const [usuarios] = await req.db.query('SELECT * FROM usuarios WHERE id_usuario = ?', [id]);
-    if (usuarios.length === 0){
-      const redirectUrl = req.session.usuario.rol === 'Admin' ? '/usuarios' : '/perfil';
-      res.redirect(redirectUrl);
+  // 1. Obtener Usuario
+  req.db.query('SELECT * FROM usuarios WHERE id_usuario = ?', [id], (err, usuarios) => {
+    if (err || !usuarios.length) {
+       return res.redirect(redirectUrl);
     }
     
     let usuario = usuarios[0];
+    
+    // Formatear nombres para la vista si es necesario
     const nombreParts = usuario.nombre ? usuario.nombre.split(' ') : [];
     usuario.nombre = nombreParts[0] || '';
     usuario.apellido1 = nombreParts[1] || '';
     usuario.apellido2 = nombreParts.slice(2).join(' ') || '';
 
-    const [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
-    
-    res.render('usuarioForm', {
-      title: 'Editar Usuario',
-      action: `/usuarios/${id}/editar`,
-      method: 'POST',
-      usuario,
-      usuarioSesion: req.session.usuario,
-      concesionarios
+    // 2. Obtener Concesionarios
+    req.db.query('SELECT * FROM concesionarios ORDER BY nombre', (errCon, concesionarios) => {
+      if (errCon) concesionarios = [];
+
+      res.render('usuarioForm', {
+        title: 'Editar Usuario',
+        action: `/api/usuarios/${id}`, // Acción para la API
+        method: 'PUT', // Método para AJAX
+        usuario,
+        usuarioSesion: req.session.usuario,
+        concesionarios
+      });
     });
-  } catch (err) {
-    console.error('Error al cargar formulario de edición:', err);
-    res.status(500).render('error', { mensaje: 'Error al cargar el usuario para editar.' });
-  }
+  });
 });
 
-// POST EDITAR USUARIO
-router.post('/:id/editar', isAdminOrSelf, async (req, res) => {
+// VISTA DETALLE / PERFIL: /usuarios/:id
+router.get('/:id(\\d+)', isAdmin, (req, res) => {
   const id = parseInt(req.params.id, 10);
-  if (isNaN(id)){
-    const redirectUrl = req.session.usuario.rol === 'Admin' ? '/usuarios' : '/perfil';
-    res.redirect(redirectUrl);
-  }
-  
-  const { 
-    nombre, apellido1, apellido2, 
-    email, contrasenya, rol, 
-    telefono, id_concesionario, preferencias_accesibilidad 
-  } = req.body;
-  
-  let concesionarios = [];
-  
-  try {
-    [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
+
+  req.db.query(`
+      SELECT u.*, c.nombre AS nombre_concesionario
+      FROM usuarios u
+      LEFT JOIN concesionarios c ON u.id_concesionario = c.id_concesionario
+      WHERE u.id_usuario = ?
+    `, [id], (err, usuarios) => {
     
-    let errorMsg = null;
-    
-    if (!nombre || !apellido1 || !email || !rol) {
-      errorMsg = 'Nombre, primer apellido, correo y rol son obligatorios.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errorMsg = 'El correo no tiene un formato válido.';
-    } else if (!['Admin', 'Empleado'].includes(rol)) {
-      errorMsg = 'Rol inválido.';
-    }
-    
-    if (!errorMsg && rol === 'Empleado' && (!id_concesionario || id_concesionario === '0')) {
-      errorMsg = 'Los empleados deben pertenecer a un concesionario.';
-    }
-    
-    if (!errorMsg) {
-      const [duplicados] = await req.db.query(
-        'SELECT id_usuario FROM usuarios WHERE correo = ? AND id_usuario != ?',
-        [email, id]
-      );
-      if (duplicados.length > 0) {
-        errorMsg = 'El correo introducido ya está en uso por otro usuario.';
-      }
-    }
-    
-    if (errorMsg) {
-      const usuarioParaRender = {
-        ...req.body,
-        id_usuario: id,
-        correo: req.body.email 
-      };
-      return res.status(400).render('usuarioForm', {
-        title: 'Editar Usuario',
-        action: `/usuarios/${id}/editar`,
-        error: errorMsg,
-        usuario: usuarioParaRender,
-        usuarioSesion: req.session.usuario,
-        concesionarios
-      });
-    }
-    
-    const nombreCompleto = [nombre, apellido1, apellido2].filter(Boolean).join(' ').trim();
-    
-    let sql = `
-    UPDATE usuarios SET 
-    nombre = ?, 
-    correo = ?, 
-    telefono = ?, 
-    preferencias_accesibilidad = ?
-    `;
-    
-    const params = [
-      nombreCompleto,
-      email,
-      telefono || null,
-      preferencias_accesibilidad || null
-    ];
-    
-    if (contrasenya) {
-      const hashedPassword = await bcrypt.hash(contrasenya, 10);
-      sql += ', contrasenya = ?';
-      params.push(hashedPassword);
-    }
-    
-    if (req.session.usuario.rol === 'Admin') {
-    
-      if (!(req.session.usuario.id_usuario === id)) {
-        sql += ', rol = ?, id_concesionario = ?';
-        
-        params.push(rol);
-        
-        params.push(rol === 'Empleado' ? id_concesionario : null);
-        
-      } else {
-        const rolActual = req.session.usuario.rol; 
-        
-        const id_concesionario_admin = null; 
-        
-        sql += ', rol = ?, id_concesionario = ?';
-        
-        params.push(rolActual);
-        params.push(id_concesionario_admin);
-      }
+    if (err || !usuarios.length) {
+      return res.status(404).render('error', { mensaje: 'Usuario no encontrado.' });
     }
 
-    sql += ' WHERE id_usuario = ?';
-    params.push(id);
+    res.render('perfil', {
+      title: 'Detalle del Usuario',
+      usuario: usuarios[0],
+      lista: true, // Indica que venimos de una lista (para botón volver)
+      usuarioSesion: req.session.usuario
+    });
+  });
+});
 
-    await req.db.query(sql, params);
-    
-    const redirectUrl = req.session.usuario.rol === 'Admin' ? '/usuarios' : '/perfil';
-    res.redirect(redirectUrl);
-    
-    a } catch (err) {
-      console.error('Error al actualizar usuario:', err);
-      let error = 'Error al actualizar usuario';
-      if (err.code === 'ER_DUP_ENTRY') error = 'El correo introducido ya existe.';
-      
-      const usuarioParaRender = {
-        ...req.body,
-        id_usuario: id,
-        correo: req.body.email
-      };
-      
-      res.status(500).render('usuarioForm', {
-        title: 'Editar Usuario',
-        action: `/usuarios/${id}/editar`,
-        error,
-        usuario: usuarioParaRender,
-        usuarioSesion: req.session.usuario,
-        concesionarios
-      });
-    }
-  });
-  
-  // POST ELIMINAR USUARIO
-  router.post('/:id/eliminar', isAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id, 10);
-      if (isNaN(id)) return res.redirect('/usuarios');
-      
-      //-------------------------TODO-------------------------
-      // (Opcional) No dejar que un admin se elimine a sí mismo
-      if (req.session.usuario && req.session.usuario.id_usuario === id) {
-        // O renderizar un error
-        return res.redirect('/usuarios?error=no_self_delete'); 
-      }
-      //-------------------------TODO--------------------------
-      
-      await req.db.query('DELETE FROM usuarios WHERE id_usuario = ?', [id]);
-      res.redirect('/usuarios');
-    } catch (err) {
-      console.error('Error al eliminar usuario:', err);
-      res.status(500).render('error', { mensaje: 'Error al eliminar el usuario' });
-    }
-  });
-  
-  // GET DETALLE USUARIO
-  router.get('/:id', isAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id, 10);
-      if (isNaN(id)) return res.redirect('/usuarios');
-  
-      const [usuarios] = await req.db.query(`
-        SELECT u.*, c.nombre AS nombre_concesionario
-        FROM usuarios u
-        LEFT JOIN concesionarios c ON u.id_concesionario = c.id_concesionario
-        WHERE u.id_usuario = ?
-      `, [id]);
-  
-      if (usuarios.length === 0) {
-        return res.status(404).render('error', { mensaje: 'Usuario no encontrado.' });
-      }
-  
-      const usuario = usuarios[0];
-  
-      res.render('perfil', {
-        title: 'Detalle del Usuario',
-        usuario,
-        lista: true,
-        usuarioSesion: req.session.usuario
-      });
-  
-    } catch (err) {
-      console.error('Error al obtener detalle del usuario:', err);
-      res.status(500).render('error', { mensaje: 'Error al cargar el usuario.' });
-    }
-  });
 module.exports = router;

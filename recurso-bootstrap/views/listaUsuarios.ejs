@@ -8,111 +8,61 @@
     </a>
   </div>
 
-  <form action="/usuarios" method="GET" class="mb-4">
+  <form id="formFiltrosUsuarios" class="mb-4">
     <fieldset>
       <legend class="w-auto">Filtros</legend>
 
       <div class="row g-3 p-2">
-        
         <div class="col-md-6 col-lg-4">
           <label for="filtroConcesionario" class="form-label">Concesionario</label>
           <select name="concesionario" id="filtroConcesionario" class="form-select">
-            
-            <option value="0" <%= (concesionarioSeleccionado === 0) ? 'selected' : '' %>>
-              Todos los Concesionarios
-            </option>
-            
+            <option value="0">Todos los Concesionarios</option>
             <% if (concesionariosDisponibles && concesionariosDisponibles.length > 0) { %>
               <% concesionariosDisponibles.forEach(c => { %>
-                <option value="<%= c.id_concesionario %>" <%= (c.id_concesionario == concesionarioSeleccionado) ? 'selected' : '' %>>
-                  <%= c.nombre %> (<%= c.ciudad %>)
-                </option>
+                <option value="<%= c.id_concesionario %>"><%= c.nombre %> (<%= c.ciudad %>)</option>
               <% }) %>
             <% } %>
-            
           </select>
         </div>
 
         <div class="col-md-6 col-lg-4 d-flex align-items-end gap-2">
           <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-          <a href="/usuarios" class="btn btn-outline-secondary w-100">Limpiar</a>
+          <button type="button" id="btnLimpiar" class="btn btn-outline-secondary w-100">Limpiar</button>
         </div>
-      </div> </fieldset>
+      </div>
+    </fieldset>
   </form>
-  <% if (typeof error !== 'undefined' && error) { %>
-    <div class="alert alert-danger" role="alert" aria-live="assertive">
-      <%= error %>
-    </div>
-  <% } %>
 
-  <% if (usuarios && usuarios.length > 0) { %>
-    <div class="table-responsive-md">
-      <table class="table table-hover">
-        <caption class="text-center">
-          <span class="lang lang-es">Usuarios mostrados: </span>
-          <span class="lang lang-en d-none">Users shown: </span>
-          <strong><%= usuarios.length %></strong>
-        </caption>
+  <div id="alertas"></div>
 
-        <thead class="table-dark">
-          <tr>
-            <th scope="col">Nombre</th>
-            <th scope="col">Correo</th>
-            <th scope="col">Rol</th>
-            <th scope="col">Teléfono</th>
-            <th scope="col">Concesionario</th>
-            <th scope="col">Acciones</th>
-          </tr>
-        </thead>
+  <div class="table-responsive-md">
+    <table class="table table-hover">
+      <caption class="text-center">
+        <span class="lang lang-es">Usuarios mostrados: </span>
+        <span class="lang lang-en d-none">Users shown: </span>
+        <strong id="contadorUsuarios">0</strong>
+      </caption>
 
-        <tbody>
-          <% usuarios.forEach(u => { %>
-            <tr>
-              <td class="fila-click" data-href="/usuarios/<%= u.id_usuario %>"><%= u.nombre %></td>
-              <td class="fila-click" data-href="/usuarios/<%= u.id_usuario %>"><%= u.correo %></td>
-              <td class="fila-click" data-href="/usuarios/<%= u.id_usuario %>"><%= u.rol %></td>
-              <td class="fila-click" data-href="/usuarios/<%= u.id_usuario %>"><%= u.telefono || '—' %></td>
-              <td class="fila-click" data-href="/usuarios/<%= u.id_usuario %>">
-                <%= u.nombre_concesionario || '—' %>
-              </td>
-              <td>
-                <% if (u.rol === 'Admin') { %>
-                  <button type="button" class="btn btn-secondary btn-sm" disabled title="No se puede eliminar un administrador">
-                    Eliminar
-                  </button>
-                <% } else { %>
-                  <button 
-                      type="button"
-                      class="btn btn-secondary btn-sm"
-                      data-bs-toggle="modal"
-                      data-bs-target="#confirmarEliminarUsuarioModal"
-                      data-id="<%= u.id_usuario %>"
-                      data-name="<%= u.nombre %>"
-                  >
-                    Eliminar
-                  </button>
-                <% } %>
-                <a href="/usuarios/<%= u.id_usuario %>/editar" class="btn btn-primary btn-sm" title="Editar">
-                  <span class="lang lang-es">Editar</span>
-                  <span class="lang lang-en d-none">Edit</span>
-                </a>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </div>
+      <thead class="table-dark">
+        <tr>
+          <th scope="col">Nombre</th>
+          <th scope="col">Correo</th>
+          <th scope="col">Rol</th>
+          <th scope="col">Teléfono</th>
+          <th scope="col">Concesionario</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
 
-  <% } else { %>
-    <div class="alert alert-info text-center" role="alert">
-      <h4 class="alert-heading lang lang-es">No hay usuarios</h4>
-      <h4 class="alert-heading lang lang-en d-none">No users found</h4>
-      <p class="lang lang-es mb-0">No se encontraron usuarios para la selección actual.</p>
-      <p class="lang lang-en d-none mb-0">No users were found for the current selection.</p>
-    </div>
-  <% } %>
+      <tbody id="tablaUsuariosBody">
+      </tbody>
+    </table>
+  </div>
+</div>
 
-</div> <div class="modal fade" id="confirmarEliminarUsuarioModal" tabindex="-1" aria-labelledby="confirmarEliminarUsuarioModalLabel" aria-hidden="true">
+<!-- Modal de eliminación -->
+<div class="modal fade" id="confirmarEliminarUsuarioModal" tabindex="-1" aria-labelledby="confirmarEliminarUsuarioModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
 
@@ -126,7 +76,7 @@
 
         <div class="d-flex justify-content-end mt-3 gap-2">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <form id="formEliminarUsuario" action="" method="POST" class="m-0 p-0">
+          <form id="formEliminarUsuario" class="m-0 p-0">
             <button type="submit" class="btn btn-primary">Eliminar</button>
           </form>
         </div>
@@ -136,4 +86,4 @@
   </div>
 </div>
 
-<script src="/js/modal.js"></script>
+<script src="/js/ajax/usuarios/usuariosLista.js"></script>

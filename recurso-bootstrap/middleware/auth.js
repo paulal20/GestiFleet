@@ -12,7 +12,7 @@ function isGuest(req, res, next) {
         return next();
     }
     req.session.errorMessage = 'Ya tienes una sesión iniciada.';
-    res.redirect('back');
+    res.redirect('/');
 }
 
 function isAdmin(req, res, next) {
@@ -20,7 +20,7 @@ function isAdmin(req, res, next) {
         return next();
     }
     req.session.errorMessage = 'Acceso denegado. Solo los administradores pueden hacer eso.';
-    res.redirect('back');
+    res.redirect('/');
 }
 
 function isAdminOrSelf(req, res, next) {

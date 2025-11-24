@@ -134,12 +134,12 @@ function pintarTabla(lista) {
     lista.forEach(c => {
 
         tbody.innerHTML += `
-            <tr class="fila-click" data-href="/concesionarios/${c.id_concesionario}">
-                <td >${c.nombre}</td>
-                <td >${c.ciudad}</td>
-                <td >${c.direccion}</td>
-                <td >${c.telefono_contacto}</td>
-                <td >${pintarEstadoConcesionario(c.activoBool)}</td>
+            <tr>
+                <td class="fila-click" data-href="/concesionarios/${c.id_concesionario}">${c.nombre}</td>
+                <td class="fila-click" data-href="/concesionarios/${c.id_concesionario}">${c.ciudad}</td>
+                <td class="fila-click" data-href="/concesionarios/${c.id_concesionario}">${c.direccion}</td>
+                <td class="fila-click" data-href="/concesionarios/${c.id_concesionario}">${c.telefono_contacto}</td>
+                <td class="fila-click" data-href="/concesionarios/${c.id_concesionario}">${pintarEstadoConcesionario(c.activoBool)}</td>
                 <td>
                     <button 
                         type="button" 

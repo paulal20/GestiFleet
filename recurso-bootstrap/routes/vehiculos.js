@@ -2,475 +2,178 @@ const express = require('express');
 const router = express.Router();
 const { isAuth, isAdmin } = require('../middleware/auth');
 
-const path = require('path');
-const multer = require('multer');
+// GET /vehiculos (Vista Listado)
+router.get('/', isAuth, (req, res) => {
+  const usuario = req.session.usuario;
+  
+  // Necesitamos cargar TODOS los datos auxiliares para los filtros (Tipos, Estados, Colores, etc.)
+  // Al ser callbacks, tendremos un anidamiento considerable (Callback Hell), pero es la forma sin async/await.
 
-// --------------------
-// CONFIGURACION MULTER
-// --------------------
-const storage = multer.memoryStorage();
+  // 1. Tipos
+  req.db.query('SELECT DISTINCT tipo FROM vehiculos', (err1, tiposRows) => {
+    const tiposDisponibles = err1 ? [] : tiposRows.map(t => t.tipo);
 
-const fileFilter = (req, file, cb) => {
-  if (path.extname(file.originalname).toLowerCase() === '.png') {
-    cb(null, true);
-  } else {
-    cb(new Error('Solo se permiten archivos PNG.'));
-  }
-};
+    // 2. Estados
+    req.db.query('SELECT DISTINCT estado FROM vehiculos', (err2, estadosRows) => {
+      const estadosDisponibles = err2 ? [] : estadosRows.map(e => e.estado);
 
-const upload = multer({ storage, fileFilter });
+      // 3. Colores
+      req.db.query('SELECT DISTINCT color FROM vehiculos WHERE color IS NOT NULL ORDER BY color', (err3, coloresRows) => {
+        const coloresDisponibles = err3 ? [] : coloresRows.map(c => c.color);
 
-// GET /vehiculos
-router.get('/', isAuth, async (req, res) => {
-  try {
-    const { 
-      tipo, 
-      estado, 
-      color, 
-      plazas, 
-      concesionario,
-      precio_max,
-      autonomia_min
-    } = req.query;
-    const usuario = req.session.usuario;
+        // 4. Plazas
+        req.db.query('SELECT DISTINCT numero_plazas FROM vehiculos ORDER BY numero_plazas ASC', (err4, plazasRows) => {
+          const plazasDisponibles = err4 ? [] : plazasRows.map(p => p.numero_plazas);
 
-    let sql = `SELECT id_vehiculo, matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, estado, id_concesionario, (imagen IS NOT NULL AND LENGTH(imagen) > 0) AS tiene_imagen FROM vehiculos`;
-    const params = [];
-    const condiciones = [];
+          // 5. Concesionarios
+          req.db.query('SELECT id_concesionario, nombre FROM concesionarios ORDER BY nombre', (err5, concesionariosRows) => {
+            const concesionariosDisponibles = err5 ? [] : concesionariosRows;
 
-    if (!usuario || usuario.rol !== 'Admin') {
-      condiciones.push(' id_concesionario = ? ');
-      params.push(usuario.id_concesionario);
-      condiciones.push(" estado = 'disponible' ");
-    }
-    
-    if (tipo) {
-      condiciones.push(' tipo = ? ');
-      params.push(tipo);
-    }
-    if (color) {
-      condiciones.push(' color = ? ');
-      params.push(color);
-    }
-    if (plazas) {
-      condiciones.push(' numero_plazas = ? ');
-      params.push(plazas);
-    }
-    if (precio_max) {
-      condiciones.push(' precio <= ? ');
-      params.push(precio_max);
-    }
-    if (autonomia_min) {
-      condiciones.push(' autonomia_km >= ? ');
-      params.push(autonomia_min);
-    }
-    
-    if (usuario && usuario.rol === 'Admin') {
-      if (estado) {
-        condiciones.push(' estado = ? ');
-        params.push(estado);
-      }
-      if (concesionario) {
-        condiciones.push(' id_concesionario = ? ');
-        params.push(concesionario);
-      }
-    }
+            // 6. Rangos (Precio/Autonomía)
+            req.db.query('SELECT MIN(precio) as minPrecio, MAX(precio) as maxPrecio, MIN(autonomia_km) as minAutonomia, MAX(autonomia_km) as maxAutonomia FROM vehiculos', (err6, rangosRows) => {
+              const rangos = (rangosRows && rangosRows[0]) ? rangosRows[0] : { minPrecio: 0, maxPrecio: 100000, minAutonomia: 0, maxAutonomia: 1000 };
 
-    if (condiciones.length > 0) {
-      sql += ' WHERE ' + condiciones.join(' AND ');
-    }
-
-    const [vehiculos] = await req.db.query(sql, params);
-
-    const [tipos, estados, colores, plazasRes, concesionariosRes, rangosRes] = await Promise.all([
-      req.db.query('SELECT DISTINCT tipo FROM vehiculos'),
-      req.db.query('SELECT DISTINCT estado FROM vehiculos'),
-      req.db.query('SELECT DISTINCT color FROM vehiculos WHERE color IS NOT NULL ORDER BY color'),
-      req.db.query('SELECT DISTINCT numero_plazas FROM vehiculos ORDER BY numero_plazas ASC'),
-      req.db.query('SELECT id_concesionario, nombre FROM concesionarios ORDER BY nombre'),
-      req.db.query('SELECT MIN(precio) as minPrecio, MAX(precio) as maxPrecio, MIN(autonomia_km) as minAutonomia, MAX(autonomia_km) as maxAutonomia FROM vehiculos')
-    ]);
-     const tiposDisponibles = tipos[0].map(t => t.tipo);
-    const estadosDisponibles = estados[0].map(e => e.estado);
-    const coloresDisponibles = colores[0].map(c => c.color);
-    const plazasDisponibles = plazasRes[0].map(p => p.numero_plazas);
-    const concesionariosDisponibles = concesionariosRes[0];
-    const rangos = rangosRes[0][0]; 
-
-    res.render('listaVehiculos', {
-      title: 'Vehículos',
-      vehiculos,
-      usuario,
-      usuarioSesion: req.session.usuario,
-      tiposDisponibles,
-      estadosDisponibles,
-      coloresDisponibles,
-      plazasDisponibles,
-      concesionariosDisponibles,
-      rangos,
-      tipoSeleccionado: tipo || '',
-      estadoSeleccionado: estado || '',
-      colorSeleccionado: color || '',
-      plazasSeleccionado: plazas || '',
-      concesionarioSeleccionado: concesionario || '',
-      precioMaxSeleccionado: precio_max || rangos.maxPrecio,
-      autonomiaMinSeleccionado: autonomia_min || rangos.minAutonomia,
+              // RENDER FINAL
+              // Nota: 'vehiculos' se pasa vacío []. El frontend debe llamar a la API.
+              res.render('listaVehiculos', {
+                title: 'Vehículos',
+                vehiculos: [], 
+                usuario,
+                usuarioSesion: req.session.usuario,
+                tiposDisponibles,
+                estadosDisponibles,
+                coloresDisponibles,
+                plazasDisponibles,
+                concesionariosDisponibles,
+                rangos,
+                // Mantenemos los valores de query por si el frontend los lee para inicializar filtros
+                tipoSeleccionado: req.query.tipo || '',
+                estadoSeleccionado: req.query.estado || '',
+                colorSeleccionado: req.query.color || '',
+                plazasSeleccionado: req.query.plazas || '',
+                concesionarioSeleccionado: req.query.concesionario || '',
+                precioMaxSeleccionado: req.query.precio_max || rangos.maxPrecio,
+                autonomiaMinSeleccionado: req.query.autonomia_min || rangos.minAutonomia,
+              });
+            });
+          });
+        });
+      });
     });
-    
-  } catch (err) {
-    console.error('Error al obtener vehículos:', err);
-    res.status(500).render('error', { mensaje: 'Error al cargar los vehículos' });
-  }
+  });
 });
 
-// GET /vehiculos/nuevo
-router.get('/nuevo', isAuth, isAdmin, async (req, res) => {
-  try {
-    // Obtener todos los concesionarios
-    const [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
+// GET /vehiculos/nuevo (Formulario Creación)
+router.get('/nuevo', isAuth, isAdmin, (req, res) => {
+  req.db.query('SELECT * FROM concesionarios', (err, concesionarios) => {
+    if (err) {
+      console.error('Error al obtener concesionarios:', err);
+      return res.status(500).render('error', { mensaje: 'No se pudieron cargar los concesionarios' });
+    }
 
     res.render('vehiculoForm', {
       title: 'Nuevo Vehículo',
       vehiculo: {},
       usuarioSesion: req.session.usuario,
-      action: '/vehiculos/nuevo',
-      method: 'POST',
-      concesionarios // <-- pasamos la lista al EJS
-    });
-  } catch (err) {
-    console.error('Error al obtener concesionarios:', err);
-    res.status(500).render('error', { mensaje: 'No se pudieron cargar los concesionarios' });
-  }
-});
-
-// POST /vehiculos/nuevo
-router.post('/nuevo', isAdmin, upload.single('imagen'), async (req, res) => {
-  const formData = req.body;
-  const {
-    matricula, marca, modelo, anyo_matriculacion, descripcion,
-    tipo, precio, numero_plazas, autonomia_km, color,
-    estado, id_concesionario
-  } = formData;
-  
-  let concesionarios = [];
-  let campoErroneo = null;
-
-  try {
-    [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
-
-    let errorMsg = null;
-    const actual = new Date().getFullYear();
-
-    if (!matricula || !marca || !modelo || !anyo_matriculacion || !precio || !id_concesionario) {
-      errorMsg = 'Faltan campos obligatorios (Matrícula, Marca, Modelo, Año, Precio, Concesionario).';
-    } else if (!/^\d{4}[A-Z]{3}$/i.test(matricula)) {
-      errorMsg = 'La matrícula debe tener 4 números seguidos de 3 letras (ej: 1234ABC).';
-      campoErroneo = 'matricula';
-    } else if (parseInt(anyo_matriculacion, 10) < 1901 || parseInt(anyo_matriculacion, 10) > actual) {
-      errorMsg = `El año de matriculación debe estar entre 1901 y ${actual}.`;
-    } else if (parseFloat(precio) <= 0) {
-      errorMsg = 'El precio debe ser un número positivo.';
-    } else if (id_concesionario === '0') {
-      errorMsg = 'Debe seleccionar un concesionario válido.';
-    } else if (!req.file) {
-      errorMsg = 'La imagen es obligatoria al crear un vehículo nuevo.';
-    }
-
-    if (!errorMsg) {
-      const [duplicados] = await req.db.query(
-        'SELECT id_vehiculo FROM vehiculos WHERE matricula = ?', 
-        [matricula.toUpperCase()]
-      );
-      if (duplicados.length > 0) {
-        errorMsg = 'La matrícula introducida ya existe.';
-        campoErroneo = 'matricula';
-      }
-    }
-
-    if (errorMsg) {
-      if (campoErroneo === 'matricula') {
-        formData.matricula = '';
-      }
-      return res.status(400).render('vehiculoForm', {
-        title: 'Nuevo Vehículo',
-        usuarioSesion: req.session.usuario,
-        action: '/vehiculos/nuevo',
-        error: errorMsg,
-        vehiculo: formData, 
-        concesionarios
-      });
-    }
-
-    const imagenBuffer = req.file ? req.file.buffer : null;
-
-    await req.db.query(
-      `INSERT INTO vehiculos
-      (matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        matricula.toUpperCase(), 
-        marca,
-        modelo,
-        anyo_matriculacion,
-        descripcion || null,
-        tipo || 'coche',
-        precio,
-        numero_plazas || 5,
-        autonomia_km || null,
-        color || null,
-        imagenBuffer,
-        estado || 'disponible',
-        id_concesionario
-      ]
-    );
-
-    res.redirect('/vehiculos');
-
-     } catch (err) {
-    console.error('Error al crear vehículo:', err);
-    
-    if (concesionarios.length === 0) {
-        try {
-            [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
-        } catch (dbErr) {
-            console.error("Error fatal, no se pueden cargar concesionarios", dbErr);
-             }
-    }
-
-    let error = 'Error al crear vehículo: ' + err.message;
-
-    res.status(500).render('vehiculoForm', {
-      title: 'Nuevo Vehículo',
-      usuarioSesion: req.session.usuario,
-      action: '/vehiculos/nuevo',
-      error: error,
-      vehiculo: formData,
-      concesionarios
-    });
-  }
-});
-
-
-// GET /vehiculos/:id/editar
-router.get('/:id/editar', isAdmin, async (req, res) => {
-  try {
-    const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) {
-      return res.redirect('/vehiculos');
-    }
-    
-    // Obtener el vehículo
-    const [vehiculos] = await req.db.query('SELECT * FROM vehiculos WHERE id_vehiculo = ?', [id]);
-    if (vehiculos.length === 0) {
-      return res.redirect('/vehiculos');
-        }
-    const vehiculo = vehiculos[0];
-
-    // Obtener lista de concesionarios para el select
-    const [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
-
-    res.render('vehiculoForm', {
-      title: 'Editar Vehículo',
-      vehiculo,
-      usuarioSesion: req.session.usuario,
-      action: `/vehiculos/${id}/editar`,
+      action: '/api/vehiculos', // Apunta a la API
       method: 'POST',
       concesionarios
     });
-  } catch (err) {
-    console.error('Error al cargar formulario de edición:', err);
-    res.status(500).render('error', { mensaje: 'Error al cargar el vehículo para editar' });
-  }
+  });
 });
 
-
-// POST /vehiculos/:id/editar
-router.post('/:id/editar', isAdmin, upload.single('imagen'), async (req, res) => {
+// GET /vehiculos/:id/editar (Formulario Edición)
+router.get('/:id/editar', isAdmin, (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) return res.redirect('/vehiculos');
-  
-  const formData = req.body;
-  const { matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas,
-    autonomia_km, color, estado, id_concesionario } = formData;
 
-  let concesionarios = [];
-  let campoErroneo = null;
-
-  try {
-    [concesionarios] = await req.db.query('SELECT * FROM concesionarios');
-    
-    let errorMsg = null;
-    const actual = new Date().getFullYear();
-
-    
-    if (!matricula || !marca || !modelo || !anyo_matriculacion || !precio || !id_concesionario) {
-      errorMsg = 'Faltan campos obligatorios (Matrícula, Marca, Modelo, Año, Precio, Concesionario).';
-    } else if (!/^\d{4}[A-Z]{3}$/i.test(matricula)) {
-      errorMsg = 'La matrícula debe tener 4 números seguidos de 3 letras (ej: 1234ABC).';
-      campoErroneo = 'matricula';
-    } else if (parseInt(anyo_matriculacion, 10) < 1901 || parseInt(anyo_matriculacion, 10) > actual) {
-      errorMsg = `El año de matriculación debe estar entre 1901 y ${actual}.`;
-    } else if (parseFloat(precio) <= 0) {
-      errorMsg = 'El precio debe ser un número positivo.';
-    } else if (id_concesionario === '0') {
-      errorMsg = 'Debe seleccionar un concesionario válido.';
+  // 1. Obtener Vehículo
+  req.db.query('SELECT * FROM vehiculos WHERE id_vehiculo = ?', [id], (err, vehiculos) => {
+    if (err) {
+        console.error('Error cargando vehículo editar:', err);
+        return res.status(500).render('error', { mensaje: 'Error al cargar vehículo' });
     }
-    
-    if (!errorMsg) {
-      const [duplicados] = await req.db.query(
-        'SELECT id_vehiculo FROM vehiculos WHERE matricula = ? AND id_vehiculo != ?',
-        [matricula.toUpperCase(), id]
-      );
-      if (duplicados.length > 0) {
-        errorMsg = 'La matrícula introducida ya pertenece a otro vehículo.';
-        campoErroneo = 'matricula';
+
+    if (!vehiculos || vehiculos.length === 0) return res.redirect('/vehiculos');
+    const vehiculo = vehiculos[0];
+
+    // 2. Obtener Concesionarios
+    req.db.query('SELECT * FROM concesionarios', (errCon, concesionarios) => {
+      if (errCon) {
+          console.error('Error cargando concesionarios editar:', errCon);
+          return res.status(500).render('error', { mensaje: 'Error al cargar datos auxiliares' });
       }
-    }
-    
-    if (errorMsg) {
-      if (campoErroneo === 'matricula') {
-        formData.matricula = '';
-      }
-      return res.status(400).render('vehiculoForm', {
+
+      res.render('vehiculoForm', {
         title: 'Editar Vehículo',
-        action: `/vehiculos/${id}/editar`,
-        error: errorMsg,
+        vehiculo,
         usuarioSesion: req.session.usuario,
-        vehiculo: { ...formData, id_vehiculo: id },
+        action: `/api/vehiculos/${id}`, // Apunta a la API
+        method: 'PUT', // Método AJAX
         concesionarios
       });
-    }
-
-    let sql = `UPDATE vehiculos SET 
-        matricula = ?, marca = ?, modelo = ?, anyo_matriculacion = ?, descripcion = ?, 
-        tipo = ?, precio = ?, numero_plazas = ?, autonomia_km = ?, color = ?, 
-        estado = ?, id_concesionario = ?`;
-
-        
-    let params = [
-      matricula.toUpperCase(), marca, modelo, anyo_matriculacion,
-      descripcion || null, tipo || 'coche', precio, numero_plazas || 5,
-      autonomia_km || null, color || null, estado || 'disponible',
-      id_concesionario
-    ];
-
-    if (req.file) {
-      sql += ', imagen = ?';
-      params.push(req.file.buffer);
-    }
-
-    sql += ' WHERE id_vehiculo = ?';
-    params.push(id);
-
-    await req.db.query(sql, params);
-
-    res.redirect(`/vehiculos/${id}`);
-
-    
-  } catch (err) {
-    console.error('Error al actualizar vehículo:', err);
-
-    if (concesionarios.length === 0) {
-        try { [concesionarios] = await req.db.query('SELECT * FROM concesionarios'); } catch (dbErr) { /* ... */ }
-    }
-    
-    let error = 'Error al actualizar vehículo';
-    if (err.code === 'ER_DUP_ENTRY') {
-      error = 'La matrícula introducida ya existe.';
-      formData.matricula = '';
-    } else {
-      error = err.message || error;
-    }
-
-    res.status(500).render('vehiculoForm', {
-      title: 'Editar Vehículo',
-      usuarioSesion: req.session.usuario,
-      action: `/vehiculos/${id}/editar`,
-      error: error,
-      vehiculo: { ...formData, id_vehiculo: id }, 
-      concesionarios
     });
-  }
+  });
 });
 
+// GET /vehiculos/:id/imagen (Servir Imagen)
+// Mantenemos esta ruta aquí porque sirve un recurso binario, no JSON.
+router.get('/:id/imagen', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) return res.status(400).send('ID no válido');
 
-// POST /vehiculos/:id/eliminar
-router.post('/:id/eliminar', isAuth, isAdmin, async (req, res) => {
-  try {
-    const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) {
-      return res.redirect('/vehiculos');
+  req.db.query('SELECT imagen FROM vehiculos WHERE id_vehiculo = ?', [id], (err, rows) => {
+    if (err) {
+      console.error('Error al servir imagen:', err);
+      return res.status(500).send('Error al cargar la imagen');
     }
 
-    // Borrar vehículo
-    await req.db.query('DELETE FROM vehiculos WHERE id_vehiculo = ?', [id]);
-    res.redirect('/vehiculos');
-  } catch (err) {
-    console.error('Error al eliminar vehículo:', err);
-    res.status(500).render('error', { mensaje: 'Error al eliminar el vehículo' });
-  }
-});
-
-
-// GET /vehiculos/:id/imagen
-router.get('/:id/imagen', async (req, res) => {
-  try {
-    const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) {
-      return res.status(400).send('ID no válido');
-    }
-
-    const [vehiculos] = await req.db.query(
-      'SELECT imagen FROM vehiculos WHERE id_vehiculo = ?',
-      [id]
-    );
-
-    if (vehiculos.length === 0 || !vehiculos[0].imagen) {
+    if (rows.length === 0 || !rows[0].imagen) {
       return res.status(404).send('Imagen no encontrada');
     }
 
-    const imagenBuffer = vehiculos[0].imagen;
-    
+    const imagenBuffer = rows[0].imagen;
     res.setHeader('Content-Type', 'image/png');
     res.end(imagenBuffer);
-    
-  } catch (err) {
-    console.error('Error al servir imagen:', err);
-    res.status(500).send('Error al cargar la imagen');
-  }
+  });
 });
 
+// GET /vehiculos/:id (Detalle SSR)
+router.get('/:id', (req, res, next) => {
+  const id = parseInt(req.params.id);
 
-// DETALLE DE UN VEHÍCULO
-router.get('/:id', async (req, res, next) => {
-  try {
-    const id = parseInt(req.params.id);
-    const [vehiculos] = await req.db.query('SELECT id_vehiculo, matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, estado, id_concesionario, (imagen IS NOT NULL AND LENGTH(imagen) > 0) AS tiene_imagen FROM vehiculos WHERE id_vehiculo = ?', [id]);
-    if (vehiculos.length === 0) {
-      const err = new Error(`Vehículo no encontrado (id_vehiculo=${id})`);
-      err.status = 404;
-      err.publicMessage = 'Vehículo no encontrado.';
-      err.expose = true;
-      return next(err);
+  // 1. Obtener Vehículo
+  req.db.query(
+    'SELECT id_vehiculo, matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, estado, id_concesionario, (imagen IS NOT NULL AND LENGTH(imagen) > 0) AS tiene_imagen FROM vehiculos WHERE id_vehiculo = ?', 
+    [id], 
+    (err, vehiculos) => {
+      if (err) {
+        console.error('Error al obtener el vehículo:', err);
+        return res.status(500).render('error', { mensaje: 'Error al cargar el vehículo' });
+      }
+
+      if (vehiculos.length === 0) {
+        const error = new Error(`Vehículo no encontrado (id_vehiculo=${id})`);
+        error.status = 404;
+        error.publicMessage = 'Vehículo no encontrado.';
+        error.expose = true;
+        return next(error);
+      }
+
+      const vehiculo = vehiculos[0];
+
+      // 2. Obtener Concesionario asociado
+      req.db.query('SELECT * FROM concesionarios WHERE id_concesionario = ?', [vehiculo.id_concesionario], (errCon, concesionarios) => {
+        const concesionario = (concesionarios && concesionarios[0]) ? concesionarios[0] : { nombre: 'Sin asignar' };
+
+        res.render('vehiculoDetalle', {
+          vehiculo,
+          usuarioSesion: req.session.usuario,
+          concesionario
+        });
+      });
     }
-
-    const vehiculo = vehiculos[0];
-
-    const [concesionarios] = await req.db.query(
-      'SELECT * FROM concesionarios WHERE id_concesionario = ?',
-      [vehiculo.id_concesionario]
-    );
-    const concesionario = concesionarios[0];
-
-    res.render('vehiculoDetalle', {
-      vehiculo,
-      usuarioSesion: req.session.usuario,
-      concesionario: concesionario || { nombre: 'Sin asignar' }
-    });
-     } catch (err) {
-    console.error('Error al obtener el vehículo:', err);
-    res.status(500).render('error', { mensaje: 'Error al cargar el vehículo' });
-  }
+  );
 });
 
 module.exports = router;

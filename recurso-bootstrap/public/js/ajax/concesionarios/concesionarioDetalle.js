@@ -175,7 +175,7 @@ function pintarVehiculos(lista) {
     if (!lista.length) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" class="text-center text-muted">No hay vehículos</td>
+                <td colspan="6" class="text-center text-muted">No hay vehículos</td>
             </tr>
         `;
         return;
@@ -205,13 +205,18 @@ function pintarVehiculos(lista) {
         }
 
         tbody.innerHTML += `
-            <tr class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">
-                <td>${v.matricula}</td>
-                <td>${v.marca}</td>
-                <td>${v.modelo}</td>
-                <td>${pintarSituacion(v.estado)}</td>
-                <td>${pintarEstado(v.activoBool)}</td>
-                <td>${accionesAdmin}</td>
+            <tr>
+                <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${v.matricula}</td>
+                <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${v.marca}</td>
+                <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${v.modelo}</td>
+                <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${pintarSituacion(v.estado)}</td>
+                <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${pintarEstado(v.activoBool)}</td>
+                <td>${accionesAdmin}
+                    <a href="/reserva?idVehiculo=${v.id_vehiculo}" 
+                        class="btn btn-primary btn-sm">
+                        Reservar
+                    </a>
+                </td>
 
             </tr>
         `;
