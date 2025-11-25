@@ -132,6 +132,7 @@ function pintarTabla(lista) {
     }
 
     lista.forEach(c => {
+        const claseDisabled = !c.activoBool ? "disabled" : "";
 
         tbody.innerHTML += `
             <tr>
@@ -151,8 +152,9 @@ function pintarTabla(lista) {
                         ${!c.activoBool ? "disabled" : ""}>
                         Eliminar
                     </button>
+                    
                     <a href="/concesionarios/${c.id_concesionario}/editar" 
-                        class="btn btn-primary btn-sm me-2 mb-1">
+                        class="btn btn-primary btn-sm me-2 mb-1 ${claseDisabled}" >
                         Editar
                     </a>
                 </td>

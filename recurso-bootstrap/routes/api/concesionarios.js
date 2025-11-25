@@ -75,7 +75,7 @@ router.post('/nuevo', isAdmin, (req, res) => {
   const { nombre, ciudad, direccion, telefono_contacto } = req.body;
   const fieldErrors = {};
 
-  // Validaciones síncronas (no requieren callback)
+  // 1. Validaciones básicas
   if (!nombre || nombre.trim().length < 3) fieldErrors.nombre = 'Mínimo 3 caracteres';
   if (!ciudad || ciudad.trim().length < 3) fieldErrors.ciudad = 'Mínimo 3 caracteres';
   if (!direccion || direccion.trim().length < 5) fieldErrors.direccion = 'Mínimo 5 caracteres';
@@ -83,16 +83,48 @@ router.post('/nuevo', isAdmin, (req, res) => {
 
   if (Object.keys(fieldErrors).length) return res.status(400).json({ ok: false, fieldErrors });
 
-  // Consulta INSERT con callback
-  req.db.query(
-    'INSERT INTO concesionarios(nombre, ciudad, direccion, telefono_contacto, activo) VALUES (?, ?, ?, ?, 1)',
-    [nombre.trim(), ciudad.trim(), direccion.trim(), telefono_contacto.trim()],
-    (err, result) => {
-      if (err) return res.status(500).json({ ok: false, error: err.message });
+  // 2. Comprobación de duplicados
+  const sqlCheck = `
+    SELECT * FROM concesionarios 
+    WHERE nombre = ? OR direccion = ? OR telefono_contacto = ?
+  `;
 
-      res.json({ ok: true, id: result.insertId });
+  req.db.query(sqlCheck, [nombre.trim(), direccion.trim(), telefono_contacto.trim()], (err, rows) => {
+    if (err) {
+      console.error("Error comprobando duplicados:", err);
+      return res.status(500).json({ ok: false, error: err.message });
     }
-  );
+
+    if (rows.length > 0) {
+      // Marcamos los errores específicos
+      rows.forEach(row => {
+        if (row.nombre.toLowerCase() === nombre.trim().toLowerCase()) {
+          fieldErrors.nombre = 'Este nombre ya existe';
+        }
+        if (row.direccion.toLowerCase() === direccion.trim().toLowerCase()) {
+          fieldErrors.direccion = 'Esta dirección ya existe';
+        }
+        if (row.telefono_contacto === telefono_contacto.trim()) {
+          fieldErrors.telefono_contacto = 'Este teléfono ya está en uso';
+        }
+      });
+
+      if (Object.keys(fieldErrors).length > 0) {
+        return res.status(400).json({ ok: false, fieldErrors });
+      }
+    }
+
+    // 3. Insertar si no hay duplicados
+    req.db.query(
+      'INSERT INTO concesionarios(nombre, ciudad, direccion, telefono_contacto, activo) VALUES (?, ?, ?, ?, 1)',
+      [nombre.trim(), ciudad.trim(), direccion.trim(), telefono_contacto.trim()],
+      (errInsert, result) => {
+        if (errInsert) return res.status(500).json({ ok: false, error: errInsert.message });
+
+        res.json({ ok: true, id: result.insertId });
+      }
+    );
+  });
 });
 
 // EDITAR (PUT)
@@ -106,16 +138,55 @@ router.put('/:id(\\d+)/editar', isAdmin, (req, res) => {
   if (!direccion || direccion.trim().length < 5) fieldErrors.direccion = 'Mínimo 5 caracteres';
   if (!telefono_contacto || !/^\d{9}$/.test(telefono_contacto.trim())) fieldErrors.telefono_contacto = '9 dígitos';
 
-  if (Object.keys(fieldErrors).length) return res.status(400).json({ ok: false, fieldErrors });
+  if (Object.keys(fieldErrors).length) {
+    return res.status(400).json({ ok: false, fieldErrors });
+  }
 
-  // Consulta UPDATE con callback
+  const sqlCheck = `
+    SELECT * FROM concesionarios 
+    WHERE (nombre = ? OR direccion = ? OR telefono_contacto = ?) 
+    AND id_concesionario <> ?
+  `;
+
   req.db.query(
-    'UPDATE concesionarios SET nombre=?, ciudad=?, direccion=?, telefono_contacto=? WHERE id_concesionario=?',
-    [nombre.trim(), ciudad.trim(), direccion.trim(), telefono_contacto.trim(), id],
-    (err) => {
-      if (err) return res.status(500).json({ ok: false, error: err.message });
+    sqlCheck, 
+    [nombre.trim(), direccion.trim(), telefono_contacto.trim(), id], 
+    (err, rows) => {
+      if (err) {
+        console.error("Error comprobando duplicados:", err);
+        return res.status(500).json({ ok: false, error: err.message });
+      }
 
-      res.json({ ok: true });
+      if (rows.length > 0) {
+        rows.forEach(row => {
+          if (row.nombre.toLowerCase() === nombre.trim().toLowerCase()) {
+            fieldErrors.nombre = 'Este nombre ya existe en otro concesionario';
+          }
+          if (row.direccion.toLowerCase() === direccion.trim().toLowerCase()) {
+            fieldErrors.direccion = 'Esta dirección ya está registrada';
+          }
+          if (row.telefono_contacto === telefono_contacto.trim()) {
+            fieldErrors.telefono_contacto = 'Este teléfono ya está en uso';
+          }
+        });
+
+        if (Object.keys(fieldErrors).length > 0) {
+          return res.status(400).json({ ok: false, fieldErrors });
+        }
+      }
+
+      req.db.query(
+        'UPDATE concesionarios SET nombre=?, ciudad=?, direccion=?, telefono_contacto=? WHERE id_concesionario=?',
+        [nombre.trim(), ciudad.trim(), direccion.trim(), telefono_contacto.trim(), id],
+        (errUpdate) => {
+          if (errUpdate) {
+            console.error("Error actualizando:", errUpdate);
+            return res.status(500).json({ ok: false, error: errUpdate.message });
+          }
+
+          res.json({ ok: true });
+        }
+      );
     }
   );
 });

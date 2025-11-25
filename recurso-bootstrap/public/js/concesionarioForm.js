@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
         nombre: document.getElementById("error-nombre"),
         ciudad: document.getElementById("error-ciudad"),
         direccion: document.getElementById("error-direccion"),
-        telefono_contacto: document.getElementById("error-telefono")
+        telefono_contacto: document.getElementById("error-telefono_contacto")
     };
 
     const estaVacio = val => val == null || String(val).trim() === "";

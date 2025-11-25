@@ -89,7 +89,7 @@ function pintarInfoConcesionario(c) {
 
     // Acciones admin
     let accionesAdmin = "";
-    if (window.usuarioSesion?.rol === "Admin") {
+    if (window.usuarioSesion?.rol === "Admin" && c.activoBool) {
         accionesAdmin = `
         <div class="perfil-actions d-flex gap-2 mt-3">
             <button type="button"
@@ -101,9 +101,9 @@ function pintarInfoConcesionario(c) {
               Eliminar
             </button>
 
-            <a href="/concesionarios/${c.id_concesionario}/editar"
-               class="btn btn-primary flex-fill">
-               Editar
+            <a href="/concesionarios/${c.id_concesionario}/editar" 
+                class="btn btn-primary flex-fill" >
+                Editar
             </a>
         </div>`;
     }

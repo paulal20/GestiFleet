@@ -6,8 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const idConcesionario = form.dataset.id;
 
     form.addEventListener("form-valid", async () => {
-        // Limpiar alertas anteriores
         document.querySelectorAll(".alert").forEach(el => el.remove());
+        document.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid")); 
 
         const formData = {
             nombre: document.getElementById("nombre").value.trim(),
@@ -27,14 +27,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData)
             })
-            .then(res.json())
+            .then(res => res.json())
             .then(data => {
                 if (!data.ok) {
-                    // errores por campo
                     if (data.fieldErrors) {
                         Object.keys(data.fieldErrors).forEach(field => {
                             const errorEl = document.getElementById(`error-${field}`);
                             if (errorEl) errorEl.textContent = data.fieldErrors[field];
+                            
                             const input = document.getElementById(field);
                             if (input) input.classList.add("is-invalid");
                         });
@@ -44,26 +44,25 @@ document.addEventListener("DOMContentLoaded", () => {
                         div.textContent = data.error || "Error desconocido";
                         form.prepend(div);
                     }
-                    return;
+                    return; 
                 }
+
+                const redirectId = isEditMode ? idConcesionario : data.id;
+                window.location.href = `/concesionarios/${redirectId}`;
             })
             .catch(err => {
-                console.error("Error enviando formulario:", err);
+                console.error("Error en la petición:", err);
                 const div = document.createElement("div");
                 div.className = "alert alert-danger mt-2";
-                div.textContent = "AAError al enviar el formulario.";
+                div.textContent = "Error de conexión o servidor caído.";
                 form.prepend(div);
             });
 
-
-            // redirigir al detalle
-            const redirectId = isEditMode ? idConcesionario : data.id;
-            window.location.href = `/concesionarios/${redirectId}`;
         } catch (err) {
-            console.error("Error enviando formulario:", err);
+            console.error("Error general:", err);
             const div = document.createElement("div");
             div.className = "alert alert-danger mt-2";
-            div.textContent = "BBError al enviar el formulario.";
+            div.textContent = "Error inesperado en el cliente.";
             form.prepend(div);
         }
     });
