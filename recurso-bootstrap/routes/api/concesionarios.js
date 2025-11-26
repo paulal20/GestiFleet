@@ -33,7 +33,6 @@ router.get('/lista', isAuth, (req, res) => {
 
 // DETALLE POR ID (Requiere dos consultas anidadas)
 router.get("/:id(\\d+)", isAuth, (req, res) => {
-  console.log("entro");
   const id = parseInt(req.params.id);
 
   // PRIMERA CONSULTA: Obtener el concesionario
