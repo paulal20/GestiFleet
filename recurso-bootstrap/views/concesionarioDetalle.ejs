@@ -2,11 +2,12 @@
 
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 id="tituloConcesionario">Concesionario</h1>
-    <div id="contenedor-alertas" class="mb-3"></div>
-    <% if (usuarioSesion.rol === 'Admin') { %>
+    <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
     <a href="/concesionarios" class="btn btn-outline-secondary">Volver al listado</a>
     <% } %>
   </div>
+
+  <div id="contenedor-alertas" class="mx-auto mb-3" style="max-width: 900px;"></div>
 
   <div id="infoConcesionario"></div>
 
@@ -38,12 +39,11 @@
       </div>
 
       <div class="modal-body">
-        ¿Seguro que quieres eliminar <span id="nombreAEliminar"></span>?
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" id="btnConfirmarEliminar" class="btn btn-primary">Eliminar</button>
+        ¿Seguro que quieres eliminar <span id="nombreAEliminar" class="fw-bold"></span>?
+        <div class="d-flex justify-content-end mt-3 gap-2">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" id="btnConfirmarEliminar" class="btn btn-primary">Eliminar</button>
+        </div>
       </div>
     </div>
   </div>

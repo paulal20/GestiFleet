@@ -35,29 +35,23 @@ function cargarCiudades() {
         success: function(data) {
             if (data.ok) {
                 let $filtro = $("#filtroCiudad");
-                // Guardar valor actual para no perder la selección al recargar
                 let valorActual = $filtro.val();
 
-                // Limpiar opciones excepto la primera (Todas)
                 $filtro.find('option:not([value=""])').remove();
 
-                // Obtener ciudades únicas
                 let ciudades = [];
-                // Usamos $.each de jQuery o forEach nativo
                 if (data.concesionarios) {
-                    data.concesionarios.forEach(function(c) {
-                        if (ciudades.indexOf(c.ciudad) === -1) {
+                    $.each(data.concesionarios, function(i, c) {
+                        if ($.inArray(c.ciudad, ciudades) === -1) {
                             ciudades.push(c.ciudad);
                         }
                     });
                 }
                 
-                // Rellenar select
-                ciudades.forEach(function(ciudad) {
+                $.each(ciudades, function(i, ciudad) {
                     $filtro.append('<option value="' + ciudad + '">' + ciudad + '</option>');
                 });
 
-                // Restaurar selección
                 if(valorActual) $filtro.val(valorActual);
             }
         },
@@ -73,10 +67,9 @@ function cargarConcesionarios() {
     $.ajax({
         type: "GET",
         url: "/api/concesionarios/lista",
-        data: { ciudad: ciudad }, // jQuery construye la query string: ?ciudad=valor
-        cache: false, // Importante para desarrollo y evitar problemas de refresco
+        data: { ciudad: ciudad },
+        cache: false,
         success: function(data) {
-            // Detección de redirección a Login (si el servidor devuelve HTML)
             if (typeof data === 'string' && data.indexOf('<html') !== -1) {
                 window.location.href = '/login';
                 return;
@@ -99,7 +92,7 @@ function pintarTabla(lista) {
     let $tbody = $("#tablaConcesionariosBody");
     let $contador = $("#contadorConcesionarios");
     
-    $tbody.empty(); // Limpiar tabla actual
+    $tbody.empty();
 
     if (!lista || !lista.length) {
         $tbody.html('<tr><td colspan="6" class="text-center text-muted">No hay resultados</td></tr>');
@@ -109,14 +102,11 @@ function pintarTabla(lista) {
 
     let html = "";
     
-    // Iterar sobre la lista recibida
     $.each(lista, function(i, c) {
-        // Determinar clases y estados para los botones
         let claseDisabled = !c.activoBool ? "disabled" : "";
         let pointerEvents = !c.activoBool ? 'style="pointer-events: none;"' : ""; 
         let btnDisabledAttr = !c.activoBool ? "disabled" : "";
 
-        // Construir fila HTML
         html += '<tr>';
         html += '<td class="fila-click" data-href="/concesionarios/' + c.id_concesionario + '">' + (c.nombre || '') + '</td>';
         html += '<td class="fila-click" data-href="/concesionarios/' + c.id_concesionario + '">' + (c.ciudad || '') + '</td>';
@@ -124,7 +114,6 @@ function pintarTabla(lista) {
         html += '<td class="fila-click" data-href="/concesionarios/' + c.id_concesionario + '">' + (c.telefono_contacto || '') + '</td>';
         html += '<td class="fila-click" data-href="/concesionarios/' + c.id_concesionario + '">' + pintarEstadoConcesionario(c.activoBool) + '</td>';
         
-        // Columna de acciones
         html += '<td>';
         html +=   '<button type="button" class="btn btn-secondary btn-sm mb-1 me-2" ';
         html +=     'data-bs-toggle="modal" data-bs-target="#confirmarEliminarConcesionarioModal" ';
@@ -141,13 +130,10 @@ function pintarTabla(lista) {
         html += '</tr>';
     });
 
-    // Insertar todo el HTML de una vez (más eficiente)
     $tbody.html(html);
     
-    // Actualizar contador
     if ($contador.length) $contador.text(lista.length);
 
-    // Re-asignar eventos de click a las nuevas filas
     activarFilaClick();
 }
 
@@ -161,7 +147,6 @@ function configurarModalEliminar() {
         let id = btn.data("id");
         let nombre = btn.data("name");
         
-        // Guardar ID en el formulario/botón submit
         let $btnSubmit = $form.find("button[type='submit']");
         $btnSubmit.data("id", id);
         $btnSubmit.data("name", nombre);
@@ -183,7 +168,7 @@ function configurarModalEliminar() {
             type: "DELETE",
             url: "/api/concesionarios/" + id + "/eliminar",
             success: function(data) {
-                // Cerrar modal (Bootstrap 5 requiere instancia nativa para .hide() fiable)
+                // Cerrar modal
                 let modalEl = document.getElementById('confirmarEliminarConcesionarioModal');
                 let modalInstance = bootstrap.Modal.getInstance(modalEl);
                 if (modalInstance) modalInstance.hide();
@@ -193,25 +178,34 @@ function configurarModalEliminar() {
                 } else {
                     mostrarAlerta('success', 'Concesionario eliminado: ' + nombre);
                     
-                    // Actualización visual rápida (optimista) sin recargar todo
+                    // Actualización visual rápida (optimista)
                     let $btnTabla = $("button[data-id='" + id + "']");
                     if ($btnTabla.length) {
                         $btnTabla.prop("disabled", true).text("Eliminar");
-                        // Cambiar badge a "Eliminado"
                         $btnTabla.closest("tr").find("td:nth-child(5)").html('<span class="badge bg-danger">Eliminado</span>');
-                        // Desactivar botón editar
                         $btnTabla.siblings(".btn-primary").addClass("disabled").css("pointer-events", "none");
                     }
                 }
             },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.error("Error eliminando:", errorThrown);
-                mostrarAlerta('danger', 'Error de conexión al eliminar.');
-                
-                // Asegurar cierre de modal en error
+            error: function(xhr, status, error) {
+                // Cerrar modal antes de mostrar alerta
                 let modalEl = document.getElementById('confirmarEliminarConcesionarioModal');
                 let modalInstance = bootstrap.Modal.getInstance(modalEl);
                 if (modalInstance) modalInstance.hide();
+
+                // --- CORRECCIÓN CLAVE: LEER MENSAJE DE ERROR DEL JSON ---
+                let mensaje = 'Error de conexión al eliminar.';
+                
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    mensaje = xhr.responseJSON.error;
+                    
+                    // Opcional: personalizar el mensaje si es el de vehículos
+                    if (mensaje === 'Tiene vehículos asociados') {
+                        mensaje = 'No se puede eliminar: tiene vehículos asociados.';
+                    }
+                }
+                
+                mostrarAlerta('danger', mensaje);
             }
         });
     });
@@ -226,7 +220,6 @@ function pintarEstadoConcesionario(activo) {
 }
 
 function activarFilaClick() {
-    // Usar .off() antes de .on() previene duplicidad de eventos si se llama varias veces
     $(".fila-click").off("click").on("click", function() {
         let destino = $(this).data("href");
         if (destino) window.location.href = destino;
@@ -235,7 +228,6 @@ function activarFilaClick() {
 
 function mostrarAlerta(tipo, mensaje) {
     let $cont = $("#alertas");
-    // Si no existe el contenedor, salir
     if (!$cont.length) return;
 
     let html = 
@@ -246,9 +238,7 @@ function mostrarAlerta(tipo, mensaje) {
     
     $cont.html(html);
     
-    // Auto-ocultar a los 5 segundos
     setTimeout(function() {
-        // Usar el método de alerta de Bootstrap
         $cont.find(".alert").alert('close'); 
     }, 5000);
 }

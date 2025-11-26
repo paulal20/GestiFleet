@@ -3,89 +3,123 @@
 */
 
 $(document).ready(function() {
-    // 1. Obtener datos iniciales (Mantenemos tu lógica original de dataset)
+    // 1. Obtener datos iniciales
     const data = document.getElementById("pageData");
     const id = data.dataset.id;
-    window.usuarioSesion = JSON.parse(data.dataset.user || "null");
+    // Parsear usuario de sesión de forma segura
+    let usuarioSesionStr = data.dataset.user || "null";
+    try {
+        window.usuarioSesion = JSON.parse(usuarioSesionStr);
+    } catch (e) {
+        window.usuarioSesion = null;
+    }
 
     // 2. Cargar datos
     cargarConcesionario(id);
     cargarVehiculos(id);
 
-    // 3. Lógica del formulario de eliminar (Vehículo)
-    const formEliminar = document.getElementById("formEliminarVehiculo");
-    if (formEliminar) {
-        // Usamos .on de jQuery para el evento submit
-        $(formEliminar).on("submit", function(e) {
-            e.preventDefault();
-
-            const btnModal = formEliminar.querySelector("button[type='submit']");
-            const modalEl = document.getElementById("confirmarEliminarVehiculoModal");
-            const idVehiculo = btnModal.dataset.id;
-
-            if (!idVehiculo) return;
-
-            // --- CAMBIO CLAVE: FETCH -> $.AJAX (Requisito PDF) ---
-            $.ajax({
-                type: "DELETE",
-                url: "/api/vehiculos/" + idVehiculo + "/eliminar",
-                success: function(data) {
-                    if (!data.ok) {
-                        mostrarAlerta('danger', data.error || 'Error al eliminar el vehículo.');
-                    } else {
-                        mostrarAlerta('success', 'Vehículo eliminado: ' + btnModal.dataset.name);
-
-                        // Tu lógica visual original para desactivar el botón
-                        const btn = document.querySelector('button[data-id="' + idVehiculo + '"]');
-                        if (btn) {
-                            btn.disabled = true;
-                            btn.textContent = "Eliminado";
-                            const filaActivo = btn.closest("tr").querySelector("td:nth-child(5)");
-                            if (filaActivo)
-                                filaActivo.innerHTML = '<span class="badge bg-danger">Eliminado</span>';
-                        }
-
-                        // Cerrar modal
-                        const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                        if (modalInstance) modalInstance.hide();
-                    }
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    console.error("Error AJAX:", errorThrown);
-                    mostrarAlerta('danger', 'Error al eliminar el vehículo.');
-                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                    if (modalInstance) modalInstance.hide();
-                }
-            });
-        });
-    }
-
-    // 4. Eventos del Modal
-    const modalEliminar = document.getElementById("confirmarEliminarVehiculoModal");
-    if (modalEliminar) {
-        modalEliminar.addEventListener("show.bs.modal", (event) => {
-            const button = event.relatedTarget;
-            const id = button.getAttribute("data-id");
-            const nombre = button.getAttribute("data-name");
-
-            const btnSubmit = formEliminar.querySelector("button[type='submit']");
-            btnSubmit.dataset.id = id;
-            btnSubmit.dataset.name = nombre;
-
-            const texto = modalEliminar.querySelector("#textoConfirmacionVehiculo");
-            if (texto) {
-                texto.textContent = '¿Estás seguro de que deseas eliminar el vehículo "' + nombre + '"?';
-            }
-        });
-    }
-    
-    // Configurar modal concesionario (si existe la función externa o local)
-    if (typeof configurarModalEliminar === 'function') {
-        configurarModalEliminar(id);
-    }
+    // 3. Configurar el Modal Genérico de Eliminación
+    // Esta función ahora gestiona tanto eliminar vehículos como concesionarios
+    configurarModalGenerico();
 });
 
-// --- FUNCIONES DE CARGA (Adaptadas a $.ajax) ---
+// --- MODAL GENÉRICO Y LÓGICA DE ELIMINACIÓN ---
+
+function configurarModalGenerico() {
+    const $modal = $("#modalEliminar");
+    const $btnConfirmar = $("#btnConfirmarEliminar");
+    const $textoNombre = $("#nombreAEliminar");
+
+    // Variables para saber qué vamos a borrar
+    let idParaBorrar = null;
+    let tipoParaBorrar = null; // 'vehiculo' o 'concesionario'
+
+    // Al abrir el modal, capturamos los datos del botón que se pulsó
+    $modal.on("show.bs.modal", function(event) {
+        const $boton = $(event.relatedTarget);
+        
+        idParaBorrar = $boton.data("id");
+        tipoParaBorrar = $boton.data("tipo"); // Importante: el botón debe tener data-tipo
+        const nombre = $boton.data("nombre");
+
+        $textoNombre.text(nombre || "este elemento");
+    });
+
+    // Al hacer clic en "Eliminar" dentro del modal
+    $btnConfirmar.off("click").on("click", function() {
+        if (!idParaBorrar || !tipoParaBorrar) return;
+
+        if (tipoParaBorrar === 'vehiculo') {
+            eliminarVehiculo(idParaBorrar);
+        } else if (tipoParaBorrar === 'concesionario') {
+            eliminarConcesionario(idParaBorrar);
+        }
+    });
+}
+
+// --- FUNCIONES AJAX (DELETE) ---
+
+function eliminarVehiculo(id) {
+    $.ajax({
+        type: "DELETE",
+        url: "/api/vehiculos/" + id + "/eliminar",
+        success: function(data) {
+            cerrarModal();
+            if (data.ok) {
+                mostrarAlerta('success', 'Vehículo eliminado correctamente.');
+                
+                // Actualizar la interfaz visualmente
+                let $btn = $("button[data-id='" + id + "'][data-tipo='vehiculo']");
+                if ($btn.length) {
+                    $btn.prop("disabled", true).text("Eliminado");
+                    $btn.closest("tr").find("td:nth-child(5)").html('<span class="badge bg-danger">Eliminado</span>');
+                    $btn.siblings("a").addClass("disabled").css("pointer-events", "none");
+                }
+            } else {
+                mostrarAlerta('danger', data.error || 'Error al eliminar vehículo.');
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            cerrarModal();
+            console.error("Error AJAX:", errorThrown);
+            mostrarAlerta('danger', 'Error de conexión al eliminar vehículo.');
+        }
+    });
+}
+
+function eliminarConcesionario(id) {
+    $.ajax({
+        type: "DELETE",
+        url: "/api/concesionarios/" + id + "/eliminar",
+        success: function(data) {
+            cerrarModal();
+            if (data.ok) {
+                window.location.href = "/concesionarios";
+            } else {
+                mostrarAlerta('danger', data.error || 'Error al eliminar concesionario.');
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            cerrarModal();
+            
+            // LÓGICA PERSONALIZADA PARA ERROR DE VEHÍCULOS ASOCIADOS
+            let mensaje = "Error de conexión o servidor caído.";
+            
+            // Si el servidor devuelve el error específico (status 400)
+            if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
+                // Si el mensaje es el de vehículos asociados, lo personalizamos o usamos el del servidor
+                if (jqXHR.responseJSON.error.includes("Tiene vehículos asociados")) {
+                    mensaje = "No se puede eliminar, tiene vehículos asociados.";
+                } else {
+                    mensaje = jqXHR.responseJSON.error;
+                }
+            }
+            mostrarAlerta('danger', mensaje);
+        }
+    });
+}
+
+// --- FUNCIONES DE CARGA (GET) ---
 
 function cargarConcesionario(id) {
     $.ajax({
@@ -111,35 +145,36 @@ function cargarVehiculos(id) {
     });
 }
 
-// --- TUS FUNCIONES VISUALES ORIGINALES (INTACTAS) ---
+// --- PINTADO DEL DOM (Manteniendo tu estructura HTML original) ---
 
 function pintarInfoConcesionario(c) {
-    document.getElementById("tituloConcesionario").textContent = c.nombre;
+    $("#tituloConcesionario").text(c.nombre);
 
     let accionesAdmin = "";
     if (window.usuarioSesion && window.usuarioSesion.rol === "Admin" && c.activoBool) {
+        // Aquí añadimos data-tipo="concesionario" para que el modal sepa qué borrar
         accionesAdmin = `
         <div class="perfil-actions d-flex gap-2 mt-3">
             <button type="button"
                     class="btn btn-outline-secondary flex-fill"
                     data-bs-toggle="modal"
-                    data-bs-target="#confirmarEliminarConcesionarioModal"
+                    data-bs-target="#modalEliminar"
                     data-id="${c.id_concesionario}"
-                    data-name="${c.nombre}">
+                    data-nombre="${c.nombre}"
+                    data-tipo="concesionario">
               Eliminar
             </button>
 
             <a href="/concesionarios/${c.id_concesionario}/editar" 
-               class="btn btn-primary flex-fill" >
+               class="btn btn-primary flex-fill">
                Editar
             </a>
         </div>`;
     }
 
-    document.getElementById("infoConcesionario").innerHTML = `
+    $("#infoConcesionario").html(`
       <div class="vehiculo-card card mx-auto" style="max-width: 900px;">
         <div class="row g-0">
-
           <div class="col-md-4">
             <div class="vehiculo-img-container h-100 d-flex align-items-center justify-content-center bg-light">
               <img src="/img/concesionario.png" 
@@ -148,11 +183,9 @@ function pintarInfoConcesionario(c) {
                    style="max-height: 300px; object-fit: cover;">
             </div>
           </div>
-
           <div class="col-md-8 d-flex flex-column">
             <div class="card-body flex-grow-1">
               <h5 class="card-title">Información de Contacto</h5>
-              
               <div class="row mb-2">
                 <div class="col-sm-6 fw-bold">Ciudad:</div>
                 <div class="col-sm-6">${c.ciudad}</div>
@@ -170,155 +203,111 @@ function pintarInfoConcesionario(c) {
                 <div class="col-sm-6">${pintarEstado(c.activoBool)}</div>
               </div>
             </div>
-
             ${accionesAdmin}
-
           </div>
         </div>
       </div>
-    `;
-}
-
-function pintarEstado(activoBool) {
-    if (activoBool) {
-        return `<span class="badge bg-success">Activo</span>`;
-    } else {
-        return `<span class="badge bg-danger">Eliminado</span>`;
-    }
+    `);
 }
 
 function pintarVehiculos(lista) {
-    const tbody = document.getElementById("tablaVehiculosBody");
-    tbody.innerHTML = "";
+    let $tbody = $("#tablaVehiculosBody");
+    $tbody.empty();
 
-    if (!lista.length) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6" class="text-center text-muted">No hay vehículos</td>
-            </tr>
-        `;
+    if (!lista || !lista.length) {
+        $tbody.html('<tr><td colspan="6" class="text-center text-muted">No hay vehículos</td></tr>');
         return;
     }
 
-    lista.forEach(v => {
+    let html = "";
+    $.each(lista, function(i, v) {
         let accionesAdmin = "";
-
+        
         if (window.usuarioSesion && window.usuarioSesion.rol === "Admin") {
+            let btnDisabledAttr = !v.activoBool ? "disabled" : "";
+            // Aquí añadimos data-tipo="vehiculo"
             accionesAdmin = `
-                <button type="button"
-                    class="btn btn-outline-secondary btn-sm me-2"
-                    data-bs-toggle="modal"
-                    data-bs-target="#confirmarEliminarVehiculoModal"
-                    data-id="${v.id_vehiculo}"
+                <button class="btn btn-outline-secondary btn-sm me-2" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#modalEliminar" 
+                    data-id="${v.id_vehiculo}" 
                     data-name="${v.marca} ${v.modelo}"
-                    ${!v.activoBool ? "disabled" : ""}>
+                    data-tipo="vehiculo"
+                    ${btnDisabledAttr}>
                     Eliminar
                 </button>
-
-                <a href="/vehiculos/${v.id_vehiculo}/editar" 
-                    class="btn btn-primary btn-sm">
-                    Editar
-                </a>
+                <a href="/vehiculos/${v.id_vehiculo}/editar" class="btn btn-primary btn-sm">Editar</a>
             `;
         }
 
-        tbody.innerHTML += `
+        html += `
             <tr>
                 <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${v.matricula}</td>
                 <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${v.marca}</td>
                 <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${v.modelo}</td>
                 <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${pintarSituacion(v.estado)}</td>
                 <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${pintarEstado(v.activoBool)}</td>
-                <td>${accionesAdmin}
-                    <a href="/reserva?idVehiculo=${v.id_vehiculo}" 
-                        class="btn btn-primary btn-sm">
-                        Reservar
-                    </a>
+                <td>
+                    ${accionesAdmin}
+                    <a href="/reserva?idVehiculo=${v.id_vehiculo}" class="btn btn-primary btn-sm">Reservar</a>
                 </td>
-            </tr>
-        `;
+            </tr>`;
     });
+
+    $tbody.html(html);
     activarFilaClick();
 }
 
-function pintarSituacion(est) {
-    const clases = {
-        disponible: "bg-success",
-        reservado: "bg-warning text-dark",
-        mantenimiento: "bg-secondary"
-    };
+// --- AUXILIARES ---
 
-    const clase = clases[est] || "bg-light text-dark";
-    return `<span class="badge ${clase}">${est}</span>`;
+function cerrarModal() {
+    // Método robusto para cerrar modal Bootstrap 5
+    let modalEl = document.getElementById('modalEliminar');
+    if (modalEl) {
+        let modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
+    }
+}
+
+function mostrarAlerta(tipo, mensaje) {
+    let $cont = $("#contenedor-alertas");
+    
+    // Si no existe el contenedor en el HTML, fallback a alert nativo o consola
+    if ($cont.length === 0) {
+        console.warn("No existe #contenedor-alertas en el HTML. Mensaje:", mensaje);
+        alert(mensaje);
+        return;
+    }
+
+    let html = `
+        <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+            ${mensaje}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>`;
+    
+    $cont.html(html);
+
+    setTimeout(function() {
+        $cont.find(".alert").alert('close'); 
+    }, 5000);
+}
+
+function pintarEstado(activoBool) {
+    return activoBool 
+        ? '<span class="badge bg-success">Activo</span>' 
+        : '<span class="badge bg-danger">Eliminado</span>';
+}
+
+function pintarSituacion(est) {
+    let color = "secondary";
+    if(est === "disponible") color = "success";
+    if(est === "reservado") color = "warning text-dark";
+    return `<span class="badge bg-${color}">${est}</span>`;
 }
 
 function activarFilaClick() {
-    document.querySelectorAll(".fila-click").forEach(td => {
-        td.addEventListener("click", () => {
-            const destino = td.getAttribute("data-href");
-            if (destino) window.location.href = destino;
-        });
+    $(".fila-click").off("click").on("click", function() {
+        let destino = $(this).data("href");
+        if (destino) window.location.href = destino;
     });
-}
-
-function configurarModalEliminar(idConcesionario) {
-    const formEliminar = document.getElementById("formEliminarConcesionario");
-    const modal = document.getElementById("confirmarEliminarConcesionarioModal");
-
-    if (!formEliminar || !modal) return;
-
-    modal.addEventListener("show.bs.modal", (event) => {
-        const btn = event.relatedTarget;
-        const id = btn.getAttribute("data-id");
-        const nombre = btn.getAttribute("data-name");
-
-        const btnSubmit = formEliminar.querySelector("button[type='submit']");
-        btnSubmit.dataset.id = id;
-        btnSubmit.dataset.name = nombre;
-
-        const txt = modal.querySelector("#textoConfirmacionConcesionario");
-        if (txt) txt.textContent = `¿Estás seguro de que deseas eliminar el concesionario "${nombre}"?`;
-    });
-
-    // Usamos jQuery para el submit también aquí para consistencia con AJAX
-    $(formEliminar).on("submit", function(e) {
-        e.preventDefault();
-
-        const btnSubmit = formEliminar.querySelector("button[type='submit']");
-        const id = btnSubmit.dataset.id;
-
-        $.ajax({
-            type: "DELETE",
-            url: "/api/concesionarios/" + id + "/eliminar",
-            success: function(data) {
-                if (!data.ok) {
-                    alert(data.error || "Error al eliminar concesionario");
-                } else {
-                    window.location.href = "/concesionarios";
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error("Error eliminando:", error);
-                alert("Error al eliminar concesionario");
-            }
-        });
-    });
-}
-
-// Función auxiliar para mostrar alertas (Si la usas globalmente)
-function mostrarAlerta(tipo, mensaje) {
-    const cont = document.getElementById('alertas') || document.getElementById('contenedor-alertas');
-    if (cont) {
-        cont.innerHTML = `
-            <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
-                ${mensaje}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        `;
-        if(window.jQuery) {
-            setTimeout(() => $(cont).find('.alert').alert('close'), 5000);
-        }
-    } else {
-        console.log(`[Alerta ${tipo}]: ${mensaje}`);
-    }
 }
