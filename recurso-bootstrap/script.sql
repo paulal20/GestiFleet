@@ -1,13 +1,12 @@
-CREATE DATABASE IF NOT EXISTS GestifleetBD;
-USE GestifleetBD;
+SET FOREIGN_KEY_CHECKS = 0;
 
---- DROPS
-DROP TABLE reservas;
-DROP TABLE vehiculos;
-DROP TABLE usuarios;
-DROP TABLE concesionarios;
+USE gestifleetbd;
 
---- CREATES
+DROP TABLE IF EXISTS reservas;
+DROP TABLE IF EXISTS vehiculos;
+DROP TABLE IF EXISTS usuarios;
+DROP TABLE IF EXISTS concesionarios;
+
 CREATE TABLE IF NOT EXISTS concesionarios (
   id_concesionario INT AUTO_INCREMENT PRIMARY KEY,
   nombre VARCHAR(100) NOT NULL,
@@ -63,4 +62,4 @@ CREATE TABLE IF NOT EXISTS reservas (
   FOREIGN KEY (id_vehiculo) REFERENCES vehiculos(id_vehiculo)
 );
 
-------------------------------------------------------------------------------------------------
+SET FOREIGN_KEY_CHECKS = 1;

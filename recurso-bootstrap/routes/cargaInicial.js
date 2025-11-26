@@ -15,122 +15,212 @@ const ADMIN_DEFAULT = {
     id_concesionario: null 
 };
 
-router.post('/previsualizar', isInstallationOrImport, async (req, res) => {
-    try {
-        const datos = req.body.datosJSON;
+// --- RUTA PREVISUALIZAR (Callbacks) ---
+router.post('/previsualizar', isInstallationOrImport, (req, res) => {
+    const datos = req.body.datosJSON;
 
-        if (!datos || !datos.concesionarios || !datos.vehiculos) {
-            return res.status(400).json({ exito: false, mensaje: "El JSON debe contener 'concesionarios' y 'vehiculos'." });
+    if (!datos || !datos.concesionarios || !datos.vehiculos) {
+        return res.status(400).json({ exito: false, mensaje: "El JSON debe contener 'concesionarios' y 'vehiculos'." });
+    }
+
+    const informe = { 
+        nuevosVehiculos: [], conflictosVehiculos: [],
+        nuevosConcesionarios: [], conflictosConcesionarios: []
+    };
+
+    // Función auxiliar recursiva para procesar concesionarios secuencialmente
+    function procesarConcesionarios(index, callbackFinal) {
+        if (index >= datos.concesionarios.length) {
+            return callbackFinal(); // Terminamos concesionarios, pasamos al siguiente paso
         }
 
-        const informe = { 
-            nuevosVehiculos: [], conflictosVehiculos: [],
-            nuevosConcesionarios: [], conflictosConcesionarios: []
-        };
+        const c = datos.concesionarios[index];
+        req.db.query('SELECT * FROM concesionarios WHERE id_concesionario = ?', [c.id_concesionario], (err, rows) => {
+            if (err) return res.status(500).json({ exito: false, mensaje: "Error SQL: " + err.message });
 
-        for (const c of datos.concesionarios) {
-            const [rows] = await req.db.query('SELECT * FROM concesionarios WHERE id_concesionario = ?', [c.id_concesionario]);
             if (rows.length > 0) informe.conflictosConcesionarios.push({ nuevo: c, viejo: rows[0] });
             else informe.nuevosConcesionarios.push(c);
+
+            // Llamada recursiva al siguiente
+            procesarConcesionarios(index + 1, callbackFinal);
+        });
+    }
+
+    // Función auxiliar recursiva para procesar vehículos secuencialmente
+    function procesarVehiculos(index, callbackFinal) {
+        if (index >= datos.vehiculos.length) {
+            return callbackFinal();
         }
 
-        for (const v of datos.vehiculos) {
-            const [rows] = await req.db.query('SELECT * FROM vehiculos WHERE matricula = ?', [v.matricula]);
+        const v = datos.vehiculos[index];
+        req.db.query('SELECT * FROM vehiculos WHERE matricula = ?', [v.matricula], (err, rows) => {
+            if (err) return res.status(500).json({ exito: false, mensaje: "Error SQL: " + err.message });
+
             if (rows.length > 0) informe.conflictosVehiculos.push({ nuevo: v, viejo: rows[0] });
             else informe.nuevosVehiculos.push(v);
-        }
-        
-        res.json({ exito: true, data: informe, raw: datos });
 
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ exito: false, mensaje: "Error procesando los datos: " + error.message });
+            procesarVehiculos(index + 1, callbackFinal);
+        });
     }
+
+    // Ejecución en cadena
+    procesarConcesionarios(0, () => {
+        procesarVehiculos(0, () => {
+            // Todo terminado, enviamos respuesta
+            res.json({ exito: true, data: informe, raw: datos });
+        });
+    });
 });
 
-router.post('/ejecutar', isInstallationOrImport, async (req, res) => {
+// --- RUTA EJECUTAR (Callbacks + Transacción) ---
+router.post('/ejecutar', isInstallationOrImport, (req, res) => {
     const { matriculasAActualizar, idsConcesionariosAActualizar, datosCompletos } = req.body;
     const connection = req.db; 
     
-    try {
-        await connection.beginTransaction();
+    // Iniciar Transacción
+    connection.beginTransaction((errTrans) => {
+        if (errTrans) return res.status(500).json({ exito: false, mensaje: "Error iniciando transacción: " + errTrans.message });
 
-        if (datosCompletos.concesionarios && datosCompletos.concesionarios.length > 0) {
-            for (const c of datosCompletos.concesionarios) {
-                const esActivo = (c.activo !== undefined) ? c.activo : true;
-                
-                if (idsConcesionariosAActualizar && (idsConcesionariosAActualizar.includes(c.id_concesionario.toString()) || idsConcesionariosAActualizar.includes(c.id_concesionario))) {
-                    await connection.query(
-                        `UPDATE concesionarios SET nombre=?, ciudad=?, direccion=?, telefono_contacto=?, activo=? WHERE id_concesionario=?`,
-                        [c.nombre, c.ciudad, c.direccion, c.telefono_contacto, esActivo, c.id_concesionario]
-                    );
-                } else {
-                    await connection.query(
-                        `INSERT IGNORE INTO concesionarios (id_concesionario, nombre, ciudad, direccion, telefono_contacto, activo) VALUES (?, ?, ?, ?, ?, ?)`,
-                        [c.id_concesionario, c.nombre, c.ciudad, c.direccion, c.telefono_contacto, esActivo]
-                    );
-                }
+        // Paso 1: Procesar Concesionarios
+        procesarGuardadoConcesionarios(0, () => {
+            // Paso 2: Procesar Vehículos
+            procesarGuardadoVehiculos(0, () => {
+                // Paso 3: Verificar/Crear Admin
+                verificarYCrearAdmin(() => {
+                    // Paso 4: Commit
+                    connection.commit((errCommit) => {
+                        if (errCommit) {
+                            return connection.rollback(() => {
+                                res.status(500).json({ exito: false, mensaje: "Error en commit: " + errCommit.message });
+                            });
+                        }
+                        res.json({ exito: true, mensaje: "Operación completada con éxito." });
+                    });
+                });
+            });
+        });
+    });
+
+    // -- Funciones Auxiliares para 'Ejecutar' --
+
+    function procesarGuardadoConcesionarios(index, cb) {
+        if (!datosCompletos.concesionarios || index >= datosCompletos.concesionarios.length) {
+            return cb();
+        }
+
+        const c = datosCompletos.concesionarios[index];
+        const esActivo = (c.activo !== undefined) ? c.activo : true;
+        let sql = '';
+        let params = [];
+
+        // Comprobar si hay que actualizar o insertar
+        if (idsConcesionariosAActualizar && (idsConcesionariosAActualizar.includes(c.id_concesionario.toString()) || idsConcesionariosAActualizar.includes(c.id_concesionario))) {
+            sql = `UPDATE concesionarios SET nombre=?, ciudad=?, direccion=?, telefono_contacto=?, activo=? WHERE id_concesionario=?`;
+            params = [c.nombre, c.ciudad, c.direccion, c.telefono_contacto, esActivo, c.id_concesionario];
+        } else {
+            sql = `INSERT IGNORE INTO concesionarios (id_concesionario, nombre, ciudad, direccion, telefono_contacto, activo) VALUES (?, ?, ?, ?, ?, ?)`;
+            params = [c.id_concesionario, c.nombre, c.ciudad, c.direccion, c.telefono_contacto, esActivo];
+        }
+
+        connection.query(sql, params, (err) => {
+            if (err) {
+                return connection.rollback(() => {
+                    res.status(500).json({ exito: false, mensaje: "Error guardando concesionario: " + err.message });
+                });
             }
+            procesarGuardadoConcesionarios(index + 1, cb);
+        });
+    }
+
+    function procesarGuardadoVehiculos(index, cb) {
+        if (!datosCompletos.vehiculos || index >= datosCompletos.vehiculos.length) {
+            return cb();
         }
 
-        if (datosCompletos.vehiculos && datosCompletos.vehiculos.length > 0) {
-            for (const v of datosCompletos.vehiculos) {
-                let imagenBlob = null;
-                if (v.imagen_nombre) {
-                    const rutaImagen = path.join(__dirname, '../public/img/vehiculos', v.imagen_nombre);
-                    try {
-                        if (fs.existsSync(rutaImagen)) imagenBlob = fs.readFileSync(rutaImagen);
-                    } catch (e) {}
-                }
+        const v = datosCompletos.vehiculos[index];
+        let imagenBlob = null;
+        if (v.imagen_nombre) {
+            const rutaImagen = path.join(__dirname, '../public/img/vehiculos', v.imagen_nombre);
+            try {
+                if (fs.existsSync(rutaImagen)) imagenBlob = fs.readFileSync(rutaImagen);
+            } catch (e) {}
+        }
 
-                const esActivo = (v.activo !== undefined) ? v.activo : true;
+        const esActivo = (v.activo !== undefined) ? v.activo : true;
+        let sql = '';
+        let params = [];
 
-                if (matriculasAActualizar && matriculasAActualizar.includes(v.matricula)) {
-                    await connection.query(
-                        `UPDATE vehiculos SET marca=?, modelo=?, precio=?, imagen=?, estado=?, id_concesionario=?, activo=? WHERE matricula=?`,
-                        [v.marca, v.modelo, v.precio, imagenBlob, v.estado, v.id_concesionario, esActivo, v.matricula]
-                    );
-                } else {
-                    await connection.query(
-                        `INSERT IGNORE INTO vehiculos (matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                        [v.matricula, v.marca, v.modelo, v.anyo_matriculacion, v.descripcion, v.tipo, v.precio, v.numero_plazas, v.autonomia_km, v.color, imagenBlob, v.estado, v.id_concesionario, esActivo]
-                    );
-                }
+        if (matriculasAActualizar && matriculasAActualizar.includes(v.matricula)) {
+            sql = `UPDATE vehiculos SET marca=?, modelo=?, precio=?, imagen=?, estado=?, id_concesionario=?, activo=? WHERE matricula=?`;
+            params = [v.marca, v.modelo, v.precio, imagenBlob, v.estado, v.id_concesionario, esActivo, v.matricula];
+        } else {
+            sql = `INSERT IGNORE INTO vehiculos (matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            params = [v.matricula, v.marca, v.modelo, v.anyo_matriculacion, v.descripcion, v.tipo, v.precio, v.numero_plazas, v.autonomia_km, v.color, imagenBlob, v.estado, v.id_concesionario, esActivo];
+        }
+
+        connection.query(sql, params, (err) => {
+            if (err) {
+                return connection.rollback(() => {
+                    res.status(500).json({ exito: false, mensaje: "Error guardando vehículo: " + err.message });
+                });
             }
-        }
+            procesarGuardadoVehiculos(index + 1, cb);
+        });
+    }
 
-        const [usersExist] = await connection.query('SELECT count(*) as c FROM usuarios');
-        if (usersExist[0].c === 0) {
-            const hash = await bcrypt.hash(ADMIN_DEFAULT.pass_plana, 10);
-            await connection.query(
-                `INSERT INTO usuarios (nombre, correo, contrasenya, rol, telefono, id_concesionario) VALUES (?, ?, ?, ?, ?, ?)`,
-                [ADMIN_DEFAULT.nombre, ADMIN_DEFAULT.correo, hash, ADMIN_DEFAULT.rol, ADMIN_DEFAULT.telefono, ADMIN_DEFAULT.id_concesionario]
-            );
-        }
+    function verificarYCrearAdmin(cb) {
+        connection.query('SELECT count(*) as c FROM usuarios', (err, usersExist) => {
+            if (err) {
+                return connection.rollback(() => {
+                    res.status(500).json({ exito: false, mensaje: "Error verificando usuarios: " + err.message });
+                });
+            }
 
-        await connection.commit();
-        res.json({ exito: true, mensaje: "Operación completada con éxito." });
+            if (usersExist[0].c === 0) {
+                // Crear hash con callback
+                bcrypt.hash(ADMIN_DEFAULT.pass_plana, 10, (errHash, hash) => {
+                    if (errHash) {
+                        return connection.rollback(() => {
+                            res.status(500).json({ exito: false, mensaje: "Error encriptando contraseña: " + errHash.message });
+                        });
+                    }
 
-    } catch (error) {
-        await connection.rollback();
-        console.error(error);
-        res.status(500).json({ exito: false, mensaje: "Error: " + error.message });
+                    connection.query(
+                        `INSERT INTO usuarios (nombre, correo, contrasenya, rol, telefono, id_concesionario) VALUES (?, ?, ?, ?, ?, ?)`,
+                        [ADMIN_DEFAULT.nombre, ADMIN_DEFAULT.correo, hash, ADMIN_DEFAULT.rol, ADMIN_DEFAULT.telefono, ADMIN_DEFAULT.id_concesionario],
+                        (errInsert) => {
+                            if (errInsert) {
+                                return connection.rollback(() => {
+                                    res.status(500).json({ exito: false, mensaje: "Error creando admin: " + errInsert.message });
+                                });
+                            }
+                            cb(); // Admin creado, continuar
+                        }
+                    );
+                });
+            } else {
+                cb(); // Ya hay usuarios, continuar
+            }
+        });
     }
 });
 
-router.get('/setup', async (req, res) => {
-    try {
-        const [rows] = await req.db.query('SELECT count(*) as c FROM usuarios');
+// --- RUTA SETUP (Callbacks) ---
+router.get('/setup', (req, res) => {
+    req.db.query('SELECT count(*) as c FROM usuarios', (err, rows) => {
+        if (err) {
+            return res.status(500).send("Error de conexión");
+        }
+
         if (rows[0].c > 0) {
             return res.redirect('/login');
         }
+
         res.render('setup', { 
             title: 'Instalación Inicial',
             usuarioSesion: null 
         });
-    } catch (err) {
-        res.status(500).send("Error de conexión");
-    }
+    });
 });
 
 module.exports = router;

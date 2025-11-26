@@ -44,25 +44,26 @@ function isAdminOrSelf(req, res, next) {
     res.redirect('back');
 }
 
-async function isInstallationOrImport(req, res, next) {
-    try {
-        if (req.session.usuario && req.session.usuario.rol === 'Admin') {
-            return next();
+function isInstallationOrImport(req, res, next) {
+    if (req.session.usuario && req.session.usuario.rol === 'Admin') {
+        return next();
+    }
+
+    req.db.query('SELECT count(*) as c FROM usuarios', (err, rows) => {
+        if (err) {
+            console.error("Error en auth middleware:", err);
+            return res.status(500).json({ exito: false, mensaje: "Error de servidor verificando permisos." });
         }
-        const [rows] = await req.db.query('SELECT count(*) as c FROM usuarios');
-        
+
         if (rows[0].c === 0) {
             return next();
         }
+
         return res.status(403).json({ 
             exito: false, 
             mensaje: "Acceso denegado. No tienes permisos de administrador y el sistema ya está instalado." 
         });
-
-    } catch (err) {
-        console.error("Error en auth middleware:", err);
-        return res.status(500).json({ exito: false, mensaje: "Error de servidor verificando permisos." });
-    }
+    });
 }
 
 module.exports = {

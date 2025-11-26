@@ -1,69 +1,81 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("concesionarioForm");
-    if (!form) return;
+$(document).ready(function() {
+    let $form = $("#concesionarioForm");
 
-    const isEditMode = form.dataset.id && form.dataset.id !== "";
-    const idConcesionario = form.dataset.id;
+    // Si el formulario no existe, no hacemos nada
+    if ($form.length === 0) return;
 
-    form.addEventListener("form-valid", async () => {
-        document.querySelectorAll(".alert").forEach(el => el.remove());
-        document.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid")); 
+    // Detectar modo edición leyendo el atributo data-id
+    let idConcesionario = $form.data("id");
+    // Verificamos si hay ID (jQuery .data maneja tipos, así que comprobamos truthy)
+    let isEditMode = idConcesionario ? true : false;
 
-        const formData = {
-            nombre: document.getElementById("nombre").value.trim(),
-            ciudad: document.getElementById("ciudad").value.trim(),
-            direccion: document.getElementById("direccion").value.trim(),
-            telefono_contacto: document.getElementById("telefono_contacto").value.trim()
+    // Escuchamos el evento personalizado 'form-valid'
+    // (Asumimos que tu script de validación frontal dispara este evento)
+    $form.on("form-valid", function() {
+        
+        // 1. Limpiar errores previos
+        $(".alert").remove(); // Eliminar alertas generales
+        $(".is-invalid").removeClass("is-invalid"); // Quitar bordes rojos
+        $(".error").text(""); // Limpiar textos de los spans de error
+
+        // 2. Recoger datos del formulario
+        let formData = {
+            nombre: $("#nombre").val().trim(),
+            ciudad: $("#ciudad").val().trim(),
+            direccion: $("#direccion").val().trim(),
+            telefono_contacto: $("#telefono_contacto").val().trim()
         };
 
-        try {
-            const url = isEditMode
-                ? `/api/concesionarios/${idConcesionario}/editar`
-                : `/api/concesionarios/nuevo`;
-            const method = isEditMode ? "PUT" : "POST";
+        // 3. Configurar la petición AJAX
+        let url = isEditMode 
+            ? "/api/concesionarios/" + idConcesionario + "/editar" 
+            : "/api/concesionarios/nuevo";
+        
+        let method = isEditMode ? "PUT" : "POST";
 
-            fetch(url, {
-                method,
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData)
-            })
-            .then(res => res.json())
-            .then(data => {
+        // 4. Ejecutar $.ajax según especificación del PDF
+        $.ajax({
+            type: method,
+            url: url,
+            contentType: "application/json", // Importante para enviar JSON
+            data: JSON.stringify(formData),  // Convertir objeto a string JSON
+            success: function(data) {
                 if (!data.ok) {
+                    // A) Manejo de errores de campos específicos
                     if (data.fieldErrors) {
-                        Object.keys(data.fieldErrors).forEach(field => {
-                            const errorEl = document.getElementById(`error-${field}`);
-                            if (errorEl) errorEl.textContent = data.fieldErrors[field];
-                            
-                            const input = document.getElementById(field);
-                            if (input) input.classList.add("is-invalid");
+                        // $.each es el bucle de jQuery para objetos
+                        $.each(data.fieldErrors, function(field, msg) {
+                            // Pintar mensaje en el span error-CAMPO
+                            $("#error-" + field).text(msg);
+                            // Añadir clase invalida al input
+                            $("#" + field).addClass("is-invalid");
                         });
                     } else {
-                        const div = document.createElement("div");
-                        div.className = "alert alert-danger mt-2";
-                        div.textContent = data.error || "Error desconocido";
-                        form.prepend(div);
+                        // B) Error general (sin campos específicos)
+                        mostrarAlertaFormulario("danger", data.error || "Error desconocido");
                     }
-                    return; 
+                } else {
+                    // Éxito: Redirección
+                    // Si es edición, volvemos al mismo ID, si es nuevo, al ID que devuelve el server
+                    let redirectId = isEditMode ? idConcesionario : data.id;
+                    window.location.href = "/concesionarios/" + redirectId;
                 }
-
-                const redirectId = isEditMode ? idConcesionario : data.id;
-                window.location.href = `/concesionarios/${redirectId}`;
-            })
-            .catch(err => {
-                console.error("Error en la petición:", err);
-                const div = document.createElement("div");
-                div.className = "alert alert-danger mt-2";
-                div.textContent = "Error de conexión o servidor caído.";
-                form.prepend(div);
-            });
-
-        } catch (err) {
-            console.error("Error general:", err);
-            const div = document.createElement("div");
-            div.className = "alert alert-danger mt-2";
-            div.textContent = "Error inesperado en el cliente.";
-            form.prepend(div);
-        }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error("Error en la petición: " + errorThrown);
+                mostrarAlertaFormulario("danger", "Error de conexión o servidor caído.");
+            }
+        });
     });
 });
+
+// Función auxiliar para inyectar alertas al principio del formulario
+function mostrarAlertaFormulario(tipo, mensaje) {
+    let htmlAlerta = 
+        '<div class="alert alert-' + tipo + ' mt-2" role="alert">' +
+            mensaje +
+        '</div>';
+    
+    // prepend() añade el elemento al principio del formulario
+    $("#concesionarioForm").prepend(htmlAlerta);
+}
