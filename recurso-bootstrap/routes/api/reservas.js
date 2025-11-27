@@ -98,18 +98,18 @@ router.put('/:id(\\d+)/cancelar', isAuth, (req, res) => {
 
 // GET /api/reservas/listareservas (Admin - JSON List)
 router.get('/listareservas', isAdmin, (req, res) => {
-   const { id, vehiculo, estado, fecha_desde, fecha_hasta } = req.query;
+    const { id, vehiculo, estado, fecha_desde, fecha_hasta } = req.query;
 
-   const idFiltrado = id ? parseInt(id, 10) : 0;
-   const vehiculoFiltrado = vehiculo ? parseInt(vehiculo, 10) : 0;
+    const idFiltrado = id ? parseInt(id, 10) : 0;
+    const vehiculoFiltrado = vehiculo ? parseInt(vehiculo, 10) : 0;
 
-   let query = `
-      SELECT r.id_reserva, r.fecha_inicio, r.fecha_fin, r.estado,
-        u.nombre AS nombre_usuario, u.correo AS email_usuario,
-        v.marca, v.modelo, v.matricula
-      FROM reservas r
-      JOIN usuarios u ON r.id_usuario = u.id_usuario
-      JOIN vehiculos v ON r.id_vehiculo = v.id_vehiculo
+    let query = `
+       SELECT r.id_reserva, r.fecha_inicio, r.fecha_fin, r.estado,
+         u.nombre AS nombre_usuario, u.correo AS email_usuario,
+         v.marca, v.modelo, v.matricula
+       FROM reservas r
+       JOIN usuarios u ON r.id_usuario = u.id_usuario
+       JOIN vehiculos v ON r.id_vehiculo = v.id_vehiculo
     `;
     
     const params = [];
@@ -130,18 +130,19 @@ router.get('/listareservas', isAdmin, (req, res) => {
         console.error("Error API listareservas:", err);
         return res.status(500).json({ ok: false, error: 'Error cargando datos' });
       }
-      res.json({ ok: true, reservas });
+      // Devolvemos un objeto con la propiedad 'reservas'
+      res.json({ ok: true, reservas: reservas });
     });
 });
 
 // GET /api/reservas/mis-reservas (Usuario - JSON List)
 router.get('/mis-reservas', isAuth, (req, res) => {
-   const usuarioActual = req.session.usuario;
-   const { vehiculo, estado, fecha_desde, fecha_hasta } = req.query;
-   const vehiculoFiltrado = vehiculo ? parseInt(vehiculo, 10) : 0;
+    const usuarioActual = req.session.usuario;
+    const { vehiculo, estado, fecha_desde, fecha_hasta } = req.query;
+    const vehiculoFiltrado = vehiculo ? parseInt(vehiculo, 10) : 0;
 
-   let query = `
-      SELECT r.id_reserva, r.fecha_inicio, r.fecha_fin, r.estado,
+    let query = `
+       SELECT r.id_reserva, r.fecha_inicio, r.fecha_fin, r.estado,
           u.nombre AS nombre_usuario, u.correo AS email_usuario,
           v.marca, v.modelo, v.matricula
         FROM reservas r
@@ -165,7 +166,7 @@ router.get('/mis-reservas', isAuth, (req, res) => {
         console.error("Error API mis-reservas:", err);
         return res.status(500).json({ ok: false, error: 'Error cargando datos' });
       }
-      res.json({ ok: true, reservas });
+      res.json({ ok: true, reservas: reservas });
     });
 });
 

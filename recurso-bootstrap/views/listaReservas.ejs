@@ -20,7 +20,7 @@
           <div class="col-md-6 col-lg-4">
             <label for="filtroUsuario" class="form-label">Usuario</label>
             <select name="id" id="filtroUsuario" class="form-select">
-              <option value="0" <%= (idSeleccionado === 0) ? 'selected' : '' %>>
+              <option value="" <%= (idSeleccionado === 0) ? 'selected' : '' %>>
                 Todos los Usuarios
               </option>
               <% if (todosLosUsuarios && todosLosUsuarios.length > 0) { %>
@@ -37,7 +37,7 @@
         <div class="col-md-6 <%= (usuarioSesion && usuarioSesion.rol === 'Admin') ? 'col-lg-4' : 'col-lg-4' %>">
           <label for="filtroVehiculo" class="form-label">Vehículo</label>
           <select name="vehiculo" id="filtroVehiculo" class="form-select">
-            <option value="0" <%= (vehiculoSeleccionado === 0) ? 'selected' : '' %>>
+            <option value="" <%= (vehiculoSeleccionado === 0) ? 'selected' : '' %>>
               Todos los Vehículos
             </option>
             <% if (todosVehiculos && todosVehiculos.length > 0) { %>
@@ -76,77 +76,75 @@
           <input type="datetime-local" class="form-control" id="filtroFechaHasta" name="fecha_hasta" value="<%= fechaHastaSeleccionada %>">
         </div>
 
-        <div class="col-md-6 col-lg-4 d-flex align-items-end gap-2">
-          <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-          <a href="<%= (usuarioSesion && usuarioSesion.rol === 'Admin') ? '/reserva/listareservas' : '/reserva/mis-reservas' %>" class="btn btn-outline-secondary w-100">Limpiar</a>
+        <div class="col-md-6 col-lg-4 d-flex align-items-end">
+          <!-- Solo botón Limpiar ocupando todo el ancho -->
+          <button type="button" id="btnLimpiar" class="btn btn-outline-secondary w-100">
+            <i class="bi bi-x-circle"></i> Limpiar Filtros
+          </button>
         </div>
-      </div> </fieldset>
+      </div> 
+    </fieldset>
   </form>
-  <% if (typeof error !== 'undefined' && error) { %>
-    <div class="alert alert-danger" role="alert" aria-live="assertive">
-      <%= error %>
-    </div>
-  <% } %>
+
+  <!-- ALERTAS -->
+  <div id="alertas"></div>
       
-  <% if (listaDeReservas && listaDeReservas.length > 0) { %>
-    <div id="tabla-reservas-descripcion" class="visually-hidden"></div>
+  <div class="table-responsive-md">
+    <table class="table table-hover" aria-describedby="tabla-reservas-descripcion">
+      <caption class="text-center">
+        Reservas mostradas: <strong id="contadorReservas">0</strong>
+      </caption>
 
-    <div class="table-responsive-md">
-      <table class="table table-hover" aria-describedby="tabla-reservas-descripcion">
-        <caption class="text-center">
-          <span class="lang lang-es">Reservas mostradas: </span>
-          <span class="lang lang-en d-none">Bookings shown: </span>
-          <strong><%= listaDeReservas.length %></strong>
-        </caption>
+      <thead class="table-dark">
+        <tr>
+          <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
+            <th scope="col">Usuario</th>
+          <% } %>
+          <th scope="col">Vehículo</th>
+          <th scope="col">Fecha Inicio</th>
+          <th scope="col">Fecha Fin</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
 
-        <thead class="table-dark">
-          <tr>
-            <th scope="col">Nombre</th>
-            <th scope="col">Email</th>
-            <th scope="col">Vehículo</th>
-            <th scope="col">Fecha de Inicio</th>
-            <th scope="col">Fecha de Fin</th>
-            <th scope="col">Estado</th>
-            <th scope="col">Acciones</th>
-          </tr>
-        </thead>
-
-        <tbody id="tablaReservasBody">
-          <tr>
-            <td colspan="7" class="text-center">Cargando datos...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-  <% } else if (typeof error === 'undefined' || !error) { %> 
-    <div class="alert alert-info text-center" role="alert">
-      <h4 class="alert-heading lang lang-es">No hay reservas</h4>
-      <h4 class="alert-heading lang lang-en d-none">No bookings found</h4>
-      <p class="lang lang-es mb-0">No se encontraron reservas para la selección actual.</p>
-      <p class="lang lang-en d-none mb-0">No bookings were found for the current selection.</p>
-    </div>
-  <% } %>
+      <tbody id="tablaReservasBody">
+        <tr>
+          <td colspan="7" class="text-center">Cargando datos...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   
-</div> <div class="modal fade" id="confirmarCancelarModal" tabindex="-1" aria-labelledby="confirmarCancelarReservaModalLabel" aria-hidden="true">
+  <div id="tabla-reservas-descripcion" class="visually-hidden">Listado de reservas</div>
+
+</div> 
+
+<!-- MODAL CANCELAR -->
+<div class="modal fade" id="confirmarCancelarModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="confirmarCancelarReservaModalLabel">Cancelar Reserva</h5>
+        <h5 class="modal-title">Cancelar Reserva</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
         ¿Estás seguro de que quieres cancelar la reserva?
         <br>
         <div class="d-flex justify-content-end mt-3 gap-2">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">No, volver</button>
           <form id="formCancelarReserva" action="" method="POST" class="m-0 p-0">
-            <button type="submit" class="btn btn-primary">Confirmar Cancelación</button>
+            <button type="submit" class="btn btn-primary">Sí, cancelar</button>
           </form>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<div id="pageData" data-user='<%- JSON.stringify(usuarioSesion || null) %>'></div>
+
+<!-- SCRIPTS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
 <script src="/js/modal.js"></script>
 <script src="/js/ajax/reservas/reservasLista.js"></script>

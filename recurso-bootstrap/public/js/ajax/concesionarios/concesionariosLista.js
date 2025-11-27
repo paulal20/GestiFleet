@@ -108,11 +108,11 @@ function pintarTabla(lista) {
         let btnDisabledAttr = !c.activoBool ? "disabled" : "";
 
         html += '<tr>';
-        html += '<td class="fila-click" data-href="/concesionarios/' + c.id_concesionario + '">' + (c.nombre || '') + '</td>';
-        html += '<td class="fila-click" data-href="/concesionarios/' + c.id_concesionario + '">' + (c.ciudad || '') + '</td>';
-        html += '<td class="fila-click" data-href="/concesionarios/' + c.id_concesionario + '">' + (c.direccion || '') + '</td>';
-        html += '<td class="fila-click" data-href="/concesionarios/' + c.id_concesionario + '">' + (c.telefono_contacto || '') + '</td>';
-        html += '<td class="fila-click" data-href="/concesionarios/' + c.id_concesionario + '">' + pintarEstadoConcesionario(c.activoBool) + '</td>';
+        html += '<td class="fila-click" style="cursor:pointer;" data-href="/concesionarios/' + c.id_concesionario + '">' + (c.nombre || '') + '</td>';
+        html += '<td class="fila-click" style="cursor:pointer;" data-href="/concesionarios/' + c.id_concesionario + '">' + (c.ciudad || '') + '</td>';
+        html += '<td class="fila-click" style="cursor:pointer;" data-href="/concesionarios/' + c.id_concesionario + '">' + (c.direccion || '') + '</td>';
+        html += '<td class="fila-click" style="cursor:pointer;" data-href="/concesionarios/' + c.id_concesionario + '">' + (c.telefono_contacto || '') + '</td>';
+        html += '<td class="fila-click" style="cursor:pointer;" data-href="/concesionarios/' + c.id_concesionario + '">' + pintarEstadoConcesionario(c.activoBool) + '</td>';
         
         html += '<td>';
         html +=   '<button type="button" class="btn btn-secondary btn-sm mb-1 me-2" ';
