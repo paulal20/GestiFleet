@@ -46,9 +46,8 @@ router.get('/', isAuth, (req, res) => {
   });
 });
 
-// GET /reserva/:id (Detalle de una reserva - SSR)
-// Mantenemos SSR (Server Side Rendering) para el detalle por si se accede por enlace directo
-router.get('/:id(\\d+)', isAdminOrSelf, (req, res, next) => {
+// GET /reserva/:id 
+router.get('/:id(\\d+)', isAuth, (req, res, next) => {
   const idReserva = parseInt(req.params.id, 10);
 
   req.db.query(
@@ -73,10 +72,18 @@ router.get('/:id(\\d+)', isAdminOrSelf, (req, res, next) => {
         return next(error);
       }
 
+      const reservaEncontrada = rows[0];
+
+      if (req.session.usuario.rol !== 'Admin' && reservaEncontrada.id_usuario !== req.session.usuario.id_usuario) {
+          const error = new Error('Acceso denegado. No puedes ver reservas de otros usuarios.');
+          error.status = 403;
+          return next(error);
+      }
+
       res.render('reservaDetalle', {
-        title: `Detalle Reserva ${rows[0].id_reserva}`,
+        title: `Detalle Reserva ${reservaEncontrada.id_reserva}`,
         usuarioSesion: req.session.usuario,
-        reserva: rows[0]
+        reserva: reservaEncontrada
       });
     }
   );
@@ -84,13 +91,10 @@ router.get('/:id(\\d+)', isAdminOrSelf, (req, res, next) => {
 
 // GET /reserva/listareservas (Vista Admin)
 router.get('/listareservas', isAdmin, (req, res) => {
-  // Cargamos SOLO los datos para los filtros (Usuarios, Vehículos, Estados)
-  // La lista principal se carga vacía [] para que AJAX la pida después.
   
   const queries = {
     usuarios: 'SELECT id_usuario, nombre, correo FROM usuarios ORDER BY nombre',
-    vehiculos: 'SELECT id_vehiculo, marca, modelo, matricula FROM vehiculos ORDER BY marca, modelo',
-    estados: 'SELECT DISTINCT estado FROM reservas ORDER BY estado'
+    vehiculos: 'SELECT id_vehiculo, marca, modelo, matricula FROM vehiculos ORDER BY marca, modelo'
   };
 
   req.db.query(queries.usuarios, (err1, usuarios) => {
@@ -99,24 +103,21 @@ router.get('/listareservas', isAdmin, (req, res) => {
     req.db.query(queries.vehiculos, (err2, vehiculos) => {
       if (err2) vehiculos = [];
 
-      req.db.query(queries.estados, (err3, estadosRows) => {
-        const estadosDisponibles = err3 ? [] : estadosRows.map(e => e.estado);
+      const estadosDisponibles = ['activa', 'finalizada', 'cancelada'];
 
-        res.render('listareservas', {
-          title: 'Reservas',
-          listaDeReservas: [], // VACÍA -> AJAX debe llenarla
-          usuario: req.session.usuario,
-          usuarioSesion: req.session.usuario,
-          todosLosUsuarios: usuarios,
-          todosVehiculos: vehiculos,
-          estadosDisponibles: estadosDisponibles,
-          // Mantenemos params por si el frontend lee esto para filtros iniciales
-          idSeleccionado: 0,
-          vehiculoSeleccionado: 0,
-          estadoSeleccionado: '',
-          fechaDesdeSeleccionada: '',
-          fechaHastaSeleccionada: ''
-        });
+      res.render('listareservas', {
+        title: 'Reservas',
+        listaDeReservas: [], 
+        usuario: req.session.usuario,
+        usuarioSesion: req.session.usuario,
+        todosLosUsuarios: usuarios,
+        todosVehiculos: vehiculos,
+        estadosDisponibles: estadosDisponibles, 
+        idSeleccionado: 0,
+        vehiculoSeleccionado: 0,
+        estadoSeleccionado: '',
+        fechaDesdeSeleccionada: '',
+        fechaHastaSeleccionada: ''
       });
     });
   });
@@ -126,27 +127,24 @@ router.get('/listareservas', isAdmin, (req, res) => {
 router.get('/mis-reservas', isAuth, (req, res) => {
   const usuarioActual = req.session.usuario;
   
-  // Cargar datos para filtros
   getVehiculosDisponibles(req.db, usuarioActual, (err, vehiculos) => {
     if (err) vehiculos = [];
 
-    req.db.query('SELECT DISTINCT estado FROM reservas WHERE id_usuario = ?', [usuarioActual.id_usuario], (err2, estadosRows) => {
-      const estadosDisponibles = err2 ? [] : estadosRows.map(e => e.estado);
+    const estadosDisponibles = ['activa', 'finalizada', 'cancelada'];
 
-      res.render('listareservas', {
-        title: 'Mis Reservas',
-        listaDeReservas: [], // VACÍA -> AJAX debe llenarla
-        usuario: usuarioActual,
-        usuarioSesion: req.session.usuario,
-        todosLosUsuarios: [], 
-        todosVehiculos: vehiculos, 
-        estadosDisponibles: estadosDisponibles, 
-        idSeleccionado: usuarioActual.id_usuario,
-        vehiculoSeleccionado: 0,
-        estadoSeleccionado: '',
-        fechaDesdeSeleccionada: '',
-        fechaHastaSeleccionada: ''
-      });
+    res.render('listareservas', {
+      title: 'Mis Reservas',
+      listaDeReservas: [], 
+      usuario: usuarioActual,
+      usuarioSesion: req.session.usuario,
+      todosLosUsuarios: [], 
+      todosVehiculos: vehiculos, 
+      estadosDisponibles: estadosDisponibles,
+      idSeleccionado: usuarioActual.id_usuario,
+      vehiculoSeleccionado: 0,
+      estadoSeleccionado: '',
+      fechaDesdeSeleccionada: '',
+      fechaHastaSeleccionada: ''
     });
   });
 });

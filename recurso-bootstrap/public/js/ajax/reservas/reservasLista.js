@@ -128,10 +128,11 @@ function pintarTabla(lista, esAdmin) {
         let emailUsuario = r.email_usuario || '';
         let estado = r.estado || 'activa';
 
+        // Columna de usuario (solo admin), ya SIN la clase fila-click porque la tendrá el TR
         let colUsuario = "";
         if (esAdmin) {
             colUsuario = 
-                '<td class="fila-click" data-href="/reserva/' + r.id_reserva + '">' +
+                '<td>' +
                     nombreUsuario + '<br>' +
                     '<small class="text-muted">' + emailUsuario + '</small>' +
                 '</td>';
@@ -149,15 +150,18 @@ function pintarTabla(lista, esAdmin) {
                 'Cancelar</button>';
         }
 
-        html += '<tr>' +
+        // AQUI ESTÁ EL CAMBIO CLAVE:
+        // 1. Movemos la clase 'fila-click' y el 'data-href' al <tr>
+        // 2. Añadimos style="cursor: pointer" para que se vea que es clicable
+        html += '<tr class="fila-click" data-href="/reserva/' + r.id_reserva + '" style="cursor: pointer;">' +
                     colUsuario +
-                    '<td class="fila-click" data-href="/reserva/' + r.id_reserva + '">' +
+                    '<td>' + // Quitamos fila-click de aquí
                         '<span class="fw-bold">' + marca + ' ' + modelo + '</span><br>' +
                         '<small>' + matricula + '</small>' +
                     '</td>' +
-                    '<td class="fila-click" data-href="/reserva/' + r.id_reserva + '">' + inicio + '</td>' +
-                    '<td class="fila-click" data-href="/reserva/' + r.id_reserva + '">' + fin + '</td>' +
-                    '<td class="fila-click" data-href="/reserva/' + r.id_reserva + '">' +
+                    '<td>' + inicio + '</td>' + // Quitamos fila-click de aquí
+                    '<td>' + fin + '</td>' +    // Quitamos fila-click de aquí
+                    '<td>' +                    // Quitamos fila-click de aquí
                         pintarEstadoReserva(estado) +
                     '</td>' +
                     '<td>' + btnCancelar + '</td>' +
@@ -228,7 +232,11 @@ function configurarModalCancelarLista() {
 ================================= */
 
 function activarFilaClick() {
-    $(".fila-click").off("click").on("click", function() {
+    $(".fila-click").off("click").on("click", function(e) {
+        if ($(e.target).closest("button").length > 0) {
+            return;
+        }
+
         const destino = $(this).data("href");
         if (destino) window.location.href = destino;
     });
