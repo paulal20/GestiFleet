@@ -4,7 +4,7 @@ const { isAdmin, isAdminOrSelf } = require('../middleware/auth');
 
 router.get('/', isAdmin, (req, res) => {
   // SELECT * para tener acceso a todos los campos (incluyendo ciudad para el select)
-  req.db.query('SELECT * FROM concesionarios ORDER BY nombre', (err, concesionarios) => {
+  req.db.query('SELECT * FROM concesionarios WHERE activo = true ORDER BY nombre', (err, concesionarios) => {
     if (err) concesionarios = []; 
 
     res.render('listaUsuarios', {
@@ -19,7 +19,7 @@ router.get('/', isAdmin, (req, res) => {
 
 // VISTA FORMULARIO NUEVO: /usuarios/nuevo
 router.get('/nuevo', isAdmin, (req, res) => {
-  req.db.query('SELECT * FROM concesionarios ORDER BY nombre', (err, concesionarios) => {
+  req.db.query('SELECT * FROM concesionarios WHERE activo = true ORDER BY nombre', (err, concesionarios) => {
     if (err) {
       console.error('Error cargando concesionarios vista nuevo:', err);
       return res.status(500).render('error', { mensaje: 'Error cargando formulario' });
@@ -53,7 +53,7 @@ router.get('/:id(\\d+)/editar', isAdminOrSelf, (req, res) => {
     usuario.apellido1 = nombreParts[1] || '';
     usuario.apellido2 = nombreParts.slice(2).join(' ') || '';
 
-    req.db.query('SELECT * FROM concesionarios ORDER BY nombre', (errCon, concesionarios) => {
+    req.db.query('SELECT * FROM concesionarios WHERE activo = true ORDER BY nombre', (errCon, concesionarios) => {
       if (errCon) concesionarios = [];
 
       res.render('usuarioForm', {

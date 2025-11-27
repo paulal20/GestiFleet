@@ -21,6 +21,9 @@ const upload = multer({ storage, fileFilter });
 
 // GET /api/vehiculos (Listado JSON filtrado)
 router.get('/', isAuth, (req, res) => {
+  if (!req.xhr) { // si no es AJAX/fetch
+    return res.redirect('/vehiculos'); // redirige a la página normal
+  }
   const { 
     tipo, estado, color, plazas, concesionario, precio_max, autonomia_min
   } = req.query;
@@ -35,6 +38,7 @@ router.get('/', isAuth, (req, res) => {
     condiciones.push(' id_concesionario = ? ');
     params.push(usuario.id_concesionario);
     condiciones.push(" estado = 'disponible' ");
+    condiciones.push("activo = true");
   }
   
   // Filtros dinámicos
@@ -47,6 +51,7 @@ router.get('/', isAuth, (req, res) => {
   if (usuario && usuario.rol === 'Admin') {
     if (estado) { condiciones.push(' estado = ? '); params.push(estado); }
     if (concesionario) { condiciones.push(' id_concesionario = ? '); params.push(concesionario); }
+    condiciones.push("activo=true");
   }
 
   if (condiciones.length > 0) {
@@ -104,8 +109,8 @@ router.post('/', isAdmin, upload.single('imagen'), (req, res) => {
     // 2. Insertar
     req.db.query(
       `INSERT INTO vehiculos
-      (matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      (matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario, activo)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, true)`,
       [
         matricula.toUpperCase(), marca, modelo, anyo_matriculacion, descripcion || null, 
         tipo || 'coche', precio, numero_plazas || 5, autonomia_km || null, color || null, 
@@ -194,7 +199,7 @@ router.put('/:id(\\d+)', isAdmin, upload.single('imagen'), (req, res) => {
 router.delete('/:id(\\d+)', isAdmin, (req, res) => {
   const id = parseInt(req.params.id, 10);
 
-  req.db.query('DELETE FROM vehiculos WHERE id_vehiculo = ?', [id], (err) => {
+  req.db.query('UPDATE vehiculos SET activo=false WHERE id_vehiculo = ?', [id], (err) => {
     if (err) return res.status(500).json({ ok: false, error: err.message });
     res.json({ ok: true });
   });

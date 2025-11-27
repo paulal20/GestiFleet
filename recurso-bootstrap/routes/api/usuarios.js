@@ -78,8 +78,8 @@ router.post('/nuevo', isAdmin, (req, res) => {
 
       // 3. Insertar
       req.db.query(
-        `INSERT INTO usuarios (nombre, correo, contrasenya, rol, telefono, id_concesionario, preferencias_accesibilidad)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO usuarios (nombre, correo, contrasenya, rol, telefono, id_concesionario, preferencias_accesibilidad, activo)
+         VALUES (?, ?, ?, ?, ?, ?, ?, true)`,
         [
           nombreCompleto, 
           email, 

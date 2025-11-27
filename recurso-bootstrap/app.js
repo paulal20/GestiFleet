@@ -28,6 +28,9 @@ app.use((req, res, next) => {
   next();
 });
 
+const methodOverride = require('method-override');
+app.use(methodOverride('_method'));
+
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 

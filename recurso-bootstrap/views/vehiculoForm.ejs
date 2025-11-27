@@ -11,7 +11,10 @@
     </div>
   <% } %>
 
-  <form id="vehiculoForm" action="<%= action %>" method="POST" novalidate autocomplete="off" enctype="multipart/form-data">
+  <form id="vehiculoForm" action="<%= action %>" method="POST" data-id="<%= isEditMode ? vehiculo.id_vehiculo : '' %>" novalidate autocomplete="off" enctype="multipart/form-data">
+    <% if (isEditMode) { %>
+        <input type="hidden" name="_method" value="PUT">
+    <% } %>
     <fieldset>
       <legend class="w-auto">Datos del Vehículo</legend>
 
@@ -118,5 +121,8 @@
   </form>
 </div>
 
-
+<script src="/js/jquery.min.js"></script>
+<script src="/js/jquery-ui.min.js"></script>
+<script src="/js/jquery-3.7.1.min.js"></script>
 <script src="/js/vehiculoForm.js"></script>
+<script src="/js/ajax/vehiculos/vehiculosForm.js"></script>
