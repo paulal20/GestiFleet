@@ -48,8 +48,8 @@ router.post('/', isAuth, (req, res) => {
 
     // 3. Insertar Reserva
     const sqlInsert = `
-      INSERT INTO reservas (id_usuario, id_vehiculo, fecha_inicio, fecha_fin, estado) 
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO reservas (id_usuario, id_vehiculo, fecha_inicio, fecha_fin, estado, activo) 
+      VALUES (?, ?, ?, ?, ?, true)
     `;
     
     req.db.query(sqlInsert, [usuarioActual.id_usuario, idVehiculo, fechaInicio, fechaFin, 'activa'], (errInsert, result) => {
@@ -96,78 +96,102 @@ router.put('/:id(\\d+)/cancelar', isAuth, (req, res) => {
   });
 });
 
+// Función para actualizar estados de reservas (activa -> finalizada)
+function actualizarEstados(db, callback) {
+  const hoy = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+
+  const sql = `
+    UPDATE reservas
+    SET estado = 'finalizada'
+    WHERE estado = 'activa'
+      AND fecha_fin < ?
+  `;
+
+  db.query(sql, [hoy], (err) => {
+    if (err) {
+      console.error("Error actualizando estados:", err);
+      callback(err);
+    } else {
+      callback(null);
+    }
+  });
+}
+
+
 // GET /api/reservas/listareservas (Admin - JSON List)
 router.get('/listareservas', isAdmin, (req, res) => {
+
+  actualizarEstados(req.db, (err) => {
+    if (err) return res.json({ ok: false, error: 'Error actualizando estados' });
+
     const { id, vehiculo, estado, fecha_desde, fecha_hasta } = req.query;
 
-    const idFiltrado = id ? parseInt(id, 10) : 0;
-    const vehiculoFiltrado = vehiculo ? parseInt(vehiculo, 10) : 0;
-
     let query = `
-       SELECT r.id_reserva, r.fecha_inicio, r.fecha_fin, r.estado,
-         u.nombre AS nombre_usuario, u.correo AS email_usuario,
-         v.marca, v.modelo, v.matricula
-       FROM reservas r
-       JOIN usuarios u ON r.id_usuario = u.id_usuario
-       JOIN vehiculos v ON r.id_vehiculo = v.id_vehiculo
+      SELECT r.id_reserva, r.fecha_inicio, r.fecha_fin, r.estado,
+        u.nombre AS nombre_usuario, u.correo AS email_usuario,
+        v.marca, v.modelo, v.matricula
+      FROM reservas r
+      JOIN usuarios u ON r.id_usuario = u.id_usuario
+      JOIN vehiculos v ON r.id_vehiculo = v.id_vehiculo
     `;
-    
+
+    const filtros = [];
     const params = [];
-    const condiciones = [];
 
-    if (idFiltrado > 0) { condiciones.push('r.id_usuario = ?'); params.push(idFiltrado); }
-    if (vehiculoFiltrado > 0) { condiciones.push('r.id_vehiculo = ?'); params.push(vehiculoFiltrado); }
-    if (estado) { condiciones.push('r.estado = ?'); params.push(estado); }
-    if (fecha_desde) { condiciones.push('r.fecha_inicio >= ?'); params.push(fecha_desde); }
-    if (fecha_hasta) { condiciones.push('r.fecha_fin <= ?'); params.push(fecha_hasta); }
+    if (id) { filtros.push("r.id_usuario = ?"); params.push(parseInt(id)); }
+    if (vehiculo) { filtros.push("r.id_vehiculo = ?"); params.push(parseInt(vehiculo)); }
+    if (estado) { filtros.push("r.estado = ?"); params.push(estado); }
+    if (fecha_desde) { filtros.push("r.fecha_inicio >= ?"); params.push(fecha_desde); }
+    if (fecha_hasta) { filtros.push("r.fecha_fin <= ?"); params.push(fecha_hasta); }
 
-    if (condiciones.length > 0) query += ' WHERE ' + condiciones.join(' AND ');
-    
-    query += ' ORDER BY r.fecha_inicio DESC';
+    if (filtros.length) query += " WHERE " + filtros.join(" AND ");
+    query += " ORDER BY r.fecha_inicio DESC";
 
-    req.db.query(query, params, (err, reservas) => {
-      if (err) {
-        console.error("Error API listareservas:", err);
-        return res.status(500).json({ ok: false, error: 'Error cargando datos' });
-      }
-      // Devolvemos un objeto con la propiedad 'reservas'
-      res.json({ ok: true, reservas: reservas });
+    req.db.query(query, params, (err2, reservas) => {
+      if (err2) return res.json({ ok: false, error: 'Error cargando datos' });
+
+      res.json({ ok: true, reservas });
     });
+  });
+
 });
+
 
 // GET /api/reservas/mis-reservas (Usuario - JSON List)
 router.get('/mis-reservas', isAuth, (req, res) => {
-    const usuarioActual = req.session.usuario;
+
+  actualizarEstados(req.db, (err) => {
+    if (err) return res.json({ ok: false, error: 'Error actualizando estados' });
+
+    const usuario = req.session.usuario;
     const { vehiculo, estado, fecha_desde, fecha_hasta } = req.query;
-    const vehiculoFiltrado = vehiculo ? parseInt(vehiculo, 10) : 0;
 
     let query = `
-       SELECT r.id_reserva, r.fecha_inicio, r.fecha_fin, r.estado,
-          u.nombre AS nombre_usuario, u.correo AS email_usuario,
-          v.marca, v.modelo, v.matricula
-        FROM reservas r
-        JOIN usuarios u ON r.id_usuario = u.id_usuario
-        JOIN vehiculos v ON r.id_vehiculo = v.id_vehiculo
+      SELECT r.id_reserva, r.fecha_inicio, r.fecha_fin, r.estado,
+        u.nombre AS nombre_usuario, u.correo AS email_usuario,
+        v.marca, v.modelo, v.matricula
+      FROM reservas r
+      JOIN usuarios u ON r.id_usuario = u.id_usuario
+      JOIN vehiculos v ON r.id_vehiculo = v.id_vehiculo
+      WHERE r.id_usuario = ?
     `;
-    
-    const condiciones = ['r.id_usuario = ?'];
-    const params = [usuarioActual.id_usuario];
 
-    if (vehiculoFiltrado > 0) { condiciones.push('r.id_vehiculo = ?'); params.push(vehiculoFiltrado); }
-    if (estado) { condiciones.push('r.estado = ?'); params.push(estado); }
-    if (fecha_desde) { condiciones.push('r.fecha_inicio >= ?'); params.push(fecha_desde); }
-    if (fecha_hasta) { condiciones.push('r.fecha_fin <= ?'); params.push(fecha_hasta); }
+    const params = [usuario.id_usuario];
 
-    query += ' WHERE ' + condiciones.join(' AND ');
-    query += ' ORDER BY r.fecha_inicio DESC';
+    if (vehiculo) { query += " AND r.id_vehiculo = ?"; params.push(parseInt(vehiculo)); }
+    if (estado) { query += " AND r.estado = ?"; params.push(estado); }
+    if (fecha_desde) { query += " AND r.fecha_inicio >= ?"; params.push(fecha_desde); }
+    if (fecha_hasta) { query += " AND r.fecha_fin <= ?"; params.push(fecha_hasta); }
 
-    req.db.query(query, params, (err, reservas) => {
-      if (err) {
-        console.error("Error API mis-reservas:", err);
-        return res.status(500).json({ ok: false, error: 'Error cargando datos' });
-      }
-      res.json({ ok: true, reservas: reservas });
+    query += " ORDER BY r.fecha_inicio DESC";
+
+    req.db.query(query, params, (err2, reservas) => {
+      if (err2) return res.json({ ok: false, error: 'Error cargando datos' });
+      res.json({ ok: true, reservas });
     });
+  });
+
 });
+
 
 module.exports = router;
