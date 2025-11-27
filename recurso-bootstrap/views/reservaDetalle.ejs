@@ -1,5 +1,7 @@
 <div class="reserva-detalle-content">
 
+  <div id="alertasDetalle" class="container mt-3"></div>
+
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><%= title %></h1>
     <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
@@ -34,7 +36,6 @@
       </div>
 
       <div class="col-md-6 d-flex flex-column">
-
         <div class="card-header">
           <h5 class="mb-0 fw-bold">
             <span class="lang lang-es">Detalles de la Reserva</span>
@@ -45,94 +46,54 @@
         <div class="card-body flex-grow-1">
 
           <div class="row mb-2">
-            <div class="col-sm-4 fw-bold">
-              <span class="lang lang-es">Vehículo</span>
-              <span class="lang lang-en d-none">Vehicle</span>
-            </div>
-            <div class="col-sm-8">
-              <%= reserva.marca %> <%= reserva.modelo %> (<%= reserva.matricula %>)
-            </div>
+            <div class="col-sm-4 fw-bold">Vehículo</div>
+            <div class="col-sm-8"><%= reserva.marca %> <%= reserva.modelo %> (<%= reserva.matricula %>)</div>
           </div>
 
           <div class="row mb-2">
-            <div class="col-sm-4 fw-bold">
-              <span class="lang lang-es">Usuario</span>
-              <span class="lang lang-en d-none">User</span>
-            </div>
-            <div class="col-sm-8">
-              <%= reserva.nombre_usuario %> (<%= reserva.email_usuario %>)
-            </div>
+            <div class="col-sm-4 fw-bold">Usuario</div>
+            <div class="col-sm-8"><%= reserva.nombre_usuario %> (<%= reserva.email_usuario %>)</div>
           </div>
           
           <hr class="my-3">
 
           <div class="row mb-2">
-            <div class="col-sm-4 fw-bold">
-              <span class="lang lang-es">Fecha de Inicio</span>
-              <span class="lang lang-en d-none">Start Date</span>
-            </div>
-            <div class="col-sm-8">
-              <%= new Date(reserva.fecha_inicio).toLocaleString() %>
-            </div>
+            <div class="col-sm-4 fw-bold">Inicio</div>
+            <div class="col-sm-8"><%= new Date(reserva.fecha_inicio).toLocaleString() %></div>
           </div>
           <div class="row mb-2">
-            <div class="col-sm-4 fw-bold">
-              <span class="lang lang-es">Fecha de Fin</span>
-              <span class="lang lang-en d-none">End Date</span>
-            </div>
-            <div class="col-sm-8">
-              <%= new Date(reserva.fecha_fin).toLocaleString() %>
-            </div>
+            <div class="col-sm-4 fw-bold">Fin</div>
+            <div class="col-sm-8"><%= new Date(reserva.fecha_fin).toLocaleString() %></div>
           </div>
           
           <hr class="my-3">
 
           <div class="row mb-2">
-            <div class="col-sm-4 fw-bold">
-              <span class="lang lang-es">Estado</span>
-              <span class="lang lang-en d-none">Status</span>
-            </div>
+            <div class="col-sm-4 fw-bold">Estado</div>
             <div class="col-sm-8">
               <% if (reserva.estado === 'activa') { %>
-                <span class="badge bg-success">Activa</span>
+                <span id="badgeEstado" class="badge bg-success">Activa</span>
               <% } else if (reserva.estado === 'finalizada') { %>
-                <span class="badge bg-secondary">Finalizada</span>
+                <span id="badgeEstado" class="badge bg-secondary">Finalizada</span>
               <% } else if (reserva.estado === 'cancelada') { %>
-                <span class="badge bg-danger">Cancelada</span>
+                <span id="badgeEstado" class="badge bg-danger">Cancelada</span>
               <% } %>
-            </div>
-          </div>
-
-          <div class="row mb-2">
-            <div class="col-sm-4 fw-bold">
-              <span class="lang lang-es">Kilómetros</span>
-              <span class="lang lang-en d-none">Distance</span>
-            </div>
-            <div class="col-sm-8">
-              <%= reserva.kilometros_recorridos || 0 %> km
-            </div>
-          </div>
-
-          <div class="row mb-2">
-            <div class="col-sm-4 fw-bold">
-              <span class="lang lang-es">Incidencias</span>
-              <span class="lang lang-en d-none">Issues</span>
-            </div>
-            <div class="col-sm-8">
-              <%= reserva.incidencias_reportadas || 'Ninguna' %>
             </div>
           </div>
 
         </div> 
 
-        <div class="perfil-actions d-flex">
+        <div class="perfil-actions d-flex" id="contenedorBotones">
           <% if (reserva.estado === 'activa') { %>
-            <form action="/reserva/<%= reserva.id_reserva %>/cancelar" method="POST" class="w-100">
-              <button type="submit" class="btn btn-primary w-100">
-                <span class="lang lang-es">Cancelar Reserva</span>
-                <span class="lang lang-en d-none">Cancel Booking</span>
-              </button>
-            </form>
+            <button type="button" 
+                    id="btnAbrirModal"
+                    class="btn btn-primary w-100" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#modalCancelarDetalle"
+                    data-id="<%= reserva.id_reserva %>">
+              <span class="lang lang-es">Cancelar Reserva</span>
+              <span class="lang lang-en d-none">Cancel Booking</span>
+            </button>
           <% } else { %>
              <p class="text-muted text-center w-100 mb-0">
                 <span class="lang lang-es">Esta reserva no se puede modificar.</span>
@@ -144,6 +105,25 @@
       </div>
     </div> 
   </div> 
-
 </div>
-<script src="/js/ajax/reservas/reservasDetalle.js"></script>
+
+<div class="modal fade" id="modalCancelarDetalle" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar Cancelación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro de que deseas cancelar esta reserva? Esta acción es irreversible.
+        <div class="d-flex justify-content-end mt-3 gap-2">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" id="btnConfirmarCancelar" class="btn btn-primary">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/js/ajax/reservas/reservaDetalle.js"></script>

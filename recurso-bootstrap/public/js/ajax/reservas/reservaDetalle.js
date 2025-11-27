@@ -1,52 +1,79 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const btnCancelar = document.getElementById("btnCancelarReservaDetalle");
-    const modal = document.getElementById("modalCancelarDetalle");
-    const btnConfirmar = document.getElementById("btnConfirmarCancelar");
+$(function() {
+    // Referencias a elementos
+    const $btnConfirmar = $("#btnConfirmarCancelar");
+    const $modal = $("#modalCancelarDetalle");
+    
+    // Variable para guardar el ID de la reserva a cancelar
+    let idReservaACancelar = null;
 
-    if (btnCancelar && modal && btnConfirmar) {
-        
-        btnConfirmar.addEventListener("click", async () => {
-            const idReserva = btnCancelar.dataset.id;
+    // 1. Cuando se abre el modal, capturamos el ID del botón que lo abrió
+    // Esto es útil si hay varios botones, aunque aquí sea uno solo.
+    $('#modalCancelarDetalle').on('show.bs.modal', function (event) {
+        const button = $(event.relatedTarget); // Botón que disparó el modal
+        idReservaACancelar = button.data('id'); // Extraer info de data-id
+    });
+
+    // 2. Al hacer clic en "Sí, Cancelar" dentro del modal
+    $btnConfirmar.on("click", function() {
+        if (!idReservaACancelar) return;
+
+        // Deshabilitar botón para evitar doble click
+        $btnConfirmar.prop("disabled", true);
+
+        // Llamada AJAX al estilo del PDF
+        $.ajax({
+            type: "PUT", // Tu API espera un PUT en /api/reservas/:id/cancelar
+            url: "/api/reservas/" + idReservaACancelar + "/cancelar",
+            dataType: "json",
             
-            btnConfirmar.disabled = true;
-
-            try {
-                const res = await fetch(`/api/reservas/${idReserva}/cancelar`, {
-                    method: "PUT"
-                });
-
-                const data = await res.json();
-
-                if (data.ok) {+
+            success: function(data, textStatus, jqXHR) {
+                if (data.ok) {
                     mostrarAlerta('success', 'Reserva cancelada exitosamente.');
-                    
-                    const modalInstance = bootstrap.Modal.getInstance(modal);
-                    if (modalInstance) modalInstance.hide();
 
-                    const badgeEstado = document.getElementById("badgeEstadoReserva");
-                    if (badgeEstado) {
-                        badgeEstado.className = "badge bg-danger";
-                        badgeEstado.textContent = "CANCELADA";
-                    }
+                    // Ocultar el modal usando jQuery + Bootstrap 5
+                    const modalInstance = bootstrap.Modal.getInstance($modal[0]);
+                    modalInstance.hide();
 
-                    btnCancelar.style.display = "none";
+                    // Actualizar la interfaz (DOM) sin recargar la página
+                    // 1. Cambiar el badge a Rojo/Cancelada
+                    $("#badgeEstado")
+                        .removeClass("bg-success bg-secondary")
+                        .addClass("bg-danger")
+                        .text("Cancelada");
+
+                    // 2. Eliminar/Ocultar el botón de cancelar original
+                    $("#btnAbrirModal").remove();
+                    $("#contenedorBotones").append('<p class="text-muted text-center w-100 mb-0"><small>Reserva cancelada.</small></p>');
 
                 } else {
-                    mostrarAlerta('danger', data.error || 'Error al cancelar la reserva.');
-                    btnConfirmar.disabled = false;
+                    mostrarAlerta('danger', data.error || 'Error desconocido al cancelar.');
+                    $btnConfirmar.prop("disabled", false);
                 }
-
-            } catch (err) {
-                console.error("Error al cancelar:", err);
-                mostrarAlerta('danger', 'Error de conexión.');
-                btnConfirmar.disabled = false;
+            },
+            
+            error: function(jqXHR, textStatus, errorThrown) {
+                // Manejo de errores 404, 500, 403, etc.
+                console.error("Error AJAX:", textStatus, errorThrown);
+                
+                let mensaje = "Error de conexión.";
+                if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
+                    mensaje = jqXHR.responseJSON.error;
+                }
+                
+                mostrarAlerta('danger', mensaje);
+                $btnConfirmar.prop("disabled", false);
             }
         });
+    });
+
+    // Función auxiliar para mostrar alertas en el contenedor
+    function mostrarAlerta(tipo, mensaje) {
+        const html = `
+            <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+                ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+        $("#alertasDetalle").html(html);
     }
 });
-
-function mostrarAlerta(tipo, mensaje) {
-    const cont = document.getElementById('alertasDetalle');
-    if (!cont) return;
-    cont.innerHTML = `<div class="alert alert-${tipo} mt-3" role="alert">${mensaje}</div>`;
-}
