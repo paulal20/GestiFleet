@@ -1,123 +1,161 @@
-document.addEventListener("DOMContentLoaded", () => {
+$(document).ready(function() {
+    // Carga inicial
     cargarUsuarios();
 
-    const filtroConcesionario = document.getElementById("filtroConcesionario");
-    const formFiltros = document.getElementById("formFiltrosUsuarios");
-    const btnLimpiar = document.getElementById("btnLimpiar");
-    const formEliminar = document.getElementById("formEliminarUsuario");
-    const modalEliminar = document.getElementById("confirmarEliminarUsuarioModal");
-
-    // Filtrar usuarios
-    formFiltros.addEventListener("submit", e => {
-        e.preventDefault();
+    // 1. Filtrar automáticamente al cambiar cualquier select
+    $("#filtroConcesionario, #filtroEstado").on("change", function() {
         cargarUsuarios();
     });
 
-    // Limpiar filtros
-    btnLimpiar.addEventListener("click", () => {
-        filtroConcesionario.value = "0";
+    // 2. Limpiar filtros
+    $("#btnLimpiar").on("click", function() {
+        $("#filtroConcesionario").val("0");
+        $("#filtroEstado").val("");
         cargarUsuarios();
     });
 
-    // Modal de eliminación
-    if (modalEliminar) {
-        modalEliminar.addEventListener("show.bs.modal", event => {
-            const button = event.relatedTarget;
-            const id = button.getAttribute("data-id");
-            const nombre = button.getAttribute("data-name");
+    // 3. Configuración del Modal de Eliminación
+    $("#confirmarEliminarUsuarioModal").on("show.bs.modal", function(event) {
+        const btn = $(event.relatedTarget); 
+        const id = btn.data("id");
+        const nombre = btn.data("name");
 
-            const btnSubmit = formEliminar.querySelector("button[type='submit']");
-            btnSubmit.dataset.id = id;
-            btnSubmit.dataset.name = nombre;
+        const $submitBtn = $("#formEliminarUsuario").find("button[type='submit']");
+        $submitBtn.data("id", id);
+        $submitBtn.data("name", nombre);
 
-            const texto = modalEliminar.querySelector("#textoConfirmacion");
-            if (texto) {
-                texto.textContent = `¿Estás seguro de que deseas eliminar el usuario "${nombre}"?`;
-            }
-        });
-    }
+        $("#textoConfirmacion").text(`¿Estás seguro de que deseas eliminar el usuario "${nombre}"?`);
+    });
 
-    // Eliminar usuario
-    formEliminar.addEventListener("submit", e => {
+    // 4. Eliminar Usuario
+    $("#formEliminarUsuario").on("submit", function(e) {
         e.preventDefault();
-        const btnSubmit = formEliminar.querySelector("button[type='submit']");
-        const idUsuario = btnSubmit.dataset.id;
+        
+        const $btn = $(this).find("button[type='submit']");
+        const idUsuario = $btn.data("id");
+        const nombreUsuario = $btn.data("name");
+
         if (!idUsuario) return;
 
-        fetch(`/api/usuarios/${idUsuario}`, { method: "DELETE" })
-            .then(res => res.json())
-            .then(data => {
-                if (!data.ok) {
-                    mostrarAlerta("danger", data.error || "Error al eliminar el usuario");
-                } else {
-                    mostrarAlerta("success", `Usuario eliminado: ${btnSubmit.dataset.name}`);
-                    cargarUsuarios();
+        $.ajax({
+            url: `/api/usuarios/${idUsuario}`,
+            type: "DELETE",
+            success: function(data) {
+                const modalEl = document.getElementById('confirmarEliminarUsuarioModal');
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) modalInstance.hide();
 
-                    const modalInstance = bootstrap.Modal.getInstance(modalEliminar);
-                    if (modalInstance) modalInstance.hide();
+                if (data.ok) {
+                    mostrarAlerta("success", `Usuario eliminado: ${nombreUsuario}`);
+                    cargarUsuarios(); // Recargar tabla
+                } else {
+                    mostrarAlerta("danger", data.error || "Error al eliminar el usuario");
                 }
-            })
-            .catch(err => {
-                console.error(err);
-                mostrarAlerta("danger", "Error al eliminar el usuario");
-            });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                const modalEl = document.getElementById('confirmarEliminarUsuarioModal');
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) modalInstance.hide();
+
+                console.error("Error AJAX:", errorThrown);
+                mostrarAlerta("danger", "Error de conexión al eliminar.");
+            }
+        });
     });
 });
 
+/* ================================
+   FUNCIÓN CARGAR USUARIOS
+================================= */
 function cargarUsuarios() {
-    const filtro = document.getElementById("filtroConcesionario").value;
-    const tbody = document.getElementById("tablaUsuariosBody");
-    const contador = document.getElementById("contadorUsuarios");
+    const concesionario = $("#filtroConcesionario").val();
+    const estado = $("#filtroEstado").val();
+    const $tbody = $("#tablaUsuariosBody");
+    const $contador = $("#contadorUsuarios");
 
-    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">Cargando...</td></tr>`;
-    contador.textContent = 0;
+    $tbody.html('<tr><td colspan="7" class="text-center text-muted">Cargando...</td></tr>');
+    $contador.text("0");
 
-    fetch(`/api/usuarios?concesionario=${encodeURIComponent(filtro)}`)
-        .then(res => res.json())
-        .then(data => {
-            if (!data.ok) throw new Error(data.error || "Error cargando usuarios");
-
-            if (!data.usuarios.length) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No hay resultados</td></tr>`;
-                contador.textContent = 0;
+    $.ajax({
+        url: "/api/usuarios",
+        type: "GET",
+        data: { 
+            concesionario: concesionario,
+            estado: estado 
+        },
+        dataType: "json",
+        success: function(data) {
+            if (!data.ok) {
+                mostrarAlerta("danger", data.error || "Error cargando usuarios");
                 return;
             }
 
-            tbody.innerHTML = "";
-            data.usuarios.forEach(u => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="fila-click" data-href="/usuarios/${u.id_usuario}">${u.nombre}</td>
-                        <td class="fila-click" data-href="/usuarios/${u.id_usuario}">${u.correo}</td>
-                        <td class="fila-click" data-href="/usuarios/${u.id_usuario}">${u.rol}</td>
-                        <td class="fila-click" data-href="/usuarios/${u.id_usuario}">${u.telefono || '—'}</td>
-                        <td class="fila-click" data-href="/usuarios/${u.id_usuario}">${u.nombre_concesionario || '—'}</td>
-                        <td class="fila-click" data.href="/usuarios/${u.id_usuario}">${pintarEstado(u.activoBool)}</th>
+            if (!data.usuarios || data.usuarios.length === 0) {
+                $tbody.html('<tr><td colspan="7" class="text-center text-muted">No hay resultados</td></tr>');
+                $contador.text("0");
+                return;
+            }
+
+            // Construir HTML
+            let html = "";
+            $.each(data.usuarios, function(i, u) {
+                
+                // Determinamos si el usuario está eliminado para deshabilitar acciones
+                const estaEliminado = !u.activoBool;
+                const disabledAttr = estaEliminado ? 'disabled' : '';
+                const disabledClass = estaEliminado ? 'disabled' : ''; // Para el enlace <a>
+
+                // Botón de eliminar
+                let btnEliminar = "";
+                if (u.rol === "Admin") {
+                    // Admin nunca se puede eliminar (ya estaba así)
+                    btnEliminar = `<button type="button" class="btn btn-secondary btn-sm" disabled title="No se puede eliminar un administrador">Eliminar</button>`;
+                } else {
+                    // Si está eliminado, añadimos disabled
+                    btnEliminar = `
+                        <button type="button" class="btn btn-secondary btn-sm" ${disabledAttr}
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmarEliminarUsuarioModal"
+                            data-id="${u.id_usuario}"
+                            data-name="${u.nombre}">
+                            Eliminar
+                        </button>
+                    `;
+                }
+
+                // Botón editar
+                // Si está eliminado, añadimos clase disabled de bootstrap y pointer-events-none por si acaso
+                const btnEditar = `<a href="/usuarios/${u.id_usuario}/editar" class="btn btn-primary btn-sm ${disabledClass}" ${estaEliminado ? 'aria-disabled="true" tabindex="-1"' : ''}>Editar</a>`;
+
+                // Construcción de la fila
+                html += `
+                    <tr class="fila-click" data-href="/usuarios/${u.id_usuario}" style="cursor: pointer;">
+                        <td>${u.nombre || ''}</td>
+                        <td>${u.correo || ''}</td>
+                        <td>${u.rol || ''}</td>
+                        <td>${u.telefono || '—'}</td>
+                        <td>${u.nombre_concesionario || '—'}</td>
+                        <td>${pintarEstado(u.activoBool)}</td>
                         <td>
-                            ${u.rol === "Admin" ? `
-                                <button type="button" class="btn btn-secondary btn-sm" disabled title="No se puede eliminar un administrador">Eliminar</button>
-                            ` : `
-                                <button type="button" class="btn btn-secondary btn-sm"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#confirmarEliminarUsuarioModal"
-                                        data-id="${u.id_usuario}"
-                                        data-name="${u.nombre}">
-                                    Eliminar
-                                </button>
-                            `}
-                            <a href="/usuarios/${u.id_usuario}/editar" class="btn btn-primary btn-sm">Editar</a>
+                            <div class="d-flex gap-1">
+                                ${btnEliminar}
+                                ${btnEditar}
+                            </div>
                         </td>
                     </tr>
                 `;
             });
 
-            contador.textContent = data.usuarios.length;
+            $tbody.html(html);
+            $contador.text(data.usuarios.length);
             activarFilaClick();
-        })
-        .catch(err => {
-            console.error(err);
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error cargando usuarios</td></tr>`;
-        });
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.error("Error AJAX:", errorThrown);
+            $tbody.html('<tr><td colspan="7" class="text-center text-danger">Error cargando usuarios</td></tr>');
+            mostrarAlerta("danger", "Error de conexión con el servidor.");
+        }
+    });
 }
 
 function pintarEstado(activoBool) {
@@ -129,17 +167,27 @@ function pintarEstado(activoBool) {
 }
 
 function activarFilaClick() {
-    document.querySelectorAll(".fila-click").forEach(td => {
-        td.addEventListener("click", () => {
-            const destino = td.getAttribute("data-href");
-            if (destino) window.location.href = destino;
-        });
+    $(".fila-click").off("click").on("click", function(e) {
+        if ($(e.target).closest("button, a").length > 0) {
+            return;
+        }
+        const destino = $(this).data("href");
+        if (destino) window.location.href = destino;
     });
 }
 
 function mostrarAlerta(tipo, mensaje) {
-    const cont = document.getElementById("alertas");
-    if (!cont) return;
-    cont.innerHTML = `<div class="alert alert-${tipo}" role="alert">${mensaje}</div>`;
-    setTimeout(() => cont.innerHTML = "", 5000);
+    const $cont = $("#alertas");
+    if (!$cont.length) return;
+
+    $cont.html(`
+        <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+            ${mensaje}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `);
+
+    setTimeout(() => {
+        $cont.find(".alert").alert('close');
+    }, 5000);
 }

@@ -96,9 +96,20 @@ router.put('/:id(\\d+)/cancelar', isAuth, (req, res) => {
   });
 });
 
+//funcion para calcular la hora local
+function pad(n) { return n < 10 ? '0' + n : n; }
+function ahoraLocal() {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = pad(d.getMonth() + 1);
+  const dd = pad(d.getDate());
+  const hh = pad(d.getHours());
+  const min = pad(d.getMinutes());
+  return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+}
 // Función para actualizar estados de reservas (activa -> finalizada)
 function actualizarEstados(db, callback) {
-  const hoy = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const ahora = ahoraLocal(); // YYYY-MM-DD HH:MM en hora local
 
   const sql = `
     UPDATE reservas
@@ -107,13 +118,12 @@ function actualizarEstados(db, callback) {
       AND fecha_fin < ?
   `;
 
-  db.query(sql, [hoy], (err) => {
+  db.query(sql, [ahora], (err, result) => {
     if (err) {
       console.error("Error actualizando estados:", err);
-      callback(err);
-    } else {
-      callback(null);
+      return callback(err);
     }
+    callback(null);
   });
 }
 

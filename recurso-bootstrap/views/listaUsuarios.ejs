@@ -12,22 +12,33 @@
     <fieldset>
       <legend class="w-auto">Filtros</legend>
 
-      <div class="row g-3 p-2">
-        <div class="col-md-6 col-lg-4">
+      <div class="row g-3 p-2 align-items-end">
+        <div class="col-md-4">
           <label for="filtroConcesionario" class="form-label">Concesionario</label>
           <select name="concesionario" id="filtroConcesionario" class="form-select">
             <option value="0">Todos los Concesionarios</option>
             <% if (concesionariosDisponibles && concesionariosDisponibles.length > 0) { %>
               <% concesionariosDisponibles.forEach(c => { %>
-                <option value="<%= c.id_concesionario %>"><%= c.nombre %> (<%= c.ciudad %>)</option>
+                <option value="<%= c.id_concesionario %>">
+                    <%= c.nombre %> 
+                    <% if(c.ciudad) { %> (<%= c.ciudad %>) <% } %>
+                </option>
               <% }) %>
             <% } %>
           </select>
         </div>
 
-        <div class="col-md-6 col-lg-4 d-flex align-items-end gap-2">
-          <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-          <button type="button" id="btnLimpiar" class="btn btn-outline-secondary w-100">Limpiar</button>
+        <div class="col-md-4">
+          <label for="filtroEstado" class="form-label">Estado</label>
+          <select name="estado" id="filtroEstado" class="form-select">
+            <option value="">Todos</option>
+            <option value="1">Activos</option>
+            <option value="0">Eliminados</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <button type="button" id="btnLimpiar" class="btn btn-outline-secondary w-100">Limpiar Filtros</button>
         </div>
       </div>
     </fieldset>
@@ -77,7 +88,7 @@
         <div class="d-flex justify-content-end mt-3 gap-2">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
           <form id="formEliminarUsuario" class="m-0 p-0">
-            <button type="submit" class="btn btn-primary">Eliminar</button>
+             <button type="submit" class="btn btn-primary">Eliminar</button>
           </form>
         </div>
       </div>
@@ -86,4 +97,5 @@
   </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
 <script src="/js/ajax/usuarios/usuariosLista.js"></script>

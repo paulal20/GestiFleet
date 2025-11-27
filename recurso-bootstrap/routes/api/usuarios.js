@@ -5,7 +5,7 @@ const { isAdmin, isAdminOrSelf } = require('../../middleware/auth');
 
 // GET /api/usuarios (Listado JSON)
 router.get('/', isAdmin, (req, res) => {
-  const { concesionario } = req.query;
+  const { concesionario, estado } = req.query;
   const concesionarioSeleccionado = concesionario ? parseInt(concesionario, 10) : 0;
 
   let sql = `
@@ -13,11 +13,24 @@ router.get('/', isAdmin, (req, res) => {
       FROM usuarios u
       LEFT JOIN concesionarios c ON u.id_concesionario = c.id_concesionario
     `;
+  
   const params = [];
+  const conditions = [];
 
   if (concesionarioSeleccionado > 0) {
-    sql += ' WHERE u.id_concesionario = ?';
+    conditions.push('u.id_concesionario = ?');
     params.push(concesionarioSeleccionado);
+  }
+
+  // Filtro de Estado: '1' = Activos, '0' = Eliminados
+  if (estado === '1') {
+    conditions.push('u.activo = 1');
+  } else if (estado === '0') {
+    conditions.push('u.activo = 0');
+  }
+
+  if (conditions.length > 0) {
+    sql += ' WHERE ' + conditions.join(' AND ');
   }
 
   sql += ' ORDER BY u.nombre';
@@ -112,7 +125,6 @@ router.put('/:id(\\d+)', isAdminOrSelf, (req, res) => {
       }
 
       // Lógica de roles (Solo Admin puede cambiar roles/concesionarios de otros)
-      // Si soy admin y NO me edito a mí mismo
       if (req.session.usuario.rol === 'Admin' && req.session.usuario.id_usuario !== id) {
         sql += `, rol=?, id_concesionario=?`;
         params.push(rol);
