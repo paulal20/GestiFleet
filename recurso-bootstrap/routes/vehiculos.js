@@ -144,7 +144,7 @@ router.get('/:id', (req, res, next) => {
 
   // 1. Obtener Vehículo
   req.db.query(
-    'SELECT id_vehiculo, matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, estado, id_concesionario, (imagen IS NOT NULL AND LENGTH(imagen) > 0) AS tiene_imagen FROM vehiculos WHERE id_vehiculo = ?', 
+    'SELECT id_vehiculo, matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, estado, id_concesionario, activo, (imagen IS NOT NULL AND LENGTH(imagen) > 0) AS tiene_imagen FROM vehiculos WHERE id_vehiculo = ?', 
     [id], 
     (err, vehiculos) => {
       if (err) {
