@@ -62,30 +62,40 @@ function configurarModalGenerico() {
 function eliminarVehiculo(id) {
     $.ajax({
         type: "DELETE",
-        url: "/api/vehiculos/" + id + "/eliminar",
+        url: "/api/vehiculos/" + id,   // Ruta correcta
         success: function(data) {
             cerrarModal();
+
             if (data.ok) {
                 mostrarAlerta('success', 'Vehículo eliminado correctamente.');
-                
-                // Actualizar la interfaz visualmente
+
+                // Buscar la fila del vehículo usando el botón que lo disparó
                 let $btn = $("button[data-id='" + id + "'][data-tipo='vehiculo']");
+
                 if ($btn.length) {
-                    $btn.prop("disabled", true).text("Eliminado");
-                    $btn.closest("tr").find("td:nth-child(5)").html('<span class="badge bg-danger">Eliminado</span>');
-                    $btn.siblings("a").addClass("disabled").css("pointer-events", "none");
+                    let $row = $btn.closest("tr");
+
+                    // Cambiar columna de estado → badge rojo
+                    $row.find("td:nth-child(5)")
+                        .html('<span class="badge bg-danger">Eliminado</span>');
+
+                    // Cambiar columna de acciones → "Sin acciones"
+                    $row.find("td:last").html(`
+                        <span class="text-muted fst-italic">Sin acciones</span>
+                    `);
                 }
+
             } else {
                 mostrarAlerta('danger', data.error || 'Error al eliminar vehículo.');
             }
         },
-        error: function(jqXHR, textStatus, errorThrown) {
+        error: function() {
             cerrarModal();
-            console.error("Error AJAX:", errorThrown);
             mostrarAlerta('danger', 'Error de conexión al eliminar vehículo.');
         }
     });
 }
+
 
 function eliminarConcesionario(id) {
     $.ajax({
@@ -222,22 +232,32 @@ function pintarVehiculos(lista) {
     let html = "";
     $.each(lista, function(i, v) {
         let accionesAdmin = "";
-        
+        let reservaSiActivo ="";
         if (window.usuarioSesion && window.usuarioSesion.rol === "Admin") {
-            let btnDisabledAttr = !v.activoBool ? "disabled" : "";
-            // Aquí añadimos data-tipo="vehiculo"
-            accionesAdmin = `
-                <button class="btn btn-outline-secondary btn-sm me-2" 
-                    data-bs-toggle="modal" 
-                    data-bs-target="#modalEliminar" 
-                    data-id="${v.id_vehiculo}" 
-                    data-name="${v.marca} ${v.modelo}"
-                    data-tipo="vehiculo"
-                    ${btnDisabledAttr}>
-                    Eliminar
-                </button>
-                <a href="/vehiculos/${v.id_vehiculo}/editar" class="btn btn-primary btn-sm">Editar</a>
+            if(v.activoBool){
+                let btnDisabledAttr = !v.activoBool ? "disabled" : "";
+                // Aquí añadimos data-tipo="vehiculo"
+                accionesAdmin = `
+                    <button class="btn btn-outline-secondary btn-sm me-2" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#modalEliminar" 
+                        data-id="${v.id_vehiculo}" 
+                        data-name="${v.marca} ${v.modelo}"
+                        data-tipo="vehiculo"
+                        ${btnDisabledAttr}>
+                        Eliminar
+                    </button>
+                    <a href="/vehiculos/${v.id_vehiculo}/editar" class="btn btn-primary btn-sm">Editar</a>
+                `;
+
+            } else{
+                accionesAdmin = `
+                <span class="text-muted fst-italic">Sin acciones</span>
             `;
+            }
+        }
+        if(v.activoBool){
+            reservaSiActivo = `<a href="/reserva?idVehiculo=${v.id_vehiculo}" class="btn btn-primary btn-sm">Reservar</a>`;
         }
 
         html += `
@@ -249,7 +269,7 @@ function pintarVehiculos(lista) {
                 <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${pintarEstado(v.activoBool)}</td>
                 <td>
                     ${accionesAdmin}
-                    <a href="/reserva?idVehiculo=${v.id_vehiculo}" class="btn btn-primary btn-sm">Reservar</a>
+                    ${reservaSiActivo}
                 </td>
             </tr>`;
     });
