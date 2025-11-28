@@ -1,6 +1,4 @@
-/* public/js/ajax/concesionarios/concesionarioDetalle.js
-   Adaptado a jQuery $.ajax (PDF) pero manteniendo tu lógica visual original
-*/
+/* public/js/ajax/concesionarios/concesionarioDetalle.js */
 
 $(document).ready(function() {
     // 1. Obtener datos iniciales
@@ -19,7 +17,6 @@ $(document).ready(function() {
     cargarVehiculos(id);
 
     // 3. Configurar el Modal Genérico de Eliminación
-    // Esta función ahora gestiona tanto eliminar vehículos como concesionarios
     configurarModalGenerico();
 });
 
@@ -30,7 +27,6 @@ function configurarModalGenerico() {
     const $btnConfirmar = $("#btnConfirmarEliminar");
     const $textoNombre = $("#nombreAEliminar");
 
-    // Variables para saber qué vamos a borrar
     let idParaBorrar = null;
     let tipoParaBorrar = null; // 'vehiculo' o 'concesionario'
 
@@ -39,7 +35,7 @@ function configurarModalGenerico() {
         const $boton = $(event.relatedTarget);
         
         idParaBorrar = $boton.data("id");
-        tipoParaBorrar = $boton.data("tipo"); // Importante: el botón debe tener data-tipo
+        tipoParaBorrar = $boton.data("tipo");
         const nombre = $boton.data("nombre");
 
         $textoNombre.text(nombre || "este elemento");
@@ -62,24 +58,21 @@ function configurarModalGenerico() {
 function eliminarVehiculo(id) {
     $.ajax({
         type: "DELETE",
-        url: "/api/vehiculos/" + id,   // Ruta correcta
+        url: "/api/vehiculos/" + id,
         success: function(data) {
             cerrarModal();
 
             if (data.ok) {
                 mostrarAlerta('success', 'Vehículo eliminado correctamente.');
 
-                // Buscar la fila del vehículo usando el botón que lo disparó
                 let $btn = $("button[data-id='" + id + "'][data-tipo='vehiculo']");
 
                 if ($btn.length) {
                     let $row = $btn.closest("tr");
 
-                    // Cambiar columna de estado → badge rojo
                     $row.find("td:nth-child(5)")
                         .html('<span class="badge bg-danger">Eliminado</span>');
 
-                    // Cambiar columna de acciones → "Sin acciones"
                     $row.find("td:last").html(`
                         <span class="text-muted fst-italic">Sin acciones</span>
                     `);
@@ -104,7 +97,11 @@ function eliminarConcesionario(id) {
         success: function(data) {
             cerrarModal();
             if (data.ok) {
-                window.location.href = "/concesionarios";
+                
+                mostrarAlerta('success', 'Concesionario eliminado correctamente.');
+                
+                cargarConcesionario(id); 
+
             } else {
                 mostrarAlerta('danger', data.error || 'Error al eliminar concesionario.');
             }
@@ -112,12 +109,9 @@ function eliminarConcesionario(id) {
         error: function(jqXHR, textStatus, errorThrown) {
             cerrarModal();
             
-            // LÓGICA PERSONALIZADA PARA ERROR DE VEHÍCULOS ASOCIADOS
             let mensaje = "Error de conexión o servidor caído.";
             
-            // Si el servidor devuelve el error específico (status 400)
             if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
-                // Si el mensaje es el de vehículos asociados, lo personalizamos o usamos el del servidor
                 if (jqXHR.responseJSON.error.includes("Tiene vehículos asociados")) {
                     mensaje = "No se puede eliminar, tiene vehículos asociados.";
                 } else {
@@ -155,14 +149,14 @@ function cargarVehiculos(id) {
     });
 }
 
-// --- PINTADO DEL DOM (Manteniendo tu estructura HTML original) ---
+// --- PINTADO DEL DOM (Igual que antes) ---
 
 function pintarInfoConcesionario(c) {
     $("#tituloConcesionario").text(c.nombre);
 
     let accionesAdmin = "";
+    // Esta lógica oculta los botones si activoBool es false
     if (window.usuarioSesion && window.usuarioSesion.rol === "Admin" && c.activoBool) {
-        // Aquí añadimos data-tipo="concesionario" para que el modal sepa qué borrar
         accionesAdmin = `
         <div class="perfil-actions d-flex gap-2 mt-3">
             <button type="button"
@@ -236,7 +230,6 @@ function pintarVehiculos(lista) {
         if (window.usuarioSesion && window.usuarioSesion.rol === "Admin") {
             if(v.activoBool){
                 let btnDisabledAttr = !v.activoBool ? "disabled" : "";
-                // Aquí añadimos data-tipo="vehiculo"
                 accionesAdmin = `
                     <button class="btn btn-outline-secondary btn-sm me-2" 
                         data-bs-toggle="modal" 
@@ -281,7 +274,6 @@ function pintarVehiculos(lista) {
 // --- AUXILIARES ---
 
 function cerrarModal() {
-    // Método robusto para cerrar modal Bootstrap 5
     let modalEl = document.getElementById('modalEliminar');
     if (modalEl) {
         let modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -292,7 +284,6 @@ function cerrarModal() {
 function mostrarAlerta(tipo, mensaje) {
     let $cont = $("#contenedor-alertas");
     
-    // Si no existe el contenedor en el HTML, fallback a alert nativo o consola
     if ($cont.length === 0) {
         console.warn("No existe #contenedor-alertas en el HTML. Mensaje:", mensaje);
         alert(mensaje);

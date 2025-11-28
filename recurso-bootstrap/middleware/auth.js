@@ -66,11 +66,33 @@ function isInstallationOrImport(req, res, next) {
     });
 }
 
+function isAdminOrWorker(req, res, next) {
+    if (!req.session.usuario) {
+        req.session.errorMessage = 'Debes iniciar sesión para acceder a esa página.';
+        return res.redirect('/login');
+    }
+
+    if (req.session.usuario.rol === 'Admin') {
+        return next();
+    }
+
+    const concesionarioIdRuta = parseInt(req.params.id, 10);
+    const concesionarioIdUsuario = req.session.usuario.id_concesionario;
+
+    if (!isNaN(concesionarioIdRuta) && concesionarioIdUsuario === concesionarioIdRuta) {
+        return next();
+    }
+
+    req.session.errorMessage = 'Acceso denegado. No trabajas en este concesionario.';
+    res.redirect('/');
+}
+
 module.exports = {
     isAuth,
     isGuest,
     isAdmin,
     isAdminOrSelf,
-    isInstallationOrImport
+    isInstallationOrImport,
+    isAdminOrWorker
 };
 
