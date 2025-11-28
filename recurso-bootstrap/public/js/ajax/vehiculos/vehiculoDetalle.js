@@ -1,7 +1,6 @@
 /* public/js/ajax/vehiculos/vehiculoDetalle.js */
 
 $(document).ready(function () {
-    // Inicializamos la configuración del modal
     configurarModalEliminar();
 });
 
@@ -15,7 +14,7 @@ function configurarModalEliminar() {
 
     // 1. Al abrir el modal, capturamos los datos del botón que lo activó
     $modal.on("show.bs.modal", function (event) {
-        const $btn = $(event.relatedTarget); // El botón "Eliminar" de la tarjeta
+        const $btn = $(event.relatedTarget);
         const id = $btn.data("id");
         const nombre = $btn.data("name");
 
@@ -26,9 +25,9 @@ function configurarModalEliminar() {
         $form.data("id", id);
     });
 
-    // 2. Interceptamos el envío del formulario del modal
+    // 2. Interceptamos el envío del formulario
     $form.on("submit", function (e) {
-        e.preventDefault(); // Evitamos el submit tradicional (POST)
+        e.preventDefault(); // Evitamos el submit tradicional para que no recargue
         
         const id = $(this).data("id");
         if (id) {
@@ -77,23 +76,19 @@ function eliminarVehiculo(id) {
 // ==========================
 function actualizarVistaEliminado() {
     // 1. Cambiar el Badge de estado (Activo -> Eliminado)
-    // Como no tiene ID, buscamos el párrafo que contiene el texto "Activo:"
-    const $badgeContainer = $("p.card-text").filter(function() {
-        return $(this).text().indexOf("Activo:") > -1;
+    // Buscamos los badges dentro de la tarjeta
+    const $badges = $(".card-text .badge");
+    
+    // Filtramos para encontrar el badge de "Activo" y cambiarlo
+    $badges.each(function() {
+        if ($(this).text().trim() === "Activo") {
+            $(this).removeClass("bg-success").addClass("bg-danger").text("Eliminado");
+        }
     });
 
-    if ($badgeContainer.length) {
-        $badgeContainer.find(".badge")
-            .removeClass("bg-success")
-            .addClass("bg-danger")
-            .text("Eliminado");
-    }
-
-    // 2. Ocultar botones de acción (Eliminar/Editar/Reservar)
-    // Seleccionamos el contenedor de acciones
+    // 2. Ocultar botones de acción (Eliminar/Editar/Reservar) y mostrar mensaje
     const $accionesDiv = $(".perfil-actions");
     
-    // Vaciamos los botones y ponemos un texto informativo
     $accionesDiv.fadeOut(300, function() {
         $(this).html('<span class="text-muted fst-italic w-100 text-center">Este vehículo ha sido eliminado y no admite acciones.</span>').fadeIn(300);
     });
@@ -111,12 +106,11 @@ function cerrarModal() {
 }
 
 function mostrarAlerta(tipo, mensaje) {
-    // Buscamos si ya existe el contenedor de alertas, si no, lo creamos
-    // Lo insertamos justo antes de la tarjeta del vehículo
+    // Si no existe el contenedor dinámico, lo creamos antes de la tarjeta
     let $cont = $("#contenedor-alertas-dinamico");
     
     if ($cont.length === 0) {
-        $(".vehiculo-card").before('<div id="contenedor-alertas-dinamico" class="mx-auto" style="max-width: 900px;"></div>');
+        $(".vehiculo-card").before('<div id="contenedor-alertas-dinamico" class="mx-auto mb-3" style="max-width: 900px;"></div>');
         $cont = $("#contenedor-alertas-dinamico");
     }
 
