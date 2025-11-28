@@ -1,10 +1,8 @@
 /* public/js/ajax/concesionarios/concesionarioDetalle.js */
 
 $(document).ready(function() {
-    // 1. Obtener datos iniciales
     const data = document.getElementById("pageData");
     const id = data.dataset.id;
-    // Parsear usuario de sesión de forma segura
     let usuarioSesionStr = data.dataset.user || "null";
     try {
         window.usuarioSesion = JSON.parse(usuarioSesionStr);
@@ -12,11 +10,9 @@ $(document).ready(function() {
         window.usuarioSesion = null;
     }
 
-    // 2. Cargar datos
     cargarConcesionario(id);
     cargarVehiculos(id);
 
-    // 3. Configurar el Modal Genérico de Eliminación
     configurarModalGenerico();
 });
 
@@ -25,20 +21,31 @@ $(document).ready(function() {
 function configurarModalGenerico() {
     const $modal = $("#modalEliminar");
     const $btnConfirmar = $("#btnConfirmarEliminar");
-    const $textoNombre = $("#nombreAEliminar");
+    // Elementos de texto del modal
+    const $tituloModal = $("#modalTitulo");
+    const $textoCuerpo = $("#nombreAEliminar");
 
     let idParaBorrar = null;
     let tipoParaBorrar = null; // 'vehiculo' o 'concesionario'
 
-    // Al abrir el modal, capturamos los datos del botón que se pulsó
     $modal.on("show.bs.modal", function(event) {
         const $boton = $(event.relatedTarget);
         
         idParaBorrar = $boton.data("id");
         tipoParaBorrar = $boton.data("tipo");
-        const nombre = $boton.data("nombre");
 
-        $textoNombre.text(nombre || "este elemento");
+        // Lógica simplificada: solo distingue por tipo
+        if (tipoParaBorrar === 'vehiculo') {
+            $tituloModal.text("Eliminar vehículo");
+            $textoCuerpo.text("este vehículo");
+        } else if (tipoParaBorrar === 'concesionario') {
+            $tituloModal.text("Eliminar concesionario");
+            $textoCuerpo.text("este concesionario");
+        } else {
+            // Fallback por si acaso
+            $tituloModal.text("Eliminar elemento");
+            $textoCuerpo.text("este elemento");
+        }
     });
 
     // Al hacer clic en "Eliminar" dentro del modal
@@ -97,11 +104,8 @@ function eliminarConcesionario(id) {
         success: function(data) {
             cerrarModal();
             if (data.ok) {
-                
                 mostrarAlerta('success', 'Concesionario eliminado correctamente.');
-                
                 cargarConcesionario(id); 
-
             } else {
                 mostrarAlerta('danger', data.error || 'Error al eliminar concesionario.');
             }
@@ -155,7 +159,6 @@ function pintarInfoConcesionario(c) {
     $("#tituloConcesionario").text(c.nombre);
 
     let accionesAdmin = "";
-    // Esta lógica oculta los botones si activoBool es false
     if (window.usuarioSesion && window.usuarioSesion.rol === "Admin" && c.activoBool) {
         accionesAdmin = `
         <div class="perfil-actions d-flex gap-2 mt-3">
@@ -164,7 +167,6 @@ function pintarInfoConcesionario(c) {
                     data-bs-toggle="modal"
                     data-bs-target="#modalEliminar"
                     data-id="${c.id_concesionario}"
-                    data-nombre="${c.nombre}"
                     data-tipo="concesionario">
               Eliminar
             </button>
@@ -235,14 +237,12 @@ function pintarVehiculos(lista) {
                         data-bs-toggle="modal" 
                         data-bs-target="#modalEliminar" 
                         data-id="${v.id_vehiculo}" 
-                        data-name="${v.marca} ${v.modelo}"
                         data-tipo="vehiculo"
                         ${btnDisabledAttr}>
                         Eliminar
                     </button>
                     <a href="/vehiculos/${v.id_vehiculo}/editar" class="btn btn-primary btn-sm">Editar</a>
                 `;
-
             } else{
                 accionesAdmin = `
                 <span class="text-muted fst-italic">Sin acciones</span>

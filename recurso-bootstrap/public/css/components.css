@@ -366,3 +366,7 @@ font-weight: 600;
 .accordion-button:not(.collapsed)::after {
   filter: var(--color-primary-hover) invert(40%) sepia(20%) saturate(1500%) hue-rotate(180deg) brightness(90%) contrast(90%);
 }
+
+.fila-click {
+  cursor: pointer;
+}

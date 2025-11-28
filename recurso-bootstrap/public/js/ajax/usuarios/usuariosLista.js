@@ -129,7 +129,7 @@ function cargarUsuarios() {
 
                 // Construcción de la fila
                 html += `
-                    <tr class="fila-click" data-href="/usuarios/${u.id_usuario}" style="cursor: pointer;">
+                    <tr class="fila-click" data-href="/usuarios/${u.id_usuario}" >
                         <td>${u.nombre || ''}</td>
                         <td>${u.correo || ''}</td>
                         <td>${u.rol || ''}</td>

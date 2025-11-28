@@ -150,10 +150,7 @@ function pintarTabla(lista, esAdmin) {
                 'Cancelar</button>';
         }
 
-        // AQUI ESTÁ EL CAMBIO CLAVE:
-        // 1. Movemos la clase 'fila-click' y el 'data-href' al <tr>
-        // 2. Añadimos style="cursor: pointer" para que se vea que es clicable
-        html += '<tr class="fila-click" data-href="/reserva/' + r.id_reserva + '" style="cursor: pointer;">' +
+        html += '<tr class="fila-click" data-href="/reserva/' + r.id_reserva + '" >' +
                     colUsuario +
                     '<td>' + // Quitamos fila-click de aquí
                         '<span class="fw-bold">' + marca + ' ' + modelo + '</span><br>' +
