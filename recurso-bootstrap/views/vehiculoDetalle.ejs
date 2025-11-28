@@ -123,40 +123,20 @@
   </div>
 </div>
 
-<div
-  class="modal fade"
-  id="confirmarEliminarModal"
-  tabindex="-1"
-  aria-labelledby="confirmarEliminarModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-lg modal-dialog-centered">
+<div class="modal fade" id="confirmarEliminarModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="confirmarEliminarModalLabel">
-          Eliminar Vehículo
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Cerrar"
-        ></button>
+        <h5 class="modal-title">Eliminar Vehículo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        ¿Estás seguro de que quieres eliminar
-        <span id="vehiculoAEliminar"></span>?
-        <br />
+        ¿Estás seguro de que quieres eliminar <span id="vehiculoAEliminar" class="fw-bold"></span>?
         <div class="d-flex justify-content-end mt-3 gap-2">
-          <button
-            type="button"
-            class="btn btn-outline-secondary"
-            data-bs-dismiss="modal"
-          >
-            Cancelar
-          </button>
-          <form id="formEliminar" action="" method="POST" class="m-0 p-0">
-            <button type="submit" class="btn btn-primary">Eliminar</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          
+          <form id="formEliminar" action="#" class="m-0 p-0">
+             <button type="submit" class="btn btn-primary">Eliminar</button>
           </form>
         </div>
       </div>
@@ -164,4 +144,6 @@
   </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/js/ajax/vehiculos/vehiculoDetalle.js"></script>
 <script src="/js/modal.js"></script>
