@@ -75,5 +75,11 @@ $(function() {
             </div>
         `;
         $("#alertasDetalle").html(html);
+
+        setTimeout(function() {
+            $("#alertasDetalle .alert").fadeOut('slow', function() {
+                $(this).remove(); 
+            });
+        }, 5000); 
     }
 });
