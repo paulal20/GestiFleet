@@ -64,31 +64,62 @@
         <div class="col-md-4 mb-3">
           <label for="autonomia_km" class="form-label NoObligatorio">Autonomía (km):</label>
           <input type="number" id="autonomia_km" name="autonomia_km" class="form-control"
-                      value="<%= (typeof vehiculo !== 'undefined' && vehiculo.autonomia_km) ? vehiculo.autonomia_km : '' %>" placeholder="520" aria-describedby="error-autonomia_km">
+                 value="<%= (typeof vehiculo !== 'undefined' && vehiculo.autonomia_km) ? vehiculo.autonomia_km : '' %>" 
+                 placeholder="520" aria-describedby="error-autonomia_km">
           <span class="error" id="error-autonomia_km" aria-live="polite"></span>
         </div>
+
         <div class="col-md-4 mb-3">
           <label for="color" class="form-label NoObligatorio">Color:</label>
           <input type="text" id="color" name="color" class="form-control"
-                      value="<%= (typeof vehiculo !== 'undefined' && vehiculo.color) ? vehiculo.color : '' %>" placeholder="Gris" aria-describedby="error-color">
+                 value="<%= (typeof vehiculo !== 'undefined' && vehiculo.color) ? vehiculo.color : '' %>" 
+                 placeholder="Gris" aria-describedby="error-color">
           <span class="error" id="error-color" aria-live="polite"></span>
         </div>
+
+        <div class="col-md-4 mb-3">
+            <label for="tipo" class="form-label obligatorio">Tipo de Vehículo:</label>
+            <select id="tipo" name="tipo" class="form-select" required aria-describedby="error-tipo">
+              <% 
+                 const tiposFallback = ['coche', 'suv', 'furgoneta', 'moto', 'deportivo', 'todoterreno', 'cabrio', 'pickup', 'otro'];
+                 const listaTipos = (typeof tiposPermitidos !== 'undefined') ? tiposPermitidos : tiposFallback;
+                 listaTipos.forEach(t => { 
+                   const label = t.charAt(0).toUpperCase() + t.slice(1);
+              %>
+                <option value="<%= t %>" 
+                  <%= (typeof vehiculo !== 'undefined' && vehiculo.tipo === t) ? 'selected' : '' %>>
+                  <%= label %>
+                </option>
+              <% }) %>
+            </select>
+            <span class="error" id="error-tipo" aria-live="polite"></span>
+        </div>
+      </div>
+
+      <div class="row">
         <div class="col-md-4 mb-3">
           <label for="id_concesionario" class="form-label obligatorio">Concesionario:</label>
           <select id="id_concesionario" name="id_concesionario" class="form-select" required aria-describedby="error-id_concesionario">
             <option value="0">Selecciona un concesionario</option>
-            <% concesionarios.forEach(c => { %>
-              <option value="<%= c.id_concesionario %>" <%= (typeof vehiculo !== 'undefined' && vehiculo.id_concesionario == c.id_concesionario) ? 'selected' : '' %>><%= c.nombre %></option>
-            <% }) %>
+            <% if (typeof concesionarios !== 'undefined') { %>
+                <% concesionarios.forEach(c => { %>
+                <option value="<%= c.id_concesionario %>" 
+                    <%= (typeof vehiculo !== 'undefined' && vehiculo.id_concesionario == c.id_concesionario) ? 'selected' : '' %>>
+                    <%= c.nombre %>
+                </option>
+                <% }) %>
+            <% } %>
           </select>
           <span class="error" id="error-id_concesionario" aria-live="polite"></span>
         </div>
-      </div>
 
-      <div class="mb-3">
-        <label for="descripcion" class="form-label NoObligatorio">Descripción:</label>
-        <textarea id="descripcion" name="descripcion" class="form-control" rows="3" placeholder="Sedán eléctrico moderno con diseño aerodinámico y rendimiento eficiente para ciudad y carretera." aria-describedby="error-descripcion"><%= (typeof vehiculo !== 'undefined' && vehiculo.descripcion) ? vehiculo.descripcion : '' %></textarea>
-        <span class="error" id="error-descripcion" aria-live="polite"></span>
+        <div class="col-md-8 mb-3">
+          <label for="descripcion" class="form-label NoObligatorio">Descripción:</label>
+          <textarea id="descripcion" name="descripcion" class="form-control" rows="1" 
+                    placeholder="Descripción breve..." aria-describedby="error-descripcion" 
+                    style="height: 38px; min-height: 38px;"><%= (typeof vehiculo !== 'undefined' && vehiculo.descripcion) ? vehiculo.descripcion : '' %></textarea>
+          <span class="error" id="error-descripcion" aria-live="polite"></span>
+        </div>
       </div>
 
       <div class="mb-3">

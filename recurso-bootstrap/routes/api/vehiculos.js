@@ -79,8 +79,9 @@ router.post('/', isAdmin, upload.single('imagen'), (req, res) => {
   // Validaciones
   let errorMsg = null;
   const actual = new Date().getFullYear();
+  const tiposValidos = ['coche', 'suv', 'furgoneta', 'moto', 'deportivo', 'todoterreno', 'cabrio', 'pickup', 'otro'];
 
-  if (!matricula || !marca || !modelo || !anyo_matriculacion || !precio || !id_concesionario) {
+  if (!matricula || !marca || !modelo || !anyo_matriculacion || !precio || !id_concesionario || !tipo) {
     errorMsg = 'Faltan campos obligatorios.';
   } else if (!/^\d{4}[A-Z]{3}$/i.test(matricula)) {
     errorMsg = 'Formato matrícula inválido (1234ABC).';
@@ -92,6 +93,8 @@ router.post('/', isAdmin, upload.single('imagen'), (req, res) => {
     errorMsg = 'Seleccione un concesionario válido.';
   } else if (!req.file) {
     errorMsg = 'La imagen es obligatoria.';
+  }else if (tipo && !tiposValidos.includes(tipo)) {
+      errorMsg = 'El tipo de vehículo no es válido.';
   }
 
   if (errorMsg) return res.status(400).json({ ok: false, error: errorMsg });
@@ -139,6 +142,7 @@ router.put('/:id(\\d+)', isAdmin, upload.single('imagen'), (req, res) => {
   // Validaciones
   let errorMsg = null;
   const actual = new Date().getFullYear();
+  const tiposValidos = ['coche', 'suv', 'furgoneta', 'moto', 'deportivo', 'todoterreno', 'cabrio', 'pickup', 'otro'];
 
   if (!matricula || !marca || !modelo || !anyo_matriculacion || !precio || !id_concesionario) {
     errorMsg = 'Faltan campos obligatorios.';
@@ -150,6 +154,8 @@ router.put('/:id(\\d+)', isAdmin, upload.single('imagen'), (req, res) => {
     errorMsg = 'El precio debe ser positivo.';
   } else if (id_concesionario === '0') {
     errorMsg = 'Seleccione un concesionario válido.';
+  }else if (tipo && !tiposValidos.includes(tipo)) {
+      errorMsg = 'El tipo de vehículo no es válido.';
   }
 
   if (errorMsg) return res.status(400).json({ ok: false, error: errorMsg });

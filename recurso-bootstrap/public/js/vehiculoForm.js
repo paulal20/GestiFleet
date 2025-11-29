@@ -11,6 +11,7 @@ function obtenerCampos() {
       matricula: document.getElementById("matricula"),
       marca: document.getElementById("marca"),
       modelo: document.getElementById("modelo"),
+      tipo: document.getElementById("tipo"), // <--- NUEVO: Añadido el campo tipo
       anyo_matriculacion: document.getElementById("anyo_matriculacion"),
       precio: document.getElementById("precio"),
       id_concesionario: document.getElementById("id_concesionario"),
@@ -31,8 +32,7 @@ function calcularErrorCampo(key, campos) {
     if (!input) return "";
     const v = String(input.value || "").trim();
 
-    // 1. NUEVO: Verificar si este valor específico fue rechazado por el servidor
-    // Si lo que hay escrito es exactamente lo que el servidor rechazó, mantenemos el error.
+    // 1. Verificar si este valor específico fue rechazado por el servidor
     if (valoresInvalidosServidor[key] && valoresInvalidosServidor[key].valor === v) {
         return valoresInvalidosServidor[key].mensaje;
     }
@@ -43,34 +43,52 @@ function calcularErrorCampo(key, campos) {
             if (estaVacio(v)) return "La matrícula es obligatoria.";
             if (!/^\d{4}[A-Z]{3}$/i.test(v)) return "Formato inválido (ej: 1234ABC).";
             break;
+            
         case "marca":
         case "modelo":
             if (estaVacio(v)) return "Campo obligatorio.";
             if (v.length < 2) return "Mínimo 2 caracteres.";
             break;
+
+        // --- NUEVA VALIDACIÓN PARA TIPO ---
+        case "tipo":
+            // Mismo array que definimos en el Backend
+            const tiposValidos = ['coche', 'suv', 'furgoneta', 'moto', 'deportivo', 'todoterreno', 'cabrio', 'pickup', 'otro'];
+            
+            if (estaVacio(v)) return "Selecciona un tipo.";
+            if (!tiposValidos.includes(v)) return "Tipo de vehículo no válido.";
+            break;
+        // ----------------------------------
+
         case "anyo_matriculacion":
             if (estaVacio(v)) return "Año obligatorio.";
             const year = parseInt(v, 10);
             const actual = new Date().getFullYear();
             if (isNaN(year) || year < 1900 || year > actual) return `Año entre 1900 y ${actual}.`;
             break;
+
         case "precio":
             if (estaVacio(v)) return "Precio obligatorio.";
             if (parseFloat(v) <= 0) return "Debe ser positivo.";
             break;
+
         case "id_concesionario":
             if (estaVacio(v) || v === "0") return "Seleccione un concesionario.";
             break;
+
         case "numero_plazas":
             if (!estaVacio(v)) {
                  const p = parseInt(v);
                  if (p < 1 || p > 9) return "Entre 1 y 9.";
             }
             break;
+
         case "autonomia_km":
              if (!estaVacio(v) && parseFloat(v) < 0) return "Debe ser positivo.";
              break;
+
         case "descripcion":
+             // Si quieres permitir descripción vacía, mantén esta lógica:
              if (!estaVacio(v) && (v.length < 10 || v.length > 500)) return "Entre 10 y 500 caracteres.";
              break;
     }
@@ -86,6 +104,7 @@ function actualizarEstadoCampo(input, errorSpan) {
         input.classList.add("is-invalid");
     } 
     // Si no hay error Y tiene valor, ponemos verde
+    // (Excluimos el valor "0" para selects por defecto)
     else if (!estaVacio(input.value) && input.value !== "0") {
         input.classList.add("is-valid");
     }
@@ -125,7 +144,7 @@ window.validarFormularioCompleto = function() {
 };
 
 // ==========================================
-// 3. NUEVO: REGISTRAR ERROR DEL SERVIDOR (AJAX LO LLAMARÁ)
+// 3. REGISTRAR ERROR DEL SERVIDOR (AJAX LO LLAMARÁ)
 // ==========================================
 window.registrarErrorServidor = function(campoId, mensaje) {
     const input = document.getElementById(campoId);
@@ -133,7 +152,7 @@ window.registrarErrorServidor = function(campoId, mensaje) {
 
     // Guardamos que "ESTE valor exacto" da error
     valoresInvalidosServidor[campoId] = {
-        valor: input.value.trim(), // Guardamos "1234ABC"
+        valor: input.value.trim(),
         mensaje: mensaje
     };
 
@@ -141,7 +160,6 @@ window.registrarErrorServidor = function(campoId, mensaje) {
     const campos = obtenerCampos();
     const errorSpan = document.getElementById(`error-${campoId}`);
     
-    // Al llamar a esto, calcularErrorCampo verá que coincide con el valor prohibido
     const msg = calcularErrorCampo(campoId, campos); 
     if(errorSpan) errorSpan.textContent = msg;
     actualizarEstadoCampo(input, errorSpan);
@@ -154,7 +172,7 @@ window.registrarErrorServidor = function(campoId, mensaje) {
 document.addEventListener("DOMContentLoaded", function () {
     const campos = obtenerCampos();
     
-    // Crear spans
+    // Crear spans dinámicamente si no existen en el HTML
     Object.keys(campos).forEach((key) => {
       if (campos[key] && !document.getElementById(`error-${key}`)) {
         const span = document.createElement("span");
@@ -166,10 +184,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const validarCampoIndividual = (key) => {
         const el = campos[key];
+        // Protección extra por si el elemento no existe (ej. en modo edición a veces ocultamos cosas)
+        if(!el) return; 
+        
         const span = document.getElementById(`error-${key}`);
-        if(!el) return;
-
         const msg = calcularErrorCampo(key, campos);
+        
         if(span) span.textContent = msg;
         actualizarEstadoCampo(el, span);
     };
@@ -183,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function () {
         el.addEventListener("change", () => validarCampoIndividual(key));
     });
 
-    // Validación Inicial
+    // Validación Inicial (para colorear campos rellenos en Edición)
     Object.keys(campos).forEach((key) => {
         const el = campos[key];
         if (el && !estaVacio(el.value) && el.value !== "0") {

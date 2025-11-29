@@ -2,6 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { isAuth, isAdmin } = require('../middleware/auth');
 
+const tiposPermitidos = [
+  'coche', 'suv', 'furgoneta', 'moto', 'deportivo', 
+  'todoterreno', 'cabrio', 'pickup', 'otro'
+];
+
 // GET /vehiculos (Vista Listado)
 router.get('/', isAuth, (req, res) => {
   const usuario = req.session.usuario;
@@ -73,11 +78,12 @@ router.get('/nuevo', isAuth, isAdmin, (req, res) => {
 
     res.render('vehiculoForm', {
       title: 'Nuevo Vehículo',
-      vehiculo: {},
+      vehiculo: { tipo: 'coche' },
       usuarioSesion: req.session.usuario,
-      action: '/api/vehiculos', // Apunta a la API
+      action: '/api/vehiculos',
       method: 'POST',
-      concesionarios
+      concesionarios,
+      tiposPermitidos
     });
   });
 });
@@ -108,9 +114,10 @@ router.get('/:id/editar', isAdmin, (req, res) => {
         title: 'Editar Vehículo',
         vehiculo,
         usuarioSesion: req.session.usuario,
-        action: `/api/vehiculos/${id}`, // Apunta a la API
-        method: 'PUT', // Método AJAX
-        concesionarios
+        action: `/api/vehiculos/${id}`,
+        method: 'PUT',
+        concesionarios,
+        tiposPermitidos
       });
     });
   });
