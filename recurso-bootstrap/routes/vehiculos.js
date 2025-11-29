@@ -10,29 +10,50 @@ const tiposPermitidos = [
 // GET /vehiculos (Vista Listado)
 router.get('/', isAuth, (req, res) => {
   const usuario = req.session.usuario;
-  
-  // Necesitamos cargar TODOS los datos auxiliares para los filtros (Tipos, Estados, Colores, etc.)
-  // Al ser callbacks, tendremos un anidamiento considerable (Callback Hell), pero es la forma sin async/await.
 
   // 1. Tipos
-  req.db.query('SELECT DISTINCT tipo FROM vehiculos', (err1, tiposRows) => {
-    const tiposDisponibles = err1 ? [] : tiposRows.map(t => t.tipo);
+  const sqlTipos = "SELECT tipo, COUNT(*) as total FROM vehiculos WHERE activo = true GROUP BY tipo ORDER BY tipo ASC";
+
+  req.db.query(sqlTipos, (err1, tiposRows) => {
+    const tiposDisponibles = err1 ? [] : tiposRows;
 
     // 2. Estados
     req.db.query('SELECT DISTINCT estado FROM vehiculos', (err2, estadosRows) => {
       const estadosDisponibles = err2 ? [] : estadosRows.map(e => e.estado);
 
       // 3. Colores
-      req.db.query('SELECT DISTINCT color FROM vehiculos WHERE color IS NOT NULL ORDER BY color', (err3, coloresRows) => {
-        const coloresDisponibles = err3 ? [] : coloresRows.map(c => c.color);
+      const sqlColores = `
+          SELECT color, COUNT(*) as total 
+          FROM vehiculos 
+          WHERE activo = true AND color IS NOT NULL 
+          GROUP BY color 
+          ORDER BY color ASC
+      `;
+      req.db.query(sqlColores, (err3, coloresRows) => {
+        const coloresDisponibles = err3 ? [] : coloresRows;
 
         // 4. Plazas
-        req.db.query('SELECT DISTINCT numero_plazas FROM vehiculos ORDER BY numero_plazas ASC', (err4, plazasRows) => {
-          const plazasDisponibles = err4 ? [] : plazasRows.map(p => p.numero_plazas);
+        const sqlPlazas = `
+            SELECT numero_plazas, COUNT(*) as total 
+            FROM vehiculos 
+            WHERE activo = true 
+            GROUP BY numero_plazas 
+            ORDER BY numero_plazas ASC
+        `;
+        req.db.query(sqlPlazas, (err4, plazasRows) => {
+          const plazasDisponibles = err4 ? [] : plazasRows;
 
-          // 5. Concesionarios
-          req.db.query('SELECT id_concesionario, nombre FROM concesionarios ORDER BY nombre', (err5, concesionariosRows) => {
-            const concesionariosDisponibles = err5 ? [] : concesionariosRows;
+          const sqlConcesionarios = `
+              SELECT c.id_concesionario, c.nombre, COUNT(v.id_vehiculo) as total
+              FROM concesionarios c
+              INNER JOIN vehiculos v ON c.id_concesionario = v.id_concesionario
+              WHERE c.activo = true AND v.activo = true
+              GROUP BY c.id_concesionario, c.nombre
+              ORDER BY c.nombre
+          `;
+
+          req.db.query(sqlConcesionarios, (err5, concesionariosRows) => {
+              const concesionariosDisponibles = err5 ? [] : concesionariosRows;
 
             // 6. Rangos (Precio/Autonomía)
             req.db.query('SELECT MIN(precio) as minPrecio, MAX(precio) as maxPrecio, MIN(autonomia_km) as minAutonomia, MAX(autonomia_km) as maxAutonomia FROM vehiculos', (err6, rangosRows) => {
@@ -70,7 +91,7 @@ router.get('/', isAuth, (req, res) => {
 
 // GET /vehiculos/nuevo (Formulario Creación)
 router.get('/nuevo', isAuth, isAdmin, (req, res) => {
-  req.db.query('SELECT * FROM concesionarios', (err, concesionarios) => {
+  req.db.query('SELECT * FROM concesionarios WHERE activo = true ORDER BY nombre', (err, concesionarios) => {
     if (err) {
       console.error('Error al obtener concesionarios:', err);
       return res.status(500).render('error', { mensaje: 'No se pudieron cargar los concesionarios' });
@@ -104,7 +125,7 @@ router.get('/:id/editar', isAdmin, (req, res) => {
     const vehiculo = vehiculos[0];
 
     // 2. Obtener Concesionarios
-    req.db.query('SELECT * FROM concesionarios', (errCon, concesionarios) => {
+    req.db.query('SELECT * FROM concesionarios WHERE activo = true ORDER BY nombre', (errCon, concesionarios) => {
       if (errCon) {
           console.error('Error cargando concesionarios editar:', errCon);
           return res.status(500).render('error', { mensaje: 'Error al cargar datos auxiliares' });

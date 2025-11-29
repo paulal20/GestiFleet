@@ -1,311 +1,197 @@
 <div class="container-fluid vehiculos-content">
   <div class="row">
+    
     <div class="col-lg-3 col-md-4">
       <h3 class="mb-3">FILTROS</h3>
+      
       <form id="formFiltros">
         <div class="accordion" id="accordionFiltros">
+
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingPrecio">
-              <button
-                class="accordion-button"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#collapsePrecio"
-                aria-expanded="true"
-                aria-controls="collapsePrecio"
-              >
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrecio" aria-expanded="true">
                 Precio
               </button>
             </h2>
-            <div
-              id="collapsePrecio"
-              class="accordion-collapse collapse show"
-              aria-labelledby="headingPrecio"
-            >
+            <div id="collapsePrecio" class="accordion-collapse collapse show" aria-labelledby="headingPrecio">
               <div class="accordion-body">
                 <label for="precio_max" class="form-label">
-                  Hasta:
-                  <span id="precio-val"
-                    ><%= parseFloat(precioMaxSeleccionado).toFixed(0) %></span
-                  >
-                  €
+                  Hasta: <span id="precio-val"><%= parseFloat(precioMaxSeleccionado).toFixed(0) %></span> €
                 </label>
-                <input
-                  type="range"
-                  class="form-range"
-                  name="precio_max"
-                  id="precio_max"
-                  min="<%= rangos.minPrecio %>"
-                  max="<%= rangos.maxPrecio %>"
-                  value="<%= precioMaxSeleccionado %>"
-                  oninput="document.getElementById('precio-val').textContent = parseFloat(this.value).toFixed(0)"
-                />
+                <input type="range" class="form-range" name="precio_max" id="precio_max" 
+                       min="<%= rangos.minPrecio %>" max="<%= rangos.maxPrecio %>" 
+                       value="<%= precioMaxSeleccionado %>"
+                       oninput="document.getElementById('precio-val').textContent = parseFloat(this.value).toFixed(0)">
               </div>
             </div>
           </div>
 
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingAutonomia">
-              <button
-                class="accordion-button"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#collapseAutonomia"
-                aria-expanded="true"
-                aria-controls="collapseAutonomia"
-              >
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAutonomia" aria-expanded="true">
                 Autonomía (mínima)
               </button>
             </h2>
-            <div
-              id="collapseAutonomia"
-              class="accordion-collapse collapse show"
-              aria-labelledby="headingAutonomia"
-            >
+            <div id="collapseAutonomia" class="accordion-collapse collapse show" aria-labelledby="headingAutonomia">
               <div class="accordion-body">
                 <label for="autonomia_min" class="form-label">
-                  Desde:
-                  <span id="autonomia-val"
-                    ><%= autonomiaMinSeleccionado %></span
-                  >
-                  km
+                  Desde: <span id="autonomia-val"><%= autonomiaMinSeleccionado %></span> km
                 </label>
-                <input
-                  type="range"
-                  class="form-range"
-                  name="autonomia_min"
-                  id="autonomia_min"
-                  min="<%= rangos.minAutonomia %>"
-                  max="<%= rangos.maxAutonomia %>"
-                  value="<%= autonomiaMinSeleccionado %>"
-                  oninput="document.getElementById('autonomia-val').textContent = this.value"
-                />
+                <input type="range" class="form-range" name="autonomia_min" id="autonomia_min" 
+                       min="<%= rangos.minAutonomia %>" max="<%= rangos.maxAutonomia %>" 
+                       value="<%= autonomiaMinSeleccionado %>"
+                       oninput="document.getElementById('autonomia-val').textContent = this.value">
               </div>
             </div>
           </div>
 
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingTipo">
-              <button
-                class="accordion-button collapsed"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#collapseTipo"
-                aria-expanded="false"
-                aria-controls="collapseTipo"
-              >
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTipo" aria-expanded="false">
                 Tipo
               </button>
             </h2>
-            <div
-              id="collapseTipo"
-              class="accordion-collapse collapse"
-              aria-labelledby="headingTipo"
-            >
+            <div id="collapseTipo" class="accordion-collapse collapse" aria-labelledby="headingTipo">
               <div class="accordion-body">
+                
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="tipo"
-                  id="tipo-todos" value="" <%= (tipoSeleccionado === '') ?
-                  'checked' : '' %>>
+                  <input class="form-check-input" type="radio" name="tipo" id="tipo-todos" value="" <%= (tipoSeleccionado === '') ? 'checked' : '' %>>
                   <label class="form-check-label" for="tipo-todos">Todos</label>
                 </div>
-                <% if (tiposDisponibles && tiposDisponibles.length > 0) { %> <%
-                tiposDisponibles.forEach(function(t) { %>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="tipo"
-                  id="tipo-<%= t %>" value="<%= t %>" <%= (tipoSeleccionado ===
-                  t) ? 'checked' : '' %>>
-                  <label class="form-check-label" for="tipo-<%= t %>"
-                    ><%= t %></label
-                  >
-                </div>
-                <% }) %> <% } %>
+                
+                <% if (tiposDisponibles && tiposDisponibles.length > 0) { %>
+                  <% tiposDisponibles.forEach(function(item) { 
+                       const label = item.tipo.charAt(0).toUpperCase() + item.tipo.slice(1);
+                  %>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="tipo" id="tipo-<%= item.tipo %>" value="<%= item.tipo %>" <%= (tipoSeleccionado === item.tipo) ? 'checked' : '' %>>
+                      
+                      <label class="form-check-label" for="tipo-<%= item.tipo %>">
+                        <%= label %> (<%= item.total %>)
+                      </label>
+                    </div>
+                  <% }) %>
+                <% } %>
+                
               </div>
             </div>
           </div>
 
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingPlazas">
-              <button
-                class="accordion-button collapsed"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#collapsePlazas"
-                aria-expanded="false"
-                aria-controls="collapsePlazas"
-              >
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePlazas" aria-expanded="false">
                 Nº de Plazas
               </button>
             </h2>
-            <div
-              id="collapsePlazas"
-              class="accordion-collapse collapse"
-              aria-labelledby="headingPlazas"
-            >
+            <div id="collapsePlazas" class="accordion-collapse collapse" aria-labelledby="headingPlazas">
               <div class="accordion-body">
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="plazas"
-                  id="plazas-todos" value="" <%= (plazasSeleccionado === '') ?
-                  'checked' : '' %>>
-                  <label class="form-check-label" for="plazas-todos"
-                    >Cualquiera</label
-                  >
+                  <input class="form-check-input" type="radio" name="plazas" id="plazas-todos" value="" <%= (plazasSeleccionado === '') ? 'checked' : '' %>>
+                  <label class="form-check-label" for="plazas-todos">Cualquiera</label>
                 </div>
+                
                 <% if (plazasDisponibles && plazasDisponibles.length > 0) { %>
-                <% plazasDisponibles.forEach(function(p) { %>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="plazas"
-                  id="plazas-<%= p %>" value="<%= p %>" <%= (plazasSeleccionado
-                  == p) ? 'checked' : '' %>>
-                  <label class="form-check-label" for="plazas-<%= p %>"
-                    ><%= p %> plazas</label
-                  >
-                </div>
-                <% }) %> <% } %>
+                  <% plazasDisponibles.forEach(function(p) { %>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="plazas" 
+                             id="plazas-<%= p.numero_plazas %>" 
+                             value="<%= p.numero_plazas %>" 
+                             <%= (plazasSeleccionado == p.numero_plazas) ? 'checked' : '' %>>
+                      
+                      <label class="form-check-label" for="plazas-<%= p.numero_plazas %>">
+                        <%= p.numero_plazas %> plazas (<%= p.total %>)
+                      </label>
+                    </div>
+                  <% }) %>
+                <% } %>
               </div>
             </div>
           </div>
 
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingColor">
-              <button
-                class="accordion-button collapsed"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#collapseColor"
-                aria-expanded="false"
-                aria-controls="collapseColor"
-              >
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseColor" aria-expanded="false">
                 Color
               </button>
             </h2>
-            <div
-              id="collapseColor"
-              class="accordion-collapse collapse"
-              aria-labelledby="headingColor"
-            >
+            <div id="collapseColor" class="accordion-collapse collapse" aria-labelledby="headingColor">
               <div class="accordion-body">
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="color"
-                  id="color-todos" value="" <%= (colorSeleccionado === '') ?
-                  'checked' : '' %>>
-                  <label class="form-check-label" for="color-todos"
-                    >Todos</label
-                  >
+                  <input class="form-check-input" type="radio" name="color" id="color-todos" value="" <%= (colorSeleccionado === '') ? 'checked' : '' %>>
+                  <label class="form-check-label" for="color-todos">Todos</label>
                 </div>
+
                 <% if (coloresDisponibles && coloresDisponibles.length > 0) { %>
-                <% coloresDisponibles.forEach(function(c) { %>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="color"
-                  id="color-<%= c %>" value="<%= c %>" <%= (colorSeleccionado
-                  === c) ? 'checked' : '' %>>
-                  <label class="form-check-label" for="color-<%= c %>"
-                    ><%= c %></label
-                  >
-                </div>
-                <% }) %> <% } %>
+                  <% coloresDisponibles.forEach(function(c) { %>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="color" 
+                             id="color-<%= c.color %>" 
+                             value="<%= c.color %>" 
+                             <%= (colorSeleccionado === c.color) ? 'checked' : '' %>>
+                      
+                      <label class="form-check-label" for="color-<%= c.color %>">
+                        <%= c.color %> (<%= c.total %>)
+                      </label>
+                    </div>
+                  <% }) %>
+                <% } %>
               </div>
             </div>
           </div>
 
           <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
-          <div class="accordion-item">
-            <h2 class="accordion-header" id="headingEstado">
-              <button
-                class="accordion-button collapsed"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#collapseEstado"
-                aria-expanded="false"
-                aria-controls="collapseEstado"
-              >
-                Estado (Admin)
-              </button>
-            </h2>
-            <div
-              id="collapseEstado"
-              class="accordion-collapse collapse"
-              aria-labelledby="headingEstado"
-            >
-              <div class="accordion-body">
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="estado"
-                  id="estado-todos" value="" <%= (estadoSeleccionado === '') ?
-                  'checked' : '' %>>
-                  <label class="form-check-label" for="estado-todos"
-                    >Todos</label
-                  >
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingEstado">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEstado" aria-expanded="false">
+                  Estado (Admin)
+                </button>
+              </h2>
+              <div id="collapseEstado" class="accordion-collapse collapse" aria-labelledby="headingEstado">
+                <div class="accordion-body">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="estado" id="estado-todos" value="" <%= (estadoSeleccionado === '') ? 'checked' : '' %>>
+                    <label class="form-check-label" for="estado-todos">Todos</label>
+                  </div>
+                  <% if (estadosDisponibles && estadosDisponibles.length > 0) { %>
+                    <% estadosDisponibles.forEach(function(e) { %>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="estado" id="estado-<%= e %>" value="<%= e %>" <%= (estadoSeleccionado === e) ? 'checked' : '' %>>
+                        <label class="form-check-label" for="estado-<%= e %>"><%= e %></label>
+                      </div>
+                    <% }) %>
+                  <% } %>
                 </div>
-                <% if (estadosDisponibles && estadosDisponibles.length > 0) { %>
-                <% estadosDisponibles.forEach(function(e) { %>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="estado"
-                  id="estado-<%= e %>" value="<%= e %>" <%= (estadoSeleccionado
-                  === e) ? 'checked' : '' %>>
-                  <label class="form-check-label" for="estado-<%= e %>"
-                    ><%= e %></label
-                  >
-                </div>
-                <% }) %> <% } %>
               </div>
             </div>
-          </div>
 
-          <div class="accordion-item">
-            <h2 class="accordion-header" id="headingConcesionario">
-              <button
-                class="accordion-button collapsed"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#collapseConcesionario"
-                aria-expanded="false"
-                aria-controls="collapseConcesionario"
-              >
-                Concesionario (Admin)
-              </button>
-            </h2>
-            <div
-              id="collapseConcesionario"
-              class="accordion-collapse collapse"
-              aria-labelledby="headingConcesionario"
-            >
-              <div class="accordion-body">
-                <div class="form-check">
-                  <input class="form-check-input" type="radio"
-                  name="concesionario" id="concesionario-todos" value="" <%=
-                  (concesionarioSeleccionado === '') ? 'checked' : '' %>>
-                  <label class="form-check-label" for="concesionario-todos"
-                    >Todos</label
-                  >
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingConcesionario">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseConcesionario" aria-expanded="false">
+                  Concesionario (Admin)
+                </button>
+              </h2>
+              <div id="collapseConcesionario" class="accordion-collapse collapse" aria-labelledby="headingConcesionario">
+                <div class="accordion-body">
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="concesionario" id="concesionario-todos" value="" <%= (concesionarioSeleccionado === '') ? 'checked' : '' %>>
+                    <label class="form-check-label" for="concesionario-todos">Todos</label>
+                  </div>
+                  <% if (concesionariosDisponibles && concesionariosDisponibles.length > 0) { %>
+                    <% concesionariosDisponibles.forEach(function(c) { %>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="concesionario" id="concesionario-<%= c.id_concesionario %>" value="<%= c.id_concesionario %>" <%= (concesionarioSeleccionado == c.id_concesionario) ? 'checked' : '' %>>
+                        <label class="form-check-label" for="concesionario-<%= c.id_concesionario %>"><%= c.nombre %> (<%= c.total %>)</label>
+                      </div>
+                    <% }) %>
+                  <% } %>
                 </div>
-                <% if (concesionariosDisponibles &&
-                concesionariosDisponibles.length > 0) { %> <%
-                concesionariosDisponibles.forEach(function(c) { %>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio"
-                  name="concesionario" id="concesionario-<%= c.id_concesionario
-                  %>" value="<%= c.id_concesionario %>" <%=
-                  (concesionarioSeleccionado == c.id_concesionario) ? 'checked'
-                  : '' %>>
-                  <label
-                    class="form-check-label"
-                    for="concesionario-<%= c.id_concesionario %>"
-                    ><%= c.nombre %></label
-                  >
-                </div>
-                <% }) %> <% } %>
               </div>
             </div>
-          </div>
           <% } %>
+          
+        </div><div class="d-grid gap-2 mt-3">
+            <button type="button" id="btnLimpiarFiltros" class="btn btn-outline-secondary">Limpiar Filtros</button>
         </div>
-
-        <div class="d-grid gap-2 mt-3">
-            <button type="button" id="btnLimpiarFiltros" class="btn btn-outline-secondary">
-               Limpiar Filtros
-            </button>
-        </div>
-
       </form>
     </div>
 
@@ -313,17 +199,14 @@
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><%= title %></h1>
         <% if (usuarioSesion && usuarioSesion.rol === "Admin") { %>
-        <a href="/vehiculos/nuevo" class="btn btn-primary btn-lg"
-          >Nuevo Vehículo</a
-        >
+          <a href="/vehiculos/nuevo" class="btn btn-primary btn-lg">Nuevo Vehículo</a>
         <% } %>
       </div>
 
       <div id="alertasVehiculos"></div>
-      <div
-        id="contenedor-vehiculos"
-        class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"
-      ></div>
+      
+      <div id="contenedor-vehiculos" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+          </div>
     </div>
   </div>
 </div>
@@ -338,21 +221,15 @@
       <div class="modal-body">
         ¿Eliminar <span id="vehiculoAEliminar"></span>?
         <div class="d-flex justify-content-end mt-3 gap-2">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">
-            Cancelar
-          </button>
-          <button id="btnConfirmarEliminarVehiculo" class="btn btn-danger">
-            Eliminar
-          </button>
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button id="btnConfirmarEliminarVehiculo" class="btn btn-danger">Eliminar</button>
         </div>
       </div>
     </div>
   </div>
 </div>
-<div
-  id="vehiculosApp"
-  data-usuario="<%= JSON.stringify(usuarioSesion) %>"
-></div>
+
+<div id="vehiculosApp" data-usuario="<%= JSON.stringify(usuarioSesion) %>"></div>
 
 <script src="/js/jquery.min.js"></script>
 <script src="/js/jquery-ui.min.js"></script>
