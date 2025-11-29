@@ -94,30 +94,47 @@
         </div>
 
         <div class="perfil-actions d-flex gap-2 mt-3">
-          <a
-            href="/reserva?idVehiculo=<%= vehiculo.id_vehiculo %>"
-            class="btn btn-primary flex-fill"
-            >Reservar</a
-          >
-          <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
-          <button
-            type="button"
-            class="btn btn-outline-secondary flex-fill"
-            data-bs-toggle="modal"
-            data-bs-target="#confirmarEliminarModal"
-            data-id="<%= vehiculo.id_vehiculo %>"
-            data-name="<%= vehiculo.marca + ' ' + vehiculo.modelo %>"
-          >
-            Eliminar
-          </button>
-          <a
-            href="/vehiculos/<%= vehiculo.id_vehiculo %>/editar"
-            class="btn btn-primary flex-fill"
-          >
-            Editar
-          </a>
+          <% if (vehiculo.activo === 1) { %>
+            
+            <% if (vehiculo.estado === 'disponible') { %>
+                <a
+                  href="/reserva?idVehiculo=<%= vehiculo.id_vehiculo %>"
+                  class="btn btn-primary flex-fill"
+                >
+                  Reservar
+                </a>
+            <% } else { %>
+                <% if (!usuarioSesion || usuarioSesion.rol !== 'Admin') { %>
+                    <button class="btn btn-secondary flex-fill" disabled>
+                        No disponible (<%= vehiculo.estado %>)
+                    </button>
+                <% } %>
+            <% } %>
+
+            <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary flex-fill"
+                  data-bs-toggle="modal"
+                  data-bs-target="#confirmarEliminarModal"
+                  data-id="<%= vehiculo.id_vehiculo %>"
+                  data-name="<%= vehiculo.marca + ' ' + vehiculo.modelo %>"
+                >
+                  Eliminar
+                </button>
+                <a
+                  href="/vehiculos/<%= vehiculo.id_vehiculo %>/editar"
+                  class="btn btn-primary flex-fill"
+                >
+                  Editar
+                </a>
+            <% } %>
+
+          <% } else { %>
+            <span class="text-muted fst-italic w-100 text-center">Este vehículo ha sido eliminado y no admite acciones.</span>
           <% } %>
         </div>
+
       </div>
     </div>
   </div>

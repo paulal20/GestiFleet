@@ -7,7 +7,7 @@ function getVehiculosDisponibles(db, usuario, callback) {
   let sql = `
       SELECT id_vehiculo, marca, modelo, matricula 
       FROM vehiculos
-      WHERE estado = 'disponible'
+      WHERE estado = 'disponible' AND activo = 1
     `;
   const params = [];
   

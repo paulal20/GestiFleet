@@ -1,88 +1,115 @@
-/* public/js/ajax/vehiculos/vehiculoForm.js
-   Versión corregida SIN method-override y con PUT real
-*/
+/* public/js/ajax/vehiculos/vehiculosForm.js */
 
 $(document).ready(function () {
     const $form = $("#vehiculoForm");
     if ($form.length === 0) return;
 
-    // Detectar modo edición por la existencia del input oculto _method=PUT en el EJS
-    const isEditMode = $form.find('input[name="_method"][value="PUT"]').length > 0;
-
     $form.on("submit", function (e) {
-        e.preventDefault(); // evitar submit tradicional
+        e.preventDefault(); 
 
-        // Limpiar errores previos
-        $(".alert").remove();
-        $(".is-invalid").removeClass("is-invalid");
-        $(".error").text("");
+        // Validación frontend
+        if (typeof window.validarFormularioCompleto === 'function') {
+            const esValido = window.validarFormularioCompleto();
+            if (!esValido) return; 
+        }
 
-        // Recoger FormData (soporta archivos)
+        $("#alertasFormContainer").html(""); 
+        
+        const $btn = $form.find("button[type=submit]");
+        const isPut = $form.find('input[name="_method"][value="PUT"]').length > 0;
+        const method = isPut ? "PUT" : "POST";
+        const url = $form.attr("action");
         const formData = new FormData(this);
 
-        // Acción y método AJAX
-        const actionUrl = $form.attr("action"); // "/api/vehiculos" o "/api/vehiculos/:id"
-        const method = isEditMode ? "PUT" : "POST"; // ← AHORA SÍ
-
         $.ajax({
-            url: actionUrl,
+            url: url,
             type: method,
             data: formData,
-            processData: false,
-            contentType: false,
-
+            processData: false, 
+            contentType: false, 
+            
             beforeSend: function () {
-                $form.find("button[type=submit]").prop("disabled", true);
+                $btn.prop("disabled", true).text("Procesando...");
             },
 
             success: function (data) {
-                if (!data.ok) {
-                    if (data.fieldErrors) {
-                        $.each(data.fieldErrors, function (field, msg) {
-                            $("#error-" + field).text(msg);
-                            $("#" + field).addClass("is-invalid");
-                        });
-                    } else {
-                        mostrarAlertaFormulario("danger", data.error || "Error desconocido al guardar.");
-                    }
-                    return;
-                }
-
-                // La API SIEMPRE manda redirectUrl, úsala
-                if (data.redirectUrl) {
-                    window.location.href = data.redirectUrl;
-                } else if (data.id) {
-                    window.location.href = "/vehiculos/" + data.id;
+                if (data.ok) {
+                    window.location.href = data.redirectUrl || "/vehiculos";
                 } else {
-                    window.location.href = "/vehiculos";
+                    mostrarErrorForm("danger", data.error || "Error desconocido.");
                 }
             },
 
             error: function (jqXHR) {
-                if (jqXHR.responseJSON && jqXHR.responseJSON.fieldErrors) {
-                    $.each(jqXHR.responseJSON.fieldErrors, function (field, msg) {
-                        $("#error-" + field).text(msg);
-                        $("#" + field).addClass("is-invalid");
-                    });
-                } else if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
-                    mostrarAlertaFormulario("danger", jqXHR.responseJSON.error);
-                } else {
-                    mostrarAlertaFormulario("danger", "Error de conexión o servidor caído.");
+                let msg = "Error al procesar la solicitud.";
+                let errorEspecificoEncontrado = false;
+
+                if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
+                    msg = jqXHR.responseJSON.error;
+
+                    // === MATRÍCULA DUPLICADA ===
+                    if (msg.includes("La matrícula ya existe") || msg.includes("pertenece a otro vehículo")) {
+                        if (typeof window.registrarErrorServidor === 'function') {
+                            window.registrarErrorServidor("matricula", msg);
+                            
+                            // Llamamos a la función corregida
+                            irAlCampo("matricula");
+                            
+                            errorEspecificoEncontrado = true;
+                        }
+                    }
+                } 
+                else if (jqXHR.status === 404) {
+                    msg = "Ruta de API no encontrada.";
+                }
+
+                if (!errorEspecificoEncontrado) {
+                    mostrarErrorForm("danger", msg);
                 }
             },
 
             complete: function () {
-                $form.find("button[type=submit]").prop("disabled", false);
+                $btn.prop("disabled", false).text(isPut ? "Actualizar Vehículo" : "Crear Vehículo");
             }
         });
     });
 });
 
-function mostrarAlertaFormulario(tipo, mensaje) {
+// ==========================================
+// FUNCIÓN CORREGIDA PARA EL FOCUS
+// ==========================================
+function irAlCampo(campoId) {
+    const $input = $("#" + campoId);
+    
+    if ($input.length) {
+        // 1. Marcar visualmente en rojo
+        $input.addClass("is-invalid");
+
+        // 2. Obtener el elemento nativo de HTML (sacarlo del objeto jQuery)
+        const elementoNativo = $input[0];
+
+        // 3. Scroll Nativo Suave
+        // 'block: center' pone el input en MITAD de la pantalla (así no se tapa con el menú de arriba)
+        elementoNativo.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+        });
+
+        // 4. Focus inteligente
+        // 'preventScroll: true' evita que el focus pegue un salto brusco peleando con el scroll
+        setTimeout(() => {
+            elementoNativo.focus({ preventScroll: true });
+        }, 100); // Pequeño retraso imperceptible para asegurar que el navegador procesó la orden de scroll
+    }
+}
+
+function mostrarErrorForm(tipo, mensaje) {
     const html = `
-        <div class="alert alert-${tipo} mt-2" role="alert">
+        <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
             ${mensaje}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     `;
-    $("#vehiculoForm").prepend(html);
+    $("#alertasFormContainer").html(html);
+    $('html, body').animate({ scrollTop: 0 }, 'fast');
 }

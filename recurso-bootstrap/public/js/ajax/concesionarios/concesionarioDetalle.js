@@ -21,12 +21,11 @@ $(document).ready(function() {
 function configurarModalGenerico() {
     const $modal = $("#modalEliminar");
     const $btnConfirmar = $("#btnConfirmarEliminar");
-    // Elementos de texto del modal
     const $tituloModal = $("#modalTitulo");
     const $textoCuerpo = $("#nombreAEliminar");
 
     let idParaBorrar = null;
-    let tipoParaBorrar = null; // 'vehiculo' o 'concesionario'
+    let tipoParaBorrar = null; 
 
     $modal.on("show.bs.modal", function(event) {
         const $boton = $(event.relatedTarget);
@@ -34,7 +33,6 @@ function configurarModalGenerico() {
         idParaBorrar = $boton.data("id");
         tipoParaBorrar = $boton.data("tipo");
 
-        // Lógica simplificada: solo distingue por tipo
         if (tipoParaBorrar === 'vehiculo') {
             $tituloModal.text("Eliminar vehículo");
             $textoCuerpo.text("este vehículo");
@@ -42,13 +40,11 @@ function configurarModalGenerico() {
             $tituloModal.text("Eliminar concesionario");
             $textoCuerpo.text("este concesionario");
         } else {
-            // Fallback por si acaso
             $tituloModal.text("Eliminar elemento");
             $textoCuerpo.text("este elemento");
         }
     });
 
-    // Al hacer clic en "Eliminar" dentro del modal
     $btnConfirmar.off("click").on("click", function() {
         if (!idParaBorrar || !tipoParaBorrar) return;
 
@@ -80,8 +76,14 @@ function eliminarVehiculo(id) {
                     $row.find("td:nth-child(5)")
                         .html('<span class="badge bg-danger">Eliminado</span>');
 
+                    // Al eliminar, quitamos acciones admin pero mantenemos el reservar deshabilitado
+                    // para consistencia visual (se repinta luego si recargas, pero aqui lo simulamos)
+                    // Para simplificar, recargamos la fila o dejamos solo el texto de sin acciones admin
+                    // Si quieres que el botón reservar se ponga disabled al instante, habría que manipular el DOM.
+                    // Lo más sencillo tras un delete parcial es:
                     $row.find("td:last").html(`
                         <span class="text-muted fst-italic">Sin acciones</span>
+                        <button class="btn btn-primary btn-sm ms-1" disabled>Reservar</button>
                     `);
                 }
 
@@ -153,7 +155,7 @@ function cargarVehiculos(id) {
     });
 }
 
-// --- PINTADO DEL DOM (Igual que antes) ---
+// --- PINTADO DEL DOM ---
 
 function pintarInfoConcesionario(c) {
     $("#tituloConcesionario").text(c.nombre);
@@ -228,7 +230,9 @@ function pintarVehiculos(lista) {
     let html = "";
     $.each(lista, function(i, v) {
         let accionesAdmin = "";
-        let reservaSiActivo ="";
+        let reservaBtn = ""; // Variable unificada para el botón reservar
+
+        // 1. Lógica para Admin (Botones Editar/Eliminar)
         if (window.usuarioSesion && window.usuarioSesion.rol === "Admin") {
             if(v.activoBool){
                 let btnDisabledAttr = !v.activoBool ? "disabled" : "";
@@ -243,14 +247,17 @@ function pintarVehiculos(lista) {
                     </button>
                     <a href="/vehiculos/${v.id_vehiculo}/editar" class="btn btn-primary btn-sm">Editar</a>
                 `;
-            } else{
+            } else {
                 accionesAdmin = `
                 <span class="text-muted fst-italic">Sin acciones</span>
-            `;
+                `;
             }
         }
-        if(v.activoBool){
-            reservaSiActivo = `<a href="/reserva?idVehiculo=${v.id_vehiculo}" class="btn btn-primary btn-sm">Reservar</a>`;
+
+        if(v.activoBool && v.estado === 'disponible'){
+            reservaBtn = `<a href="/reserva?idVehiculo=${v.id_vehiculo}" class="btn btn-primary btn-sm ms-1">Reservar</a>`;
+        } else if (v.activoBool){
+            reservaBtn = `<button class="btn btn-primary btn-sm ms-1" disabled>Reservar</button>`;
         }
 
         html += `
@@ -262,7 +269,7 @@ function pintarVehiculos(lista) {
                 <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${pintarEstado(v.activoBool)}</td>
                 <td>
                     ${accionesAdmin}
-                    ${reservaSiActivo}
+                    ${reservaBtn}
                 </td>
             </tr>`;
     });

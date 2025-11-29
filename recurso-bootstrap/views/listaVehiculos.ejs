@@ -1,8 +1,5 @@
 <div class="container-fluid vehiculos-content">
   <div class="row">
-    <!-- ============================
-         FILTROS
-    ============================ -->
     <div class="col-lg-3 col-md-4">
       <h3 class="mb-3">FILTROS</h3>
       <form id="formFiltros">
@@ -302,18 +299,16 @@
           </div>
           <% } %>
         </div>
+
         <div class="d-grid gap-2 mt-3">
-          <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
-          <a href="/vehiculos" class="btn btn-outline-secondary"
-            >Limpiar Filtros</a
-          >
+            <button type="button" id="btnLimpiarFiltros" class="btn btn-outline-secondary">
+               Limpiar Filtros
+            </button>
         </div>
+
       </form>
     </div>
 
-    <!-- ============================
-         LISTA DE VEHÍCULOS (AJAX)
-    ============================ -->
     <div class="col-lg-9 col-md-8">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><%= title %></h1>
@@ -333,7 +328,6 @@
   </div>
 </div>
 
-<!-- MODAL ELIMINAR -->
 <div class="modal fade" id="confirmarEliminarModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">

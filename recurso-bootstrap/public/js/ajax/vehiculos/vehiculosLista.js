@@ -1,77 +1,72 @@
 $(document).ready(function () {
 
-    // Inicializar valores de sliders desde el HTML
-    $("#precio-val").text($("#precio_max").val());
-    $("#autonomia-val").text($("#autonomia_min").val());
+    actualizarTextosSliders();
 
-    $("#precio_max").on("input", function () {
-        $("#precio-val").text($(this).val());
+    $("#precio_max, #autonomia_min").on("input", function () {
+        actualizarTextosSliders();
     });
 
-    $("#autonomia_min").on("input", function () {
-        $("#autonomia-val").text($(this).val());
-    });
-
-    // Cargar lista inicial
     cargarVehiculos();
 
-    // Aplicar filtros (AJAX)
-    $("#formFiltros").on("submit", function (e) {
-        e.preventDefault();
+    $("#formFiltros input").on("change", function () {
         cargarVehiculos();
     });
 
-    // Limpiar filtros
-    $("#limpiarFiltros").on("click", function () {
+    $("#btnLimpiarFiltros").on("click", function () {
         $("#formFiltros")[0].reset();
+        
+        const precioMax = $("#precio_max").attr("max");
+        const autoMin = $("#autonomia_min").attr("min");
+        $("#precio_max").val(precioMax);
+        $("#autonomia_min").val(autoMin);
+        
+        actualizarTextosSliders();
+
         cargarVehiculos();
     });
 
     configurarModalEliminarVehiculo();
 });
 
+function actualizarTextosSliders() {
+    $("#precio-val").text($("#precio_max").val());
+    $("#autonomia-val").text($("#autonomia_min").val());
+}
 
-// ==========================
-//   CARGAR VEHÍCULOS
-// ==========================
 function cargarVehiculos() {
 
-    const params = $("#formFiltros").serialize(); // Envia todo lo del form
+    const params = $("#formFiltros").serialize(); 
     const contenedor = document.getElementById('vehiculosApp');
-    const usuarioSesion = JSON.parse(contenedor.dataset.usuario);
-    $.ajax({
+    
+    if(!contenedor) return;
 
+    const usuarioSesion = JSON.parse(contenedor.dataset.usuario);
+    
+    $.ajax({
         type: "GET",
         url: "/api/vehiculos",
         data: params,
         cache: false,
 
         beforeSend: function () {
-            $("#contenedor-vehiculos").html(`
-                <div class="text-center p-5">
-                    <div class="spinner-border"></div>
-                    <p class="mt-2">Cargando vehículos...</p>
-                </div>
-            `);
+            $("#contenedor-vehiculos").css("opacity", "0.5");
         },
 
         success: function (data) {
+            $("#contenedor-vehiculos").css("opacity", "1");
             if (!data.ok)
                 return mostrarAlertaVehiculos("danger", data.error);
             pintarVehiculos(data.vehiculos, usuarioSesion);
         },
 
         error: function () {
+            $("#contenedor-vehiculos").css("opacity", "1");
             mostrarAlertaVehiculos("danger", "Error de conexión");
         }
     });
 }
 
 
-
-// ==========================
-//   PINTAR LISTA
-// ==========================
 function pintarVehiculos(lista, usuarioSesion) {
     const $cont = $("#contenedor-vehiculos");
     $cont.empty();
@@ -80,8 +75,8 @@ function pintarVehiculos(lista, usuarioSesion) {
     
     if (!lista || lista.length === 0) {
         $cont.html(`
-            <div class="alert alert-info text-center">
-                <h5>No hay vehículos</h5>
+            <div class="alert alert-info text-center w-100">
+                <h5>No se encontraron vehículos</h5>
             </div>
         `);
     } else {
@@ -137,7 +132,6 @@ function pintarVehiculos(lista, usuarioSesion) {
         });
     }
 
-    //  ✅ Al final, si es admin, agregamos la tarjeta “Añadir Vehículo”
     if (esAdmin) agregarTarjetaAgregarVehiculo($cont);
 }
 
@@ -146,7 +140,7 @@ function agregarTarjetaAgregarVehiculo($cont) {
     $cont.append(`
       <div class="col">
         <a href="/vehiculos/nuevo" class="d-block text-decoration-none h-100">
-          <div class="vehiculo-card card-base h-100 d-flex flex-column align-items-center justify-content-center">
+          <div class="vehiculo-card card-base h-100 d-flex flex-column align-items-center justify-content-center" style="min-height: 100%;">
             <div class="vehiculo-img-container d-flex align-items-center justify-content-center">
               <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16" style="font-size: 4rem; color: var(--color-primary-hover)">
                 <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
@@ -162,9 +156,6 @@ function agregarTarjetaAgregarVehiculo($cont) {
     `);
 }
 
-// ==========================
-//   MODAL ELIMINAR
-// ==========================
 function configurarModalEliminarVehiculo() {
 
     const $modal = $("#confirmarEliminarModal");
@@ -177,18 +168,14 @@ function configurarModalEliminarVehiculo() {
     });
 
     $btnConfirmar.on("click", function () {
-
         const id = $(this).data("id");
-
         $.ajax({
             type: "DELETE",
             url: "/api/vehiculos/" + id,
-
             success: function () {
                 bootstrap.Modal.getInstance($modal[0]).hide();
                 cargarVehiculos(); // refrescar lista
             },
-
             error: function () {
                 bootstrap.Modal.getInstance($modal[0]).hide();
                 mostrarAlertaVehiculos("danger", "Error al eliminar.");
@@ -197,17 +184,10 @@ function configurarModalEliminarVehiculo() {
     });
 }
 
-
-
-// ==========================
-//   ALERTAS
-// ==========================
 function mostrarAlertaVehiculos(tipo, mensaje) {
-
     if (!$("#alertasVehiculos").length) {
         $(".vehiculos-content").prepend(`<div id="alertasVehiculos"></div>`);
     }
-
     $("#alertasVehiculos").html(`
         <div class="alert alert-${tipo} alert-dismissible fade show">
             ${mensaje}

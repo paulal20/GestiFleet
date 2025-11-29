@@ -76,17 +76,15 @@ function eliminarVehiculo(id) {
 // ==========================
 function actualizarVistaEliminado() {
     // 1. Cambiar el Badge de estado (Activo -> Eliminado)
-    // Buscamos los badges dentro de la tarjeta
     const $badges = $(".card-text .badge");
     
-    // Filtramos para encontrar el badge de "Activo" y cambiarlo
     $badges.each(function() {
         if ($(this).text().trim() === "Activo") {
             $(this).removeClass("bg-success").addClass("bg-danger").text("Eliminado");
         }
     });
 
-    // 2. Ocultar botones de acción (Eliminar/Editar/Reservar) y mostrar mensaje
+    // 2. Ocultar botones de acción y mostrar mensaje
     const $accionesDiv = $(".perfil-actions");
     
     $accionesDiv.fadeOut(300, function() {
@@ -106,7 +104,6 @@ function cerrarModal() {
 }
 
 function mostrarAlerta(tipo, mensaje) {
-    // Si no existe el contenedor dinámico, lo creamos antes de la tarjeta
     let $cont = $("#contenedor-alertas-dinamico");
     
     if ($cont.length === 0) {
@@ -122,7 +119,6 @@ function mostrarAlerta(tipo, mensaje) {
     
     $cont.html(html);
 
-    // Auto-cerrar a los 5 segundos
     setTimeout(function() {
         $cont.find(".alert").alert('close'); 
     }, 5000);
