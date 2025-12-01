@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS vehiculos (
   modelo VARCHAR(50) NOT NULL,
   anyo_matriculacion YEAR NOT NULL,
   descripcion TEXT,
-  tipo ENUM('coche','suv','furgoneta','otro') DEFAULT 'coche',
+  tipo ENUM('coche', 'suv', 'furgoneta', 'moto', 'deportivo', 'todoterreno', 'cabrio', 'pickup', 'otro') DEFAULT 'coche',
   precio DECIMAL(10,2) NOT NULL,
   numero_plazas TINYINT NOT NULL DEFAULT 5,
   autonomia_km INT,

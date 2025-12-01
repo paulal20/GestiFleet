@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const form = document.getElementById("usuarioForm");
     if (!form) return;
 
-    const isEditMode = form.dataset.editmode === "true";
+    const isEditMode = form.action.includes('/editar');
 
     const campos = {
         nombre: document.getElementById("nombre"),
@@ -49,19 +49,28 @@ document.addEventListener("DOMContentLoaded", function() {
                 return "";
             case "email":
                 if (estaVacio(v)) return "El correo es obligatorio.";
-                if (!/^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/.test(v)) return "Formato de correo no válido.";
+                if (!/^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/.test(v)) return "Formato de correo no válido (gestifleet.es/com).";
                 return "";
             case "confemail":
                 if (!isEditMode) {
                     if (estaVacio(v)) return "Debes confirmar el correo.";
+                    if (!/^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/.test(v)) return "Formato de correo no válido (gestifleet.es/com).";
                     if (v !== (campos.email?.value || "").trim()) return "Los correos no coinciden.";
                 }
                 return "";
             case "contrasenya":
-                if (!isEditMode || !estaVacio(v)) {
-                    const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-                    if (!estaVacio(v) && !re.test(v)) return "Mín. 8 caracteres, mayúscula, número y símbolo.";
-                    if (!isEditMode && estaVacio(v)) return "La contraseña es obligatoria.";
+                if(!isEditMode) {
+                    if (estaVacio(v)){ return "La contraseña es obligatoria.";
+                    } else{
+                        const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+                        if (!re.test(v)) return "Mín. 8 caracteres, mayúscula, número y símbolo.";
+                    }
+                } else{
+                    if (estaVacio(v)){ return "";
+                    } else{
+                        const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+                        if (!re.test(v)) return "Mín. 8 caracteres, mayúscula, número y símbolo.";
+                    }
                 }
                 return "";
             case "telefono":

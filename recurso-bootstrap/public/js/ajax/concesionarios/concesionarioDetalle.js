@@ -83,7 +83,6 @@ function eliminarVehiculo(id) {
                     // Lo más sencillo tras un delete parcial es:
                     $row.find("td:last").html(`
                         <span class="text-muted fst-italic">Sin acciones</span>
-                        <button class="btn btn-primary btn-sm ms-1" disabled>Reservar</button>
                     `);
                 }
 
@@ -258,7 +257,7 @@ function pintarVehiculos(lista) {
             reservaBtn = `<a href="/reserva?idVehiculo=${v.id_vehiculo}" class="btn btn-primary btn-sm ms-1">Reservar</a>`;
         } else if (v.activoBool){
             reservaBtn = `<button class="btn btn-primary btn-sm ms-1" disabled>Reservar</button>`;
-        }
+        } else reservaBtn = "";
 
         html += `
             <tr>

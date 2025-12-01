@@ -1,3 +1,18 @@
+
+        <div class="d-flex justify-content-end">
+            <% if (lista) { %>
+                <a href="/usuarios" class="btn btn-outline-secondary">
+                    <span lang="es" class="lang lang-es">Volver a la lista</span>
+                    <span lang="en" class="lang lang-en d-none">Back to List</span>
+                </a>
+            <% } else { %>
+                <a href="/" class="btn btn-outline-secondary">
+                    <span lang="es" class="lang lang-es">Volver al inicio</span>
+                    <span lang="en" class="lang lang-en d-none">Back to Home</span>
+                </a>
+            <% } %>
+        </div>
+        <div id="alertasPerfil"></div>
         <div class="perfil-card">
             <div class="perfil-card-header text-center">
                 <h2 class="perfil-title">
@@ -24,6 +39,14 @@
                             <span class="badge bg-danger">Administrador</span>
                             <% } %>
                 </small>
+                <small class="perfil-activo text-muted">
+                    <% if (usuario.activo===1 ) { %>
+                        <span id="badgeActivo" class="badge bg-success">Activo</span>
+                    <% } else { %>
+                        <span id="badgeActivo" class="badge bg-danger">Eliminado</span>
+                    <% } %>
+                </small>
+
             </div>
 
             <div class="perfil-info">
@@ -43,17 +66,15 @@
 
             <!-- Botones -->
             <div class="perfil-actions d-flex">
-                <% if (lista) { %>
-                    <a href="/usuarios" class="btn btn-outline-secondary">
-                        <span lang="es" class="lang lang-es">Volver a la lista</span>
-                        <span lang="en" class="lang lang-en d-none">Back to List</span>
-                    </a>
-                <% } else { %>
-                    <a href="/" class="btn btn-outline-secondary">
-                        <span lang="es" class="lang lang-es">Volver al inicio</span>
-                        <span lang="en" class="lang lang-en d-none">Back to Home</span>
-                    </a>
-                <% } %>
+                <button type="button" class="btn btn-secondary btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#confirmarEliminarUsuarioModal"
+                    data-id="${u.id_usuario}"
+                    data-name="${u.nombre}">
+                    Eliminar
+                </button>
+
+
                 <a href="/usuarios/<%= usuario.id_usuario %>/editar" class="btn btn-primary">
                     <span lang="es" class="lang lang-es">Editar Información</span>
                     <span lang="en" class="lang lang-en d-none">Edit Info</span>
@@ -62,3 +83,33 @@
         </div>
     </div>
 </div>
+
+<!-- MODAL ELIMINAR USUARIO -->
+<!-- Modal de eliminación -->
+<div class="modal fade" id="confirmarEliminarUsuarioModal" tabindex="-1" aria-labelledby="confirmarEliminarUsuarioModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmarEliminarUsuarioModalLabel">Eliminar Usuario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body">
+        <p id="textoConfirmacion">¿Estás seguro de que quieres eliminar este usuario?</p>
+
+        <div class="d-flex justify-content-end mt-3 gap-2">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <form id="formEliminarUsuario" class="m-0 p-0">
+             <button type="submit" class="btn btn-primary">Eliminar</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+<script src="/js/ajax/usuarios/usuarioDetalle.js"></script>
