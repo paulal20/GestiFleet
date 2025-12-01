@@ -1,78 +1,96 @@
-$(document).ready(function() {
+$(document).ready(function () {
 
-    // 1. Cuando se abre el modal, capturamos ID y nombre del usuario
-    $("#confirmarEliminarUsuarioModal").on("show.bs.modal", function(event) {
-        const button = $(event.relatedTarget); // Botón que disparó el modal
-        const id = button.data("id");
-        const nombre = button.data("name");
+    let idParaBorrar = null;
+    let nombreParaBorrar = null;
 
-        const $submitBtn = $("#formEliminarUsuario").find("button[type='submit']");
-        $submitBtn.data("id", id);
-        $submitBtn.data("name", nombre);
+    const $modal = $("#modalEliminarUsuario");
+    const $btnConfirmar = $("#btnConfirmarEliminarUsuario");
 
-        $("#textoConfirmacion").text(`¿Estás seguro de que deseas eliminar el usuario "${nombre}"?`);
+    // --- CAPTURAR DATOS AL ABRIR EL MODAL ---
+    $modal.on("show.bs.modal", function (event) {
+        const $boton = $(event.relatedTarget); // botón que abrió el modal
+
+        idParaBorrar = $boton.data("id");
+        nombreParaBorrar = $boton.data("name");
+
+        if (!idParaBorrar) {
+            console.error("⚠ No hay id en data-id del botón");
+        }
+
+        $("#nombreUsuarioAEliminar").text(nombreParaBorrar);
     });
 
-    // 2. Al enviar el formulario dentro del modal
-    $("#formEliminarUsuario").on("submit", function(e) {
-        e.preventDefault();
+    // --- CLICK EN EL BOTÓN “ELIMINAR” ---
+    $btnConfirmar.off("click").on("click", function () {
 
-        const $btn = $(this).find("button[type='submit']");
-        const idUsuario = $btn.data("id");
-        const nombreUsuario = $btn.data("name");
-
-        if (!idUsuario) return;
-
-        // Deshabilitar botón para evitar doble click
-        $btn.prop("disabled", true);
+        if (!idParaBorrar) return;
 
         $.ajax({
-            url: `/api/usuarios/${idUsuario}`,
             type: "DELETE",
+            url: "/api/usuarios/" + idParaBorrar,
             dataType: "json",
-            success: function(data) {
-                // Ocultar modal
-                const modalEl = document.getElementById('confirmarEliminarUsuarioModal');
-                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                if (modalInstance) modalInstance.hide();
+
+            success: function (data) {
+                cerrarModal();
 
                 if (data.ok) {
-                    mostrarAlerta("success", `Usuario eliminado: ${nombreUsuario}`);
-                    // Actualizar badge en la fila si existe
-                    $(`#filaUsuario${idUsuario} .badge-estado`).removeClass("bg-success").addClass("bg-danger").text("Eliminado");
-                    // Deshabilitar botones de la fila
-                    $(`#filaUsuario${idUsuario} button, #filaUsuario${idUsuario} a`).prop("disabled", true).addClass("disabled");
+                    mostrarAlertaPerfil(
+                        "success",
+                        "Usuario eliminado: " + nombreParaBorrar
+                    );
+
+                    // Cambiar badge de estado
+                    $("#badgeActivo")
+                        .removeClass("bg-success")
+                        .addClass("bg-danger")
+                        .text("Eliminado");
+
+                    // Quitar botón Eliminar
+                    $(`button[data-id='${idParaBorrar}']`).remove();
+
                 } else {
-                    mostrarAlerta("danger", data.error || "Error al eliminar el usuario");
-                    $btn.prop("disabled", false);
+                    mostrarAlertaPerfil(
+                        "danger",
+                        data.error || "Error al eliminar usuario."
+                    );
                 }
             },
-            error: function(jqXHR, textStatus, errorThrown) {
-                const modalEl = document.getElementById('confirmarEliminarUsuarioModal');
-                const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                if (modalInstance) modalInstance.hide();
 
-                console.error("Error AJAX:", errorThrown);
-                mostrarAlerta("danger", "Error de conexión al eliminar.");
-                $btn.prop("disabled", false);
+            error: function (xhr) {
+                cerrarModal();
+
+                let msg = "Error de conexión.";
+                if (xhr.responseJSON?.error) msg = xhr.responseJSON.error;
+
+                mostrarAlertaPerfil("danger", msg);
             }
         });
+
     });
 
-    // 3. Función auxiliar para mostrar alertas
-    function mostrarAlerta(tipo, mensaje) {
-        const html = `
-            <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
-                ${mensaje}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        `;
-        $("#alertas").html(html);
-
-        setTimeout(function() {
-            $("#alertas .alert").fadeOut("slow", function() {
-                $(this).remove();
-            });
-        }, 5000);
-    }
 });
+
+
+/* ------------------ FUNCIONES AUXILIARES ------------------- */
+
+function cerrarModal() {
+    let modalEl = document.getElementById("modalEliminarUsuario");
+    let modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (modalInstance) modalInstance.hide();
+}
+
+function mostrarAlertaPerfil(tipo, mensaje) {
+    const $cont = $("#alertasPerfil");
+    if (!$cont.length) return;
+
+    $cont.html(`
+        <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+            ${mensaje}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+
+    setTimeout(() => {
+        $cont.find(".alert").alert("close");
+    }, 4000);
+}

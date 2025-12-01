@@ -66,15 +66,17 @@
 
             <!-- Botones -->
             <div class="perfil-actions d-flex">
-                <button type="button" class="btn btn-secondary btn-sm"
-                    data-bs-toggle="modal"
-                    data-bs-target="#confirmarEliminarUsuarioModal"
-                    data-id="${u.id_usuario}"
-                    data-name="${u.nombre}">
-                    Eliminar
-                </button>
+                <% if (usuarioSesion && usuarioSesion.rol === 'Admin' && usuario.rol != 'Admin') { %>
+                    <button type="button"
+                            class="btn btn-outline-secondary btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEliminarUsuario"
+                            data-id="<%= usuario.id_usuario %>"
+                            data-name="<%= usuario.nombre %>">
+                        Eliminar
+                    </button>
 
-
+                <% }%>
                 <a href="/usuarios/<%= usuario.id_usuario %>/editar" class="btn btn-primary">
                     <span lang="es" class="lang lang-es">Editar Información</span>
                     <span lang="en" class="lang lang-en d-none">Edit Info</span>
@@ -84,25 +86,21 @@
     </div>
 </div>
 
-<!-- MODAL ELIMINAR USUARIO -->
-<!-- Modal de eliminación -->
-<div class="modal fade" id="confirmarEliminarUsuarioModal" tabindex="-1" aria-labelledby="confirmarEliminarUsuarioModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
+<div class="modal fade" id="modalEliminarUsuario" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
 
       <div class="modal-header">
-        <h5 class="modal-title" id="confirmarEliminarUsuarioModalLabel">Eliminar Usuario</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <h5 class="modal-title" id="modalTituloUsuario">Eliminar usuario</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
       <div class="modal-body">
-        <p id="textoConfirmacion">¿Estás seguro de que quieres eliminar este usuario?</p>
+        ¿Seguro que quieres eliminar al usuario <span id="nombreUsuarioAEliminar" class="fw-bold">este usuario</span>?
 
         <div class="d-flex justify-content-end mt-3 gap-2">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <form id="formEliminarUsuario" class="m-0 p-0">
-             <button type="submit" class="btn btn-primary">Eliminar</button>
-          </form>
+          <button type="button" id="btnConfirmarEliminarUsuario" class="btn btn-primary">Eliminar</button>
         </div>
       </div>
 
@@ -110,6 +108,7 @@
   </div>
 </div>
 
-
-
+<script src="/js/jquery.min.js"></script>
+<script src="/js/jquery-ui.min.js"></script>
+<script src="/js/jquery-3.7.1.min.js"></script>
 <script src="/js/ajax/usuarios/usuarioDetalle.js"></script>
