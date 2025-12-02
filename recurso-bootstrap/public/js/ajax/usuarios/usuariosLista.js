@@ -100,18 +100,16 @@ function cargarUsuarios() {
             let html = "";
             $.each(data.usuarios, function(i, u) {
                 
-                // Determinamos si el usuario está eliminado para deshabilitar acciones
                 const estaEliminado = !u.activoBool;
                 const disabledAttr = estaEliminado ? 'disabled' : '';
-                const disabledClass = estaEliminado ? 'disabled' : ''; // Para el enlace <a>
+                // Añadimos 'disabled' y 'pe-none' (pointer-events-none de bootstrap) para asegurar visualmente
+                const disabledClass = estaEliminado ? 'disabled pe-none' : ''; 
 
                 // Botón de eliminar
                 let btnEliminar = "";
                 if (u.rol === "Admin") {
-                    // Admin nunca se puede eliminar (ya estaba así)
                     btnEliminar = `<button type="button" class="btn btn-secondary btn-sm" disabled title="No se puede eliminar un administrador">Eliminar</button>`;
                 } else {
-                    // Si está eliminado, añadimos disabled
                     btnEliminar = `
                         <button type="button" class="btn btn-secondary btn-sm" ${disabledAttr}
                             data-bs-toggle="modal"
@@ -124,19 +122,19 @@ function cargarUsuarios() {
                 }
 
                 // Botón editar
-                // Si está eliminado, añadimos clase disabled de bootstrap y pointer-events-none por si acaso
                 const btnEditar = `<a href="/usuarios/${u.id_usuario}/editar" class="btn btn-primary btn-sm ${disabledClass}" ${estaEliminado ? 'aria-disabled="true" tabindex="-1"' : ''}>Editar</a>`;
 
-                // Construcción de la fila
                 html += `
-                    <tr class="fila-click" data-href="/usuarios/${u.id_usuario}" >
+                    <tr class="fila-click" data-href="/usuarios/${u.id_usuario}" style="cursor: pointer;">
                         <td>${u.nombre || ''}</td>
                         <td>${u.correo || ''}</td>
                         <td>${u.rol || ''}</td>
                         <td>${u.telefono || '—'}</td>
                         <td>${u.nombre_concesionario || '—'}</td>
                         <td>${pintarEstado(u.activoBool)}</td>
-                        <td>
+                        
+                        <!-- AQUI ESTÁ LA CLAVE: Añadimos la clase 'celda-acciones' -->
+                        <td class="celda-acciones" style="cursor: default;">
                             <div class="d-flex gap-1">
                                 ${btnEliminar}
                                 ${btnEditar}
@@ -168,9 +166,19 @@ function pintarEstado(activoBool) {
 
 function activarFilaClick() {
     $(".fila-click").off("click").on("click", function(e) {
+        // Lógica corregida:
+        // 1. Si el clic viene de un botón o enlace activo (por si acaso)
         if ($(e.target).closest("button, a").length > 0) {
             return;
         }
+
+        // 2. Si el clic viene de la celda de acciones (.celda-acciones)
+        // Esto previene que los clics "fantasma" en botones disabled (que tienen pointer-events:none)
+        // activen la fila. El evento caerá en el TD, y aquí lo atrapamos.
+        if ($(e.target).closest(".celda-acciones").length > 0) {
+            return;
+        }
+
         const destino = $(this).data("href");
         if (destino) window.location.href = destino;
     });

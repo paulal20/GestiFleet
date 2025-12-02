@@ -19,8 +19,10 @@
     </div>
   <% } %>
 
+    <!-- data-editmode necesario para el JS de validación -->
     <form id="usuarioForm" action="<%= action %>" method="POST" novalidate autocomplete="off" 
-        data-editmode="<%= isEditMode %>">
+        data-editmode="<%= isEditMode %>"
+        data-id="<%= usuario?.id_usuario || '' %>">
     <fieldset>
       <legend class="w-auto">Datos del Usuario</legend>
 
@@ -133,7 +135,8 @@
     </fieldset>
 
     <div class="d-flex justify-content-end mt-3 gap-2">
-      <a href="/usuarios" class="btn btn-outline-secondary">Cancelar</a>
+      <!-- BOTÓN CANCELAR DINÁMICO -->
+      <a href="<%= typeof cancelUrl !== 'undefined' ? cancelUrl : '/usuarios' %>" class="btn btn-outline-secondary">Cancelar</a>
       <button type="submit" class="btn btn-primary">
         <%= isEditMode ? 'Actualizar Usuario' : 'Crear Usuario' %>
       </button>

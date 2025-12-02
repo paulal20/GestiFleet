@@ -3,9 +3,11 @@ const router = express.Router();
 const { isAdmin, isAdminOrSelf } = require('../middleware/auth');
 
 router.get('/', isAdmin, (req, res) => {
-  // SELECT * para tener acceso a todos los campos (incluyendo ciudad para el select)
   req.db.query('SELECT * FROM concesionarios WHERE activo = true ORDER BY nombre', (err, concesionarios) => {
-    if (err) concesionarios = []; 
+    if (err) {
+      console.error("Error obteniendo concesionarios:", err);
+      concesionarios = []; 
+    } 
 
     res.render('listaUsuarios', {
       title: 'Gestión de Usuarios',
@@ -31,7 +33,8 @@ router.get('/nuevo', isAdmin, (req, res) => {
       method: 'POST',
       usuario: {},
       usuarioSesion: req.session.usuario,
-      concesionarios
+      concesionarios,
+      cancelUrl: '/usuarios' 
     });
   });
 });
@@ -53,6 +56,14 @@ router.get('/:id(\\d+)/editar', isAdminOrSelf, (req, res) => {
     usuario.apellido1 = nombreParts[1] || '';
     usuario.apellido2 = nombreParts.slice(2).join(' ') || '';
 
+    // Lógica dinámica para el botón Cancelar
+    let cancelUrl = '/usuarios'; 
+    if (req.session.usuario.id_usuario === usuario.id_usuario) {
+        cancelUrl = '/perfil'; // Si te editas a ti mismo
+    } else {
+        cancelUrl = `/usuarios/${id}`; // Si el admin edita a otro, vuelve a la ficha
+    }
+
     req.db.query('SELECT * FROM concesionarios WHERE activo = true ORDER BY nombre', (errCon, concesionarios) => {
       if (errCon) concesionarios = [];
 
@@ -62,7 +73,8 @@ router.get('/:id(\\d+)/editar', isAdminOrSelf, (req, res) => {
         method: 'PUT',
         usuario,
         usuarioSesion: req.session.usuario,
-        concesionarios
+        concesionarios,
+        cancelUrl
       });
     });
   });

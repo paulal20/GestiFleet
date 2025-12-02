@@ -55,7 +55,7 @@ router.get('/', isAdmin, (req, res) => {
 router.post('/nuevo', isAdmin, (req, res) => {
   const { nombre, apellido1, apellido2, email, confemail, contrasenya, rol, telefono, id_concesionario, preferencias_accesibilidad } = req.body;
 
-  // Validaciones
+  // Validaciones básicas
   const errors = {};
   if (!nombre || !apellido1 || !email || !contrasenya || !rol) errors.general = 'Faltan campos obligatorios';
   if (email !== confemail) errors.email = 'Los correos no coinciden';
@@ -65,10 +65,35 @@ router.post('/nuevo', isAdmin, (req, res) => {
     return res.status(400).json({ ok: false, errors });
   }
 
-  // 1. Verificar duplicado
-  req.db.query('SELECT id_usuario FROM usuarios WHERE correo = ?', [email], (err, rows) => {
+  // 1. Verificar duplicados (Email O Teléfono)
+  let checkSql = 'SELECT id_usuario, correo, telefono FROM usuarios WHERE correo = ?';
+  const checkParams = [email];
+  
+  if (telefono) {
+      checkSql += ' OR telefono = ?';
+      checkParams.push(telefono);
+  }
+
+  req.db.query(checkSql, checkParams, (err, rows) => {
     if (err) return res.status(500).json({ ok: false, error: err.message });
-    if (rows.length > 0) return res.status(400).json({ ok: false, error: 'El correo ya existe' });
+    
+    // Comprobamos qué campo está duplicado
+    if (rows.length > 0) {
+        const dbErrors = {};
+        rows.forEach(row => {
+            if (row.correo === email) dbErrors.email = 'El correo ya existe';
+            if (telefono && row.telefono === telefono) dbErrors.telefono = 'El teléfono ya existe';
+        });
+        
+        // Si encontramos duplicados, devolvemos error estructurado
+        if (Object.keys(dbErrors).length > 0) {
+            return res.status(400).json({ 
+                ok: false, 
+                error: 'Datos duplicados', // Mensaje genérico para la alerta superior
+                errors: dbErrors           // Objeto para marcar los campos específicos
+            });
+        }
+    }
 
     // 2. Hash Password
     bcrypt.hash(contrasenya, 10, (errHash, hash) => {
@@ -108,10 +133,35 @@ router.put('/:id(\\d+)', isAdminOrSelf, (req, res) => {
     return res.status(400).json({ ok: false, error: 'Faltan datos obligatorios' });
   }
 
-  // 1. Verificar duplicado (excluyendo propio ID)
-  req.db.query('SELECT id_usuario FROM usuarios WHERE correo = ? AND id_usuario != ?', [email, id], (err, rows) => {
+  // 1. Verificar duplicados (Email O Teléfono, excluyendo el usuario actual)
+  let checkSql = 'SELECT id_usuario, correo, telefono FROM usuarios WHERE (correo = ?';
+  const checkParams = [email];
+  
+  if (telefono) {
+      checkSql += ' OR telefono = ?';
+      checkParams.push(telefono);
+  }
+  checkSql += ') AND id_usuario != ?';
+  checkParams.push(id);
+
+  req.db.query(checkSql, checkParams, (err, rows) => {
     if (err) return res.status(500).json({ ok: false, error: err.message });
-    if (rows.length > 0) return res.status(400).json({ ok: false, error: 'El correo ya está en uso' });
+    
+    if (rows.length > 0) {
+        const dbErrors = {};
+        rows.forEach(row => {
+            if (row.correo === email) dbErrors.email = 'El correo ya está en uso';
+            if (telefono && row.telefono === telefono) dbErrors.telefono = 'El teléfono ya está en uso';
+        });
+
+        if (Object.keys(dbErrors).length > 0) {
+            return res.status(400).json({ 
+                ok: false, 
+                error: 'Datos duplicados', 
+                errors: dbErrors 
+            });
+        }
+    }
 
     // Función auxiliar para actualizar
     const executeUpdate = (passwordHash) => {
