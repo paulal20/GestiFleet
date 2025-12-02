@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
   correo VARCHAR(100) NOT NULL UNIQUE,
   contrasenya VARCHAR(255) NOT NULL,
   rol ENUM('Empleado','Admin') NOT NULL,
-  telefono VARCHAR(20),
+  telefono VARCHAR(20) NOT NULL UNIQUE,
   id_concesionario INT,
   preferencias_accesibilidad JSON,
   activo BOOLEAN NOT NULL DEFAULT TRUE,

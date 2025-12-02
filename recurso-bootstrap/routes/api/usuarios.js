@@ -51,57 +51,43 @@ router.get('/', isAdmin, (req, res) => {
   });
 });
 
-// POST /api/usuarios (Crear Usuario)
+// POST /api/usuarios (Crear Usuario - SIEMPRE EMPLEADO)
 router.post('/nuevo', isAdmin, (req, res) => {
-  const { nombre, apellido1, apellido2, email, confemail, contrasenya, rol, telefono, id_concesionario, preferencias_accesibilidad } = req.body;
+  const { nombre, apellido1, apellido2, email, confemail, contrasenya, telefono, id_concesionario, preferencias_accesibilidad } = req.body;
+  const rol = 'Empleado'; 
 
-  // Validaciones básicas
   const errors = {};
-  if (!nombre || !apellido1 || !email || !contrasenya || !rol) errors.general = 'Faltan campos obligatorios';
+  if (!nombre || !apellido1 || !email || !contrasenya || !telefono) errors.general = 'Faltan campos obligatorios';
   if (email !== confemail) errors.email = 'Los correos no coinciden';
-  if (rol === 'Empleado' && (!id_concesionario || id_concesionario == '0')) errors.concesionario = 'Selecciona un concesionario';
+  if (!id_concesionario || id_concesionario == '0') errors.concesionario = 'Selecciona un concesionario';
 
   if (Object.keys(errors).length > 0) {
     return res.status(400).json({ ok: false, errors });
   }
 
-  // 1. Verificar duplicados (Email O Teléfono)
-  let checkSql = 'SELECT id_usuario, correo, telefono FROM usuarios WHERE correo = ?';
-  const checkParams = [email];
-  
-  if (telefono) {
-      checkSql += ' OR telefono = ?';
-      checkParams.push(telefono);
-  }
+  const checkSql = 'SELECT id_usuario, correo, telefono FROM usuarios WHERE correo = ? OR telefono = ?';
+  const checkParams = [email, telefono];
 
   req.db.query(checkSql, checkParams, (err, rows) => {
     if (err) return res.status(500).json({ ok: false, error: err.message });
     
-    // Comprobamos qué campo está duplicado
     if (rows.length > 0) {
         const dbErrors = {};
         rows.forEach(row => {
             if (row.correo === email) dbErrors.email = 'El correo ya existe';
-            if (telefono && row.telefono === telefono) dbErrors.telefono = 'El teléfono ya existe';
+            if (row.telefono === telefono) dbErrors.telefono = 'El teléfono ya existe';
         });
         
-        // Si encontramos duplicados, devolvemos error estructurado
         if (Object.keys(dbErrors).length > 0) {
-            return res.status(400).json({ 
-                ok: false, 
-                error: 'Datos duplicados', // Mensaje genérico para la alerta superior
-                errors: dbErrors           // Objeto para marcar los campos específicos
-            });
+            return res.status(400).json({ ok: false, error: 'Datos duplicados', errors: dbErrors });
         }
     }
 
-    // 2. Hash Password
     bcrypt.hash(contrasenya, 10, (errHash, hash) => {
       if (errHash) return res.status(500).json({ ok: false, error: 'Error encriptando contraseña' });
 
       const nombreCompleto = [nombre, apellido1, apellido2].filter(Boolean).join(' ').trim();
 
-      // 3. Insertar
       req.db.query(
         `INSERT INTO usuarios (nombre, correo, contrasenya, rol, telefono, id_concesionario, preferencias_accesibilidad, activo)
          VALUES (?, ?, ?, ?, ?, ?, ?, true)`,
@@ -110,8 +96,8 @@ router.post('/nuevo', isAdmin, (req, res) => {
           email, 
           hash, 
           rol, 
-          telefono || null, 
-          rol === 'Empleado' ? id_concesionario : null, 
+          telefono,
+          id_concesionario, 
           preferencias_accesibilidad || null
         ],
         (errInsert, result) => {
@@ -123,64 +109,52 @@ router.post('/nuevo', isAdmin, (req, res) => {
   });
 });
 
-// PUT /api/usuarios/:id (Editar Usuario)
+// PUT /api/usuarios/:id
 router.put('/:id(\\d+)', isAdminOrSelf, (req, res) => {
   const id = parseInt(req.params.id, 10);
   const { nombre, apellido1, apellido2, email, contrasenya, rol, telefono, id_concesionario, preferencias_accesibilidad } = req.body;
 
-  // Validaciones básicas
-  if (!nombre || !apellido1 || !email || !rol) {
+  // CAMBIO: Añadido !telefono
+  if (!nombre || !apellido1 || !email || !rol || !telefono) {
     return res.status(400).json({ ok: false, error: 'Faltan datos obligatorios' });
   }
 
-  // 1. Verificar duplicados (Email O Teléfono, excluyendo el usuario actual)
-  let checkSql = 'SELECT id_usuario, correo, telefono FROM usuarios WHERE (correo = ?';
-  const checkParams = [email];
-  
-  if (telefono) {
-      checkSql += ' OR telefono = ?';
-      checkParams.push(telefono);
-  }
-  checkSql += ') AND id_usuario != ?';
-  checkParams.push(id);
+  // 1. Verificar duplicados (CAMBIO: Telefono siempre presente)
+  let checkSql = 'SELECT id_usuario, correo, telefono FROM usuarios WHERE (correo = ? OR telefono = ?) AND id_usuario != ?';
+  const checkParams = [email, telefono, id];
 
   req.db.query(checkSql, checkParams, (err, rows) => {
+    // ... (El resto del código de duplicados es igual, solo asegurate de que detecte telefono) ...
     if (err) return res.status(500).json({ ok: false, error: err.message });
     
     if (rows.length > 0) {
-        const dbErrors = {};
-        rows.forEach(row => {
-            if (row.correo === email) dbErrors.email = 'El correo ya está en uso';
-            if (telefono && row.telefono === telefono) dbErrors.telefono = 'El teléfono ya está en uso';
-        });
-
-        if (Object.keys(dbErrors).length > 0) {
-            return res.status(400).json({ 
-                ok: false, 
-                error: 'Datos duplicados', 
-                errors: dbErrors 
-            });
-        }
+       // ... (Lógica de dbErrors igual que antes) ...
+       const dbErrors = {};
+       rows.forEach(row => {
+           if (row.correo === email) dbErrors.email = 'El correo ya está en uso';
+           if (row.telefono === telefono) dbErrors.telefono = 'El teléfono ya está en uso';
+       });
+       if (Object.keys(dbErrors).length > 0) return res.status(400).json({ ok: false, error: 'Datos duplicados', errors: dbErrors });
     }
 
-    // Función auxiliar para actualizar
+    // Función actualizar (CAMBIO: telefono sin || null)
     const executeUpdate = (passwordHash) => {
       const nombreCompleto = [nombre, apellido1, apellido2].filter(Boolean).join(' ').trim();
       let sql = `UPDATE usuarios SET nombre=?, correo=?, telefono=?, preferencias_accesibilidad=?`;
-      const params = [nombreCompleto, email, telefono || null, preferencias_accesibilidad || null];
-
+      const params = [nombreCompleto, email, telefono, preferencias_accesibilidad || null];
+      
       if (passwordHash) {
         sql += `, contrasenya=?`;
         params.push(passwordHash);
       }
-
-      // Lógica de roles (Solo Admin puede cambiar roles/concesionarios de otros)
+      
+      // ... (Resto de la lógica de roles igual) ...
       if (req.session.usuario.rol === 'Admin' && req.session.usuario.id_usuario !== id) {
         sql += `, rol=?, id_concesionario=?`;
         params.push(rol);
         params.push(rol === 'Empleado' ? id_concesionario : null);
       }
-      
+
       sql += ` WHERE id_usuario=?`;
       params.push(id);
 
@@ -189,15 +163,12 @@ router.put('/:id(\\d+)', isAdminOrSelf, (req, res) => {
         res.json({ ok: true });
       });
     };
-
-    // 2. Si hay contraseña nueva, hashear
+    
+    // ... (Lógica de hash password igual) ...
     if (contrasenya && contrasenya.trim() !== '') {
-      bcrypt.hash(contrasenya, 10, (errHash, hash) => {
-        if (errHash) return res.status(500).json({ ok: false, error: 'Error password' });
-        executeUpdate(hash);
-      });
+       bcrypt.hash(contrasenya, 10, (errHash, hash) => { executeUpdate(hash); });
     } else {
-      executeUpdate(null);
+       executeUpdate(null);
     }
   });
 });

@@ -1,14 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Escuchamos el evento custom que lanza el validador frontend cuando todo está OK
     const form = document.getElementById("usuarioForm");
     if (!form) return;
 
-    // Leemos el dataset
     const isEditMode = form.dataset.editmode === "true";
     const idUsuario = form.dataset.id; 
 
     form.addEventListener("form-valid", () => {
-        // Limpiar alertas generales anteriores (los spans se limpian en la validación, aquí la alerta superior)
+        // Limpiamos alertas previas
         document.querySelectorAll(".alert").forEach(el => el.remove());
 
         const formData = {
@@ -24,8 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
             preferencias_accesibilidad: document.getElementById("preferencias_accesibilidad").value.trim()
         };
 
-        // --- CORRECCIÓN AQUÍ ---
-        // La ruta PUT correcta es /api/usuarios/${idUsuario}
         const url = isEditMode
             ? `/api/usuarios/${idUsuario}` 
             : `/api/usuarios/nuevo`;
@@ -40,7 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(res => res.json())
         .then(data => {
             if (!data.ok) {
-                // Si la API devuelve errores específicos (ej. duplicados)
                 if (data.errors) {
                     Object.keys(data.errors).forEach(field => {
                         const errorEl = document.getElementById(`error-${field}`);
@@ -48,24 +43,31 @@ document.addEventListener("DOMContentLoaded", () => {
                         
                         const input = document.getElementById(field);
                         if (input) {
-                            // Importante: Quitamos el verde (is-valid) si el backend dice que está mal
                             input.classList.remove("is-valid");
                             input.classList.add("is-invalid");
+                            
+                            // GUARDAR VETO: Guardamos el valor actual como inválido en el formulario
+                            // para que la validación JS no lo ponga verde al hacer click fuera.
+                            if (!form.valoresVetados) form.valoresVetados = {};
+                            form.valoresVetados[field] = input.value.trim();
                         }
                     });
                 } 
                 
-                // Mostrar mensaje global de error arriba
                 const div = document.createElement("div");
                 div.className = "alert alert-danger mt-2";
                 div.textContent = data.error || "Error desconocido al guardar.";
                 form.prepend(div);
                 
+                // NUEVO: Eliminar alerta a los 5 segundos
+                setTimeout(() => {
+                    if (div) div.remove();
+                }, 5000);
+                
                 return;
             }
 
-            // Éxito: Redirigir
-            // Si es edición, redirigimos a la ficha. Si es nuevo, usamos el ID que devuelve el insert.
+            // Éxito
             const redirectId = isEditMode ? idUsuario : data.id;
             window.location.href = `/usuarios/${redirectId}`;
         })
@@ -75,6 +77,11 @@ document.addEventListener("DOMContentLoaded", () => {
             div.className = "alert alert-danger mt-2";
             div.textContent = "Error de conexión al enviar el formulario.";
             form.prepend(div);
+
+            // Eliminar alerta de conexión también a los 5s
+            setTimeout(() => {
+                if (div) div.remove();
+            }, 5000);
         });
     });
 });
