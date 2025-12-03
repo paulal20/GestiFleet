@@ -74,12 +74,12 @@ document.addEventListener("DOMContentLoaded", function() {
             case "contrasenya":
                 if (!isEditMode) {
                     if (estaVacio(v)) return "La contraseña es obligatoria.";
-                    const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-                    if (!re.test(v)) return "Mín. 8 caracteres, mayúscula, número y símbolo.";
+                    const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+                    if (!re.test(v)) return "Mín. 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.";
                 } else {
                     if (!estaVacio(v)) {
-                        const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-                        if (!re.test(v)) return "Mín. 8 caracteres, mayúscula, número y símbolo.";
+                        const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+                        if (!re.test(v)) return "Mín. 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.";
                     }
                 }
                 return "";

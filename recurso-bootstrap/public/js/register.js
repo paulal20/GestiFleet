@@ -92,9 +92,9 @@ document.addEventListener("DOMContentLoaded", function(){
                 if (estaVacio(v)) {
                     return "La contraseña es obligatoria.";
                 }
-                const contrasenyaForm = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+                const contrasenyaForm = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
                 if (!contrasenyaForm.test(v)) {
-                    return "La contraseña debe tener mín. 8 caracteres, una mayúscula, un número y un símbolo.";
+                    return "La contraseña debe tener mín. 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.";
                 }
                 return "";
             }

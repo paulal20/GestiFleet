@@ -40,7 +40,7 @@ function isAdminOrSelf(req, res, next) {
         return next();
     }
 
-    req.session.errorMessage = 'Acceso denegado. No tienes permisos para editar este perfil.';
+    req.session.errorMessage = 'Acceso denegado. No tienes permisos para ver este perfil.';
     res.redirect('back');
 }
 

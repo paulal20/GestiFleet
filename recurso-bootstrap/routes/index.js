@@ -148,9 +148,9 @@ router.post('/register', isGuest, (req, res) => {
     if (!correo || !emailRegex.test(correo)) fieldErrors.email = 'El formato del correo no es válido.';
     if (correo !== confemail) fieldErrors.confemail = 'Los correos no coinciden.';
     
-    const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-    if (!contrasenya || !passRegex.test(contrasenya)) fieldErrors.contrasenya = 'La contraseña debe tener mín. 8 caracteres, una mayúscula, un número y un símbolo.';
-    
+    const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    if (!contrasenya || !passRegex.test(contrasenya)) fieldErrors.contrasenya = 'La contraseña debe tener mín. 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.';
+
     const telRegex = /^[0-9]{9,15}$/;
     if (!telefono || !telRegex.test(telefono)) fieldErrors.telefono = 'El teléfono debe tener entre 9 y 15 números.';
     

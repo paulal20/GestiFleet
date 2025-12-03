@@ -83,5 +83,5 @@ function mostrarAlertaPerfil(tipo, mensaje) {
     // Auto-cierre a los 4 segundos
     setTimeout(() => {
         $cont.find(".alert").alert("close");
-    }, 4000);
+    }, 5000);
 }
