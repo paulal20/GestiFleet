@@ -245,35 +245,6 @@ router.post('/check-email', (req, res) => {
   });
 });
 
-// PERFIL
-router.get('/perfil', (req, res) => {
-  const usuario = req.session.usuario;
-  if (!usuario) {
-    req.session.errorMessage = 'Debes iniciar sesión para ver tu perfil';
-    return res.redirect('/login');
-  }
-
-  req.db.query(`
-      SELECT u.*, c.nombre AS nombre_concesionario
-      FROM usuarios u
-      LEFT JOIN concesionarios c ON u.id_concesionario = c.id_concesionario
-      WHERE u.id_usuario = ?
-    `, [usuario.id_usuario], (err, usuarios) => {
-    
-    if (err) {
-       console.error(err);
-       return res.status(500).render('error', { mensaje: 'Error al cargar perfil' });
-    }
-
-    if (usuarios.length === 0) {
-      return res.status(404).render('error', { mensaje: 'Usuario no encontrado.' });
-    }
-
-    const usuarioDetalle = usuarios[0];
-    res.render('perfil', { title: 'Mi Información', usuario: usuarioDetalle, lista: false, usuarioSesion: usuario });
-  });
-});
-
 // ADMINISTRAR
 router.get('/administrar', isAdmin, (req, res) => {
   const usuario = req.session.usuario;

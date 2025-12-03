@@ -42,7 +42,10 @@ router.get('/nuevo', isAdmin, (req, res) => {
 // VISTA FORMULARIO EDITAR: /usuarios/:id/editar
 router.get('/:id(\\d+)/editar', isAdminOrSelf, (req, res) => {
   const id = parseInt(req.params.id, 10);
-  const redirectUrl = req.session.usuario.rol === 'Admin' ? '/usuarios' : '/perfil';
+  
+  const redirectUrl = req.session.usuario.rol === 'Admin' 
+    ? '/usuarios' 
+    : `/usuarios/${req.session.usuario.id_usuario}`; 
 
   req.db.query('SELECT * FROM usuarios WHERE id_usuario = ?', [id], (err, usuarios) => {
     if (err || !usuarios.length) {
@@ -56,13 +59,7 @@ router.get('/:id(\\d+)/editar', isAdminOrSelf, (req, res) => {
     usuario.apellido1 = nombreParts[1] || '';
     usuario.apellido2 = nombreParts.slice(2).join(' ') || '';
 
-    // Lógica dinámica para el botón Cancelar
-    let cancelUrl = '/usuarios'; 
-    if (req.session.usuario.id_usuario === usuario.id_usuario) {
-        cancelUrl = '/perfil'; // Si te editas a ti mismo
-    } else {
-        cancelUrl = `/usuarios/${id}`; // Si el admin edita a otro, vuelve a la ficha
-    }
+    const cancelUrl = `/usuarios/${id}`;
 
     req.db.query('SELECT * FROM concesionarios WHERE activo = true ORDER BY nombre', (errCon, concesionarios) => {
       if (errCon) concesionarios = [];
@@ -80,8 +77,8 @@ router.get('/:id(\\d+)/editar', isAdminOrSelf, (req, res) => {
   });
 });
 
-// VISTA DETALLE / PERFIL: /usuarios/:id
-router.get('/:id(\\d+)', isAdmin, (req, res) => {
+// VISTA DETALLE: /usuarios/:id
+router.get('/:id(\\d+)', isAdminOrSelf, (req, res) => {
   const id = parseInt(req.params.id, 10);
 
   req.db.query(`
@@ -95,10 +92,10 @@ router.get('/:id(\\d+)', isAdmin, (req, res) => {
       return res.status(404).render('error', { mensaje: 'Usuario no encontrado.' });
     }
 
-    res.render('perfil', {
+    res.render('usuarioDetalle', { 
       title: 'Detalle del Usuario',
       usuario: usuarios[0],
-      lista: true, 
+      lista: req.session.usuario.rol === 'Admin', 
       usuarioSesion: req.session.usuario
     });
   });
