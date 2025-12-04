@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { isAuth, isAdmin, isAdminOrSelf } = require('../../middleware/auth');
+const { isAuth, isAdmin } = require('../../middleware/auth');
 
 // POST /api/reservas (Crear Reserva)
 router.post('/', isAuth, (req, res) => {
@@ -8,22 +8,22 @@ router.post('/', isAuth, (req, res) => {
   const { vehiculo, fechaInicio, fechaFin } = req.body;
   const idVehiculo = parseInt(vehiculo, 10);
 
-  // 1. Validaciones de Fecha
-  const ahora = new Date();
   const fechaI = new Date(fechaInicio);
   const fechaF = new Date(fechaFin);
+  
+  const ahoraConMargen = new Date(Date.now() - 5 * 60000); 
+
   let errorFecha = null;
 
   if (!fechaInicio || !fechaFin) errorFecha = 'Las fechas son obligatorias.';
   else if (isNaN(fechaI.getTime()) || isNaN(fechaF.getTime())) errorFecha = 'Formato de fecha inválido.';
-  else if (fechaI <= ahora) errorFecha = 'La fecha de inicio debe ser futura.';
+  else if (fechaI < ahoraConMargen) errorFecha = 'La fecha de inicio debe ser futura o actual.';
   else if (fechaF <= fechaI) errorFecha = 'La fecha fin debe ser posterior a la de inicio.';
 
   if (errorFecha) {
     return res.status(400).json({ ok: false, error: errorFecha });
   }
 
-  // 2. Comprobación de Conflictos (Query)
   const sqlConflictos = `
       SELECT COUNT(*) AS conflicts
       FROM reservas
@@ -42,7 +42,7 @@ router.post('/', isAuth, (req, res) => {
     if (rows[0].conflicts > 0) {
       return res.status(409).json({ 
         ok: false, 
-        error: 'El vehículo no está disponible en esas fechas.' 
+        error: 'El vehículo NO está disponible en esas fechas (coincide con otra reserva).' 
       });
     }
 
@@ -65,7 +65,6 @@ router.post('/', isAuth, (req, res) => {
 });
 
 // PUT /api/reservas/:id/cancelar (Cancelar)
-// Nota: Cambiado a PUT para ser RESTful. Si tu frontend usa form action normal, avísame.
 router.put('/:id(\\d+)/cancelar', isAuth, (req, res) => {
   const idReserva = parseInt(req.params.id, 10);
   const usuarioActual = req.session.usuario;

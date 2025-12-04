@@ -32,6 +32,27 @@ document.addEventListener("DOMContentLoaded", function(){
         const barraProgreso = document.getElementById("formProgress");
         const textoProgreso = document.getElementById("progressPercent");
 
+        const paramsUrl = new URLSearchParams(window.location.search);
+        const urlIdVehiculo = paramsUrl.get('idVehiculo');
+        const urlFecha = paramsUrl.get('fecha');
+
+        // Si viene el ID del vehículo por URL y el campo existe, lo seleccionamos
+        if (urlIdVehiculo && campos.vehiculo) {
+            campos.vehiculo.value = urlIdVehiculo;
+        }
+
+        // Si viene fecha por URL y el campo inicio existe, lo rellenamos
+        if (urlFecha && campos.fechaInicio) {
+            // El input datetime-local necesita formato YYYY-MM-DDTHH:mm
+            let fechaValida = urlFecha;
+            if (urlFecha.length === 10) { // formato YYYY-MM-DD
+                fechaValida += "T09:00"; // Hora por defecto si no viene
+            }
+            campos.fechaInicio.value = fechaValida;
+        }
+        // =========================================================
+
+
         let totalCampos = Object.values(campos).filter(el => el && el.required).length;
 
         const opcionalesActivos = new Set();
@@ -41,7 +62,6 @@ document.addEventListener("DOMContentLoaded", function(){
 
             Object.keys(campos).forEach(key => {
                 const input = campos[key];
-                // Quitamos la referencia a 'error' aquí ya que no se usa.
                 if (!input) return;
 
                 const esValido = input.classList.contains("is-valid");
@@ -83,17 +103,19 @@ document.addEventListener("DOMContentLoaded", function(){
             const v = String(input.value || "").trim();
 
             if (key === "vehiculo") {
-                if (!v) return "Debes seleccionar un vehículo."; // Corregido: 'tipo de vehículo' a 'vehículo'
+                if (!v) return "Debes seleccionar un vehículo."; 
                 return "";
             }
 
             if (key === "fechaInicio") {
                 if (estaVacio(v)) return "La fecha y hora de inicio son obligatorias.";
                 const fechaI = new Date(v);
-                const ahora = new Date();
                 
-                // Aseguramos que la fecha es válida y es en el futuro (dando un pequeño margen)
-                if (isNaN(fechaI.getTime()) || fechaI.getTime() <= ahora.getTime() + 60000) { // +60s de margen
+                // CAMBIO: Permitir margen de 5 minutos hacia atrás para "reservar ya"
+                const ahoraConMargen = new Date(Date.now() - 5 * 60000); 
+                
+                // Aseguramos que la fecha es válida y es "futura" (con margen)
+                if (isNaN(fechaI.getTime()) || fechaI < ahoraConMargen) { 
                     return "La fecha y hora introducidas deben ser posteriores a la presente.";
                 }
 
@@ -110,9 +132,10 @@ document.addEventListener("DOMContentLoaded", function(){
             if (key === "fechaFin") {
                 if (estaVacio(v)) return "La fecha y hora de fin son obligatorias.";
                 const fechaF = new Date(v);
-                const ahora = new Date();
+                
+                const ahoraConMargen = new Date(Date.now() - 5 * 60000);
 
-                if (isNaN(fechaF.getTime()) || fechaF.getTime() <= ahora.getTime() + 60000) {
+                if (isNaN(fechaF.getTime()) || fechaF < ahoraConMargen) {
                     return "La fecha y hora introducidas deben ser posteriores a la presente.";
                 }
 

@@ -1,30 +1,48 @@
 const express = require('express');
 const router = express.Router();
-const { isAuth, isAdmin, isAdminOrSelf } = require('../middleware/auth');
+const { isAuth, isAdmin } = require('../middleware/auth');
 
-// Helper function (Callback style)
-function getVehiculosDisponibles(db, usuario, callback) {
+function getVehiculosDisponibles(db, usuario, fechaInicio, callback) {
+  const momento = fechaInicio ? new Date(fechaInicio) : new Date();
+
+  if (isNaN(momento.getTime())) {
+      momento = new Date(); 
+  }
+
   let sql = `
-      SELECT id_vehiculo, marca, modelo, matricula 
-      FROM vehiculos
-      WHERE estado = 'disponible' AND activo = 1
+      SELECT v.id_vehiculo, v.marca, v.modelo, v.matricula 
+      FROM vehiculos v
+      WHERE v.activo = 1
+      AND NOT EXISTS (
+          SELECT 1 FROM reservas r 
+          WHERE r.id_vehiculo = v.id_vehiculo 
+          AND r.estado = 'activa'
+          -- El vehículo NO está disponible si existe una reserva activa
+          -- que envuelva el momento de inicio deseado
+          AND r.fecha_inicio <= ? 
+          AND r.fecha_fin >= ?
+      )
     `;
-  const params = [];
+  
+  const params = [momento, momento];
   
   if (!usuario || usuario.rol !== 'Admin') {
-    sql += ' AND id_concesionario = ? ';
+    sql += ' AND v.id_concesionario = ? ';
     params.push(usuario.id_concesionario);
   }
 
-  sql += ' ORDER BY marca, modelo';
+  sql += ' ORDER BY v.marca, v.modelo';
 
   db.query(sql, params, callback);
 }
 
 // GET /reserva/ (Formulario Nueva Reserva)
 router.get('/', isAuth, (req, res) => {
-  // Cargamos vehículos para el <select>
-  getVehiculosDisponibles(req.db, req.session.usuario, (err, vehiculos) => {
+  // Recogemos la fecha de la URL (si viene del filtro)
+  const fechaUrl = req.query.fecha;
+
+  // Cargamos vehículos disponibles PARA ESA FECHA
+  getVehiculosDisponibles(req.db, req.session.usuario, fechaUrl, (err, vehiculos) => {
     if (err) {
       console.error('Error al obtener vehículos vista:', err);
       vehiculos = [];
@@ -39,8 +57,8 @@ router.get('/', isAuth, (req, res) => {
       vehiculos,
       idVehiculoSeleccionado,
       usuarioSesion: req.session.usuario,
-      formData: {}, // El frontend se encarga de los datos si falla
-      action: '/api/reservas', // Apunta a la API
+      formData: {}, 
+      action: '/api/reservas', 
       method: 'POST'
     });
   });
@@ -127,7 +145,13 @@ router.get('/listareservas', isAdmin, (req, res) => {
 router.get('/mis-reservas', isAuth, (req, res) => {
   const usuarioActual = req.session.usuario;
   
-  getVehiculosDisponibles(req.db, usuarioActual, (err, vehiculos) => {
+  // Aquí usamos 'null' o 'new Date()' como fecha para mostrar los disponibles AHORA por defecto para filtrar visualmente si hiciera falta
+  // Aunque en esta vista 'listareservas' realmente 'todosVehiculos' se usa para los filtros, así que mostramos todos.
+  // Para filtros de listado, no necesitamos filtrar por disponibilidad, así que usamos una query simple.
+  
+  const sqlTodosVehiculos = "SELECT id_vehiculo, marca, modelo, matricula FROM vehiculos WHERE activo = 1"; // Simplificado para filtros
+  
+  req.db.query(sqlTodosVehiculos, (err, vehiculos) => {
     if (err) vehiculos = [];
 
     const estadosDisponibles = ['activa', 'finalizada', 'cancelada'];

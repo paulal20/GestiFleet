@@ -220,8 +220,10 @@ function pintarVehiculos(lista, usuarioSesion) {
                         </a>
                     </div>`
                 : `
-                    <div class="card-footer">
-                        <a class="btn btn-primary w-100" href="/reserva?idVehiculo=${v.id_vehiculo}${queryFechaAmpersand}">
+                    <!-- AQUÍ ESTÁ EL CAMBIO: p-0 y border-0 para eliminar espacios y bordes -->
+                    <div class="card-footer p-0 border-0">
+                        <!-- rounded-bottom para que encaje abajo -->
+                        <a class="btn btn-primary w-100 rounded-bottom" href="/reserva?idVehiculo=${v.id_vehiculo}${queryFechaAmpersand}">
                             Reservar
                         </a>
                     </div>`;
