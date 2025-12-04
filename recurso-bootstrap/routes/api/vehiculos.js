@@ -145,12 +145,12 @@ router.post('/', isAdmin, upload.single('imagen'), (req, res) => {
       matricula, marca, modelo, anyo_matriculacion, descripcion,
       tipo, precio, numero_plazas, autonomia_km, color,
       id_concesionario
-      // Nota: Ignoramos 'estado' del body, ya no es un input manual relevante para disponibilidad
     } = formData;
 
-    // ... (Validaciones IDÉNTICAS al original) ...
+    // 1. VALIDACIONES SÍNCRONAS BÁSICAS
     let errorMsg = null;
     const actual = new Date().getFullYear();
+    
     if (!matricula || !marca || !modelo || !anyo_matriculacion || !precio || !id_concesionario || !tipo) {
       errorMsg = 'Faltan campos obligatorios.';
     } else if (!/^\d{4}[A-Z]{3}$/i.test(matricula)) {
@@ -169,24 +169,52 @@ router.post('/', isAdmin, upload.single('imagen'), (req, res) => {
 
     if (errorMsg) return res.status(400).json({ ok: false, error: errorMsg });
 
-    req.db.query('SELECT id_vehiculo FROM vehiculos WHERE matricula = ?', [matricula.toUpperCase()], (err, duplicados) => {
-      if (err) return res.status(500).json({ ok: false, error: err.message });
-      if (duplicados.length > 0) return res.status(400).json({ ok: false, error: 'La matrícula ya existe.' });
-
-      const imagenBuffer = req.file ? req.file.buffer : null;
-
-      // Insertamos 'disponible' en estado por defecto para cumplir con la BD, aunque la lógica real esté en reservas
-      req.db.query(
-        `INSERT INTO vehiculos (matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'disponible', ?, true)`,
-        [matricula.toUpperCase(), marca, modelo, anyo_matriculacion, descripcion || null, tipo, precio, numero_plazas || 5, autonomia_km || null, color || null, imagenBuffer, id_concesionario],
-        (errInsert, result) => {
-          if (errInsert) {
-             console.error('Error insertando vehículo:', errInsert);
-             return res.status(500).json({ ok: false, error: 'Error al guardar el vehículo' });
-          }
-          res.json({ ok: true, id: result.insertId, redirectUrl: '/vehiculos' });
+    req.db.query('SELECT id_concesionario FROM concesionarios WHERE id_concesionario = ?', [id_concesionario], (errConc, rowsConc) => {
+        if (errConc) return res.status(500).json({ ok: false, error: 'Error al verificar concesionario.' });
+        
+        if (rowsConc.length === 0) {
+            return res.status(400).json({ ok: false, error: 'El concesionario seleccionado no existe en la base de datos.' });
         }
-      );
+
+        req.db.query('SELECT id_vehiculo FROM vehiculos WHERE matricula = ?', [matricula.toUpperCase()], (errDup, duplicados) => {
+            if (errDup) return res.status(500).json({ ok: false, error: errDup.message });
+            
+            if (duplicados.length > 0) {
+                return res.status(400).json({ ok: false, error: 'La matrícula ya existe.' });
+            }
+
+            const imagenBuffer = req.file ? req.file.buffer : null;
+
+            // 4. INSERTAR (CORREGIDO: Sin columna 'estado')
+            req.db.query(
+                `INSERT INTO vehiculos 
+                (matricula, marca, modelo, anyo_matriculacion, descripcion, 
+                 tipo, precio, numero_plazas, autonomia_km, color, imagen, 
+                 id_concesionario, activo)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, true)`,
+                [
+                    matricula.toUpperCase(), 
+                    marca, 
+                    modelo, 
+                    anyo_matriculacion, 
+                    descripcion || null, 
+                    tipo, 
+                    precio, 
+                    numero_plazas || 5, 
+                    autonomia_km || null, 
+                    color || null, 
+                    imagenBuffer, 
+                    id_concesionario
+                ],
+                (errInsert, result) => {
+                    if (errInsert) {
+                        console.error('Error insertando vehículo:', errInsert);
+                        return res.status(500).json({ ok: false, error: 'Error al guardar el vehículo' });
+                    }
+                    res.json({ ok: true, id: result.insertId, redirectUrl: '/vehiculos' });
+                }
+            );
+        });
     });
   });
 });

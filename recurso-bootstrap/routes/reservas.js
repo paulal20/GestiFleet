@@ -38,15 +38,14 @@ function getVehiculosDisponibles(db, usuario, fechaInicio, callback) {
 
 // GET /reserva/ (Formulario Nueva Reserva)
 router.get('/', isAuth, (req, res) => {
-  // Recogemos la fecha de la URL (si viene del filtro)
-  const fechaUrl = req.query.fecha;
+  let fechaObj = req.query.fecha ? new Date(req.query.fecha) : new Date();
+  if (isNaN(fechaObj.getTime())) fechaObj = new Date();
 
-  // Cargamos vehículos disponibles PARA ESA FECHA
-  getVehiculosDisponibles(req.db, req.session.usuario, fechaUrl, (err, vehiculos) => {
-    if (err) {
-      console.error('Error al obtener vehículos vista:', err);
-      vehiculos = [];
-    }
+  const tzOffset = fechaObj.getTimezoneOffset() * 60000; 
+  const localISOTime = (new Date(fechaObj - tzOffset)).toISOString().slice(0, 16);
+
+  getVehiculosDisponibles(req.db, req.session.usuario, localISOTime, (err, vehiculos) => {
+    if (err) vehiculos = [];
 
     const idVehiculoSeleccionado = req.query.idVehiculo
       ? parseInt(req.query.idVehiculo, 10)
@@ -57,6 +56,7 @@ router.get('/', isAuth, (req, res) => {
       vehiculos,
       idVehiculoSeleccionado,
       usuarioSesion: req.session.usuario,
+      fechaDefecto: localISOTime, 
       formData: {}, 
       action: '/api/reservas', 
       method: 'POST'

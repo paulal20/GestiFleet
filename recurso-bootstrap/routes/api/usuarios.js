@@ -46,6 +46,7 @@ router.get('/', isAdmin, (req, res) => {
       activo: u.activo ? "Activo" : "Eliminado",
       activoBool: u.activo === 1
     }));
+    console.log(usuariosConEstado);
 
     res.json({ ok: true, usuarios: usuariosConEstado });
   });
@@ -172,6 +173,27 @@ router.put('/:id(\\d+)', isAdminOrSelf, (req, res) => {
     }
   });
 });
+
+// PATCH /api/usuarios/:id/asignar-concesionario
+router.patch('/:id(\\d+)/asignar-concesionario', isAdmin, (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const { id_concesionario } = req.body;
+
+  if (!id_concesionario || id_concesionario === '0') {
+    return res.status(400).json({ ok: false, error: 'Debes seleccionar un concesionario' });
+  }
+
+  req.db.query(
+    'UPDATE usuarios SET id_concesionario=? WHERE id_usuario=?',
+    [id_concesionario, id],
+    (err, result) => {
+      if (err) return res.status(500).json({ ok: false, error: err.message });
+
+      res.json({ ok: true, mensaje: 'Concesionario asignado correctamente' });
+    }
+  );
+});
+
 
 // DELETE /api/usuarios/:id (Eliminar Usuario)
 router.delete('/:id(\\d+)', isAdmin, (req, res) => {

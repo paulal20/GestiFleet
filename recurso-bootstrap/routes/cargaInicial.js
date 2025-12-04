@@ -151,11 +151,11 @@ router.post('/ejecutar', isInstallationOrImport, (req, res) => {
         let params = [];
 
         if (matriculasAActualizar && matriculasAActualizar.includes(v.matricula)) {
-            sql = `UPDATE vehiculos SET marca=?, modelo=?, precio=?, imagen=?, estado=?, id_concesionario=?, activo=? WHERE matricula=?`;
-            params = [v.marca, v.modelo, v.precio, imagenBlob, v.estado, v.id_concesionario, esActivo, v.matricula];
+            sql = `UPDATE vehiculos SET marca=?, modelo=?, precio=?, imagen=?, id_concesionario=?, activo=? WHERE matricula=?`;
+            params = [v.marca, v.modelo, v.precio, imagenBlob, v.id_concesionario, esActivo, v.matricula];
         } else {
-            sql = `INSERT IGNORE INTO vehiculos (matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, estado, id_concesionario, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-            params = [v.matricula, v.marca, v.modelo, v.anyo_matriculacion, v.descripcion, v.tipo, v.precio, v.numero_plazas, v.autonomia_km, v.color, imagenBlob, v.estado, v.id_concesionario, esActivo];
+            sql = `INSERT IGNORE INTO vehiculos (matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, id_concesionario, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            params = [v.matricula, v.marca, v.modelo, v.anyo_matriculacion, v.descripcion, v.tipo, v.precio, v.numero_plazas, v.autonomia_km, v.color, imagenBlob, v.id_concesionario, esActivo];
         }
 
         connection.query(sql, params, (err) => {

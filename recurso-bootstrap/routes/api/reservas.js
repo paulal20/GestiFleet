@@ -2,6 +2,49 @@ const express = require('express');
 const router = express.Router();
 const { isAuth, isAdmin } = require('../../middleware/auth');
 
+router.get('/disponibles', isAuth, (req, res) => {
+  const { fecha } = req.query;
+  const momento = fecha ? new Date(fecha) : new Date();
+
+  // Validación básica de fecha
+  if (isNaN(momento.getTime())) {
+    return res.status(400).json({ ok: false, error: 'Fecha inválida' });
+  }
+
+  // Lógica similar a la que tenías, pero devuelve JSON limpio
+  let sql = `
+      SELECT v.id_vehiculo, v.marca, v.modelo, v.matricula 
+      FROM vehiculos v
+      WHERE v.activo = 1
+      AND NOT EXISTS (
+          SELECT 1 FROM reservas r 
+          WHERE r.id_vehiculo = v.id_vehiculo 
+          AND r.estado = 'activa'
+          -- El vehículo NO está disponible si hay una reserva activa en ese momento exacto
+          AND r.fecha_inicio <= ? 
+          AND r.fecha_fin >= ?
+      )
+    `;
+  
+  const params = [momento, momento];
+  
+  // Filtro por concesionario si no es Admin
+  if (req.session.usuario.rol !== 'Admin') {
+    sql += ' AND v.id_concesionario = ? ';
+    params.push(req.session.usuario.id_concesionario);
+  }
+
+  sql += ' ORDER BY v.marca, v.modelo';
+
+  req.db.query(sql, params, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ ok: false, error: 'Error al buscar vehículos' });
+    }
+    res.json({ ok: true, vehiculos: rows });
+  });
+});
+
 // POST /api/reservas (Crear Reserva)
 router.post('/', isAuth, (req, res) => {
   const usuarioActual = req.session.usuario;
@@ -42,7 +85,7 @@ router.post('/', isAuth, (req, res) => {
     if (rows[0].conflicts > 0) {
       return res.status(409).json({ 
         ok: false, 
-        error: 'El vehículo NO está disponible en esas fechas (coincide con otra reserva).' 
+        error: 'El vehículo no está disponible en esas fechas (coincide con otra reserva).' 
       });
     }
 

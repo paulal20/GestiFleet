@@ -47,7 +47,7 @@ $(document).ready(function() {
 
                 if (data.ok) {
                     mostrarAlerta("success", `Usuario eliminado: ${nombreUsuario}`);
-                    cargarUsuarios(); // Recargar tabla
+                    cargarUsuarios(); 
                 } else {
                     mostrarAlerta("danger", data.error || "Error al eliminar el usuario");
                 }
@@ -62,6 +62,9 @@ $(document).ready(function() {
             }
         });
     });
+
+    
+
 });
 
 /* ================================
@@ -96,19 +99,17 @@ function cargarUsuarios() {
                 return;
             }
 
-            // Construir HTML
             let html = "";
             $.each(data.usuarios, function(i, u) {
                 
                 const estaEliminado = !u.activoBool;
                 const disabledAttr = estaEliminado ? 'disabled' : '';
-                // Añadimos 'disabled' y 'pe-none' (pointer-events-none de bootstrap) para asegurar visualmente
                 const disabledClass = estaEliminado ? 'disabled pe-none' : ''; 
 
-                // Botón de eliminar
+                // Botón eliminar
                 let btnEliminar = "";
                 if (u.rol === "Admin") {
-                    btnEliminar = `<button type="button" class="btn btn-secondary btn-sm" disabled title="No se puede eliminar un administrador">Eliminar</button>`;
+                    btnEliminar = `<button type="button" class="btn btn-secondary btn-sm" disabled >Eliminar</button>`;
                 } else {
                     btnEliminar = `
                         <button type="button" class="btn btn-secondary btn-sm" ${disabledAttr}
@@ -124,16 +125,24 @@ function cargarUsuarios() {
                 // Botón editar
                 const btnEditar = `<a href="/usuarios/${u.id_usuario}/editar" class="btn btn-primary btn-sm ${disabledClass}" ${estaEliminado ? 'aria-disabled="true" tabindex="-1"' : ''}>Editar</a>`;
 
+                // Concesionario o botón asignar
+                const celdaConcesionario = '—';
+                if(u.rol !=="Admin"){
+                    celdaConcesionario = u.nombre_concesionario 
+                    ? u.nombre_concesionario 
+                    : `<button class="btn btn-warning btn-sm btnAsignar celda-acciones" data-id="${u.id_usuario}">Asignar</button>`;
+                }
+                    
+
                 html += `
                     <tr class="fila-click" data-href="/usuarios/${u.id_usuario}" tabindex="0" style="cursor: pointer;">
                         <td>${u.nombre || ''}</td>
                         <td>${u.correo || ''}</td>
                         <td>${u.rol || ''}</td>
                         <td>${u.telefono || '—'}</td>
-                        <td>${u.nombre_concesionario || '—'}</td>
+                        <td>${celdaConcesionario}</td>
                         <td>${pintarEstado(u.activoBool)}</td>
-                        
-                        <!-- AQUI ESTÁ LA CLAVE: Añadimos la clase 'celda-acciones' -->
+
                         <td class="celda-acciones" style="cursor: default;">
                             <div class="d-flex gap-1">
                                 ${btnEliminar}
@@ -165,8 +174,6 @@ function pintarEstado(activoBool) {
 }
 
 function activarFilaClick() {
-
-    // Click del ratón
     $(".fila-click").off("click").on("click", function(e) {
         if ($(e.target).closest("button, a").length > 0) return;
         if ($(e.target).closest(".celda-acciones").length > 0) return;
@@ -175,7 +182,6 @@ function activarFilaClick() {
         if (destino) window.location.href = destino;
     });
 
-    // Accesibilidad: ENTER o ESPACIO
     $(".fila-click").off("keydown").on("keydown", function(e) {
         if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
