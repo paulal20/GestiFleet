@@ -32,13 +32,6 @@
             </div>
             <div class="row mail">
 
-                <div class="col-md-4 campo-telefono">
-                    <label for="telefono" class="form-label obligatorio">Teléfono:</label>
-                    <input type="tel" id="telefono" name="telefono" class="form-control" placeholder="600123456" 
-                           value="<%= (typeof formData !== 'undefined' && formData.telefono) ? formData.telefono : '' %>" required>
-                   <span class="error" id="error-telefono" aria-live="polite"></span>
-                </div>
-
                 <div class="col-md-4 campo-email">
                     <label for="email" class="form-label obligatorio">Correo electrónico:</label>
                     <input type="email" id="email" name="email" class="form-control" placeholder="tunombre@correo.com" 
@@ -52,9 +45,8 @@
                            value="<%= (typeof formData !== 'undefined' && formData.confemail) ? formData.confemail : '' %>" required>
                     <span class="error" id="error-confemail" aria-live="polite"></span>
                 </div>
-            </div>
-            <div class="row constrasenya">
-                <div class="col-md-6 campo-contrasenya">
+
+                <div class="col-md-4 campo-contrasenya">
                     <label for="contrasenya" class="form-label obligatorio">Contraseña: </label>
                     <input type="password" id="contrasenya" name="contrasenya" class="form-control" required>
                     <span class="error" id="error-contrasenya" aria-live="polite"></span>
@@ -63,20 +55,13 @@
                         <label for="mostrarContrasenya" style="cursor:pointer; user-select:none;">Mostrar contraseña</label>
                     </div>
                 </div>
-                <div class ="col-md-6">
-                    <label for="concesionario" class="form-label obligatorio">Selecciona el concesionario: </label><br>
-                    <select id="concesionario" name="concesionario" class="form-select" required>
-                        <option value="">Seleccione un concesionario</option>
-                        <% if (concesionarios && concesionarios.length > 0) { %>
-                            <% concesionarios.forEach(concesionario => { %> 
-                                <option value="<%= concesionario.id_concesionario %>"
-                                        <%= (typeof formData !== 'undefined' && formData.concesionario == concesionario.id_concesionario) ? 'selected' : '' %>>
-                                    <%= concesionario.id_concesionario %> <%= concesionario.nombre %> (<%= concesionario.ciudad %>) 
-                                </option>
-                            <% }); %>
-                        <% } %>
-                    </select>
-                    <span class="error" id="error-concesionario" aria-live="polite"></span>
+            </div>
+            <div class="row constrasenya">
+                <div class="col-md-4 campo-telefono">
+                    <label for="telefono" class="form-label obligatorio">Teléfono:</label>
+                    <input type="tel" id="telefono" name="telefono" class="form-control" placeholder="600123456" 
+                           value="<%= (typeof formData !== 'undefined' && formData.telefono) ? formData.telefono : '' %>" required>
+                   <span class="error" id="error-telefono" aria-live="polite"></span>
                 </div>
             </div>
         </fieldset>

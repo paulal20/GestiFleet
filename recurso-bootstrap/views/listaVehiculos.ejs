@@ -27,6 +27,23 @@
           </div>
 
           <div class="accordion-item">
+            <h2 class="accordion-header" id="headingFecha">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFecha" aria-expanded="true">
+                Fecha
+              </button>
+            </h2>
+            <div id="collapseFecha" class="accordion-collapse collapse show" aria-labelledby="headingFecha">
+              <div class="accordion-body">
+                <input type="datetime-local" class="form-control" name="fecha" id="fecha_max" value="<%= fechaSeleccionada %>">
+                <br>
+                <button type="button" class="btn btn-primary" id="btnAhora">
+                  Hora actual
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
             <h2 class="accordion-header" id="headingAutonomia">
               <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAutonomia" aria-expanded="true">
                 Autonomía (mínima)
@@ -148,15 +165,12 @@
               </h2>
               <div id="collapseEstado" class="accordion-collapse collapse" aria-labelledby="headingEstado">
                 <div class="accordion-body">
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="estado" id="estado-todos" value="" <%= (estadoSeleccionado === '') ? 'checked' : '' %>>
-                    <label class="form-check-label" for="estado-todos">Todos</label>
-                  </div>
                   <% if (estadosDisponibles && estadosDisponibles.length > 0) { %>
                     <% estadosDisponibles.forEach(function(e) { %>
                       <div class="form-check">
-                        <input class="form-check-input" type="radio" name="estado" id="estado-<%= e %>" value="<%= e %>" <%= (estadoSeleccionado === e) ? 'checked' : '' %>>
-                        <label class="form-check-label" for="estado-<%= e %>"><%= e %></label>
+                        <input class="form-check-input" type="radio" name="estado" id="estado-<%= e.valor || 'todos' %>"
+                          value="<%= e.valor %>" <%= (estadoSeleccionado === e.valor) ? 'checked' : '' %>>
+                        <label class="form-check-label" for="estado-<%= e.valor || 'todos' %>"> <%= e.nombre %> </label>
                       </div>
                     <% }) %>
                   <% } %>

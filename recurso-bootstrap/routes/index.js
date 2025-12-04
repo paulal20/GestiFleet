@@ -68,6 +68,15 @@ router.post('/login', isGuest, (req, res) => {
       });
     }
 
+    if (!usuario.activo) {
+      return res.render('login', {
+        title: 'Inicio de Sesión',
+        usuarioSesion: req.session.usuario,
+        error: 'Tu cuenta está desactivada. Contacta con el administrador.',
+        mensaje: null
+      });
+    }
+
     bcrypt.compare(password, usuario.contrasenya, (errBcrypt, esValida) => {
       if (errBcrypt) {
         console.error('Error bcrypt:', errBcrypt);
@@ -116,101 +125,86 @@ router.post('/login', isGuest, (req, res) => {
 
 // GET REGISTER
 router.get('/register', isGuest, (req, res) => {
-  req.db.query('SELECT * FROM concesionarios', (err, concesionarios) => {
-    if (err) {
-      console.error('Error al cargar los concesionarios:', err);
-      return res.status(500).render('register', {
-        title: 'Registro de usuario',
-        error: 'Error interno en el servidor',
-        concesionarios: []
-      });
-    }
-    res.render('register', { title: 'Registro', error: null, concesionarios });
+  res.render('register', { 
+    title: 'Registro', 
+    error: null, 
+    formData: {},
+    fieldErrors: {}
   });
 });
 
 // POST REGISTER
 router.post('/register', isGuest, (req, res) => {
   const formData = { ...req.body };
-  const { email: correo, confemail, contrasenya, concesionario, nombre, apellido1, apellido2, telefono } = formData;
+  const { nombre, apellido1, apellido2, email: correo, confemail, contrasenya, telefono } = formData;
 
-  req.db.query('SELECT * FROM concesionarios', (err, concesionarios) => {
-    if (err) {
-      console.error('Error carga concesionarios en post:', err);
-      concesionarios = []; 
-    }
+  const fieldErrors = {};
 
-    const fieldErrors = {};
-    if (!nombre || nombre.trim().length < 3) fieldErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
-    if (!apellido1 || apellido1.trim().length < 3) fieldErrors.apellido1 = 'El primer apellido debe tener al menos 3 caracteres.';
+  // Validaciones básicas
+  if (!nombre || nombre.trim().length < 3) fieldErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
+  if (!apellido1 || apellido1.trim().length < 3) fieldErrors.apellido1 = 'El primer apellido debe tener al menos 3 caracteres.';
     
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/;
-    if (!correo || !emailRegex.test(correo)) fieldErrors.email = 'El formato del correo no es válido.';
-    if (correo !== confemail) fieldErrors.confemail = 'Los correos no coinciden.';
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/;
+  if (!correo || !emailRegex.test(correo)) fieldErrors.email = 'El formato del correo no es válido.';
+  if (correo !== confemail) fieldErrors.confemail = 'Los correos no coinciden.';
     
-    const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-    if (!contrasenya || !passRegex.test(contrasenya)) fieldErrors.contrasenya = 'La contraseña debe tener mín. 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.';
+  const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+  if (!contrasenya || !passRegex.test(contrasenya)) fieldErrors.contrasenya = 'La contraseña debe tener mín. 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.';
 
-    const telRegex = /^[0-9]{9,15}$/;
-    if (!telefono || !telRegex.test(telefono)) fieldErrors.telefono = 'El teléfono debe tener entre 9 y 15 números.';
-    
-    if (!concesionario || concesionario === "") fieldErrors.concesionario = 'Debe seleccionar un concesionario.';
+  const telRegex = /^[0-9]{9,15}$/;
+  if (!telefono || !telRegex.test(telefono)) fieldErrors.telefono = 'El teléfono debe tener entre 9 y 15 números.';
 
-    const renderError = (msg) => {
-      formData.contrasenya = '';
-      if (fieldErrors.email || fieldErrors.confemail) { formData.email = ''; formData.confemail = ''; }
-      if (fieldErrors.telefono) formData.telefono = '';
-      
-      return res.status(400).render('register', {
-        title: 'Registro de usuario',
-        error: msg || 'Hay errores en el formulario',
-        concesionarios,
-        formData
-      });
-    };
+  if (Object.keys(fieldErrors).length > 0) {
+    formData.contrasenya = '';
+    return res.status(400).render('register', { 
+      title: 'Registro de usuario',
+      error: 'Corrija los errores del formulario',
+      formData,
+      fieldErrors
+    });
+  }
+
+  // Validar duplicados
+  req.db.query('SELECT * FROM usuarios WHERE correo = ? OR telefono = ?', [correo, telefono], (errCheck, usuarios) => {
+    if (errCheck) return res.status(500).send("Error interno validando usuario");
+
+    usuarios.forEach(u => {
+      if (u.correo === correo) fieldErrors.email = 'El correo ya está registrado';
+      if (u.telefono === telefono) fieldErrors.telefono = 'El teléfono ya está registrado';
+    });
 
     if (Object.keys(fieldErrors).length > 0) {
-      return renderError('Corrija los errores del formulario');
+      formData.contrasenya = '';
+      return res.status(400).render('register', { 
+        title: 'Registro de usuario',
+        error: 'Corrija los errores del formulario',
+        formData,
+        fieldErrors
+      });
     }
 
-    req.db.query('SELECT * FROM usuarios WHERE correo = ?', [correo], (errEmail, usuarios) => {
-      if (errEmail) return res.status(500).send("Error interno validando email");
+    // Insertar usuario
+    bcrypt.hash(contrasenya, SALT_ROUNDS, (errHash, hash) => {
+      if (errHash) return res.status(500).send("Error interno encriptando contraseña");
 
-      if (usuarios.length > 0) {
-        fieldErrors.email = 'El correo ya está registrado';
-        return renderError('El correo ya está registrado');
-      }
+      const nombreCompleto = [nombre, apellido1, apellido2].filter(Boolean).join(' ').trim();
 
-      req.db.query('SELECT * FROM usuarios WHERE telefono = ?', [telefono], (errTel, telefonos) => {
-        if (errTel) return res.status(500).send("Error interno validando teléfono");
-
-        if (telefonos.length > 0) {
-          fieldErrors.telefono = 'El teléfono ya está registrado';
-          return renderError('El teléfono ya está registrado');
+      req.db.query(
+        'INSERT INTO usuarios (nombre, correo, contrasenya, rol, telefono, activo) VALUES (?, ?, ?, ?, ?, true)',
+        [nombreCompleto, correo, hash, 'Empleado', telefono],
+        (errInsert, result) => {
+          if (errInsert) {
+            console.error("Error insertando usuario:", errInsert);
+            return res.status(500).render('register', { 
+              title: 'Registro de usuario', 
+              error: 'Error interno al registrar usuario', 
+              formData,
+              fieldErrors: {}
+            });
+          }
+          res.redirect('/login');
         }
-
-        bcrypt.hash(contrasenya, SALT_ROUNDS, (errHash, hash) => {
-          if (errHash) return res.status(500).send("Error interno encriptando contraseña");
-
-          req.db.query(
-            'INSERT INTO usuarios (nombre, correo, contrasenya, rol, telefono, id_concesionario) VALUES (?, ?, ?, ?, ?, ?)',
-            [nombre, correo, hash, 'Empleado', telefono, parseInt(concesionario)],
-            (errInsert, result) => {
-              if (errInsert) {
-                 console.error("Error insertando usuario:", errInsert);
-                 return res.status(500).render('register', { 
-                   title: 'Registro de usuario', 
-                   error: 'Error interno al registrar usuario', 
-                   concesionarios, 
-                   formData 
-                 });
-              }
-
-              res.redirect('/login');
-            }
-          );
-        });
-      });
+      );
     });
   });
 });

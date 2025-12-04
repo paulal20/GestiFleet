@@ -66,12 +66,10 @@
             <div class="col-6">
               <p class="card-text">
                 <strong>Estado:</strong>
-                <% if (vehiculo.estado==='disponible' ) { %>
+                <% if (vehiculo.estado_dinamico==='disponible' ) { %>
                 <span class="badge bg-success">Disponible</span>
-                <% } else if (vehiculo.estado==='reservado' ) { %>
+                <% } else if (vehiculo.estado_dinamico==='reservado' ) { %>
                 <span class="badge bg-warning text-dark">Reservado</span>
-                <% } else { %>
-                <span class="badge bg-danger">Mantenimiento</span>
                 <% } %>
               </p>
             </div>
@@ -96,19 +94,18 @@
         <div class="perfil-actions d-flex gap-2 mt-3">
           <% if (vehiculo.activo === 1) { %>
             
-            <% if (vehiculo.estado === 'disponible') { %>
-                <a
-                  href="/reserva?idVehiculo=<%= vehiculo.id_vehiculo %>"
-                  class="btn btn-primary flex-fill"
-                >
-                  Reservar
-                </a>
+            <% if (vehiculo.estado_dinamico === 'disponible') { %>
+              <a
+                href="/reserva?idVehiculo=<%= vehiculo.id_vehiculo %><%= fechaSeleccionada ? '&fecha=' + fechaSeleccionada : '' %>"
+                class="btn btn-primary flex-fill">
+                Reservar
+              </a>
             <% } else { %>
-                <% if (!usuarioSesion || usuarioSesion.rol !== 'Admin') { %>
-                    <button class="btn btn-secondary flex-fill" disabled>
-                        No disponible (<%= vehiculo.estado %>)
-                    </button>
-                <% } %>
+              <% if (!usuarioSesion || usuarioSesion.rol !== 'Admin') { %>
+                <button class="btn btn-secondary flex-fill" disabled>
+                  No disponible (<%= vehiculo.estado_dinamico %>)
+                </button>
+              <% } %>
             <% } %>
 
             <% if (usuarioSesion && usuarioSesion.rol === 'Admin') { %>

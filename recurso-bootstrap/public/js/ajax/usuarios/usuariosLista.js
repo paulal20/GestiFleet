@@ -125,7 +125,7 @@ function cargarUsuarios() {
                 const btnEditar = `<a href="/usuarios/${u.id_usuario}/editar" class="btn btn-primary btn-sm ${disabledClass}" ${estaEliminado ? 'aria-disabled="true" tabindex="-1"' : ''}>Editar</a>`;
 
                 html += `
-                    <tr class="fila-click" data-href="/usuarios/${u.id_usuario}" style="cursor: pointer;">
+                    <tr class="fila-click" data-href="/usuarios/${u.id_usuario}" tabindex="0" style="cursor: pointer;">
                         <td>${u.nombre || ''}</td>
                         <td>${u.correo || ''}</td>
                         <td>${u.rol || ''}</td>
@@ -165,22 +165,23 @@ function pintarEstado(activoBool) {
 }
 
 function activarFilaClick() {
-    $(".fila-click").off("click").on("click", function(e) {
-        // Lógica corregida:
-        // 1. Si el clic viene de un botón o enlace activo (por si acaso)
-        if ($(e.target).closest("button, a").length > 0) {
-            return;
-        }
 
-        // 2. Si el clic viene de la celda de acciones (.celda-acciones)
-        // Esto previene que los clics "fantasma" en botones disabled (que tienen pointer-events:none)
-        // activen la fila. El evento caerá en el TD, y aquí lo atrapamos.
-        if ($(e.target).closest(".celda-acciones").length > 0) {
-            return;
-        }
+    // Click del ratón
+    $(".fila-click").off("click").on("click", function(e) {
+        if ($(e.target).closest("button, a").length > 0) return;
+        if ($(e.target).closest(".celda-acciones").length > 0) return;
 
         const destino = $(this).data("href");
         if (destino) window.location.href = destino;
+    });
+
+    // Accesibilidad: ENTER o ESPACIO
+    $(".fila-click").off("keydown").on("keydown", function(e) {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            const destino = $(this).data("href");
+            if (destino) window.location.href = destino;
+        }
     });
 }
 

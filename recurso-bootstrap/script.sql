@@ -42,7 +42,6 @@ CREATE TABLE IF NOT EXISTS vehiculos (
   autonomia_km INT,
   color VARCHAR(30),
   imagen LONGBLOB,
-  estado ENUM('disponible','reservado','mantenimiento') DEFAULT 'disponible',
   id_concesionario INT,
   activo BOOLEAN NOT NULL DEFAULT TRUE,
   FOREIGN KEY (id_concesionario) REFERENCES concesionarios(id_concesionario)

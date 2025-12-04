@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", function(){
             email: document.getElementById("email"),
             confemail: document.getElementById("confemail"),
             contrasenya: document.getElementById("contrasenya"),
-            concesionario: document.getElementById("concesionario"),
             telefono: document.getElementById("telefono")
         };
 
@@ -21,7 +20,6 @@ document.addEventListener("DOMContentLoaded", function(){
             email: document.getElementById("error-email"),
             confemail: document.getElementById("error-confemail"),
             contrasenya: document.getElementById("error-contrasenya"),
-            concesionario: document.getElementById("error-concesionario"),
             telefono: document.getElementById("error-telefono")
         };
 
@@ -96,11 +94,6 @@ document.addEventListener("DOMContentLoaded", function(){
                 if (!contrasenyaForm.test(v)) {
                     return "La contraseña debe tener mín. 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.";
                 }
-                return "";
-            }
-
-            if (key === "concesionario") {
-                if (!v) return "Debes seleccionar un concesionario.";
                 return "";
             }
 

@@ -1,7 +1,3 @@
-/* public/js/ajax/reservas/reservasLista.js 
-   Versión final corregida, segura y totalmente funcional
-*/
-
 $(document).ready(function() {
     // Obtener datos del usuario embebidos en la vista
     const dataPage = document.getElementById("pageData"); 
@@ -19,8 +15,8 @@ $(document).ready(function() {
     // Filtros automáticos
     $("#filtroVehiculo, #filtroEstado, #filtroFechaDesde, #filtroFechaHasta, #filtroUsuario")
         .on("change", function() {
-        cargarReservas();
-    });
+            cargarReservas();
+        });
 
     // Evitar submit tradicional
     $("form").on("submit", function(e) {
@@ -48,7 +44,6 @@ $(document).ready(function() {
 /* ================================
    FUNCIÓN PRINCIPAL CARGAR RESERVAS
 ================================= */
-
 function cargarReservas() {
     const vehiculo = $("#filtroVehiculo").val() || "";
     const estado = $("#filtroEstado").val() || "";
@@ -62,7 +57,6 @@ function cargarReservas() {
         ? '/api/reservas/listareservas'
         : '/api/reservas/mis-reservas';
 
-    // ✔ Corrección importante: usuario normal envía su propio ID
     let datos = {
         vehiculo,
         estado,
@@ -90,16 +84,15 @@ function cargarReservas() {
                 mostrarAlerta('danger', data.error || 'Error al cargar reservas.');
             }
         },
-        error: function(jqXHR, textStatus, errorThrown) {
+        error: function() {
             mostrarAlerta('danger', 'Error de conexión al cargar reservas.');
         }
     });
 }
 
 /* ================================
-    PINTAR TABLA
+   PINTAR TABLA
 ================================= */
-
 function pintarTabla(lista, esAdmin) {
     const $tbody = $("#tablaReservasBody");
     const $contador = $("#contadorReservas");
@@ -107,8 +100,8 @@ function pintarTabla(lista, esAdmin) {
     $tbody.empty();
 
     if (!lista.length) {
-        let colspan = esAdmin ? 7 : 6;
-        $tbody.html('<tr><td colspan="' + colspan + '" class="text-center text-muted">No se encontraron reservas</td></tr>');
+        const colspan = esAdmin ? 7 : 6;
+        $tbody.html(`<tr><td colspan="${colspan}" class="text-center text-muted">No se encontraron reservas</td></tr>`);
         $contador.text("0");
         return;
     }
@@ -118,51 +111,48 @@ function pintarTabla(lista, esAdmin) {
     let html = "";
 
     $.each(lista, function(i, r) {
-        let inicio = r.fecha_inicio ? new Date(r.fecha_inicio).toLocaleString() : '-';
-        let fin = r.fecha_fin ? new Date(r.fecha_fin).toLocaleString() : '-';
+        const inicio = r.fecha_inicio ? new Date(r.fecha_inicio).toLocaleString() : '-';
+        const fin = r.fecha_fin ? new Date(r.fecha_fin).toLocaleString() : '-';
 
-        let marca = r.marca || 'Desconocido';
-        let modelo = r.modelo || '';
-        let matricula = r.matricula || '';
-        let nombreUsuario = r.nombre_usuario || 'Usuario';
-        let emailUsuario = r.email_usuario || '';
-        let estado = r.estado || 'activa';
+        const marca = r.marca || 'Desconocido';
+        const modelo = r.modelo || '';
+        const matricula = r.matricula || '';
+        const nombreUsuario = r.nombre_usuario || 'Usuario';
+        const emailUsuario = r.email_usuario || '';
+        const estado = r.estado || 'activa';
 
-        // Columna de usuario (solo admin), ya SIN la clase fila-click porque la tendrá el TR
         let colUsuario = "";
         if (esAdmin) {
-            colUsuario = 
-                '<td>' +
-                    nombreUsuario + '<br>' +
-                    '<small class="text-muted">' + emailUsuario + '</small>' +
-                '</td>';
+            colUsuario = `
+            <td>
+                ${nombreUsuario}<br>
+                <small class="text-muted">${emailUsuario}</small>
+            </td>`;
         }
 
         let btnCancelar = '';
         if (estado === 'activa') {
-            let detalle = "Reserva del " + marca + " " + modelo;
-            detalle = detalle.replace(/'/g, "&#39;");
-
-            btnCancelar =
-                '<button class="btn btn-primary btn-sm" ' +
-                'data-bs-toggle="modal" data-bs-target="#confirmarCancelarModal" ' +
-                'data-id="' + r.id_reserva + '" data-detalle="' + detalle + '">' +
-                'Cancelar</button>';
+            const detalle = (`Reserva del ${marca} ${modelo}`).replace(/'/g, "&#39;");
+            btnCancelar = `
+            <button class="btn btn-primary btn-sm"
+                data-bs-toggle="modal" data-bs-target="#confirmarCancelarModal"
+                data-id="${r.id_reserva}" data-detalle="${detalle}">
+                Cancelar
+            </button>`;
         }
 
-        html += '<tr class="fila-click" data-href="/reserva/' + r.id_reserva + '" >' +
-                    colUsuario +
-                    '<td>' + // Quitamos fila-click de aquí
-                        '<span class="fw-bold">' + marca + ' ' + modelo + '</span><br>' +
-                        '<small>' + matricula + '</small>' +
-                    '</td>' +
-                    '<td>' + inicio + '</td>' + // Quitamos fila-click de aquí
-                    '<td>' + fin + '</td>' +    // Quitamos fila-click de aquí
-                    '<td>' +                    // Quitamos fila-click de aquí
-                        pintarEstadoReserva(estado) +
-                    '</td>' +
-                    '<td>' + btnCancelar + '</td>' +
-                '</tr>';
+        html += `
+        <tr tabindex="0" class="fila-click" data-href="/reserva/${r.id_reserva}">
+            ${colUsuario}
+            <td>
+                <span class="fw-bold">${marca} ${modelo}</span><br>
+                <small>${matricula}</small>
+            </td>
+            <td>${inicio}</td>
+            <td>${fin}</td>
+            <td>${pintarEstadoReserva(estado)}</td>
+            <td class="celda-acciones">${btnCancelar}</td>
+        </tr>`;
     });
 
     $tbody.html(html);
@@ -175,13 +165,12 @@ function pintarEstadoReserva(estado) {
     if (estado === 'cancelada') clase = 'bg-danger';
     if (estado === 'finalizada') clase = 'bg-secondary';
 
-    return '<span class="badge ' + clase + '">' + estado.toUpperCase() + '</span>';
+    return `<span class="badge ${clase}">${estado.toUpperCase()}</span>`;
 }
 
 /* ================================
-    MODAL CANCELAR RESERVA
+   MODAL CANCELAR RESERVA
 ================================= */
-
 function configurarModalCancelarLista() {
     const $modal = $("#confirmarCancelarModal");
     const $form = $("#formCancelarReserva");
@@ -192,7 +181,7 @@ function configurarModalCancelarLista() {
         const detalle = $btn.data("detalle");
 
         $("#textoCancelar").text(
-            "¿Estás seguro de que quieres cancelar la " + (detalle || "reserva") + "?"
+            `¿Estás seguro de que quieres cancelar la ${detalle || "reserva"}?`
         );
 
         $form.find("button[type='submit']").data("id", id);
@@ -205,7 +194,7 @@ function configurarModalCancelarLista() {
 
         $.ajax({
             type: "PUT",
-            url: "/api/reservas/" + id + "/cancelar",
+            url: `/api/reservas/${id}/cancelar`,
             success: function(data) {
                 bootstrap.Modal.getInstance(document.getElementById('confirmarCancelarModal')).hide();
 
@@ -225,17 +214,23 @@ function configurarModalCancelarLista() {
 }
 
 /* ================================
-    AUXILIARES
+   AUXILIARES
 ================================= */
-
 function activarFilaClick() {
     $(".fila-click").off("click").on("click", function(e) {
-        if ($(e.target).closest("button").length > 0) {
-            return;
-        }
+        if ($(e.target).closest("button, a").length > 0) return;
+        if ($(e.target).closest(".celda-acciones").length > 0) return;
 
         const destino = $(this).data("href");
         if (destino) window.location.href = destino;
+    });
+
+    $(".fila-click").off("keydown").on("keydown", function(e) {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            const destino = $(this).data("href");
+            if (destino) window.location.href = destino;
+        }
     });
 }
 
@@ -243,12 +238,12 @@ function mostrarAlerta(tipo, mensaje) {
     const $cont = $("#alertas");
     if (!$cont.length) return;
 
-    $cont.html(
-        '<div class="alert alert-' + tipo + ' alert-dismissible fade show">' +
-        mensaje +
-        '<button class="btn-close" data-bs-dismiss="alert"></button>' +
-        '</div>'
-    );
+    $cont.html(`
+        <div class="alert alert-${tipo} alert-dismissible fade show">
+            ${mensaje}
+            <button class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
 
     setTimeout(() => $cont.find(".alert").alert('close'), 4000);
 }

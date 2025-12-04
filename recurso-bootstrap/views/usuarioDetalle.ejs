@@ -39,15 +39,15 @@
                     <div class="mb-3">
                         <small class="perfil-rol text-muted">
                             <% if (usuario.rol === 'Empleado') { %>
-                                <span class="badge bg-success">Empleado</span>
+                                <span class="badge" style="background-color: var(--color-primary-hover); color: white;">Empleado</span>
                             <% } else { %>
-                                <span class="badge bg-danger">Administrador</span>
+                                <span class="badge" style="background-color: var(--color-nav); color: white;">Administrador</span>
                             <% } %>
                         </small>
 
                         <small class="perfil-activo text-muted">
                             <% if (usuario.activo === 1) { %>
-                                <span id="badgeActivo" class="badge bg-primary">Activo</span>
+                                <span id="badgeActivo" class="badge bg-success">Activo</span>
                             <% } else { %>
                                 <span id="badgeActivo" class="badge bg-danger">Eliminado</span>
                             <% } %>

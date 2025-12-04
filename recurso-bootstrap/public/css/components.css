@@ -1,17 +1,42 @@
 /* Estilos para componentes reutilizables: botones, tarjetas (vehículo, perfil), tablas, alertas y modales. */
+/* Botón principal personalizado */
 .btn.btn-primary {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-  color: var(--color-text);
+  color: var(--color-text); /* texto del botón */
+  background-color: var(--color-primary); /* fondo del botón */
+  border-color: var(--color-primary); /* borde */
   margin-right: 0.5rem;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 }
 
-.btn.btn-primary:hover, 
+.btn.btn-primary:hover,
+.btn.btn-primary:focus,
 .btn.btn-primary:active {
+  color: var(--color-link); /* color del texto al hover/active */
+  background-color: var(--color-primary-hover); /* fondo al hover/active */
+  border-color: var(--color-primary-hover); /* borde al hover/active */
+  text-decoration: none;
+}
+
+.btn.btn-primary:focus {
+  box-shadow: var( --shadow-focus); /* sombra de foco, puedes ajustar */
+}
+
+.btn.btn-primary.disabled,
+.btn.btn-primary:disabled {
+  color: var(--color-text);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.btn.btn-primary.active,
+.btn.btn-primary:active {
+  color: var(--color-link);
   background-color: var(--color-primary-hover);
   border-color: var(--color-primary-hover);
-  color: var(--color-link);
 }
+
 
 .btn.btn-secondary {
   background-color: var(--btn-bg);

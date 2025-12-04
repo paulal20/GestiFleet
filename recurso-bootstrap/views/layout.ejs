@@ -6,8 +6,6 @@
     <title>GestiFleet</title>
     <link rel="icon" type="image/png" href="/img/favicon.png" />
     <link rel="stylesheet" href="/css/bootstrap.min.css" />
-    <!-- <link rel="stylesheet" href="/css/style.css"> -->
-    <!-- ASÍ DEBE QUEDAR -->
     <link rel="stylesheet" href="/css/theme.css" />
     <link rel="stylesheet" href="/css/base.css" />
     <link rel="stylesheet" href="/css/layout.css" />
@@ -35,10 +33,6 @@
 
         <nav class="navbar navbar-expand-lg nav-underline custom-navbar">
           <div class="container-fluid">
-            <!-- <a class="navbar-brand d-flex align-items-center" href="/">
-                    <img src="../public/img/logo-blanco.png" alt="Logo de la empresa" width="60" class="me-2">
-                </a> -->
-
             <button
               class="navbar-toggler"
               type="button"
@@ -59,249 +53,93 @@
                     <span lang="en" class="lang lang-en d-none">Home</span>
                   </a>
                 </li>
-                <% if (usuarioSesion) { %> <% if (usuarioSesion.rol === 'Admin')
-                { %>
-                <li class="nav-item">
-                  <a href="/administrar" class="nav-link">
-                    <span lang="es" class="lang lang-es">Administrar</span>
-                    <span lang="en" class="lang lang-en d-none"
-                      >Managedment</span
-                    >
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="/estadisticas" class="nav-link">
-                    <span lang="es" class="lang lang-es">Estadísticas</span>
-                    <span lang="en" class="lang lang-en d-none"></span>
-                  </a>
-                </li>
-                <% } else { %>
-                <li class="nav-item">
-                  <a href="/vehiculos" class="nav-link">
-                    <span lang="es" class="lang lang-es">Vehículos</span>
-                    <span lang="en" class="lang lang-en d-none">Vehicles</span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="/reserva" class="nav-link">
-                    <span lang="es" class="lang lang-es">Reservar</span>
-                    <span lang="en" class="lang lang-en d-none">Book</span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a href="/reserva/mis-reservas" class="nav-link">
-                    <span lang="es" class="lang lang-es">Mis Reservas</span>
-                    <span lang="en" class="lang lang-en d-none"
-                      >My Bookings</span
-                    >
-                  </a>
-                </li>
-                <% if (usuarioSesion.id_concesionario != null) { %>
-                <li class="nav-item">
-                  <a
-                    href="/concesionarios/<%= usuarioSesion.id_concesionario %>"
-                    class="nav-link"
-                  >
-                    <span lang="es" class="lang lang-es">Mi Concesionario</span>
-                    <span lang="en" class="lang lang-en d-none"
-                      >Car Dealers</span
-                    >
-                  </a>
-                </li>
-                <% } %> <% } %> <% } %>
+                <% if (usuarioSesion) { %>
+                  <% if (usuarioSesion.rol === 'Admin') { %>
+                    <li class="nav-item">
+                      <a href="/administrar" class="nav-link">
+                        <span lang="es" class="lang lang-es">Administrar</span>
+                        <span lang="en" class="lang lang-en d-none">Managedment</span>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a href="/estadisticas" class="nav-link">
+                        <span lang="es" class="lang lang-es">Estadísticas</span>
+                        <span lang="en" class="lang lang-en d-none"></span>
+                      </a>
+                    </li>
+                  <% } else { %>
+                    <li class="nav-item">
+                      <a href="/vehiculos" class="nav-link">
+                        <span lang="es" class="lang lang-es">Vehículos</span>
+                        <span lang="en" class="lang lang-en d-none">Vehicles</span>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a href="/reserva" class="nav-link">
+                        <span lang="es" class="lang lang-es">Reservar</span>
+                        <span lang="en" class="lang lang-en d-none">Book</span>
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a href="/reserva/mis-reservas" class="nav-link">
+                        <span lang="es" class="lang lang-es">Mis Reservas</span>
+                        <span lang="en" class="lang lang-en d-none">My Bookings</span>
+                      </a>
+                    </li>
+                    <% if (usuarioSesion.id_concesionario != null) { %>
+                      <li class="nav-item">
+                        <a href="/concesionarios/<%= usuarioSesion.id_concesionario %>" class="nav-link">
+                          <span lang="es" class="lang lang-es">Mi Concesionario</span>
+                          <span lang="en" class="lang lang-en d-none">Car Dealers</span>
+                        </a>
+                      </li>
+                    <% } %>
+                  <% } %>
+                <% } %>
               </ul>
 
-              <div class="nav-item dropdown">
+              <!-- Botón de accesibilidad que abre el modal -->
+              <div class="nav-item">
                 <a
-                  class="nav-link dropdown-toggle"
+                  class="nav-link"
                   href="#"
-                  id="accesibilidadDropdown"
-                  role="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
+                  data-bs-toggle="modal"
+                  data-bs-target="#accesibilidadModal"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    class="bi bi-gear-fill"
-                    viewBox="0 0 16 16"
-                  >
-                    <path
-                      d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"
-                    />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear-fill" viewBox="0 0 16 16">
+                    <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
                   </svg>
-                  <span lang="es" class="lang lang-es desplegable ms-1"
-                    >Ajustes</span
-                  >
-                  <span lang="en" class="lang lang-en d-none desplegable ms-1"
-                    >Settings</span
-                  >
+                  <span lang="es" class="lang lang-es ms-1">Ajustes</span>
+                  <span lang="en" class="lang lang-en d-none ms-1">Settings</span>
                 </a>
-                <ul
-                  class="dropdown-menu dropdown-menu-dark"
-                  aria-labelledby="accesibilidadDropdown"
-                >
-                  <li>
-                    <h6 class="dropdown-header">
-                      <span lang="es" class="lang lang-es">Tema</span>
-                      <span lang="en" class="lang lang-en d-none">Theme</span>
-                    </h6>
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item tema-opcion"
-                      href="#"
-                      data-value="normal"
-                    >
-                      <span lang="es" class="lang lang-es">Predeterminado</span>
-                      <span lang="en" class="lang lang-en d-none">Default</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item tema-opcion"
-                      href="#"
-                      data-value="high"
-                    >
-                      <span lang="es" class="lang lang-es">Oscuro</span>
-                      <span lang="en" class="lang lang-en d-none">Dark</span>
-                    </a>
-                  </li>
-
-                  <li><hr class="dropdown-divider" /></li>
-
-                  <li>
-                    <h6 class="dropdown-header">
-                      <span lang="es" class="lang lang-es">Idioma</span>
-                      <span lang="en" class="lang lang-en d-none"
-                        >Language</span
-                      >
-                    </h6>
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="#"
-                      onclick="setLanguage('es')"
-                    >
-                      <span lang="es" class="lang lang-es">Español</span>
-                      <span lang="en" class="lang lang-en d-none">Spanish</span>
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="#"
-                      onclick="setLanguage('en')"
-                    >
-                      <span lang="es" class="lang lang-es">Inglés</span>
-                      <span lang="en" class="lang lang-en d-none">English</span>
-                    </a>
-                  </li>
-
-                  <li><hr class="dropdown-divider" /></li>
-
-                  <li>
-                    <h6 class="dropdown-header">
-                      <span lang="es" class="lang lang-es"
-                        >Tamaño de Letra</span
-                      >
-                      <span lang="en" class="lang lang-en d-none"
-                        >Font Size</span
-                      >
-                    </h6>
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item tamanyo-opcion"
-                      href="#"
-                      data-size="80"
-                    >
-                      <span lang="es" class="lang lang-es">Pequeño (80%)</span>
-                      <span lang="en" class="lang lang-en d-none"
-                        >Small (80%)</span
-                      >
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item tamanyo-opcion"
-                      href="#"
-                      data-size="100"
-                    >
-                      <span lang="es" class="lang lang-es">Normal (100%)</span>
-                      <span lang="en" class="lang lang-en d-none"
-                        >Normal (100%)</span
-                      >
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      class="dropdown-item tamanyo-opcion"
-                      href="#"
-                      data-size="120"
-                    >
-                      <span lang="es" class="lang lang-es">Grande (120%)</span>
-                      <span lang="en" class="lang lang-en d-none"
-                        >Large (120%)</span
-                      >
-                    </a>
-                  </li>
-                </ul>
               </div>
 
-              <!-- <a href="/login" class="nav-link" aria-current="page">
-                        <span lang="es" class="lang lang-es">Identifícate</span>
-                        <span lang="en" class="lang lang-en d-none">Login</span>
-                    </a> -->
               <% if (!usuarioSesion) { %>
-              <a href="/login" class="nav-link" aria-current="page"
-                >Identifícate</a
-              >
+                <a href="/login" class="nav-link" aria-current="page">Identifícate</a>
               <% } else { %>
-              <div class="dropdown">
-                <a
-                  href="#"
-                  class="dropdown-toggle nav-link"
-                  id="perfilDropdown"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  <span><%= usuarioSesion.nombre %></span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="40"
-                    height="40"
-                    fill="currentColor"
-                    class="bi bi-person-fill"
-                    viewBox="0 0 16 16"
+                <div class="dropdown">
+                  <a
+                    href="#"
+                    class="dropdown-toggle nav-link"
+                    id="perfilDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
                   >
-                    <path
-                      d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"
-                    />
-                  </svg>
-                </a>
-                <ul
-                  class="dropdown-menu dropdown-menu-end"
-                  aria-labelledby="perfilDropdown"
-                >
-                  <li>
-                    <a class="dropdown-item" href="/usuarios/<%= usuarioSesion.id_usuario %>">Mi información</a>
-                  </li>
-                  <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <a
-                      class="dropdown-item"
-                      href="#"
-                      data-bs-toggle="modal"
-                      data-bs-target="#logoutModal"
-                      >Cerrar sesión</a
-                    >
-                  </li>
-                </ul>
-              </div>
+                    <span><%= usuarioSesion.nombre %></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
+                      <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                    </svg>
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="perfilDropdown">
+                    <li>
+                      <a class="dropdown-item" href="/usuarios/<%= usuarioSesion.id_usuario %>">Mi información</a>
+                    </li>
+                    <li><hr class="dropdown-divider" /></li>
+                    <li>
+                      <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">Cerrar sesión</a>
+                    </li>
+                  </ul>
+                </div>
               <% } %>
             </div>
           </div>
@@ -325,21 +163,17 @@
               <h6 class="fw-bold">Enlaces útiles</h6>
               <ul class="list-unstyled">
                 <li><a href="/" class="text-decoration-none">Inicio</a></li>
+                <li><a href="/contacto" class="text-decoration-none">Contacto</a></li>
                 <li>
-                  <a href="/contacto" class="text-decoration-none">Contacto</a>
-                </li>
-                <li>
-                  <a href="/contacto" class="text-decoration-none"
-                    >Accesibilidad</a
-                  >
+                  <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#accesibilidadModal">
+                    Accesibilidad
+                  </a>
                 </li>
               </ul>
             </div>
             <div class="col-md-4 text-md-end">
               <h6 class="fw-bold">Contáctanos</h6>
-              <p class="mb-1">
-                <i class="bi bi-envelope"></i> contacto@gestifleet.com
-              </p>
+              <p class="mb-1"><i class="bi bi-envelope"></i> contacto@gestifleet.com</p>
               <p><i class="bi bi-geo-alt"></i> Madrid, España</p>
             </div>
           </div>
@@ -347,50 +181,117 @@
           <hr class="my-4" style="border-color: var(--color-field-border)" />
 
           <div class="text-center small">
-            © 2025 <strong>GestiFleet</strong> — Movemos el futuro de la
-            movilidad empresarial 🚗💡
+            © 2025 <strong>GestiFleet</strong> — Movemos el futuro de la movilidad empresarial 🚗💡
           </div>
         </div>
       </footer>
 
       <!-- MODAL LOGOUT -->
-      <div
-        class="modal fade"
-        id="logoutModal"
-        tabindex="-1"
-        aria-labelledby="logoutModalLabel"
-        aria-hidden="true"
-      >
+      <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="logoutModalLabel">Cerrar sesión</h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Cerrar"
-              ></button>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
               ¿Estás seguro de que quieres cerrar sesión?
-              <br />
               <div class="d-flex justify-content-end mt-3 gap-2">
-                <button
-                  type="button"
-                  class="btn btn-outline-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Cancelar
-                </button>
-                <a href="/logout" class="btn btn btn-primary">Cerrar sesión</a>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <a href="/logout" class="btn btn-primary">Cerrar sesión</a>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- MODAL ACCESIBILIDAD ESTILIZADO -->
+      <div class="modal fade" id="accesibilidadModal" tabindex="-1" aria-labelledby="accesibilidadModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+
+            <!-- Header -->
+            <div class="modal-header">
+              <h5 class="modal-title" id="accesibilidadModalLabel">
+                <span lang="es" class="lang lang-es">Ajustes de accesibilidad</span>
+                <span lang="en" class="lang lang-en d-none">Accessibility Settings</span>
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+              <!-- Tema -->
+              <div class="mb-4">
+                <h6>
+                  <span lang="es" class="lang lang-es">Tema</span>
+                  <span lang="en" class="lang lang-en d-none">Theme</span>
+                </h6>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-primary tema-opcion" data-value="normal">
+                    <span lang="es" class="lang lang-es">Predeterminado</span>
+                    <span lang="en" class="lang lang-en d-none">Default</span>
+                  </button>
+                  <button class="btn btn-primary tema-opcion" data-value="high">
+                    <span lang="es" class="lang lang-es">Oscuro</span>
+                    <span lang="en" class="lang lang-en d-none">Dark</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Idioma -->
+              <div class="mb-4">
+                <h6>
+                  <span lang="es" class="lang lang-es">Idioma</span>
+                  <span lang="en" class="lang lang-en d-none">Language</span>
+                </h6>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-primary" onclick="setLanguage('es')">
+                    <span lang="es" class="lang lang-es">Español</span>
+                    <span lang="en" class="lang lang-en d-none">Spanish</span>
+                  </button>
+                  <button class="btn btn-primary" onclick="setLanguage('en')">
+                    <span lang="es" class="lang lang-es">Inglés</span>
+                    <span lang="en" class="lang lang-en d-none">English</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tamaño de letra -->
+              <div>
+                <h6>
+                  <span lang="es" class="lang lang-es">Tamaño de letra</span>
+                  <span lang="en" class="lang lang-en d-none">Font Size</span>
+                </h6>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-primary tamanyo-opcion" data-size="80">
+                    <span lang="es" class="lang lang-es">Pequeño (80%)</span>
+                    <span lang="en" class="lang lang-en d-none">Small (80%)</span>
+                  </button>
+                  <button class="btn btn-primary tamanyo-opcion" data-size="100">
+                    <span lang="es" class="lang lang-es">Normal (100%)</span>
+                    <span lang="en" class="lang lang-en d-none">Normal (100%)</span>
+                  </button>
+                  <button class="btn btn-primary tamanyo-opcion" data-size="120">
+                    <span lang="es" class="lang lang-es">Grande (120%)</span>
+                    <span lang="en" class="lang lang-en d-none">Large (120%)</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
     </div>
-    <!-- <script src="/js/bootstrap.min.js"></script> -->
+
     <script src="/js/bootstrap.bundle.min.js"></script>
     <script src="/js/ajustes.js"></script>
   </body>

@@ -91,7 +91,7 @@ function cargarConcesionarios() {
 function pintarTabla(lista) {
     let $tbody = $("#tablaConcesionariosBody");
     let $contador = $("#contadorConcesionarios");
-    
+
     $tbody.empty();
 
     if (!lista || !lista.length) {
@@ -101,37 +101,41 @@ function pintarTabla(lista) {
     }
 
     let html = "";
-    
+
     $.each(lista, function(i, c) {
         let claseDisabled = !c.activoBool ? "disabled" : "";
-        let pointerEvents = !c.activoBool ? 'style="pointer-events: none;"' : ""; 
+        let pointerEvents = !c.activoBool ? 'style="pointer-events: none;"' : "";
         let btnDisabledAttr = !c.activoBool ? "disabled" : "";
 
-        html += '<tr>';
-        html += '<td class="fila-click" data-href="/concesionarios/' + c.id_concesionario + '">' + (c.nombre || '') + '</td>';
-        html += '<td class="fila-click" data-href="/concesionarios/' + c.id_concesionario + '">' + (c.ciudad || '') + '</td>';
-        html += '<td class="fila-click" data-href="/concesionarios/' + c.id_concesionario + '">' + (c.direccion || '') + '</td>';
-        html += '<td class="fila-click" data-href="/concesionarios/' + c.id_concesionario + '">' + (c.telefono_contacto || '') + '</td>';
-        html += '<td class="fila-click" data-href="/concesionarios/' + c.id_concesionario + '">' + pintarEstadoConcesionario(c.activoBool) + '</td>';
-        
-        html += '<td>';
-        html +=   '<button type="button" class="btn btn-secondary btn-sm mb-1 me-2" ';
-        html +=     'data-bs-toggle="modal" data-bs-target="#confirmarEliminarConcesionarioModal" ';
-        html +=     'data-id="' + c.id_concesionario + '" data-name="' + c.nombre + '" ';
-        html +=     btnDisabledAttr + '>';
-        html +=     'Eliminar';
-        html +=   '</button>';
-        
-        html +=   '<a href="/concesionarios/' + c.id_concesionario + '/editar" ';
-        html +=     'class="btn btn-primary btn-sm mb-1 ' + claseDisabled + '" ' + pointerEvents + '>';
-        html +=     'Editar';
-        html +=   '</a>';
-        html += '</td>';
-        html += '</tr>';
+        html += `
+        <tr tabindex="0" class="fila-click" data-href="/concesionarios/${c.id_concesionario}">
+            <td>${c.nombre || ''}</td>
+            <td>${c.ciudad || ''}</td>
+            <td>${c.direccion || ''}</td>
+            <td>${c.telefono_contacto || ''}</td>
+            <td>${pintarEstadoConcesionario(c.activoBool)}</td>
+
+            <td class="celda-acciones">
+                <button type="button" class="btn btn-secondary btn-sm mb-1 me-2" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#confirmarEliminarConcesionarioModal"
+                    data-id="${c.id_concesionario}" 
+                    data-name="${c.nombre}"
+                    ${btnDisabledAttr}>
+                    Eliminar
+                </button>
+
+                <a href="/concesionarios/${c.id_concesionario}/editar" 
+                   class="btn btn-primary btn-sm mb-1 ${claseDisabled}" 
+                   ${pointerEvents}>
+                   Editar
+                </a>
+            </td>
+        </tr>`;
     });
 
     $tbody.html(html);
-    
+
     if ($contador.length) $contador.text(lista.length);
 
     activarFilaClick();
@@ -220,9 +224,23 @@ function pintarEstadoConcesionario(activo) {
 }
 
 function activarFilaClick() {
-    $(".fila-click").off("click").on("click", function() {
-        let destino = $(this).data("href");
+
+    // Click del ratón
+    $(".fila-click").off("click").on("click", function(e) {
+        if ($(e.target).closest("button, a").length > 0) return;
+        if ($(e.target).closest(".celda-acciones").length > 0) return;
+
+        const destino = $(this).data("href");
         if (destino) window.location.href = destino;
+    });
+
+    // Accesibilidad: ENTER o ESPACIO
+    $(".fila-click").off("keydown").on("keydown", function(e) {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            const destino = $(this).data("href");
+            if (destino) window.location.href = destino;
+        }
     });
 }
 

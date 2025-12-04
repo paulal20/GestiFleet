@@ -35,7 +35,7 @@ $(document).ready(function () {
 
                     // 1. Cambiamos visualmente el estado a Eliminado (Rojo)
                     $("#badgeActivo")
-                        .removeClass("bg-success bg-primary") // Quitamos verde o azul
+                        .removeClass("bg-success bg-primary")
                         .addClass("bg-danger")
                         .text("Eliminado");
 

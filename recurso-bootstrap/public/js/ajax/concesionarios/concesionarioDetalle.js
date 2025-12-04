@@ -222,7 +222,7 @@ function pintarVehiculos(lista) {
     $tbody.empty();
 
     if (!lista || !lista.length) {
-        $tbody.html('<tr><td colspan="6" class="text-center text-muted">No hay vehículos</td></tr>');
+        $tbody.html('<tr><td colspan="5" class="text-center text-muted">No hay vehículos</td></tr>');
         return;
     }
 
@@ -260,15 +260,16 @@ function pintarVehiculos(lista) {
         } else reservaBtn = "";
 
         html += `
-            <tr>
-                <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${v.matricula}</td>
-                <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${v.marca}</td>
-                <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${v.modelo}</td>
-                <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${pintarSituacion(v.estado)}</td>
-                <td class="fila-click" data-href="/vehiculos/${v.id_vehiculo}">${pintarEstado(v.activoBool)}</td>
-                <td>
-                    ${accionesAdmin}
-                    ${reservaBtn}
+            <tr class="fila-click" tabindex="0" data-href="/vehiculos/${v.id_vehiculo}">
+                <td>${v.matricula}</td>
+                <td>${v.marca}</td>
+                <td>${v.modelo}</td>
+                <td>${pintarEstado(v.activoBool)}</td>
+                <td class="celda-acciones" style="cursor: default;">
+                    <div class="d-flex gap-1">
+                        ${accionesAdmin}
+                        ${reservaBtn}
+                    </div>
                 </td>
             </tr>`;
     });
@@ -315,16 +316,23 @@ function pintarEstado(activoBool) {
         : '<span class="badge bg-danger">Eliminado</span>';
 }
 
-function pintarSituacion(est) {
-    let color = "secondary";
-    if(est === "disponible") color = "success";
-    if(est === "reservado") color = "warning text-dark";
-    return `<span class="badge bg-${color}">${est}</span>`;
-}
-
 function activarFilaClick() {
-    $(".fila-click").off("click").on("click", function() {
-        let destino = $(this).data("href");
+
+    // Click del ratón
+    $(".fila-click").off("click").on("click", function(e) {
+        if ($(e.target).closest("button, a").length > 0) return;
+        if ($(e.target).closest(".celda-acciones").length > 0) return;
+
+        const destino = $(this).data("href");
         if (destino) window.location.href = destino;
+    });
+
+    // Accesibilidad: ENTER o ESPACIO
+    $(".fila-click").off("keydown").on("keydown", function(e) {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            const destino = $(this).data("href");
+            if (destino) window.location.href = destino;
+        }
     });
 }

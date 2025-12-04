@@ -1,4 +1,11 @@
+let fechaFijadaPorUsuario = false;
+
 $(document).ready(function () {
+
+    const paramsUrl = new URLSearchParams(window.location.search);
+    if (paramsUrl.has('fecha') && paramsUrl.get('fecha') !== '') {
+        fechaFijadaPorUsuario = true;
+    }
 
     actualizarTextosSliders();
 
@@ -8,7 +15,24 @@ $(document).ready(function () {
 
     cargarVehiculos();
 
-    $("#formFiltros input").on("change", function () {
+    // AUTO-RECARGA
+    setInterval(function() {
+        if (!fechaFijadaPorUsuario) {
+            actualizarInputFechaAAhora();
+            cargarVehiculos();
+        }
+    }, 30000);
+
+    $("#fecha_max").on("change", function() {
+        fechaFijadaPorUsuario = true; 
+        if ($(this).val() === "") {
+            fechaFijadaPorUsuario = false;
+        }
+        cargarVehiculos();
+    });
+
+    // Resto de inputs (color, plazas, etc)
+    $("#formFiltros input:not(#fecha_max)").on("change", function () {
         cargarVehiculos();
     });
 
@@ -19,9 +43,17 @@ $(document).ready(function () {
         const autoMin = $("#autonomia_min").attr("min");
         $("#precio_max").val(precioMax);
         $("#autonomia_min").val(autoMin);
-        
-        actualizarTextosSliders();
 
+        fechaFijadaPorUsuario = false;
+        actualizarInputFechaAAhora(); 
+
+        actualizarTextosSliders();
+        cargarVehiculos();
+    });
+
+    $("#btnAhora").on("click", function() {
+        fechaFijadaPorUsuario = true; 
+        actualizarInputFechaAAhora();
         cargarVehiculos();
     });
 
@@ -33,7 +65,19 @@ function actualizarTextosSliders() {
     $("#autonomia-val").text($("#autonomia_min").val());
 }
 
+function actualizarInputFechaAAhora() {
+    const ahora = new Date();
+    const local = new Date(ahora.getTime() - (ahora.getTimezoneOffset() * 60000));
+    const stringFecha = local.toISOString().slice(0, 16);
+    
+    $("#fecha_max").val(stringFecha);
+}
+
 function cargarVehiculos() {
+    
+    if (!fechaFijadaPorUsuario) {
+        actualizarInputFechaAAhora();
+    }
 
     const params = $("#formFiltros").serialize(); 
     const contenedor = document.getElementById('vehiculosApp');
@@ -47,18 +91,20 @@ function cargarVehiculos() {
         url: "/api/vehiculos",
         data: params,
         cache: false,
-
         beforeSend: function () {
             $("#contenedor-vehiculos").css("opacity", "0.5");
         },
-
         success: function (data) {
             $("#contenedor-vehiculos").css("opacity", "1");
             if (!data.ok)
                 return mostrarAlertaVehiculos("danger", data.error);
+            
+            // 1. Pintamos las tarjetas
             pintarVehiculos(data.vehiculos, usuarioSesion);
+            
+            // 2. NUEVO: Actualizamos los números del filtro basándonos en lo recibido
+            actualizarContadoresSidebar(data.vehiculos);
         },
-
         error: function () {
             $("#contenedor-vehiculos").css("opacity", "1");
             mostrarAlertaVehiculos("danger", "Error de conexión");
@@ -66,13 +112,86 @@ function cargarVehiculos() {
     });
 }
 
+function actualizarContadoresSidebar(lista) {
+    // 1. Inicializar contadores a 0
+    const conteos = {
+        tipo: {},
+        color: {},
+        plazas: {},
+        estado: {},
+        concesionario: {}
+    };
+
+    // 2. Recorrer los vehículos devueltos por la API y sumar
+    lista.forEach(v => {
+        if(v.tipo) conteos.tipo[v.tipo] = (conteos.tipo[v.tipo] || 0) + 1;
+        if(v.color) conteos.color[v.color] = (conteos.color[v.color] || 0) + 1;
+        if(v.numero_plazas) conteos.plazas[v.numero_plazas] = (conteos.plazas[v.numero_plazas] || 0) + 1;
+        if(v.id_concesionario) conteos.concesionario[v.id_concesionario] = (conteos.concesionario[v.id_concesionario] || 0) + 1;
+        
+        // Usamos el valor exacto (singular) de la API
+        const estadoKey = v.estado_dinamico || 'disponible';
+        conteos.estado[estadoKey] = (conteos.estado[estadoKey] || 0) + 1;
+    });
+
+    // 3. Recorrer el DOM y actualizar textos
+    const filtros = ['tipo', 'color', 'plazas', 'estado', 'concesionario'];
+
+    filtros.forEach(categoria => {
+        
+        // --- CORRECCIÓN CLAVE ---
+        // Verificamos si este filtro está "activo" (si el usuario ha seleccionado algo que no sea "Todos")
+        const valorSeleccionado = $(`input[name="${categoria}"]:checked`).val();
+
+        // Si el usuario está filtrando por esta categoría (ej: ha marcado "reservado"),
+        // NO actualizamos los textos de esta categoría. Mantenemos los números antiguos.
+        // Así, "Disponibles" seguirá mostrando (5) aunque no estén en pantalla.
+        if (valorSeleccionado && valorSeleccionado !== "") {
+            return; // Saltamos a la siguiente categoría sin tocar el DOM de esta
+        }
+        // ------------------------
+
+        // Seleccionamos todos los inputs radio de esa categoría
+        $(`input[name="${categoria}"]`).each(function() {
+            const $input = $(this);
+            const val = $input.val(); 
+            const $label = $input.next('label'); 
+
+            let cantidad = 0;
+
+            if (val === "") {
+                // Opción "Todos": Es igual al total de la lista actual
+                cantidad = lista.length;
+            } else {
+                // Opción específica: Buscamos en nuestro objeto 'conteos'
+                cantidad = conteos[categoria][val] || 0;
+            }
+
+            // Actualizar el texto conservando el nombre original
+            let textoActual = $label.text().trim();
+            const parentesisIndex = textoActual.lastIndexOf('(');
+            
+            let nombreBase = textoActual;
+            if (parentesisIndex !== -1) {
+                nombreBase = textoActual.substring(0, parentesisIndex).trim();
+            }
+
+            // Aplicamos el nuevo texto
+            $label.text(`${nombreBase} (${cantidad})`);
+        });
+    });
+}
 
 function pintarVehiculos(lista, usuarioSesion) {
     const $cont = $("#contenedor-vehiculos");
     $cont.empty();
 
-    const esAdmin = usuarioSesion?.rol === "Admin"; 
+    const esAdmin = usuarioSesion?.rol === "Admin";
     
+    const valFecha = $("#fecha_max").val();
+    const queryFecha = valFecha ? `?fecha=${valFecha}` : ''; 
+    const queryFechaAmpersand = valFecha ? `&fecha=${valFecha}` : '';
+
     if (!lista || lista.length === 0) {
         $cont.html(`
             <div class="alert alert-info text-center w-100">
@@ -82,11 +201,9 @@ function pintarVehiculos(lista, usuarioSesion) {
     } else {
         lista.forEach(v => {
             const estadoBadge =
-                v.estado === "disponible"
-                    ? '<span class="badge bg-success">Disponible</span>'
-                    : v.estado === "reservado"
-                        ? '<span class="badge bg-warning text-dark">Reservado</span>'
-                        : '<span class="badge bg-danger">Mantenimiento</span>';
+            v.estado_dinamico === "disponible"
+            ? '<span class="badge bg-success">Disponible</span>'
+            : '<span class="badge bg-warning text-dark">Reservado</span>';
 
             let footerHtml = esAdmin
                 ? `
@@ -104,7 +221,7 @@ function pintarVehiculos(lista, usuarioSesion) {
                     </div>`
                 : `
                     <div class="card-footer">
-                        <a class="btn btn-primary w-100" href="/reserva?idVehiculo=${v.id_vehiculo}">
+                        <a class="btn btn-primary w-100" href="/reserva?idVehiculo=${v.id_vehiculo}${queryFechaAmpersand}">
                             Reservar
                         </a>
                     </div>`;
@@ -112,7 +229,7 @@ function pintarVehiculos(lista, usuarioSesion) {
             $cont.append(`
               <div class="col">
                 <div class="vehiculo-card card-base h-100 d-flex flex-column">
-                    <a href="/vehiculos/${v.id_vehiculo}" style="text-decoration:none;">
+                    <a href="/vehiculos/${v.id_vehiculo}${queryFecha}" style="text-decoration:none;">
                         <div class="vehiculo-img-container">
                             ${v.tiene_imagen
                                 ? `<img src="/vehiculos/${v.id_vehiculo}/imagen" class="card-img-top">`
