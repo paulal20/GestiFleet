@@ -258,5 +258,5 @@ function mostrarAlerta(tipo, mensaje) {
     
     setTimeout(function() {
         $cont.find(".alert").alert('close'); 
-    }, 5000);
+    }, 7000);
 }

@@ -1,3 +1,5 @@
+/* public/js/ajax/vehiculos/vehiculosLista.js */
+
 let fechaFijadaPorUsuario = false;
 
 $(document).ready(function () {
@@ -31,7 +33,7 @@ $(document).ready(function () {
         cargarVehiculos();
     });
 
-    // Resto de inputs (color, plazas, etc)
+    // Resto de inputs
     $("#formFiltros input:not(#fecha_max)").on("change", function () {
         cargarVehiculos();
     });
@@ -99,21 +101,17 @@ function cargarVehiculos() {
             if (!data.ok)
                 return mostrarAlertaVehiculos("danger", data.error);
             
-            // 1. Pintamos las tarjetas
             pintarVehiculos(data.vehiculos, usuarioSesion);
-            
-            // 2. NUEVO: Actualizamos los números del filtro basándonos en lo recibido
             actualizarContadoresSidebar(data.vehiculos);
         },
         error: function () {
             $("#contenedor-vehiculos").css("opacity", "1");
-            mostrarAlertaVehiculos("danger", "Error de conexión");
+            mostrarAlertaVehiculos("danger", "Error de conexión con el servidor");
         }
     });
 }
 
 function actualizarContadoresSidebar(lista) {
-    // 1. Inicializar contadores a 0
     const conteos = {
         tipo: {},
         color: {},
@@ -122,36 +120,19 @@ function actualizarContadoresSidebar(lista) {
         concesionario: {}
     };
 
-    // 2. Recorrer los vehículos devueltos por la API y sumar
     lista.forEach(v => {
         if(v.tipo) conteos.tipo[v.tipo] = (conteos.tipo[v.tipo] || 0) + 1;
         if(v.color) conteos.color[v.color] = (conteos.color[v.color] || 0) + 1;
         if(v.numero_plazas) conteos.plazas[v.numero_plazas] = (conteos.plazas[v.numero_plazas] || 0) + 1;
         if(v.id_concesionario) conteos.concesionario[v.id_concesionario] = (conteos.concesionario[v.id_concesionario] || 0) + 1;
         
-        // Usamos el valor exacto (singular) de la API
         const estadoKey = v.estado_dinamico || 'disponible';
         conteos.estado[estadoKey] = (conteos.estado[estadoKey] || 0) + 1;
     });
 
-    // 3. Recorrer el DOM y actualizar textos
     const filtros = ['tipo', 'color', 'plazas', 'estado', 'concesionario'];
 
     filtros.forEach(categoria => {
-        
-        // --- CORRECCIÓN CLAVE ---
-        // Verificamos si este filtro está "activo" (si el usuario ha seleccionado algo que no sea "Todos")
-        const valorSeleccionado = $(`input[name="${categoria}"]:checked`).val();
-
-        // Si el usuario está filtrando por esta categoría (ej: ha marcado "reservado"),
-        // NO actualizamos los textos de esta categoría. Mantenemos los números antiguos.
-        // Así, "Disponibles" seguirá mostrando (5) aunque no estén en pantalla.
-        if (valorSeleccionado && valorSeleccionado !== "") {
-            return; // Saltamos a la siguiente categoría sin tocar el DOM de esta
-        }
-        // ------------------------
-
-        // Seleccionamos todos los inputs radio de esa categoría
         $(`input[name="${categoria}"]`).each(function() {
             const $input = $(this);
             const val = $input.val(); 
@@ -160,14 +141,11 @@ function actualizarContadoresSidebar(lista) {
             let cantidad = 0;
 
             if (val === "") {
-                // Opción "Todos": Es igual al total de la lista actual
                 cantidad = lista.length;
             } else {
-                // Opción específica: Buscamos en nuestro objeto 'conteos'
                 cantidad = conteos[categoria][val] || 0;
             }
 
-            // Actualizar el texto conservando el nombre original
             let textoActual = $label.text().trim();
             const parentesisIndex = textoActual.lastIndexOf('(');
             
@@ -176,8 +154,15 @@ function actualizarContadoresSidebar(lista) {
                 nombreBase = textoActual.substring(0, parentesisIndex).trim();
             }
 
-            // Aplicamos el nuevo texto
             $label.text(`${nombreBase} (${cantidad})`);
+            
+            if (cantidad === 0 && !$input.is(':checked')) {
+                $label.addClass('text-muted'); 
+                $label.css('opacity', '0.5');
+            } else {
+                $label.removeClass('text-muted');
+                $label.css('opacity', '1');
+            }
         });
     });
 }
@@ -220,9 +205,7 @@ function pintarVehiculos(lista, usuarioSesion) {
                         </a>
                     </div>`
                 : `
-                    <!-- AQUÍ ESTÁ EL CAMBIO: p-0 y border-0 para eliminar espacios y bordes -->
                     <div class="card-footer p-0 border-0">
-                        <!-- rounded-bottom para que encaje abajo -->
                         <a class="btn btn-primary w-100 rounded-bottom" href="/reserva?idVehiculo=${v.id_vehiculo}${queryFechaAmpersand}">
                             Reservar
                         </a>
@@ -288,16 +271,43 @@ function configurarModalEliminarVehiculo() {
 
     $btnConfirmar.on("click", function () {
         const id = $(this).data("id");
+        
         $.ajax({
             type: "DELETE",
             url: "/api/vehiculos/" + id,
-            success: function () {
-                bootstrap.Modal.getInstance($modal[0]).hide();
-                cargarVehiculos(); // refrescar lista
+            success: function (data) {
+                if (data.ok) {
+                    // Si todo va bien, no hay problema de focus porque recargamos la lista y el botón desaparece
+                    bootstrap.Modal.getInstance($modal[0]).hide();
+                    cargarVehiculos();
+                } else {
+                    // CASO ERROR LÓGICO (ej. ok: false):
+                    // 1. Programamos que AL TERMINAR de cerrarse, muestre la alerta
+                    $modal.one('hidden.bs.modal', function () {
+                         mostrarAlertaVehiculos("danger", data.error || "Error desconocido al eliminar.");
+                    });
+                    // 2. Cerramos el modal
+                    bootstrap.Modal.getInstance($modal[0]).hide();
+                }
             },
-            error: function () {
+            error: function (jqXHR) {
+                // CASO ERROR SERVIDOR (ej. 400, 500):
+                
+                let mensaje = "Error al eliminar el vehículo.";
+                if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
+                    mensaje = jqXHR.responseJSON.error;
+                }
+
+                // 1. IMPORTANTE: Suscribirse al evento 'hidden' ANTES de cerrar
+                // Usamos .one() para que se ejecute solo una vez
+                $modal.one('hidden.bs.modal', function () {
+                    // Aquí Bootstrap ya terminó de devolver el foco al botón...
+                    // ...así que ahora NOSOTROS tomamos el control:
+                    mostrarAlertaVehiculos("danger", mensaje);
+                });
+                
+                // 2. Ordenar cierre del modal
                 bootstrap.Modal.getInstance($modal[0]).hide();
-                mostrarAlertaVehiculos("danger", "Error al eliminar.");
             }
         });
     });
@@ -307,10 +317,25 @@ function mostrarAlertaVehiculos(tipo, mensaje) {
     if (!$("#alertasVehiculos").length) {
         $(".vehiculos-content").prepend(`<div id="alertasVehiculos"></div>`);
     }
+
+    // tabindex="-1" es vital para poder hacer .focus() a un div
     $("#alertasVehiculos").html(`
-        <div class="alert alert-${tipo} alert-dismissible fade show">
-            ${mensaje}
+        <div class="alert alert-${tipo} alert-dismissible fade show" tabindex="-1">
+            <strong>Atención:</strong> ${mensaje}
             <button class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     `);
+    
+    // 1. Subir arriba del todo
+    window.scrollTo(0, 0);
+
+    // 2. FORZAR el foco en la alerta para anular lo que hizo Bootstrap
+    $("#alertasVehiculos .alert").focus();
+    
+    // 3. Auto-ocultar
+    setTimeout(function() {
+        $("#alertasVehiculos .alert").fadeOut(500, function() {
+            $(this).remove();
+        });
+    }, 5000);
 }

@@ -60,6 +60,8 @@ function eliminarVehiculo(id) {
         error: function (jqXHR) {
             cerrarModal();
             let mensaje = "Error de conexión.";
+            
+            // CAPTURAMOS EL ERROR DEL BACKEND
             if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
                 mensaje = jqXHR.responseJSON.error;
             }
@@ -119,7 +121,10 @@ function mostrarAlerta(tipo, mensaje) {
     
     $cont.html(html);
 
+    // Auto-ocultar a los 5 segundos
     setTimeout(function() {
-        $cont.find(".alert").alert('close'); 
+        $cont.find(".alert").fadeOut(500, function() {
+            $(this).remove();
+        });
     }, 5000);
 }

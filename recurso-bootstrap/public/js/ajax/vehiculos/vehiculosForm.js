@@ -42,20 +42,22 @@ $(document).ready(function () {
 
             error: function (jqXHR) {
                 let msg = "Error al procesar la solicitud.";
-                let errorEspecificoEncontrado = false;
-
+                
                 if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
                     msg = jqXHR.responseJSON.error;
 
                     // === MATRÍCULA DUPLICADA ===
                     if (msg.includes("La matrícula ya existe") || msg.includes("pertenece a otro vehículo")) {
                         if (typeof window.registrarErrorServidor === 'function') {
+                            // 1. Mostrar el error técnico en el SPAN del input (campo específico)
                             window.registrarErrorServidor("matricula", msg);
                             
-                            // Llamamos a la función corregida
+                            // 2. Mostrar la alerta ROJA arriba con el mensaje que pediste
+                            mostrarErrorForm("danger", "La matrícula introducida ya está registrada en otro vehículo.");
+
+                            // 3. Llevar al usuario al campo
                             irAlCampo("matricula");
-                            
-                            errorEspecificoEncontrado = true;
+                            return; // Importante: Salimos para no sobrescribir la alerta
                         }
                     }
                 } 
@@ -63,9 +65,8 @@ $(document).ready(function () {
                     msg = "Ruta de API no encontrada.";
                 }
 
-                if (!errorEspecificoEncontrado) {
-                    mostrarErrorForm("danger", msg);
-                }
+                // Error genérico (cualquier otro error que no sea matrícula duplicada)
+                mostrarErrorForm("danger", msg);
             },
 
             complete: function () {
@@ -76,40 +77,47 @@ $(document).ready(function () {
 });
 
 // ==========================================
-// FUNCIÓN CORREGIDA PARA EL FOCUS
+// FUNCIÓN FOCUS
 // ==========================================
 function irAlCampo(campoId) {
     const $input = $("#" + campoId);
     
     if ($input.length) {
-        // 1. Marcar visualmente en rojo
         $input.addClass("is-invalid");
-
-        // 2. Obtener el elemento nativo de HTML (sacarlo del objeto jQuery)
         const elementoNativo = $input[0];
 
-        // 3. Scroll Nativo Suave
-        // 'block: center' pone el input en MITAD de la pantalla (así no se tapa con el menú de arriba)
         elementoNativo.scrollIntoView({ 
             behavior: 'smooth', 
             block: 'center' 
         });
 
-        // 4. Focus inteligente
-        // 'preventScroll: true' evita que el focus pegue un salto brusco peleando con el scroll
-        setTimeout(() => {
+        setTimeout(function() {
             elementoNativo.focus({ preventScroll: true });
-        }, 100); // Pequeño retraso imperceptible para asegurar que el navegador procesó la orden de scroll
+        }, 100); 
     }
 }
 
+// ==========================================
+// FUNCIÓN MOSTRAR ALERTA (MODIFICADA)
+// ==========================================
 function mostrarErrorForm(tipo, mensaje) {
     const html = `
-        <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
-            ${mensaje}
+        <div class="alert alert-${tipo} alert-dismissible fade show shadow-sm" role="alert">
+            <strong>Atención:</strong> ${mensaje}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     `;
-    $("#alertasFormContainer").html(html);
+    
+    const $container = $("#alertasFormContainer");
+    $container.html(html);
+    
+    // Scroll arriba para ver el error
     $('html, body').animate({ scrollTop: 0 }, 'fast');
+
+    // === NUEVO: DESAPARECER A LOS 5 SEGUNDOS ===
+    setTimeout(function() {
+        $container.find(".alert").fadeOut(500, function() {
+            $(this).remove();
+        });
+    }, 5000);
 }

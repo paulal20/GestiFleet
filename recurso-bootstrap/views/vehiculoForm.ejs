@@ -3,6 +3,8 @@
 %>
 
 <div class="vehiculo-form-content">
+  <div id="alertasFormContainer"></div>
+  
   <h1><%= title %></h1>
 
   <% if (typeof error !== 'undefined' && error) { %>
@@ -139,7 +141,6 @@
           <small class="text-muted">Si no seleccionas una nueva imagen, se mantendrá la actual.</small>
         <% } %>
       </div>
-
 
     </fieldset>
 

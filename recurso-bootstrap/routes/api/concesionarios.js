@@ -18,7 +18,7 @@ router.get('/lista', isAuth, (req, res) => {
   req.db.query(sql, params, (err, concesionarios) => {
     if (err) {
       console.error("Error API concesionarios:", err);
-      return res.status(500).json({ ok: false, error: "Error interno al obtener concesionarios" });
+      return res.status(500).json({ ok: false, error: "Error interno al obtener el listado de concesionarios." });
     }
 
     const concesionariosConEstado = concesionarios.map(c => ({
@@ -31,7 +31,7 @@ router.get('/lista', isAuth, (req, res) => {
   });
 });
 
-// DETALLE POR ID (Requiere dos consultas anidadas)
+// DETALLE POR ID
 router.get("/:id(\\d+)", isAuth, (req, res) => {
   const id = parseInt(req.params.id);
 
@@ -39,11 +39,10 @@ router.get("/:id(\\d+)", isAuth, (req, res) => {
   req.db.query("SELECT * FROM concesionarios WHERE id_concesionario = ?", [id], (err, rows) => {
     if (err) return res.json({ ok: false, error: err.message });
 
-    // Verificación de si existe (rows[0])
     const concesionario = rows[0];
 
     if (!concesionario) {
-      return res.json({ ok: false, error: "Concesionario no encontrado" });
+      return res.json({ ok: false, error: "El concesionario solicitado no existe." });
     }
 
     const concesionarioConEstado = {
@@ -52,8 +51,7 @@ router.get("/:id(\\d+)", isAuth, (req, res) => {
       activoBool: concesionario.activo === 1
     };
 
-    // SEGUNDA CONSULTA (ANIDADA): Obtener vehículos
-    // Se ejecuta solo si la primera tuvo éxito
+    // SEGUNDA CONSULTA: Obtener vehículos
     req.db.query("SELECT * FROM vehiculos WHERE id_concesionario = ?", [id], (errVehiculos, vehiculos) => {
       if (errVehiculos) return res.json({ ok: false, error: errVehiculos.message });
 
@@ -63,7 +61,6 @@ router.get("/:id(\\d+)", isAuth, (req, res) => {
         activoBool: v.activo === 1
       }));
 
-      // Respuesta final con datos de ambas consultas
       res.json({ ok: true, concesionario: concesionarioConEstado, vehiculos: vehiculosConEstado });
     });
   });
@@ -74,11 +71,11 @@ router.post('/nuevo', isAdmin, (req, res) => {
   const { nombre, ciudad, direccion, telefono_contacto } = req.body;
   const fieldErrors = {};
 
-  // 1. Validaciones básicas
-  if (!nombre || nombre.trim().length < 3) fieldErrors.nombre = 'Mínimo 3 caracteres';
-  if (!ciudad || ciudad.trim().length < 3) fieldErrors.ciudad = 'Mínimo 3 caracteres';
-  if (!direccion || direccion.trim().length < 5) fieldErrors.direccion = 'Mínimo 5 caracteres';
-  if (!telefono_contacto || !/^\d{9}$/.test(telefono_contacto.trim())) fieldErrors.telefono_contacto = '9 dígitos';
+  // 1. Validaciones básicas (Mensajes mejorados)
+  if (!nombre || nombre.trim().length < 3) fieldErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
+  if (!ciudad || ciudad.trim().length < 3) fieldErrors.ciudad = 'La ciudad debe tener al menos 3 caracteres.';
+  if (!direccion || direccion.trim().length < 5) fieldErrors.direccion = 'La dirección debe ser más descriptiva (mín. 5 letras).';
+  if (!telefono_contacto || !/^\d{9}$/.test(telefono_contacto.trim())) fieldErrors.telefono_contacto = 'El teléfono debe constar de 9 dígitos numéricos.';
 
   if (Object.keys(fieldErrors).length) return res.status(400).json({ ok: false, fieldErrors });
 
@@ -91,20 +88,19 @@ router.post('/nuevo', isAdmin, (req, res) => {
   req.db.query(sqlCheck, [nombre.trim(), direccion.trim(), telefono_contacto.trim()], (err, rows) => {
     if (err) {
       console.error("Error comprobando duplicados:", err);
-      return res.status(500).json({ ok: false, error: err.message });
+      return res.status(500).json({ ok: false, error: "Error al verificar datos duplicados." });
     }
 
     if (rows.length > 0) {
-      // Marcamos los errores específicos
       rows.forEach(row => {
         if (row.nombre.toLowerCase() === nombre.trim().toLowerCase()) {
-          fieldErrors.nombre = 'Este nombre ya existe';
+          fieldErrors.nombre = 'Ya existe un concesionario con este nombre.';
         }
         if (row.direccion.toLowerCase() === direccion.trim().toLowerCase()) {
-          fieldErrors.direccion = 'Esta dirección ya existe';
+          fieldErrors.direccion = 'Esta dirección ya está registrada en el sistema.';
         }
         if (row.telefono_contacto === telefono_contacto.trim()) {
-          fieldErrors.telefono_contacto = 'Este teléfono ya está en uso';
+          fieldErrors.telefono_contacto = 'Este teléfono de contacto ya está en uso.';
         }
       });
 
@@ -113,12 +109,12 @@ router.post('/nuevo', isAdmin, (req, res) => {
       }
     }
 
-    // 3. Insertar si no hay duplicados
+    // 3. Insertar
     req.db.query(
       'INSERT INTO concesionarios(nombre, ciudad, direccion, telefono_contacto, activo) VALUES (?, ?, ?, ?, 1)',
       [nombre.trim(), ciudad.trim(), direccion.trim(), telefono_contacto.trim()],
       (errInsert, result) => {
-        if (errInsert) return res.status(500).json({ ok: false, error: errInsert.message });
+        if (errInsert) return res.status(500).json({ ok: false, error: "Error al guardar el nuevo concesionario." });
 
         res.json({ ok: true, id: result.insertId });
       }
@@ -132,10 +128,11 @@ router.put('/:id(\\d+)/editar', isAdmin, (req, res) => {
   const { nombre, ciudad, direccion, telefono_contacto } = req.body;
   const fieldErrors = {};
 
-  if (!nombre || nombre.trim().length < 3) fieldErrors.nombre = 'Mínimo 3 caracteres';
-  if (!ciudad || ciudad.trim().length < 3) fieldErrors.ciudad = 'Mínimo 3 caracteres';
-  if (!direccion || direccion.trim().length < 5) fieldErrors.direccion = 'Mínimo 5 caracteres';
-  if (!telefono_contacto || !/^\d{9}$/.test(telefono_contacto.trim())) fieldErrors.telefono_contacto = '9 dígitos';
+  // Mensajes mejorados
+  if (!nombre || nombre.trim().length < 3) fieldErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
+  if (!ciudad || ciudad.trim().length < 3) fieldErrors.ciudad = 'La ciudad debe tener al menos 3 caracteres.';
+  if (!direccion || direccion.trim().length < 5) fieldErrors.direccion = 'La dirección debe ser más descriptiva (mín. 5 letras).';
+  if (!telefono_contacto || !/^\d{9}$/.test(telefono_contacto.trim())) fieldErrors.telefono_contacto = 'El teléfono debe constar de 9 dígitos numéricos.';
 
   if (Object.keys(fieldErrors).length) {
     return res.status(400).json({ ok: false, fieldErrors });
@@ -153,19 +150,19 @@ router.put('/:id(\\d+)/editar', isAdmin, (req, res) => {
     (err, rows) => {
       if (err) {
         console.error("Error comprobando duplicados:", err);
-        return res.status(500).json({ ok: false, error: err.message });
+        return res.status(500).json({ ok: false, error: "Error al verificar datos duplicados." });
       }
 
       if (rows.length > 0) {
         rows.forEach(row => {
           if (row.nombre.toLowerCase() === nombre.trim().toLowerCase()) {
-            fieldErrors.nombre = 'Este nombre ya existe en otro concesionario';
+            fieldErrors.nombre = 'Este nombre ya existe en otro concesionario.';
           }
           if (row.direccion.toLowerCase() === direccion.trim().toLowerCase()) {
-            fieldErrors.direccion = 'Esta dirección ya está registrada';
+            fieldErrors.direccion = 'Esta dirección ya está registrada en otro concesionario.';
           }
           if (row.telefono_contacto === telefono_contacto.trim()) {
-            fieldErrors.telefono_contacto = 'Este teléfono ya está en uso';
+            fieldErrors.telefono_contacto = 'Este teléfono ya está en uso por otro concesionario.';
           }
         });
 
@@ -180,7 +177,7 @@ router.put('/:id(\\d+)/editar', isAdmin, (req, res) => {
         (errUpdate) => {
           if (errUpdate) {
             console.error("Error actualizando:", errUpdate);
-            return res.status(500).json({ ok: false, error: errUpdate.message });
+            return res.status(500).json({ ok: false, error: "Error al actualizar el concesionario." });
           }
 
           res.json({ ok: true });
@@ -190,24 +187,42 @@ router.put('/:id(\\d+)/editar', isAdmin, (req, res) => {
   );
 });
 
-// ELIMINAR (Soft Delete)
-// Nota: Aunque lógicamente es un PUT, mantenemos router.delete si tu frontend lo llama así.
+// ==========================================
+// ELIMINAR (Soft Delete) - LÓGICA AMPLIADA
+// ==========================================
 router.delete('/:id(\\d+)/eliminar', isAdmin, (req, res) => {
   const id = parseInt(req.params.id, 10);
 
-  // PRIMERA CONSULTA: Verificar si tiene vehículos
-  req.db.query('SELECT COUNT(*) AS cnt FROM vehiculos WHERE id_concesionario=?', [id], (err, rows) => {
-    if (err) return res.status(500).json({ ok: false, error: err.message });
+  // 1. Verificar si tiene VEHÍCULOS ACTIVOS
+  // Añadimos "AND activo = true" para ignorar los que ya estén eliminados.
+  req.db.query('SELECT COUNT(*) AS cnt FROM vehiculos WHERE id_concesionario=? AND activo = true', [id], (errVeh, rowsVeh) => {
+    if (errVeh) return res.status(500).json({ ok: false, error: errVeh.message });
 
-    if (rows[0].cnt > 0) {
-      return res.status(400).json({ ok: false, error: 'Tiene vehículos asociados' });
+    if (rowsVeh[0].cnt > 0) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: 'No se puede eliminar el concesionario porque todavía tiene vehículos activos en stock.' 
+      });
     }
 
-    // SEGUNDA CONSULTA (ANIDADA): Realizar el Soft Delete
-    req.db.query('UPDATE concesionarios SET activo=0 WHERE id_concesionario=?', [id], (errUpdate) => {
-      if (errUpdate) return res.status(500).json({ ok: false, error: errUpdate.message });
+    // 2. Verificar si tiene EMPLEADOS ACTIVOS (Usuarios vinculados)
+    // Añadimos "AND activo = true" para ignorar ex-empleados.
+    req.db.query('SELECT COUNT(*) AS cnt FROM usuarios WHERE id_concesionario=? AND activo = true', [id], (errEmp, rowsEmp) => {
+        if (errEmp) return res.status(500).json({ ok: false, error: errEmp.message });
 
-      res.json({ ok: true });
+        if (rowsEmp[0].cnt > 0) {
+            return res.status(400).json({ 
+                ok: false, 
+                error: 'No se puede eliminar el concesionario porque tiene empleados activos trabajando en él.' 
+            });
+        }
+
+        // 3. Si no tiene ni vehículos activos ni empleados activos, procedemos al Soft Delete
+        req.db.query('UPDATE concesionarios SET activo=0 WHERE id_concesionario=?', [id], (errUpdate) => {
+            if (errUpdate) return res.status(500).json({ ok: false, error: errUpdate.message });
+
+            res.json({ ok: true });
+        });
     });
   });
 });

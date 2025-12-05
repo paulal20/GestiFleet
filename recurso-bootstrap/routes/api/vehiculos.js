@@ -57,11 +57,9 @@ router.get('/', isAuth, (req, res) => {
     FROM vehiculos v
   `;
 
-  // Parametros iniciales para la subconsulta del CASE (fechaReferencia dos veces)
   const params = [fechaReferencia, fechaReferencia];
   const condiciones = [];
 
-  // 1. Filtros básicos
   condiciones.push("v.activo = true"); // Siempre mostrar solo vehículos activos
   
   if (tipo) { condiciones.push('v.tipo = ?'); params.push(tipo); }
@@ -70,15 +68,11 @@ router.get('/', isAuth, (req, res) => {
   if (precio_max) { condiciones.push('v.precio <= ?'); params.push(precio_max); }
   if (autonomia_min) { condiciones.push('v.autonomia_km >= ?'); params.push(autonomia_min); }
 
-  // 2. Lógica de Roles y Disponibilidad
+  // Lógica de Roles
   if (!usuario || usuario.rol !== 'Admin') {
-    // === EMPLEADO ===
-    // Solo ve los de su concesionario
     condiciones.push('v.id_concesionario = ?');
     params.push(usuario.id_concesionario);
 
-    // Solo ve los que estén DISPONIBLES en la fecha de referencia.
-    // Usamos NOT EXISTS para filtrar las filas.
     condiciones.push(`
         NOT EXISTS (
             SELECT 1 FROM reservas r 
@@ -93,7 +87,6 @@ router.get('/', isAuth, (req, res) => {
   } else {
     if (concesionario) { condiciones.push('v.id_concesionario = ?'); params.push(concesionario); }
 
-    // Filtro de ESTADO 
     if (estado === 'disponible') {
         condiciones.push(`
             NOT EXISTS (
@@ -119,7 +112,6 @@ router.get('/', isAuth, (req, res) => {
     }
   }
 
-  // Montar Query final
   if (condiciones.length > 0) {
     sql += ' WHERE ' + condiciones.join(' AND ');
   }
@@ -129,12 +121,13 @@ router.get('/', isAuth, (req, res) => {
       console.error('Error API vehiculos:', err);
       return res.status(500).json({ ok: false, error: 'Error al obtener vehículos' });
     }
-    // Devolvemos los vehículos con su 'estado_dinamico' calculado
     res.json({ ok: true, vehiculos });
   });
 });
 
+// ==========================================
 // POST /api/vehiculos (Crear Vehículo)
+// ==========================================
 router.post('/', isAdmin, upload.single('imagen'), (req, res) => {
   const formData = req.body;
   
@@ -147,7 +140,7 @@ router.post('/', isAdmin, upload.single('imagen'), (req, res) => {
       id_concesionario
     } = formData;
 
-    // 1. VALIDACIONES SÍNCRONAS BÁSICAS
+    // VALIDACIONES BÁSICAS
     let errorMsg = null;
     const actual = new Date().getFullYear();
     
@@ -169,13 +162,15 @@ router.post('/', isAdmin, upload.single('imagen'), (req, res) => {
 
     if (errorMsg) return res.status(400).json({ ok: false, error: errorMsg });
 
-    req.db.query('SELECT id_concesionario FROM concesionarios WHERE id_concesionario = ?', [id_concesionario], (errConc, rowsConc) => {
+    // 1. Verificar concesionario EXISTE y es ACTIVO
+    req.db.query('SELECT id_concesionario FROM concesionarios WHERE id_concesionario = ? AND activo = true', [id_concesionario], (errConc, rowsConc) => {
         if (errConc) return res.status(500).json({ ok: false, error: 'Error al verificar concesionario.' });
         
         if (rowsConc.length === 0) {
-            return res.status(400).json({ ok: false, error: 'El concesionario seleccionado no existe en la base de datos.' });
+            return res.status(400).json({ ok: false, error: 'El concesionario seleccionado no existe o no está activo.' });
         }
 
+        // 2. Verificar duplicados
         req.db.query('SELECT id_vehiculo FROM vehiculos WHERE matricula = ?', [matricula.toUpperCase()], (errDup, duplicados) => {
             if (errDup) return res.status(500).json({ ok: false, error: errDup.message });
             
@@ -185,7 +180,7 @@ router.post('/', isAdmin, upload.single('imagen'), (req, res) => {
 
             const imagenBuffer = req.file ? req.file.buffer : null;
 
-            // 4. INSERTAR (CORREGIDO: Sin columna 'estado')
+            // 3. INSERTAR
             req.db.query(
                 `INSERT INTO vehiculos 
                 (matricula, marca, modelo, anyo_matriculacion, descripcion, 
@@ -219,7 +214,9 @@ router.post('/', isAdmin, upload.single('imagen'), (req, res) => {
   });
 });
 
+// ==========================================
 // PUT /api/vehiculos/:id (Editar Vehículo)
+// ==========================================
 router.put('/:id(\\d+)', isAdmin, upload.single('imagen'), (req, res) => {
   const id = parseInt(req.params.id, 10);
   const formData = req.body;
@@ -232,7 +229,6 @@ router.put('/:id(\\d+)', isAdmin, upload.single('imagen'), (req, res) => {
       numero_plazas, autonomia_km, color, id_concesionario 
     } = formData;
 
-    // ... (Validaciones IDÉNTICAS al original) ...
     let errorMsg = null;
     const actual = new Date().getFullYear();
     if (!matricula || !marca || !modelo || !anyo_matriculacion || !precio || !id_concesionario) {
@@ -251,39 +247,71 @@ router.put('/:id(\\d+)', isAdmin, upload.single('imagen'), (req, res) => {
 
     if (errorMsg) return res.status(400).json({ ok: false, error: errorMsg });
 
-    req.db.query('SELECT id_vehiculo FROM vehiculos WHERE matricula = ? AND id_vehiculo != ?', [matricula.toUpperCase(), id], (err, duplicados) => {
-      if (err) return res.status(500).json({ ok: false, error: err.message });
-      if (duplicados.length > 0) return res.status(400).json({ ok: false, error: 'La matrícula duplicada.' });
-
-      // Quitamos 'estado' del UPDATE para no sobreescribir lógica antigua ni confundir
-      let sql = `UPDATE vehiculos SET matricula = ?, marca = ?, modelo = ?, anyo_matriculacion = ?, descripcion = ?, tipo = ?, precio = ?, numero_plazas = ?, autonomia_km = ?, color = ?, id_concesionario = ?`;
-      let params = [matricula.toUpperCase(), marca, modelo, anyo_matriculacion, descripcion || null, tipo, precio, numero_plazas || 5, autonomia_km || null, color || null, id_concesionario];
-
-      if (req.file) {
-        sql += ', imagen = ?';
-        params.push(req.file.buffer);
-      }
-
-      sql += ' WHERE id_vehiculo = ?';
-      params.push(id);
-
-      req.db.query(sql, params, (errUpdate) => {
-        if (errUpdate) {
-          console.error('Error actualizando:', errUpdate);
-          return res.status(500).json({ ok: false, error: 'Error actualización' });
+    // 1. Verificar concesionario EXISTE y es ACTIVO
+    req.db.query('SELECT id_concesionario FROM concesionarios WHERE id_concesionario = ? AND activo = true', [id_concesionario], (errConc, rowsConc) => {
+        if (errConc) return res.status(500).json({ ok: false, error: 'Error al verificar concesionario.' });
+        
+        if (rowsConc.length === 0) {
+            return res.status(400).json({ ok: false, error: 'El concesionario seleccionado no existe o no está activo.' });
         }
-        res.json({ ok: true, redirectUrl: `/vehiculos/${id}` });
-      });
+
+        // 2. Verificar duplicados (excluyendo el propio vehículo)
+        req.db.query('SELECT id_vehiculo FROM vehiculos WHERE matricula = ? AND id_vehiculo != ?', [matricula.toUpperCase(), id], (err, duplicados) => {
+          if (err) return res.status(500).json({ ok: false, error: err.message });
+          
+          if (duplicados.length > 0) return res.status(400).json({ ok: false, error: 'La matrícula pertenece a otro vehículo.' });
+
+          let sql = `UPDATE vehiculos SET matricula = ?, marca = ?, modelo = ?, anyo_matriculacion = ?, descripcion = ?, tipo = ?, precio = ?, numero_plazas = ?, autonomia_km = ?, color = ?, id_concesionario = ?`;
+          let params = [matricula.toUpperCase(), marca, modelo, anyo_matriculacion, descripcion || null, tipo, precio, numero_plazas || 5, autonomia_km || null, color || null, id_concesionario];
+
+          if (req.file) {
+            sql += ', imagen = ?';
+            params.push(req.file.buffer);
+          }
+
+          sql += ' WHERE id_vehiculo = ?';
+          params.push(id);
+
+          req.db.query(sql, params, (errUpdate) => {
+            if (errUpdate) {
+              console.error('Error actualizando:', errUpdate);
+              return res.status(500).json({ ok: false, error: 'Error actualización' });
+            }
+            res.json({ ok: true, redirectUrl: `/vehiculos/${id}` });
+          });
+        });
     });
   });
 });
 
-// DELETE
+// ==========================================
+// DELETE /api/vehiculos/:id
+// ==========================================
 router.delete('/:id(\\d+)', isAdmin, (req, res) => {
   const id = parseInt(req.params.id, 10);
-  req.db.query('UPDATE vehiculos SET activo=false WHERE id_vehiculo = ?', [id], (err) => {
-    if (err) return res.status(500).json({ ok: false, error: err.message });
-    res.json({ ok: true });
+  const ahora = new Date();
+
+  // 1. Validar que NO tenga reservas ACTIVAS en el presente o futuro
+  const sqlCheck = "SELECT 1 FROM reservas WHERE id_vehiculo = ? AND estado = 'activa' AND fecha_fin >= ?";
+  
+  req.db.query(sqlCheck, [id, ahora], (errCheck, rows) => {
+     if (errCheck) {
+         console.error(errCheck);
+         return res.status(500).json({ ok: false, error: 'Error al verificar reservas.' });
+     }
+
+     if (rows.length > 0) {
+         return res.status(400).json({ 
+             ok: false, 
+             error: 'No se puede eliminar el vehículo porque tiene reservas activas o pendientes.' 
+         });
+     }
+
+     // 2. Si no hay reservas, procedemos al soft delete
+     req.db.query('UPDATE vehiculos SET activo=false WHERE id_vehiculo = ?', [id], (err) => {
+        if (err) return res.status(500).json({ ok: false, error: err.message });
+        res.json({ ok: true });
+     });
   });
 });
 
