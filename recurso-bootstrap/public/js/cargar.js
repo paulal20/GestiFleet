@@ -80,7 +80,7 @@ $(document).ready(function() {
 
                                 $('#setupAlertContainer').html(`
                                     <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
-                                        <strong><img src="/bootstrap-icons-1.13.1/exclamation-triangle-fill.svg" class="bi-svg" alt="" style="filter: invert(1); width: 20px; height: 20px;"> Carga con incidencias:</strong> 
+                                        <strong> Carga con incidencias:</strong> 
                                         Algunos elementos no se procesaron:
                                         <hr class="my-2">
                                         ${htmlErrors}
@@ -91,7 +91,7 @@ $(document).ready(function() {
                                 // 2. Alerta de éxito total
                                 $('#setupAlertContainer').html(`
                                     <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-                                        <strong><img src="/bootstrap-icons-1.13.1/check-circle-fill.svg" class="bi-svg" alt="" style="width: 20px; height: 20px;"> ¡Éxito!</strong> 
+                                        <strong> ¡Éxito!</strong> 
                                         Carga completada correctamente sin errores.
                                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                     </div>
@@ -136,7 +136,7 @@ $(document).ready(function() {
         // Inyecta alerta Bootstrap roja
         $('#setupAlertContainer').html(`
             <div class="alert alert-danger alert-dismissible fade show shadow-sm border-danger" role="alert">
-                <img src="/bootstrap-icons-1.13.1/x-circle-fill.svg" class="bi-svg" alt="" style="width: 20px; height: 20px;"> ${msg}
+                ${msg}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         `);

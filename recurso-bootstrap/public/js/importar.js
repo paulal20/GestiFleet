@@ -77,7 +77,7 @@ $(document).ready(function() {
     function mostrarErrorEnModal(mensaje) {
         const htmlError = `
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <img src="/bootstrap-icons-1.13.1/exclamation-triangle-fill.svg" class="bi-svg" alt=""> ${mensaje}
+                ${mensaje}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         `;
@@ -401,7 +401,7 @@ $(document).ready(function() {
 
         // --- C. FINALIZACIÓN ---
         function finalizarProceso() {
-            $btn.prop('disabled', false).html('<img src="/bootstrap-icons-1.13.1/save.svg" class="bi-svg" alt=""> Confirmar e Importar');
+            $btn.prop('disabled', false).html(' Confirmar e Importar');
             $('#progresoImportacion').hide();
 
             const modalImport = bootstrap.Modal.getInstance(document.getElementById('modalImportacion'));

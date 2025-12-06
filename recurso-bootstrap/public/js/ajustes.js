@@ -1,17 +1,54 @@
-document.addEventListener('keydown', function(e) {
-  if (e.altKey && e.key.toLowerCase() === 'r') {
-    window.location.href = '/reserva';
-  }
-  if (e.altKey && e.key.toLowerCase() === 'i') {
-    window.location.href = '/';
-  }
-  if (e.altKey && e.key.toLowerCase() === 'v') {
-    window.location.href = '/vehiculos';
-  }
-  if (e.altKey && e.key.toLowerCase() === 'c') {
-    window.location.href = '/contacto';
-  }
-});
+(function() {
+  // Definición de atajos
+  const shortcuts = [
+    // Vehículos
+    { keys: ['alt+v', 'alt+shift+v', 'ctrl+alt+v'], url: '/vehiculos' },
+
+    // Reservas
+    { keys: ['alt+r', 'alt+shift+r', 'ctrl+alt+r'], url: '/reserva' },
+
+    // Contacto
+    { keys: ['alt+c', 'alt+shift+c'], url: '/contacto' },
+
+    // Inicio
+    { keys: ['alt+i', 'alt+shift+i'], url: '/' }
+  ];
+  document.addEventListener('keydown', function(e) {
+    try {
+      if (e.repeat) return;
+
+      // No activar dentro de inputs
+      const a = document.activeElement;
+      if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable)) {
+        return;
+      }
+
+      // Construir clave presionada
+      const parts = [];
+      if (e.ctrlKey) parts.push('ctrl');
+      if (e.altKey) parts.push('alt');
+      if (e.shiftKey) parts.push('shift');
+      parts.push((e.key || '').toLowerCase());
+
+      const pressed = parts.join('+');
+
+      // Buscar coincidencia
+      for (const sc of shortcuts) {
+        if (sc.keys.includes(pressed)) {
+          e.preventDefault();
+          console.log("Atajo detectado:", pressed, "→", sc.url);
+          window.location.href = sc.url;
+          return;
+        }
+      }
+
+    } catch(err) {
+      console.error("Error en los atajos:", err);
+    }
+  });
+
+})();
+
 
 //Función que cambia de tema (de predeterminado a oscuro y viceversa)
 (function () {
@@ -209,9 +246,3 @@ document.addEventListener('DOMContentLoaded', function() {
   // cálculo inicial ya
   updateTopOffset();
 })();
-
-document.querySelectorAll('.fila-click').forEach(fila => {
-    fila.addEventListener('click', () => {
-      window.location.href = fila.dataset.href;
-    });
-  });
