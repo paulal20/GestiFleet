@@ -6,8 +6,7 @@
       "contrasenya": "SuperAdmin*99",
       "rol": "Admin",
       "telefono": "600111222",
-      "id_concesionario": null,
-      "preferencias_accesibilidad": null
+      "id_concesionario": null
     },
     {
       "nombre": "Arturo López",
@@ -15,8 +14,7 @@
       "contrasenya": "Admin^12",
       "rol": "Empleado",
       "telefono": "600333444",
-      "id_concesionario": 1,
-      "preferencias_accesibilidad": null
+      "id_concesionario": 1
     },
     {
       "nombre": "Pau García",
@@ -24,8 +22,7 @@
       "contrasenya": "Qwert^12",
       "rol": "Empleado",
       "telefono": "600555666",
-      "id_concesionario": 1,
-      "preferencias_accesibilidad": null
+      "id_concesionario": 1
     },
     {
       "nombre": "Elena Ventas",
@@ -33,8 +30,7 @@
       "contrasenya": "Ventas2024$",
       "rol": "Empleado",
       "telefono": "600777888",
-      "id_concesionario": 1,
-      "preferencias_accesibilidad": null
+      "id_concesionario": 1
     },
     {
       "nombre": "Carlos Taller",
@@ -42,8 +38,7 @@
       "contrasenya": "Mecanico#1",
       "rol": "Empleado",
       "telefono": "600999000",
-      "id_concesionario": 2,
-      "preferencias_accesibilidad": null
+      "id_concesionario": 2
     },
     {
       "nombre": "Sofía Recepción",
@@ -51,8 +46,7 @@
       "contrasenya": "Recep@777",
       "rol": "Empleado",
       "telefono": "600123123",
-      "id_concesionario": 2,
-      "preferencias_accesibilidad": null
+      "id_concesionario": 5
     }
   ]
 }

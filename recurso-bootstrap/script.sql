@@ -24,7 +24,6 @@ CREATE TABLE IF NOT EXISTS usuarios (
   rol ENUM('Empleado','Admin') NOT NULL,
   telefono VARCHAR(20) NOT NULL UNIQUE,
   id_concesionario INT,
-  preferencias_accesibilidad JSON,
   activo BOOLEAN NOT NULL DEFAULT TRUE,
   FOREIGN KEY (id_concesionario) REFERENCES concesionarios(id_concesionario)
 );

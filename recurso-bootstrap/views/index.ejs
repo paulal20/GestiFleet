@@ -1,206 +1,87 @@
-<div class="index-content">
-  <h1 lang="es" class="lang lang-es">Bienvenido, <%= nombre %> a GestiFleet!</h1>
-  <h1 lang="en" class="lang lang-en d-none">Welcome, <%= nombre %> to GestiFleet!</h1>
+<div class="container mt-5 index-content">
 
-  <% if (error) { %>
-    <div class="alert alert-danger mt-2" role="alert">
-      <%= error %>
-    </div>
-  <% } %>
-
-  <p><a href="/error">Forzar error 500</a></p>
-  <p><a href="/ruta-no-existente">Probar 404</a></p>
-
-  <h2>
-    <span lang="es" class="lang lang-es">Plataforma de movilidad sostenible</span>
-    <span lang="en" class="lang lang-en d-none">Sustainable mobility platform</span>
-  </h2>
-  
-  <p lang="es" class="lang lang-es">En esta página vas a poder <strong><em>gestionar</em></strong> diferentes vehículos.</p>
-  <p lang="en" class="lang lang-en d-none">On this page, you will be able to <strong><em>manage</em></strong> different vehicles.</p>
-              
-  <div class="mb-4">
-      <iframe width="560" height="315" src="https://www.youtube.com/embed/mMEGOFfnWFU?si=tOCKuY6ZUP3USh5A" 
-          title="YouTube video player" 
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;" 
-          allowfullscreen>
-      </iframe>
+  <!-- Sección de Bienvenida -->
+  <div class="text-center mb-5">
+    <h1>Bienvenido a GestiFleet</h1>
+    <p class="text-muted fs-5">
+      Plataforma de movilidad sostenible para gestionar tu flota corporativa.
+    </p>
   </div>
 
-  <h3 id="vehiculos">
-    <span lang="es" class="lang lang-es">Vehículos disponibles</span>
-    <span lang="en" class="lang lang-en d-none">Available Vehicles</span>
-  </h3>
+  <!-- Card Quiénes somos -->
+  <div class="vehiculo-card p-4 shadow-sm rounded mb-5">
+    <div class="row g-0 align-items-stretch">
 
-  <ol>
-      <li>Honda</li>
-      <li>Mercedes</li>
-      <li>Mazda</li>
-      <li>Honda</li>
-      <li>Mercedes</li>
-      <li>Mazda</li>
-      <li>Honda</li>
-      <li>Mercedes</li>
-      <li>Mazda</li>
-      <li>Honda</li>
-      <li>Mercedes</li>
-      <li>Mazda</li>
-  </ol>
+      <!-- Imagen -->
+      <div class="col-md-4 d-flex align-items-stretch">
+        <div class="h-90 w-90">
+          <img src="/img/concesionario.png" alt="Vehículos corporativos" class="img-fluid rounded-start h-100 w-100" style="object-fit: cover;">
+        </div>
+      </div>
 
-  <dl>
-      <dt>HTML</dt>
-      <dd lang="es" class="lang lang-es">
-        Lenguaje de marcado para estructurar páginas web. Utiliza etiquetas para definir y organizar elementos como textos, imágenes, enlaces y vídeos, permitiendo que
-        los navegadores interpreten y muestren la información al usuario.
-      </dd>
-      <dd lang="en" class="lang lang-en d-none">
-        Markup language to structure web pages. It uses tags to define and organize elements like text, images, links, and videos, allowing browsers to interpret and display information to the user.
-      </dd>
+      <!-- Texto -->
+      <div class="col-md-8 d-flex flex-column">
+        <div class="card-body flex-grow-1">
+          <h2 class="fw-bold mb-3">Quiénes somos</h2>
+          <p>
+            GestiFleet es una plataforma dedicada a la gestión integral de flotas corporativas, 
+            ofreciendo herramientas para el control de vehículos, reservas y empleados. 
+            Nuestro objetivo es optimizar la movilidad empresarial, reduciendo costes y promoviendo 
+            la sostenibilidad.
+          </p>
+          <p>
+            Fundada en 2025, combinamos innovación tecnológica con facilidad de uso, 
+            proporcionando a las empresas una solución completa para la administración de su flota.
+          </p>
+          <a href="/contacto" class="btn btn-primary mt-3">Contáctanos</a>
+        </div>
+      </div>
 
-      <dt>CSS</dt>
-      <dd lang="es" class="lang lang-es">
-        Lenguaje de estilos para dar formato al contenido. Permite controlar cómo se ven los elementos de una página, como los colores, las fuentes, los márgenes y la 
-        disposición del contenido, haciendo que la web sea más atractiva y fácil de usar.
-      </dd>
-      <dd lang="en" class="lang lang-en d-none">
-        Style sheet language to format content. It controls how page elements look, such as colors, fonts, margins, and layout, making the web more attractive and user-friendly.
-      </dd>
+    </div>
+  </div>
 
-      <dt>JSON</dt>
-      <dd lang="es" class="lang lang-es">
-        Formato de texto ligero y legible por humanos para almacenar e intercambiar datos, basado en la sintaxis de objetos de JavaScript pero independiente de cualquier
-        lenguaje de programación. Se basa en la sintaxis de los objetos de JavaScript, pero es un formato independiente del lenguaje, lo que permite su uso en una amplia 
-        variedad de lenguajes de programación. Sus principales usos son la comunicación entre servidores y aplicaciones, la configuración de software y el almacenamiento 
-        de datos en bases de datos NoSQL.
-      </dd>
-      <dd lang="en" class="lang lang-en d-none">
-        Lightweight, human-readable text format for storing and exchanging data, based on JavaScript object syntax but independent of any programming language. It allows use across many programming languages. Main uses include communication between servers and applications, software configuration, and data storage in NoSQL databases.
-      </dd>
-  </dl>
+  <!-- Sección Misión y Valores -->
+  <div class="text-center mb-5">
+    <h2>Nuestra misión</h2>
+    <p class="fs-5 mx-auto" style="max-width: 800px;">
+      Facilitar a las empresas una gestión eficiente de su flota, optimizando recursos, reduciendo emisiones y ofreciendo una experiencia intuitiva para todos los usuarios.
+    </p>
+  </div>
 
-  <!-- el _blank es para que se abra el enlace en una pestaña o ventana nueva -->
-  <a href="https://www.ucm.es/" target="_blank" lang="es" class="lang lang-es">Universidad Complutense de Madrid</a>
-  <a href="https://www.ucm.es/" target="_blank" lang="en" class="lang lang-en d-none">Complutense University of Madrid</a><br>
+ <div class="row text-center g-4 mb-5">
 
-  <a href="/contacto" lang="es" class="lang lang-es">Contacto</a>
-  <a href="/contacto" lang="en" class="lang lang-en d-none">Contact</a>
-  <br><br>
+    <div class="col-md-4 panel-col">
+        <div class="panel-btn">
+            <img src="/bootstrap-icons-1.13.1/speedometer2.svg" class="bi-svg" alt="">
+            <span>Control Total</span>
+            <p>Monitorea cada vehículo y reserva con facilidad.</p>
+        </div>
+    </div>
 
-  <img src="/img/tesla2.png" alt="Tesla rojo" width="200">
-  <br>
-  <a href="/img/tesla2.png" target="_blank">
-      <img src="/img/tesla2.png" width="50" height="20" alt="Tesla rojo">
-  </a>
-  <p>
-    <a href="#vehiculos" lang="es" class="lang lang-es">Volver a los vehículos</a>
-    <a href="#vehiculos" lang="en" class="lang lang-en d-none">Back to vehicles</a>
-  </p>
+    <div class="col-md-4 panel-col">
+        <div class="panel-btn">
+            <img src="/bootstrap-icons-1.13.1/shield-lock.svg" class="bi-svg" alt="">
+            <span>Seguridad</span>
+            <p>Datos protegidos y acceso seguro para todos los usuarios.</p>
+        </div>
+    </div>
+
+    <div class="col-md-4 panel-col">
+        <div class="panel-btn">
+            <img src="/bootstrap-icons-1.13.1/leaf.svg" class="bi-svg" alt="">
+            <span>Sostenibilidad</span>
+            <p>Promovemos la movilidad ecológica y responsable.</p>
+        </div>
+    </div>
+
 </div>
 
 
-<!-- 
-<div class="container mt-4 index-content">
-
+  <!-- Sección Contacto / Call to Action -->
   <div class="text-center mb-5">
-    <h1 lang="es" class="lang lang-es fw-bold" style="color: var(--btn-active);">
-      Bienvenido, <%= nombre %> a GestiFleet
-    </h1>
-    <h1 lang="en" class="lang lang-en d-none fw-bold" style="color: var(--btn-active);">
-      Welcome, <%= nombre %> to GestiFleet
-    </h1>
-
-    <p class="text-muted fs-5" lang="es" class="lang lang-es">
-      Plataforma para la gestión de la flota corporativa de vehículos.
-    </p>
-    <p class="text-muted fs-5 lang lang-en d-none">
-      Corporate fleet management platform.
-    </p>
-  </div>
-
-  <% if (error) { %>
-    <div class="alert alert-info text-center" role="alert">
-      <%= error %>
-    </div>
-  <% } %>
-
-  <div class="row g-4 mb-5">
-
-    <div class="col-md-4">
-      <a href="/vehiculos" class="panel-btn">
-        <i class="bi bi-car-front"></i>
-        <span lang="es" class="lang lang-es">Vehículos</span>
-        <span lang="en" class="lang lang-en d-none">Vehicles</span>
-      </a>
-    </div>
-
-    <div class="col-md-4">
-      <a href="/empleados" class="panel-btn">
-        <i class="bi bi-people"></i>
-        <span lang="es" class="lang lang-es">Empleados</span>
-        <span lang="en" class="lang lang-en d-none">Employees</span>
-      </a>
-    </div>
-
-    <div class="col-md-4">
-      <a href="/reservas" class="panel-btn">
-        <i class="bi bi-calendar-check"></i>
-        <span lang="es" class="lang lang-es">Reservas</span>
-        <span lang="en" class="lang lang-en d-none">Bookings</span>
-      </a>
-    </div>
-  </div>
-
-  <h3 class="fw-bold mb-3" style="color: var(--btn-active);" lang="es" class="lang lang-es">
-    Resumen de la flota
-  </h3>
-  <h3 class="fw-bold mb-3 lang lang-en d-none" style="color: var(--btn-active);">
-    Fleet Overview
-  </h3>
-
-  <div class="row text-center g-4 mb-5">
-
-    <div class="col-md-4">
-      <div class="vehiculo-card p-4">
-        <h2 class="fw-bold" style="color: var(--btn-active);">0</h2>
-        <p class="text-muted" lang="es">Vehículos registrados</p>
-        <p class="text-muted lang lang-en d-none">Registered vehicles</p>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="vehiculo-card p-4">
-        <h2 class="fw-bold" style="color: var(--btn-active);">0</h2>
-        <p class="text-muted" lang="es">Empleados activos</p>
-        <p class="text-muted lang lang-en d-none">Active employees</p>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="vehiculo-card p-4">
-        <h2 class="fw-bold" style="color: var(--btn-active);">0</h2>
-        <p class="text-muted" lang="es">Reservas realizadas</p>
-        <p class="text-muted lang lang-en d-none">Bookings made</p>
-      </div>
-    </div>
-
-  </div>
-
-  Video -->
-  <h3 class="fw-bold mb-3" style="color: var(--btn-active);" lang="es" class="lang lang-es">
-    Cómo funciona la plataforma
-  </h3>
-  <h3 class="fw-bold mb-3 lang lang-en d-none" style="color: var(--btn-active);">
-    How the platform works
-  </h3>
-
-  <div class="d-flex justify-content-center mb-5">
-    <iframe 
-      width="560" 
-      height="315"
-      src="https://www.youtube.com/embed/mMEGOFfnWFU?si=tOCKuY6ZUP3USh5A"
-      class="rounded shadow"
-      allowfullscreen>
-    </iframe>
+    <h2>¿Quieres saber más?</h2>
+    <p>Visita nuestra sección de contacto y descubre cómo GestiFleet puede ayudarte a optimizar tu flota.</p>
+    <a href="/contacto" class="btn btn-primary btn-lg">Contacta con nosotros</a>
   </div>
 
 </div>

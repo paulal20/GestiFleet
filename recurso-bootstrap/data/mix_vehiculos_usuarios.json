@@ -1,0 +1,25 @@
+{
+  "vehiculos": [
+    {
+      "matricula": "7777VGO",
+      "marca": "MG",
+      "modelo": "MG4",
+      "anyo_matriculacion": 2024,
+      "precio": 30000,
+      "id_concesionario": 1,
+      "imagen_nombre": "byd_seal1.png",
+      "tipo": "coche",
+      "activo": true
+    }
+  ],
+  "usuarios": [
+    {
+      "nombre": "Javier Conductor",
+      "correo": "javier@gestifleet.com",
+      "contrasenya": "Driver123",
+      "rol": "Empleado",
+      "telefono": "640111222",
+      "id_concesionario": 2
+    }
+  ]
+}

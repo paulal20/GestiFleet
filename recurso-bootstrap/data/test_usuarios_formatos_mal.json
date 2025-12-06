@@ -1,0 +1,28 @@
+{
+  "usuarios": [
+    {
+      "nombre": "Pepe EmailMal",
+      "correo": "pepe.gestifleet.com",
+      "contrasenya": "123456",
+      "rol": "Empleado",
+      "telefono": "600111222",
+      "id_concesionario": 1
+    },
+    {
+      "nombre": "Ana RolInventado",
+      "correo": "ana@gestifleet.com",
+      "contrasenya": "123456",
+      "rol": "SuperMegaAdmin",
+      "telefono": "600222333",
+      "id_concesionario": 1
+    },
+    {
+      "nombre": "Luis TelefonoTexto",
+      "correo": "luis@gestifleet.com",
+      "contrasenya": "123456",
+      "rol": "Empleado",
+      "telefono": "seiscientos",
+      "id_concesionario": 1
+    }
+  ]
+}

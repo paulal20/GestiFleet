@@ -14,8 +14,7 @@ $(document).ready(function() {
         contrasenya: $("#contrasenya"),
         telefono: $("#telefono"),
         rol: $("#rol"),
-        id_concesionario: $("#id_concesionario"),
-        preferencias_accesibilidad: $("#preferencias_accesibilidad")
+        id_concesionario: $("#id_concesionario")
     };
 
     const $errores = {
@@ -73,8 +72,7 @@ $(document).ready(function() {
             telefono: $campos.telefono.val().trim(),
             rol: $campos.rol.val(),
             // Si el rol es Admin, enviamos null o '0' para id_concesionario
-            id_concesionario: ($campos.rol.val() === 'Empleado') ? $campos.id_concesionario.val() : null,
-            preferencias_accesibilidad: $campos.preferencias_accesibilidad.val().trim()
+            id_concesionario: ($campos.rol.val() === 'Empleado') ? $campos.id_concesionario.val() : null
         };
 
         const url = isEditMode ? `/api/usuarios/${idUsuario}` : `/api/usuarios/nuevo`;

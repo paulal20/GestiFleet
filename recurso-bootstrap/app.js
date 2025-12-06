@@ -92,6 +92,7 @@ const usuariosAjax = require('./routes/api/usuarios');
 const vehiculosAjax = require('./routes/api/vehiculos');
 const reservasAjax = require('./routes/api/reservas');
 const cargaInicialRoutes = require('./routes/cargaInicial');
+const importacionApi = require('./routes/api/importacion');
 
 app.use('/', indexRoutes);
 app.use('/vehiculos', vehiculosRoutes);
@@ -105,6 +106,7 @@ app.use('/api/vehiculos', vehiculosAjax);
 app.use('/api/reservas', reservasAjax);
 
 app.use('/carga-inicial', cargaInicialRoutes);
+app.use('/api/importacion', importacionApi);
 
 // Manejo de errores
 app.get('/error', (req, res, next) => next(new Error('Error forzado')));

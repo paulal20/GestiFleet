@@ -1,0 +1,24 @@
+{
+  "vehiculos": [
+    {
+      "matricula": "0000HUE",
+      "marca": "Fantasma",
+      "modelo": "Ghost",
+      "anyo_matriculacion": 2024,
+      "precio": 10000,
+      "id_concesionario": 9999,
+      "tipo": "coche",
+      "activo": true
+    }
+  ],
+  "usuarios": [
+    {
+      "nombre": "Empleado Huérfano",
+      "correo": "huerfano@gestifleet.com",
+      "contrasenya": "NoTengoJefe",
+      "rol": "Empleado",
+      "telefono": "600000666",
+      "id_concesionario": 9999
+    }
+  ]
+}

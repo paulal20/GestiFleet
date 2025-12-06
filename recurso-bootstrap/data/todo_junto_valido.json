@@ -1,0 +1,35 @@
+{
+  "concesionarios": [
+    {
+      "id_concesionario": 70,
+      "nombre": "GestiFleet Coruña",
+      "ciudad": "A Coruña",
+      "direccion": "Calle Real 10",
+      "telefono_contacto": "981000000",
+      "activo": true
+    }
+  ],
+  "vehiculos": [
+    {
+      "matricula": "6666COR",
+      "marca": "Polestar",
+      "modelo": "2",
+      "anyo_matriculacion": 2024,
+      "precio": 55000,
+      "id_concesionario": 1,
+      "tipo": "coche",
+      "imagen_nombre": "byd_seal1.png",
+      "activo": true
+    }
+  ],
+  "usuarios": [
+    {
+      "nombre": "Iker Coruña",
+      "correo": "ikear@gestifleet.com",
+      "contrasenya": "IkerPass1",
+      "rol": "Empleado",
+      "telefono": "630999888",
+      "id_concesionario": 1
+    }
+  ]
+}

@@ -29,12 +29,26 @@ const fetchValidTypes = (db, callback) => {
 // GET /vehiculos (Vista Listado)
 router.get('/', (req, res) => {
   const usuario = req.session.usuario;
-  const esAdmin = (usuario && usuario.rol === 'Admin');
+  const esAdmin = usuario && usuario.rol === 'Admin';
+  const fechaParaInput = req.query.fecha || obtenerFechaActualLocal();
+  const fechaReferencia = new Date(fechaParaInput);
 
+  // --- Consultas auxiliares para filtros ---
   const sqlTipos = "SELECT tipo, COUNT(*) as total FROM vehiculos WHERE activo = true GROUP BY tipo ORDER BY tipo ASC";
+  const sqlColores = "SELECT color, COUNT(*) as total FROM vehiculos WHERE activo = true AND color IS NOT NULL GROUP BY color ORDER BY color ASC";
+  const sqlPlazas = "SELECT numero_plazas, COUNT(*) as total FROM vehiculos WHERE activo = true GROUP BY numero_plazas ORDER BY numero_plazas ASC";
+  const sqlConcesionarios = `
+    SELECT c.id_concesionario, c.nombre, COUNT(v.id_vehiculo) as total 
+    FROM concesionarios c 
+    INNER JOIN vehiculos v ON c.id_concesionario = v.id_concesionario 
+    WHERE c.activo = true AND v.activo = true 
+    GROUP BY c.id_concesionario, c.nombre 
+    ORDER BY c.nombre
+  `;
+  const sqlRangos = "SELECT MIN(precio) as minPrecio, MAX(precio) as maxPrecio, MIN(autonomia_km) as minAutonomia, MAX(autonomia_km) as maxAutonomia FROM vehiculos";
 
-  req.db.query(sqlTipos, (err1, tiposRows) => {
-    const tiposDisponibles = err1 ? [] : tiposRows;
+  req.db.query(sqlTipos, (errTipos, tiposRows) => {
+    const tiposDisponibles = errTipos ? [] : tiposRows;
 
     let estadosDisponibles = [];
     if (esAdmin) {
@@ -49,47 +63,62 @@ router.get('/', (req, res) => {
       ];
     }
 
-    const sqlColores = "SELECT color, COUNT(*) as total FROM vehiculos WHERE activo = true AND color IS NOT NULL GROUP BY color ORDER BY color ASC";
-    req.db.query(sqlColores, (err3, coloresRows) => {
-      const coloresDisponibles = err3 ? [] : coloresRows;
+    req.db.query(sqlColores, (errCol, coloresRows) => {
+      const coloresDisponibles = errCol ? [] : coloresRows;
 
-      const sqlPlazas = "SELECT numero_plazas, COUNT(*) as total FROM vehiculos WHERE activo = true GROUP BY numero_plazas ORDER BY numero_plazas ASC";
-      req.db.query(sqlPlazas, (err4, plazasRows) => {
-        const plazasDisponibles = err4 ? [] : plazasRows;
+      req.db.query(sqlPlazas, (errPlz, plazasRows) => {
+        const plazasDisponibles = errPlz ? [] : plazasRows;
 
-        const sqlConcesionarios = "SELECT c.id_concesionario, c.nombre, COUNT(v.id_vehiculo) as total FROM concesionarios c INNER JOIN vehiculos v ON c.id_concesionario = v.id_concesionario WHERE c.activo = true AND v.activo = true GROUP BY c.id_concesionario, c.nombre ORDER BY c.nombre";
-        req.db.query(sqlConcesionarios, (err5, concesionariosRows) => {
-          const concesionariosDisponibles = err5 ? [] : concesionariosRows;
+        req.db.query(sqlConcesionarios, (errCon, concesionariosRows) => {
+          const concesionariosDisponibles = errCon ? [] : concesionariosRows;
 
-          req.db.query('SELECT MIN(precio) as minPrecio, MAX(precio) as maxPrecio, MIN(autonomia_km) as minAutonomia, MAX(autonomia_km) as maxAutonomia FROM vehiculos', (err6, rangosRows) => {
+          req.db.query(sqlRangos, (errRangos, rangosRows) => {
             const rangos = (rangosRows && rangosRows[0]) ? rangosRows[0] : { minPrecio: 0, maxPrecio: 100000, minAutonomia: 0, maxAutonomia: 1000 };
 
-            const fechaParaInput = req.query.fecha || obtenerFechaActualLocal();
-
-            // === Aquí decidimos qué vehículos mostrar ===
-            let sqlVehiculos = "SELECT * FROM vehiculos WHERE activo = true";
+            // =========================
+            // Consulta de vehículos
+            // =========================
+            let sqlVehiculos = `
+              SELECT 
+                  v.*, 
+                  CASE 
+                      WHEN EXISTS (
+                          SELECT 1 FROM reservas r
+                          WHERE r.id_vehiculo = v.id_vehiculo
+                          AND r.estado = 'activa'
+                          AND r.fecha_inicio <= ?
+                          AND r.fecha_fin >= ?
+                      ) THEN 'reservado'
+                      ELSE 'disponible'
+                  END AS estado_dinamico
+              FROM vehiculos v
+              WHERE v.activo = true
+            `;
+            const params = [fechaReferencia, fechaReferencia];
             const filtros = [];
 
-            if (usuario) {
-              // Filtramos por concesionario del usuario si está logueado
-              if (usuario.id_concesionario) filtros.push(`id_concesionario = ${usuario.id_concesionario}`);
+            // Si el usuario está logueado y NO es admin, filtramos por su concesionario
+            if (usuario && !esAdmin && usuario.id_concesionario) {
+              filtros.push(`v.id_concesionario = ${usuario.id_concesionario}`);
             }
-            // Otros filtros según query params
-            if (req.query.tipo) filtros.push(`tipo = '${req.query.tipo}'`);
-            if (req.query.estado) filtros.push(`estado = '${req.query.estado}'`);
-            if (req.query.color) filtros.push(`color = '${req.query.color}'`);
-            if (req.query.plazas) filtros.push(`numero_plazas = ${req.query.plazas}`);
-            if (req.query.precio_max) filtros.push(`precio <= ${req.query.precio_max}`);
-            if (req.query.autonomia_min) filtros.push(`autonomia_km >= ${req.query.autonomia_min}`);
+
+            // Filtros desde query params
+            if (req.query.tipo) filtros.push(`v.tipo = '${req.query.tipo}'`);
+            if (req.query.estado) filtros.push(`estado_dinamico = '${req.query.estado}'`);
+            if (req.query.color) filtros.push(`v.color = '${req.query.color}'`);
+            if (req.query.plazas) filtros.push(`v.numero_plazas = ${req.query.plazas}`);
+            if (req.query.precio_max) filtros.push(`v.precio <= ${req.query.precio_max}`);
+            if (req.query.autonomia_min) filtros.push(`v.autonomia_km >= ${req.query.autonomia_min}`);
+            if (req.query.concesionario && esAdmin) filtros.push(`v.id_concesionario = ${req.query.concesionario}`);
 
             if (filtros.length > 0) {
               sqlVehiculos += " AND " + filtros.join(" AND ");
             }
 
-            req.db.query(sqlVehiculos, (errVeh, vehiculosRows) => {
+            req.db.query(sqlVehiculos, params, (errVeh, vehiculosRows) => {
               const vehiculos = errVeh ? [] : vehiculosRows;
               const mensaje = vehiculos.length === 0 ? "No hay vehículos disponibles con esos criterios" : null;
-
+              
               res.render('listaVehiculos', {
                 title: 'Vehículos',
                 vehiculos,
@@ -109,7 +138,7 @@ router.get('/', (req, res) => {
                 concesionarioSeleccionado: req.query.concesionario || '',
                 precioMaxSeleccionado: req.query.precio_max || rangos.maxPrecio,
                 autonomiaMinSeleccionado: req.query.autonomia_min || rangos.minAutonomia,
-                fechaSeleccionada: fechaParaInput 
+                fechaSeleccionada: fechaParaInput
               });
             });
           });

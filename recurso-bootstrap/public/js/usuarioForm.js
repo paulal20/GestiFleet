@@ -15,8 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
         contrasenya: document.getElementById("contrasenya"),
         telefono: document.getElementById("telefono"),
         rol: document.getElementById("rol"),
-        id_concesionario: document.getElementById("id_concesionario"),
-        preferencias_accesibilidad: document.getElementById("preferencias_accesibilidad")
+        id_concesionario: document.getElementById("id_concesionario")
     };
 
     const errores = {

@@ -183,8 +183,9 @@ router.put('/:id(\\d+)/editar', isAdmin, (req, res) => {
         }
       }
 
+      // CAMBIO AQUÍ: Se añade 'activo = 1' para reactivar si estaba borrado lógico
       req.db.query(
-        'UPDATE concesionarios SET nombre=?, ciudad=?, direccion=?, telefono_contacto=? WHERE id_concesionario=?',
+        'UPDATE concesionarios SET nombre=?, ciudad=?, direccion=?, telefono_contacto=?, activo=1 WHERE id_concesionario=?',
         [nombre.trim(), ciudad.trim(), direccion.trim(), telefono_contacto.trim(), id],
         (errUpdate) => {
           if (errUpdate) {

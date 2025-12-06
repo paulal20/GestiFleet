@@ -17,6 +17,14 @@ h1 {
  padding-bottom: 2px;
 }
 
+h2{
+  font-size: 2rem;
+ margin: 0 0 0.25rem;
+ color: var(--btn-active);
+ line-height: 1;
+ padding-bottom: 2px;
+}
+
 a {
   color: var(--color-text);
   text-decoration: none;

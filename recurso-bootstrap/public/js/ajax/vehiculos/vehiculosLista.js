@@ -67,15 +67,21 @@ function actualizarInputFechaAAhora() {
 }
 
 function cargarVehiculos() {
-    if (!fechaFijadaPorUsuario) {
-        actualizarInputFechaAAhora();
-    }
+    if (!fechaFijadaPorUsuario) actualizarInputFechaAAhora();
 
     const params = $("#formFiltros").serialize();
     const contenedor = document.getElementById('vehiculosApp');
-    if (!contenedor) return;
+    let usuarioSesion = null;
 
-    const usuarioSesion = JSON.parse(contenedor.dataset.usuario);
+    if (contenedor && contenedor.dataset.usuario) {
+        try {
+            const parsed = JSON.parse(contenedor.dataset.usuario);
+            usuarioSesion = parsed || null;
+        } catch (e) {
+            usuarioSesion = null; // Si falla el JSON, seguimos sin usuario
+            console.warn("No se pudo parsear usuarioSesion:", e);
+        }
+    }
 
     $.ajax({
         type: "GET",
@@ -87,18 +93,25 @@ function cargarVehiculos() {
         },
         success: function (data) {
             $("#contenedor-vehiculos").css("opacity", "1");
-            if (!data.ok)
-                return mostrarAlertaVehiculos("danger", data.error);
+
+            if (!data || !data.ok) {
+                console.log(data);
+                const errorMsg = (data && data.error) ? data.error : "No se pudo cargar la lista de vehículos";
+                return mostrarAlertaVehiculos("danger", errorMsg);
+            }
 
             pintarVehiculos(data.vehiculos, usuarioSesion);
             actualizarContadoresSidebar(data.vehiculos);
         },
-        error: function () {
+        error: function (jqXHR, textStatus, errorThrown) {
             $("#contenedor-vehiculos").css("opacity", "1");
-            mostrarAlertaVehiculos("danger", "Error de conexión con el servidor");
+            const mensaje = jqXHR.responseJSON?.error || `Error de conexión con el servidor (${textStatus})`;
+            mostrarAlertaVehiculos("danger", mensaje);
         }
     });
 }
+
+
 
 function actualizarContadoresSidebar(lista) {
     const conteos = { tipo: {}, color: {}, plazas: {}, estado: {}, concesionario: {} };
@@ -139,10 +152,8 @@ function actualizarContadoresSidebar(lista) {
 function pintarVehiculos(lista, usuarioSesion) {
     const $cont = $("#contenedor-vehiculos");
     $cont.empty();
+
     const esAdmin = usuarioSesion?.rol === "Admin";
-    const valFecha = $("#fecha_max").val();
-    const queryFechaAmpersand = valFecha ? `&fecha=${valFecha}` : '';
-    const queryFecha = valFecha ? `?fecha=${valFecha}` : '';
 
     if (!lista || lista.length === 0) {
         $cont.html(`
@@ -150,35 +161,37 @@ function pintarVehiculos(lista, usuarioSesion) {
                 <h5>No se encontraron vehículos</h5>
             </div>
         `);
-    } else {
-        lista.forEach(v => {
-            const estadoBadge = v.estado_dinamico === "disponible"
-                ? '<span class="badge bg-success">Disponible</span>'
-                : '<span class="badge bg-warning text-dark">Reservado</span>';
+        return;
+    }
 
-            let footerHtml = esAdmin
-                ? `<div class="card-footer d-flex gap-2">
-                       <button class="btn btn-outline-secondary w-50"
-                               data-bs-toggle="modal"
-                               data-bs-target="#confirmarEliminarModal"
-                               data-id="${v.id_vehiculo}"
-                               data-name="${v.marca} ${v.modelo}">
-                           Eliminar
-                       </button>
-                       <a href="/vehiculos/${v.id_vehiculo}/editar" class="btn btn-primary flex-fill">
-                           Editar
-                       </a>
-                   </div>`
-                : `<div class="card-footer p-0 border-0">
-                       <a class="btn btn-primary w-100 rounded-bottom" href="/reserva?idVehiculo=${v.id_vehiculo}${queryFechaAmpersand}">
-                           Reservar
-                       </a>
-                   </div>`;
+    lista.forEach(v => {
+        const estadoBadge = v.estado_dinamico === "disponible"
+            ? '<span class="badge bg-success">Disponible</span>'
+            : '<span class="badge bg-warning text-dark">Reservado</span>';
 
-            $cont.append(`
-              <div class="col">
+        const footerHtml = esAdmin
+            ? `<div class="card-footer d-flex gap-2">
+                    <button class="btn btn-outline-secondary w-50"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirmarEliminarModal"
+                            data-id="${v.id_vehiculo}"
+                            data-name="${v.marca} ${v.modelo}">
+                        Eliminar
+                    </button>
+                    <a href="/vehiculos/${v.id_vehiculo}/editar" class="btn btn-primary flex-fill">
+                        Editar
+                    </a>
+               </div>`
+            : `<div class="card-footer p-0 border-0">
+                    <a class="btn btn-primary w-100 rounded-bottom" href="/reserva?idVehiculo=${v.id_vehiculo}">
+                        Reservar
+               </a>
+               </div>`;
+
+        $cont.append(`
+            <div class="col">
                 <div class="vehiculo-card card-base h-100 d-flex flex-column">
-                    <a href="/vehiculos/${v.id_vehiculo}${queryFecha}" style="text-decoration:none;">
+                    <a href="/vehiculos/${v.id_vehiculo}" style="text-decoration:none;">
                         <div class="vehiculo-img-container">
                             ${v.tiene_imagen
                                 ? `<img src="/vehiculos/${v.id_vehiculo}/imagen" class="card-img-top">`
@@ -193,10 +206,9 @@ function pintarVehiculos(lista, usuarioSesion) {
                     </a>
                     ${footerHtml}
                 </div>
-              </div>
-            `);
-        });
-    }
+            </div>
+        `);
+    });
 
     if (esAdmin) agregarTarjetaAgregarVehiculo($cont);
 }
@@ -258,6 +270,8 @@ function configurarModalEliminarVehiculo() {
 }
 
 function mostrarAlertaVehiculos(tipo, mensaje) {
+    if (!mensaje) mensaje = "Ha ocurrido un error inesperado";
+
     if (!$("#alertasVehiculos").length) {
         $(".vehiculos-content").prepend(`<div id="alertasVehiculos"></div>`);
     }
@@ -268,10 +282,10 @@ function mostrarAlertaVehiculos(tipo, mensaje) {
             <button class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     `);
-    
+
     window.scrollTo(0, 0);
     $("#alertasVehiculos .alert").focus();
-    
+
     setTimeout(function() {
         $("#alertasVehiculos .alert").fadeOut(500, function() {
             $(this).remove();

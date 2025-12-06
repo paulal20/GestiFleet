@@ -1,0 +1,52 @@
+{
+  "concesionarios": [
+    {
+      "id_concesionario": 50,
+      "nombre": "GestiFleet Bilbao",
+      "ciudad": "Bilbao",
+      "direccion": "Calle Guggenheim 1",
+      "telefono_contacto": "944000000",
+      "activo": true
+    }
+  ],
+  "vehiculos": [
+    {
+      "matricula": "9999BIL",
+      "marca": "Tesla",
+      "modelo": "Model 3",
+      "anyo_matriculacion": 2024,
+      "precio": 45000,
+      "id_concesionario": 50,
+      "tipo": "coche",
+      "imagen_nombre": "byd_seal1.png",
+      "activo": true
+    },
+    {
+      "id_vehiculo": 21,
+      "matricula": "1234XAB",
+      "marca": "BYD",
+      "modelo": "Seal 2",
+      "anyo_matriculacion": 2023,
+      "descripcion": "Sedán eléctrico eficiente con interiores tecnológicos y autonomía optimizada.",
+      "tipo": "coche",
+      "precio": 42000.00,
+      "numero_plazas": 5,
+      "autonomia_km": 500,
+      "color": "Negro",
+      "imagen_nombre": "byd_seal2.png",
+      "id_concesionario": 1,
+      "activo": true
+    },
+    {
+      "matricula": "8888MAD",
+      "marca": "BYD",
+      "modelo": "Han",
+      "anyo_matriculacion": 2024,
+      "precio": 50000,
+      "id_concesionario": 1,
+      "tipo": "coche",
+      "imagen_nombre": "byd_seal1.png",
+      "activo": true
+    }
+  ]
+}

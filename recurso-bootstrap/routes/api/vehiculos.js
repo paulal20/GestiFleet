@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const multer = require('multer');
-const { isAuth, isAdmin } = require('../../middleware/auth');
+const fs = require('fs');
+const { isAdmin } = require('../../middleware/auth');
 
 // CONFIGURACION MULTER (Sin cambios)
 const storage = multer.memoryStorage();
@@ -29,15 +30,14 @@ const fetchValidTypes = (db, callback) => {
 // ==========================================
 // GET /api/vehiculos (Listado JSON filtrado)
 // ==========================================
-router.get('/', isAuth, (req, res) => {
+router.get('/', (req, res) => {
   if (!req.xhr) return res.redirect('/vehiculos');
 
-  // Recibimos 'fecha' del date-time picker. Si no viene, usamos NOW().
   const { tipo, estado, color, plazas, concesionario, precio_max, autonomia_min, fecha } = req.query;
   const usuario = req.session.usuario;
-  
+
   const fechaReferencia = fecha ? new Date(fecha) : new Date();
-  
+
   let sql = `
     SELECT 
         v.id_vehiculo, v.matricula, v.marca, v.modelo, v.anyo_matriculacion, 
@@ -60,57 +60,64 @@ router.get('/', isAuth, (req, res) => {
   const params = [fechaReferencia, fechaReferencia];
   const condiciones = [];
 
-  condiciones.push("v.activo = true"); // Siempre mostrar solo vehículos activos
-  
+  // Solo vehículos activos
+  condiciones.push("v.activo = true");
+
+  // Filtros generales
   if (tipo) { condiciones.push('v.tipo = ?'); params.push(tipo); }
   if (color) { condiciones.push('v.color = ?'); params.push(color); }
   if (plazas) { condiciones.push('v.numero_plazas = ?'); params.push(plazas); }
   if (precio_max) { condiciones.push('v.precio <= ?'); params.push(precio_max); }
   if (autonomia_min) { condiciones.push('v.autonomia_km >= ?'); params.push(autonomia_min); }
 
-  // Lógica de Roles
-  if (!usuario || usuario.rol !== 'Admin') {
-    condiciones.push('v.id_concesionario = ?');
-    params.push(usuario.id_concesionario);
+  if (usuario) {
+    // Lógica de Roles
+    if (usuario.rol !== 'Admin') {
+      // Usuario no Admin: solo su concesionario y vehículos no reservados
+      condiciones.push('v.id_concesionario = ?');
+      params.push(usuario.id_concesionario);
 
-    condiciones.push(`
+      condiciones.push(`
         NOT EXISTS (
+          SELECT 1 FROM reservas r 
+          WHERE r.id_vehiculo = v.id_vehiculo 
+          AND r.estado = 'activa'
+          AND r.fecha_inicio <= ? 
+          AND r.fecha_fin >= ?
+        )
+      `);
+      params.push(fechaReferencia, fechaReferencia);
+
+    } else {
+      // Admin
+      if (concesionario) { condiciones.push('v.id_concesionario = ?'); params.push(concesionario); }
+
+      if (estado === 'disponible') {
+        condiciones.push(`
+          NOT EXISTS (
             SELECT 1 FROM reservas r 
             WHERE r.id_vehiculo = v.id_vehiculo 
             AND r.estado = 'activa'
             AND r.fecha_inicio <= ? 
             AND r.fecha_fin >= ?
-        )
-    `);
-    params.push(fechaReferencia, fechaReferencia);
-
-  } else {
-    if (concesionario) { condiciones.push('v.id_concesionario = ?'); params.push(concesionario); }
-
-    if (estado === 'disponible') {
-        condiciones.push(`
-            NOT EXISTS (
-                SELECT 1 FROM reservas r 
-                WHERE r.id_vehiculo = v.id_vehiculo 
-                AND r.estado = 'activa'
-                AND r.fecha_inicio <= ? 
-                AND r.fecha_fin >= ?
-            )
+          )
         `);
         params.push(fechaReferencia, fechaReferencia);
-    } else if (estado === 'reservado') {
+      } else if (estado === 'reservado') {
         condiciones.push(`
-            EXISTS (
-                SELECT 1 FROM reservas r 
-                WHERE r.id_vehiculo = v.id_vehiculo 
-                AND r.estado = 'activa'
-                AND r.fecha_inicio <= ? 
-                AND r.fecha_fin >= ?
-            )
+          EXISTS (
+            SELECT 1 FROM reservas r 
+            WHERE r.id_vehiculo = v.id_vehiculo 
+            AND r.estado = 'activa'
+            AND r.fecha_inicio <= ? 
+            AND r.fecha_fin >= ?
+          )
         `);
         params.push(fechaReferencia, fechaReferencia);
+      }
     }
   }
+  // Si no hay usuario logueado, solo se aplican los filtros generales (tipo, color, plazas, etc.)
 
   if (condiciones.length > 0) {
     sql += ' WHERE ' + condiciones.join(' AND ');
@@ -137,8 +144,27 @@ router.post('/', isAdmin, upload.single('imagen'), (req, res) => {
     const {
       matricula, marca, modelo, anyo_matriculacion, descripcion,
       tipo, precio, numero_plazas, autonomia_km, color,
-      id_concesionario
+      id_concesionario, imagen_nombre // Leemos imagen_nombre del body por si viene del JSON
     } = formData;
+
+    // --- LÓGICA DE IMAGEN HÍBRIDA ---
+    let imagenBuffer = null;
+
+    // 1. Prioridad: Archivo subido (Formulario normal)
+    if (req.file) {
+        imagenBuffer = req.file.buffer;
+    } 
+    // 2. Fallback: Referencia por nombre (Importación JSON)
+    else if (imagen_nombre) {
+        try {
+            const rutaLocal = path.join(__dirname, '../../public/img/vehiculos', imagen_nombre);
+            if (fs.existsSync(rutaLocal)) {
+                imagenBuffer = fs.readFileSync(rutaLocal);
+            }
+        } catch (e) {
+            console.error("Error leyendo imagen local:", e);
+        }
+    }
 
     // VALIDACIONES BÁSICAS
     let errorMsg = null;
@@ -154,8 +180,9 @@ router.post('/', isAdmin, upload.single('imagen'), (req, res) => {
        errorMsg = 'El precio debe ser positivo.';
     } else if (id_concesionario === '0') {
        errorMsg = 'Seleccione un concesionario válido.';
-    } else if (!req.file) {
-       errorMsg = 'La imagen es obligatoria.';
+    } else if (!imagenBuffer) {
+       // AQUI CAMBIA LA VALIDACIÓN: Comprobamos si tenemos buffer (sea de upload o de disco)
+       errorMsg = 'La imagen es obligatoria (subida o referencia válida).';
     } else if (tipo && !tiposValidos.includes(tipo)) {
        errorMsg = 'El tipo de vehículo no es válido.';
     }
@@ -178,8 +205,6 @@ router.post('/', isAdmin, upload.single('imagen'), (req, res) => {
                 return res.status(400).json({ ok: false, error: 'La matrícula ya existe.' });
             }
 
-            const imagenBuffer = req.file ? req.file.buffer : null;
-
             // 3. INSERTAR
             req.db.query(
                 `INSERT INTO vehiculos 
@@ -198,7 +223,7 @@ router.post('/', isAdmin, upload.single('imagen'), (req, res) => {
                     numero_plazas || 5, 
                     autonomia_km || null, 
                     color || null, 
-                    imagenBuffer, 
+                    imagenBuffer, // Usamos la variable que calculamos arriba
                     id_concesionario
                 ],
                 (errInsert, result) => {
@@ -226,7 +251,7 @@ router.put('/:id(\\d+)', isAdmin, upload.single('imagen'), (req, res) => {
 
     const { 
       matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, 
-      numero_plazas, autonomia_km, color, id_concesionario 
+      numero_plazas, autonomia_km, color, id_concesionario, imagen_nombre 
     } = formData;
 
     let errorMsg = null;
@@ -261,12 +286,26 @@ router.put('/:id(\\d+)', isAdmin, upload.single('imagen'), (req, res) => {
           
           if (duplicados.length > 0) return res.status(400).json({ ok: false, error: 'La matrícula pertenece a otro vehículo.' });
 
-          let sql = `UPDATE vehiculos SET matricula = ?, marca = ?, modelo = ?, anyo_matriculacion = ?, descripcion = ?, tipo = ?, precio = ?, numero_plazas = ?, autonomia_km = ?, color = ?, id_concesionario = ?`;
+          // PREPARAR SQL
+          let sql = `UPDATE vehiculos SET matricula = ?, marca = ?, modelo = ?, anyo_matriculacion = ?, descripcion = ?, tipo = ?, precio = ?, numero_plazas = ?, autonomia_km = ?, color = ?, id_concesionario = ?, activo = true`;
           let params = [matricula.toUpperCase(), marca, modelo, anyo_matriculacion, descripcion || null, tipo, precio, numero_plazas || 5, autonomia_km || null, color || null, id_concesionario];
 
+          // Lógica de Imagen para PUT (Híbrida)
+          let nuevaImagenBuffer = null;
           if (req.file) {
+              nuevaImagenBuffer = req.file.buffer;
+          } else if (imagen_nombre) {
+              try {
+                  const rutaLocal = path.join(__dirname, '../../public/img/vehiculos', imagen_nombre);
+                  if (fs.existsSync(rutaLocal)) {
+                      nuevaImagenBuffer = fs.readFileSync(rutaLocal);
+                  }
+              } catch (e) { console.error(e); }
+          }
+
+          if (nuevaImagenBuffer) {
             sql += ', imagen = ?';
-            params.push(req.file.buffer);
+            params.push(nuevaImagenBuffer);
           }
 
           sql += ' WHERE id_vehiculo = ?';

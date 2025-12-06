@@ -99,8 +99,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
             if (key === "telefono") {
                 if (estaVacio(v)) return "El teléfono es obligatorio.";
-                const re = /^[0-9]{9,15}$/; 
-                if (!re.test(v)) return "Formato de teléfono no válido. Solo números, 9-15 dígitos.";
+                if (!/^\d{9}$/.test(v)) return "Formato de teléfono no válido. Solo 9 dígitos.";
                 return "";
             }
 

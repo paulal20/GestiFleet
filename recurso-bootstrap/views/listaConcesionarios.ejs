@@ -10,7 +10,9 @@
     <% } %>
   </div>
 
-  <div class="mb-4">
+  <form>
+    <fieldset>
+    <legend class="w-auto">Filtros</legend>
       <div class="row g-3">
         <div class="col-md-6 col-lg-4">
           <label for="filtroCiudad" class="form-label">Ciudad</label>
@@ -18,8 +20,16 @@
             <option value="">Todas las Ciudades</option>
           </select>
         </div>
-      </div>
-  </div>
+
+        <div class="col-md-6 col-lg-4 d-flex align-items-end">
+          <!-- Solo botón Limpiar ocupando todo el ancho -->
+          <button type="button" id="btnLimpiar" class="btn btn-outline-secondary w-100">
+            Limpiar Filtros
+          </button>
+        </div>
+    </div>
+    </fieldset>
+  </form>
 
   <!-- ALERTAS -->
   <div id="alertas"></div>

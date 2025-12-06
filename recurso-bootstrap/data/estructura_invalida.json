@@ -1,0 +1,14 @@
+{
+  "cars": [
+    {
+      "plate": "1234BAD",
+      "brand": "Ford"
+    }
+  ],
+  "users": [
+    {
+      "name": "John Doe"
+    }
+  ],
+  "dealers": []
+}

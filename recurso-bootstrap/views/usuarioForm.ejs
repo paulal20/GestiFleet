@@ -8,7 +8,6 @@
   const isSelf = (typeof usuarioSesion !== 'undefined' && isEditMode && usuarioSesion.id_usuario == usuario.id_usuario);
 
   const segundaFila = isEditMode ? 'col-md-6' : 'col-md-4';
-  const anchoTelefono = 'col-md-4'; 
 %>
 
 <div class="usuario-form-content">
@@ -87,7 +86,7 @@
       </div>
       
       <div class="row">
-        <div class="<%= anchoTelefono %> mb-3">
+        <div class="col-md-4 mb-3">
           <label for="telefono" class="form-label obligatorio">Teléfono:</label>
           <input type="text" id="telefono" name="telefono" class="form-control"
                  value="<%= usuario?.telefono || '' %>" required aria-describedby="error-telefono">
@@ -122,13 +121,6 @@
             </select>
             <span class="error" id="error-id_concesionario" aria-live="polite"></span>
         </div>
-      </div>
-
-      <div class="row">
-          <div class="col-md-12 mb-3">
-            <label for="preferencias_accesibilidad" class="form-label NoObligatorio">Preferencias de Accesibilidad:</label>
-            <textarea id="preferencias_accesibilidad" name="preferencias_accesibilidad" class="form-control" rows="3"><%= usuario?.preferencias_accesibilidad || '' %></textarea>
-          </div>
       </div>
 
     </fieldset>
