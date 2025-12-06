@@ -96,6 +96,46 @@
     </div>
   </div>
 </div>
+<!-- MODAL: Asignar Concesionario -->
+<div class="modal fade" id="modalAsignarConcesionario" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Asignar concesionario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p id="textoAsignarUsuario" class="fw-bold"></p>
+
+        <div class="mb-3">
+          <label for="selectConcesionario" class="form-label">Concesionario</label>
+          <select id="selectConcesionario" class="form-select">
+            <option value="">Seleccione…</option>
+
+            <% if (concesionariosDisponibles && concesionariosDisponibles.length > 0) { %>
+              <% concesionariosDisponibles.forEach(c => { %>
+                <option value="<%= c.id_concesionario %>">
+                  <%= c.nombre %> 
+                  <% if(c.ciudad){ %> (<%= c.ciudad %>) <% } %>
+                </option>
+              <% }) %>
+            <% } %>
+          </select>
+
+          <span id="errorConcesionario" class="text-danger"></span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary" id="btnConfirmarAsignar">Asignar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 
 

@@ -1,87 +1,129 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("usuarioForm");
-    if (!form) return;
+$(document).ready(function() {
+    const $form = $("#usuarioForm");
+    if (!$form.length) return;
 
-    const isEditMode = form.dataset.editmode === "true";
-    const idUsuario = form.dataset.id; 
+    const isEditMode = $form.data("editmode") === true || $form.data("editmode") === "true";
+    const idUsuario = $form.data("id");
 
-    form.addEventListener("form-valid", () => {
-        // Limpiamos alertas previas
-        document.querySelectorAll(".alert").forEach(el => el.remove());
+    const $campos = {
+        nombre: $("#nombre"),
+        apellido1: $("#apellido1"),
+        apellido2: $("#apellido2"),
+        email: $("#email"),
+        confemail: $("#confemail"),
+        contrasenya: $("#contrasenya"),
+        telefono: $("#telefono"),
+        rol: $("#rol"),
+        id_concesionario: $("#id_concesionario"),
+        preferencias_accesibilidad: $("#preferencias_accesibilidad")
+    };
+
+    const $errores = {
+        nombre: $("#error-nombre"),
+        apellido1: $("#error-apellido1"),
+        apellido2: $("#error-apellido2"),
+        email: $("#error-email"),
+        confemail: $("#error-confemail"),
+        contrasenya: $("#error-contrasenya"),
+        telefono: $("#error-telefono"),
+        rol: $("#error-rol"),
+        id_concesionario: $("#error-id_concesionario")
+    };
+
+    // --- LÓGICA UI DINÁMICA ---
+    function toggleConcesionario() {
+        const val = $campos.rol.val();
+        const $divConc = $("#div-concesionario");
+
+        if (val === "Empleado") {
+            // Si es Empleado, mostramos y hacemos obligatorio
+            $divConc.slideDown(200); // Animación suave
+            $campos.id_concesionario.prop("required", true);
+        } else {
+            // Si es Admin (o vacio), ocultamos, quitamos obligatorio y limpiamos valor
+            $divConc.slideUp(200);
+            $campos.id_concesionario.prop("required", false);
+            
+            // Opcional: Resetear el valor a 0 y quitar estilos de validación visual
+            // para que si vuelven a cambiar a empleado no salga rojo/verde antiguo
+            $campos.id_concesionario.val("0").removeClass("is-valid is-invalid");
+            $errores.id_concesionario.text("");
+        }
+    }
+
+    // Escuchar cambios
+    $campos.rol.on("change", toggleConcesionario);
+    
+    // Ejecutar al inicio para establecer estado correcto según el valor cargado de BD
+    toggleConcesionario();
+
+
+    // --- ENVÍO DEL FORMULARIO ---
+    $form.on("submit", function(e) {
+        e.preventDefault();
+        $(".alert").remove(); // Limpiar alertas previas
 
         const formData = {
-            nombre: document.getElementById("nombre").value.trim(),
-            apellido1: document.getElementById("apellido1").value.trim(),
-            apellido2: document.getElementById("apellido2").value.trim(),
-            email: document.getElementById("email").value.trim(),
-            confemail: document.getElementById("confemail")?.value.trim(),
-            contrasenya: document.getElementById("contrasenya").value.trim(),
-            telefono: document.getElementById("telefono").value.trim(),
-            rol: document.getElementById("rol").value,
-            id_concesionario: document.getElementById("id_concesionario")?.value,
-            preferencias_accesibilidad: document.getElementById("preferencias_accesibilidad").value.trim()
+            nombre: $campos.nombre.val().trim(),
+            apellido1: $campos.apellido1.val().trim(),
+            apellido2: $campos.apellido2.val().trim(),
+            email: $campos.email.val().trim(),
+            confemail: $campos.confemail?.val()?.trim(),
+            contrasenya: $campos.contrasenya.val().trim(),
+            telefono: $campos.telefono.val().trim(),
+            rol: $campos.rol.val(),
+            // Si el rol es Admin, enviamos null o '0' para id_concesionario
+            id_concesionario: ($campos.rol.val() === 'Empleado') ? $campos.id_concesionario.val() : null,
+            preferencias_accesibilidad: $campos.preferencias_accesibilidad.val().trim()
         };
 
-        const url = isEditMode
-            ? `/api/usuarios/${idUsuario}` 
-            : `/api/usuarios/nuevo`;
-            
+        const url = isEditMode ? `/api/usuarios/${idUsuario}` : `/api/usuarios/nuevo`;
         const method = isEditMode ? "PUT" : "POST";
 
-        fetch(url, {
+        $.ajax({
+            url: url,
             method: method,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData)
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (!data.ok) {
-                if (data.errors) {
-                    Object.keys(data.errors).forEach(field => {
-                        const errorEl = document.getElementById(`error-${field}`);
-                        if (errorEl) errorEl.textContent = data.errors[field];
-                        
-                        const input = document.getElementById(field);
-                        if (input) {
-                            input.classList.remove("is-valid");
-                            input.classList.add("is-invalid");
-                            
-                            // GUARDAR VETO: Guardamos el valor actual como inválido en el formulario
-                            // para que la validación JS no lo ponga verde al hacer click fuera.
-                            if (!form.valoresVetados) form.valoresVetados = {};
-                            form.valoresVetados[field] = input.value.trim();
-                        }
-                    });
-                } 
-                
-                const div = document.createElement("div");
-                div.className = "alert alert-danger mt-2";
-                div.textContent = data.error || "Error desconocido al guardar.";
-                form.prepend(div);
-                
-                // NUEVO: Eliminar alerta a los 5 segundos
-                setTimeout(() => {
-                    if (div) div.remove();
-                }, 5000);
-                
-                return;
+            contentType: "application/json",
+            data: JSON.stringify(formData),
+            success: function(data) {
+                if (!data.ok) {
+                    if (data.errors) {
+                        $.each(data.errors, function(field, msg) {
+                            $(`#error-${field}`).text(msg);
+                            const $input = $(`#${field}`);
+                            $input.removeClass("is-valid").addClass("is-invalid");
+
+                            if (!$form.valoresVetados) $form.valoresVetados = {};
+                            $form.valoresVetados[field] = $input.val().trim();
+                        });
+                    }
+
+                    const $alert = $('<div class="alert alert-danger mt-2"></div>').text(data.error || "Error desconocido al guardar.");
+                    $form.prepend($alert);
+                    
+                    // Scroll arriba para ver el error
+                    $('html, body').animate({ scrollTop: 0 }, 'fast');
+                    
+                    setTimeout(() => { $alert.remove(); }, 5000);
+                    return;
+                }
+
+                // Éxito: Redirigir
+                const redirectId = isEditMode ? idUsuario : data.id;
+                window.location.href = `/usuarios/${redirectId}`;
+            },
+            error: function(xhr, status, err) {
+                console.error("Error enviando formulario:", err);
+                const $alert = $('<div class="alert alert-danger mt-2"></div>').text("Error de conexión al enviar el formulario.");
+                $form.prepend($alert);
+                $('html, body').animate({ scrollTop: 0 }, 'fast');
+                setTimeout(() => { $alert.remove(); }, 5000);
             }
-
-            // Éxito
-            const redirectId = isEditMode ? idUsuario : data.id;
-            window.location.href = `/usuarios/${redirectId}`;
-        })
-        .catch(err => {
-            console.error("Error enviando formulario:", err);
-            const div = document.createElement("div");
-            div.className = "alert alert-danger mt-2";
-            div.textContent = "Error de conexión al enviar el formulario.";
-            form.prepend(div);
-
-            // Eliminar alerta de conexión también a los 5s
-            setTimeout(() => {
-                if (div) div.remove();
-            }, 5000);
         });
+    });
+
+    // Mostrar/ocultar contraseña
+    $("#mostrarContrasenya").on("change", function() {
+        $campos.contrasenya.attr("type", this.checked ? "text" : "password");
     });
 });

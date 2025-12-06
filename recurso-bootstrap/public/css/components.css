@@ -411,3 +411,29 @@ input[type="file"]::file-selector-button:hover {
   background-color: var(--color-nav);
   color: var(--color-link);
 }
+
+.bi-svg {
+  display: inline-block;
+  width: 1.4em;
+  height: 1.4em;
+  vertical-align: -0.20em;
+  fill: curresntColor; 
+  color: var(--color-primary);   
+  transition: color 0.18s ease;
+}
+
+.panel-btn .bi-svg {
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 1rem;
+  fill: currentColor;
+  filter: var(--color-primary);
+}
+
+.dark-theme .bi-svg {
+  filter: invert(1) brightness(2);
+}
+
+.panel-btn:hover .bi-svg {
+  filter: invert(1) brightness(2);
+}

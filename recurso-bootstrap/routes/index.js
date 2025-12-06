@@ -5,11 +5,6 @@ const bcrypt = require('bcrypt');
 // npm install bcrypt
 // npm install mysql2
 
-/*
-VALIDACIONES A METER:
-- Q UN USUARIO NO PUEDA RESERVAR MÁS DE UN COCHE EN UN MISMO PERIODO DE TIEMPO
-*/
-
 const SALT_ROUNDS = 10;
 
 // INICIO

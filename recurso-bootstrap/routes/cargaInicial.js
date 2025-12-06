@@ -1,225 +1,197 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs');
-const path = require('path');
 const bcrypt = require('bcrypt');
+const path = require('path');
+const fs = require('fs');
+const { isAdmin } = require('../middleware/auth');
 
-const { isInstallationOrImport } = require('../middleware/auth');
-
-const ADMIN_DEFAULT = {
-    nombre: "Administrador Jefe",
-    correo: "admin@gestifleet.com",
-    pass_plana: "Admin^12",
-    rol: "Admin",
-    telefono: "111111111",
-    id_concesionario: null 
-};
-
-// --- RUTA PREVISUALIZAR (Callbacks) ---
-router.post('/previsualizar', isInstallationOrImport, (req, res) => {
-    const datos = req.body.datosJSON;
-
-    if (!datos || !datos.concesionarios || !datos.vehiculos) {
-        return res.status(400).json({ exito: false, mensaje: "El JSON debe contener 'concesionarios' y 'vehiculos'." });
-    }
-
-    const informe = { 
-        nuevosVehiculos: [], conflictosVehiculos: [],
-        nuevosConcesionarios: [], conflictosConcesionarios: []
-    };
-
-    // Función auxiliar recursiva para procesar concesionarios secuencialmente
-    function procesarConcesionarios(index, callbackFinal) {
-        if (index >= datos.concesionarios.length) {
-            return callbackFinal(); // Terminamos concesionarios, pasamos al siguiente paso
-        }
-
-        const c = datos.concesionarios[index];
-        req.db.query('SELECT * FROM concesionarios WHERE id_concesionario = ?', [c.id_concesionario], (err, rows) => {
-            if (err) return res.status(500).json({ exito: false, mensaje: "Error SQL: " + err.message });
-
-            if (rows.length > 0) informe.conflictosConcesionarios.push({ nuevo: c, viejo: rows[0] });
-            else informe.nuevosConcesionarios.push(c);
-
-            // Llamada recursiva al siguiente
-            procesarConcesionarios(index + 1, callbackFinal);
-        });
-    }
-
-    // Función auxiliar recursiva para procesar vehículos secuencialmente
-    function procesarVehiculos(index, callbackFinal) {
-        if (index >= datos.vehiculos.length) {
-            return callbackFinal();
-        }
-
-        const v = datos.vehiculos[index];
-        req.db.query('SELECT * FROM vehiculos WHERE matricula = ?', [v.matricula], (err, rows) => {
-            if (err) return res.status(500).json({ exito: false, mensaje: "Error SQL: " + err.message });
-
-            if (rows.length > 0) informe.conflictosVehiculos.push({ nuevo: v, viejo: rows[0] });
-            else informe.nuevosVehiculos.push(v);
-
-            procesarVehiculos(index + 1, callbackFinal);
-        });
-    }
-
-    // Ejecución en cadena
-    procesarConcesionarios(0, () => {
-        procesarVehiculos(0, () => {
-            // Todo terminado, enviamos respuesta
-            res.json({ exito: true, data: informe, raw: datos });
-        });
+// RUTA SETUP: Renderiza la vista
+router.get('/setup', isAdmin, (req, res) => {
+    res.render('setup', { 
+        title: 'Instalación Inicial',
+        usuarioSesion: req.session.usuario 
     });
 });
 
-// --- RUTA EJECUTAR (Callbacks + Transacción) ---
-router.post('/ejecutar', isInstallationOrImport, (req, res) => {
-    const { matriculasAActualizar, idsConcesionariosAActualizar, datosCompletos } = req.body;
-    const connection = req.db; 
+// =========================================================================
+// PASO 1: CONCESIONARIOS
+// =========================================================================
+router.post('/paso1-concesionarios', isAdmin, (req, res) => {
+    const datosJSON = req.body.datos; // El JS envía { datos: objetoJSON }
     
-    // Iniciar Transacción
-    connection.beginTransaction((errTrans) => {
-        if (errTrans) return res.status(500).json({ exito: false, mensaje: "Error iniciando transacción: " + errTrans.message });
+    // Filtramos solo lo que nos interesa
+    const lista = datosJSON.concesionarios || []; 
 
-        // Paso 1: Procesar Concesionarios
-        procesarGuardadoConcesionarios(0, () => {
-            // Paso 2: Procesar Vehículos
-            procesarGuardadoVehiculos(0, () => {
-                // Paso 3: Verificar/Crear Admin
-                verificarYCrearAdmin(() => {
-                    // Paso 4: Commit
-                    connection.commit((errCommit) => {
-                        if (errCommit) {
-                            return connection.rollback(() => {
-                                res.status(500).json({ exito: false, mensaje: "Error en commit: " + errCommit.message });
-                            });
-                        }
-                        res.json({ exito: true, mensaje: "Operación completada con éxito." });
+    if (!lista.length) {
+        return res.json({ ok: false, error: "El archivo JSON no contiene una lista válida de 'concesionarios'." });
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+    let errorDetails = [];
+
+    // Procesamos secuencialmente con promesas simuladas para simplificar el flujo asíncrono en bucle
+    // Nota: Usamos callbacks anidados o promesas. Aquí usaré promesas wrappeando la query para limpieza.
+    const processItem = (item) => {
+        return new Promise((resolve) => {
+            const { nombre, ciudad, direccion, telefono_contacto } = item;
+            
+            // Validaciones básicas (replicando api/concesionarios)
+            if (!nombre || nombre.length < 3) return resolve({ ok: false, msg: `Nombre inválido en concesionario ID ${item.id_concesionario}` });
+            if (!ciudad) return resolve({ ok: false, msg: `Ciudad faltante en concesionario ${nombre}` });
+            
+            // Query de inserción (INSERT IGNORE evita duplicados por PK, pero queremos controlar duplicados de lógica)
+            // Primero comprobamos duplicados lógicos
+            const sqlCheck = "SELECT id_concesionario FROM concesionarios WHERE nombre = ? OR direccion = ? OR telefono_contacto = ?";
+            req.db.query(sqlCheck, [nombre, direccion, telefono_contacto], (err, rows) => {
+                if (err) return resolve({ ok: false, msg: `Error SQL Check: ${err.message}` });
+                if (rows.length > 0) return resolve({ ok: false, msg: `Duplicado: Concesionario ${nombre} ya existe (Nombre, dir o tel).` });
+
+                // Insertar
+                const sqlInsert = "INSERT INTO concesionarios (id_concesionario, nombre, ciudad, direccion, telefono_contacto, activo) VALUES (?, ?, ?, ?, ?, 1)";
+                req.db.query(sqlInsert, [item.id_concesionario, nombre, ciudad, direccion, telefono_contacto], (errIns) => {
+                    if (errIns) return resolve({ ok: false, msg: `Error Insert ID ${item.id_concesionario}: ${errIns.message}` });
+                    resolve({ ok: true });
+                });
+            });
+        });
+    };
+
+    // Ejecutar todas las promesas
+    // (Nota: En producción masiva sería mejor hacerlo en batches, pero para carga inicial está bien)
+    Promise.all(lista.map(item => processItem(item))).then(results => {
+        results.forEach(r => {
+            if (r.ok) successCount++;
+            else {
+                failCount++;
+                errorDetails.push(r.msg);
+            }
+        });
+        res.json({ ok: true, successCount, failCount, errorDetails });
+    });
+});
+
+// =========================================================================
+// PASO 2: VEHÍCULOS
+// =========================================================================
+router.post('/paso2-vehiculos', isAdmin, (req, res) => {
+    const datosJSON = req.body.datos;
+    const lista = datosJSON.vehiculos || [];
+
+    if (!lista.length) {
+        return res.json({ ok: false, error: "El archivo JSON no contiene una lista válida de 'vehiculos'." });
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+    let errorDetails = [];
+
+    const processItem = (item) => {
+        return new Promise((resolve) => {
+            const { matricula, marca, modelo, anyo_matriculacion, precio, id_concesionario, tipo, imagen_nombre } = item;
+
+            // Validación básica
+            if (!matricula || !marca || !modelo || !precio || !id_concesionario) {
+                return resolve({ ok: false, msg: `Datos faltantes en vehículo ${matricula || 'Desconocido'}` });
+            }
+
+            // Verificar si el concesionario existe
+            req.db.query("SELECT id_concesionario FROM concesionarios WHERE id_concesionario = ?", [id_concesionario], (errC, rowsC) => {
+                if (errC) return resolve({ ok: false, msg: `Error SQL Conc: ${errC.message}` });
+                if (rowsC.length === 0) return resolve({ ok: false, msg: `Vehículo ${matricula}: Concesionario ID ${id_concesionario} no existe.` });
+
+                // Preparar imagen (Lectura del FS basada en el nombre del JSON)
+                let imagenBlob = null;
+                if (imagen_nombre) {
+                    const rutaImg = path.join(__dirname, '../public/img/vehiculos', imagen_nombre);
+                    try {
+                        if (fs.existsSync(rutaImg)) imagenBlob = fs.readFileSync(rutaImg);
+                    } catch(e) {}
+                }
+
+                // Insertar
+                const sqlInsert = `INSERT INTO vehiculos (matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, id_concesionario, activo) 
+                                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`;
+                const params = [
+                    matricula, marca, modelo, anyo_matriculacion, item.descripcion||'', 
+                    tipo||'coche', precio, item.numero_plazas||5, item.autonomia_km||null, 
+                    item.color||null, imagenBlob, id_concesionario
+                ];
+
+                req.db.query(sqlInsert, params, (errIns) => {
+                    if (errIns) {
+                        // Detectar duplicado de matrícula
+                        if (errIns.code === 'ER_DUP_ENTRY') return resolve({ ok: false, msg: `Matrícula duplicada: ${matricula}` });
+                        return resolve({ ok: false, msg: `Error SQL Vehículo ${matricula}: ${errIns.message}` });
+                    }
+                    resolve({ ok: true });
+                });
+            });
+        });
+    };
+
+    Promise.all(lista.map(item => processItem(item))).then(results => {
+        results.forEach(r => {
+            if (r.ok) successCount++;
+            else {
+                failCount++;
+                errorDetails.push(r.msg);
+            }
+        });
+        res.json({ ok: true, successCount, failCount, errorDetails });
+    });
+});
+
+// =========================================================================
+// PASO 3: USUARIOS
+// =========================================================================
+router.post('/paso3-usuarios', isAdmin, (req, res) => {
+    const datosJSON = req.body.datos;
+    const lista = datosJSON.usuarios || [];
+
+    // Nota: El JSON de usuarios podría no tener la clave "usuarios" raíz si es un array directo,
+    // pero asumimos estructura { usuarios: [...] } por consistencia.
+    // Si la carga es opcional, lista vacía no es error.
+
+    let successCount = 0;
+    let failCount = 0;
+    let errorDetails = [];
+
+    const processItem = (item) => {
+        return new Promise((resolve) => {
+            const { nombre, correo, contrasenya, rol, telefono, id_concesionario } = item;
+            
+            // Validaciones
+            if (!nombre || !correo || !contrasenya) return resolve({ ok: false, msg: `Datos incompletos usuario ${correo}` });
+
+            // Verificar duplicados
+            req.db.query("SELECT id_usuario FROM usuarios WHERE correo = ? OR telefono = ?", [correo, telefono], (errDup, rowsDup) => {
+                if (errDup) return resolve({ ok: false, msg: `Error SQL Check User: ${errDup.message}` });
+                if (rowsDup.length > 0) return resolve({ ok: false, msg: `Usuario duplicado (email/tel): ${correo}` });
+
+                // Encriptar pass
+                bcrypt.hash(contrasenya, 10, (errHash, hash) => {
+                    if (errHash) return resolve({ ok: false, msg: `Error Hash: ${errHash.message}` });
+
+                    const sqlInsert = "INSERT INTO usuarios (nombre, correo, contrasenya, rol, telefono, id_concesionario, activo) VALUES (?, ?, ?, ?, ?, ?, 1)";
+                    req.db.query(sqlInsert, [nombre, correo, hash, rol||'Empleado', telefono, id_concesionario||null], (errIns) => {
+                        if (errIns) return resolve({ ok: false, msg: `Error Insert User ${correo}: ${errIns.message}` });
+                        resolve({ ok: true });
                     });
                 });
             });
         });
-    });
+    };
 
-    // -- Funciones Auxiliares para 'Ejecutar' --
-
-    function procesarGuardadoConcesionarios(index, cb) {
-        if (!datosCompletos.concesionarios || index >= datosCompletos.concesionarios.length) {
-            return cb();
-        }
-
-        const c = datosCompletos.concesionarios[index];
-        const esActivo = (c.activo !== undefined) ? c.activo : true;
-        let sql = '';
-        let params = [];
-
-        // Comprobar si hay que actualizar o insertar
-        if (idsConcesionariosAActualizar && (idsConcesionariosAActualizar.includes(c.id_concesionario.toString()) || idsConcesionariosAActualizar.includes(c.id_concesionario))) {
-            sql = `UPDATE concesionarios SET nombre=?, ciudad=?, direccion=?, telefono_contacto=?, activo=? WHERE id_concesionario=?`;
-            params = [c.nombre, c.ciudad, c.direccion, c.telefono_contacto, esActivo, c.id_concesionario];
-        } else {
-            sql = `INSERT IGNORE INTO concesionarios (id_concesionario, nombre, ciudad, direccion, telefono_contacto, activo) VALUES (?, ?, ?, ?, ?, ?)`;
-            params = [c.id_concesionario, c.nombre, c.ciudad, c.direccion, c.telefono_contacto, esActivo];
-        }
-
-        connection.query(sql, params, (err) => {
-            if (err) {
-                return connection.rollback(() => {
-                    res.status(500).json({ exito: false, mensaje: "Error guardando concesionario: " + err.message });
-                });
-            }
-            procesarGuardadoConcesionarios(index + 1, cb);
-        });
-    }
-
-    function procesarGuardadoVehiculos(index, cb) {
-        if (!datosCompletos.vehiculos || index >= datosCompletos.vehiculos.length) {
-            return cb();
-        }
-
-        const v = datosCompletos.vehiculos[index];
-        let imagenBlob = null;
-        if (v.imagen_nombre) {
-            const rutaImagen = path.join(__dirname, '../public/img/vehiculos', v.imagen_nombre);
-            try {
-                if (fs.existsSync(rutaImagen)) imagenBlob = fs.readFileSync(rutaImagen);
-            } catch (e) {}
-        }
-
-        const esActivo = (v.activo !== undefined) ? v.activo : true;
-        let sql = '';
-        let params = [];
-
-        if (matriculasAActualizar && matriculasAActualizar.includes(v.matricula)) {
-            sql = `UPDATE vehiculos SET marca=?, modelo=?, precio=?, imagen=?, id_concesionario=?, activo=? WHERE matricula=?`;
-            params = [v.marca, v.modelo, v.precio, imagenBlob, v.id_concesionario, esActivo, v.matricula];
-        } else {
-            sql = `INSERT IGNORE INTO vehiculos (matricula, marca, modelo, anyo_matriculacion, descripcion, tipo, precio, numero_plazas, autonomia_km, color, imagen, id_concesionario, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-            params = [v.matricula, v.marca, v.modelo, v.anyo_matriculacion, v.descripcion, v.tipo, v.precio, v.numero_plazas, v.autonomia_km, v.color, imagenBlob, v.id_concesionario, esActivo];
-        }
-
-        connection.query(sql, params, (err) => {
-            if (err) {
-                return connection.rollback(() => {
-                    res.status(500).json({ exito: false, mensaje: "Error guardando vehículo: " + err.message });
-                });
-            }
-            procesarGuardadoVehiculos(index + 1, cb);
-        });
-    }
-
-    function verificarYCrearAdmin(cb) {
-        connection.query('SELECT count(*) as c FROM usuarios', (err, usersExist) => {
-            if (err) {
-                return connection.rollback(() => {
-                    res.status(500).json({ exito: false, mensaje: "Error verificando usuarios: " + err.message });
-                });
-            }
-
-            if (usersExist[0].c === 0) {
-                // Crear hash con callback
-                bcrypt.hash(ADMIN_DEFAULT.pass_plana, 10, (errHash, hash) => {
-                    if (errHash) {
-                        return connection.rollback(() => {
-                            res.status(500).json({ exito: false, mensaje: "Error encriptando contraseña: " + errHash.message });
-                        });
-                    }
-
-                    connection.query(
-                        `INSERT INTO usuarios (nombre, correo, contrasenya, rol, telefono, id_concesionario) VALUES (?, ?, ?, ?, ?, ?)`,
-                        [ADMIN_DEFAULT.nombre, ADMIN_DEFAULT.correo, hash, ADMIN_DEFAULT.rol, ADMIN_DEFAULT.telefono, ADMIN_DEFAULT.id_concesionario],
-                        (errInsert) => {
-                            if (errInsert) {
-                                return connection.rollback(() => {
-                                    res.status(500).json({ exito: false, mensaje: "Error creando admin: " + errInsert.message });
-                                });
-                            }
-                            cb(); // Admin creado, continuar
-                        }
-                    );
-                });
-            } else {
-                cb(); // Ya hay usuarios, continuar
+    Promise.all(lista.map(item => processItem(item))).then(results => {
+        results.forEach(r => {
+            if (r.ok) successCount++;
+            else {
+                failCount++;
+                errorDetails.push(r.msg);
             }
         });
-    }
-});
-
-// --- RUTA SETUP (Callbacks) ---
-router.get('/setup', (req, res) => {
-    req.db.query('SELECT count(*) as c FROM usuarios', (err, rows) => {
-        if (err) {
-            return res.status(500).send("Error de conexión");
-        }
-
-        if (rows[0].c > 0) {
-            return res.redirect('/login');
-        }
-
-        res.render('setup', { 
-            title: 'Instalación Inicial',
-            usuarioSesion: null 
-        });
+        res.json({ ok: true, successCount, failCount, errorDetails });
     });
 });
 

@@ -1,132 +1,36 @@
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 <div class="d-flex justify-content-between align-items-center mb-5">
     <h1 class="text-center m-0">Panel de Administración</h1>
     
     <button class="btn btn-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#modalImportacion">
-        <i class="bi bi-database-up"></i> Importar JSON
+        <img src="/bootstrap-icons-1.13.1/cloud-upload-fill.svg" class="bi-svg" alt="">
+        <span>Cargar JSON</span>
     </button>
 </div>
 
 <div class="row text-center">
     <div class="col-md-3 panel-col">
         <a href="/vehiculos" class="panel-btn">
-            <i class="bi bi-car-front-fill"></i>
+            <img src="/bootstrap-icons-1.13.1/car-front-fill.svg" class="bi-svg" alt="">
             <span>Vehículos</span>
         </a>
     </div>
     <div class="col-md-3 panel-col">
         <a href="/concesionarios" class="panel-btn">
-            <i class="bi bi-building"></i>
+            <img src="/bootstrap-icons-1.13.1/building.svg" class="bi-svg" alt="">
             <span>Concesionarios</span>
         </a>
     </div>
     <div class="col-md-3 panel-col">
         <a href="/usuarios" class="panel-btn">
-            <i class="bi bi-people-fill"></i>
+            <img src="/bootstrap-icons-1.13.1/people-fill.svg" class="bi-svg" alt="">
             <span>Usuarios</span>
         </a>
     </div>
     <div class="col-md-3 panel-col">
         <a href="/reserva/listareservas" class="panel-btn">
-            <i class="bi bi-card-checklist"></i>
+            <img src="/bootstrap-icons-1.13.1/card-checklist.svg" class="bi-svg" alt="">
             <span>Reservas</span>
         </a>
     </div>
 </div>
-
-<div class="modal fade" id="modalImportacion" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title"><i class="bi bi-cloud-upload-fill"></i> Asistente de Importación</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <div class="modal-body">
-                <% if (typeof usuarioSesion !== 'undefined' && usuarioSesion) { %>
-                <div class="mb-4 p-3">
-                    <label class="form-label fw-bold">Selecciona el fichero JSON:</label>
-                    <div class="input-group">
-                        <input class="form-control" type="file" id="inputArchivoJSON" accept=".json">
-                        <button class="btn btn-primary" type="button" id="btnProcesarJSON" disabled>
-                            Analizar
-                        </button>
-                    </div>
-                </div>
-                <% } %>
-
-                <div id="zonaConflictos" style="display: none;">
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle-fill"></i> 
-                        <span id="textoResumenConflictos" style="white-space: pre-line;"></span>
-                    </div>
-
-                    <div id="zonaConcesionarios" class="mb-4">
-                        <h6 class="fw-bold text-primary border-bottom pb-2">Conflictos en Concesionarios</h6>
-                        
-                        <div class="table-responsive border rounded" style="max-height: 200px;">
-                            <table class="table table-hover mb-0 align-middle">
-                                <thead class="table-dark sticky-top">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Nombre Actual</th>
-                                        <th>Nombre Nuevo</th>
-                                        <th class="text-center">Actualizar</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="cuerpoTablaConcesionarios"></tbody>
-                            </table>
-                        </div>
-                        
-                        <div class="form-check mt-1 d-flex justify-content-end">
-                            <input class="form-check-input me-2" type="checkbox" id="checkTodosConc">
-                            <label class="form-check-label" for="checkTodosConc">Todos los Concesionarios</label>
-                        </div>
-                    </div>
-
-                    <div id="zonaVehiculos">
-                        <h6 class="fw-bold text-primary border-bottom pb-2">Conflictos en Vehículos</h6>
-                        
-                        <div class="table-responsive border rounded" style="max-height: 200px;">
-                            <table class="table table-hover mb-0 align-middle">
-                                <thead class="table-dark sticky-top">
-                                    <tr>
-                                        <th>Matrícula</th>
-                                        <th>Modelo Actual</th>
-                                        <th>Modelo Nuevo</th>
-                                        <th class="text-center">Actualizar</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="cuerpoTablaVehiculos"></tbody>
-                            </table>
-                        </div>
-                        
-                        <div class="form-check mt-1 d-flex justify-content-end">
-                            <input class="form-check-input me-2" type="checkbox" id="checkTodosVeh">
-                            <label class="form-check-label" for="checkTodosVeh">Todos los Vehículos</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="zonaSinConflictos" class="alert alert-info text-center" style="display: none;">
-                    <i class="bi bi-check-circle-fill fs-4"></i><br>
-                    <strong class="d-block mb-2">¡Análisis Correcto!</strong>
-                    <span id="textoExitoResumen" style="white-space: pre-line;"></span>
-                    <br><br>Se insertarán todos los datos nuevos.
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" id="btnConfirmarCarga" class="btn btn-success" disabled>
-                    Confirmar e Importar
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="/js/cargar.js"></script>

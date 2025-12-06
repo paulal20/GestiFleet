@@ -51,14 +51,26 @@ router.get("/:id(\\d+)", isAuth, (req, res) => {
       activoBool: concesionario.activo === 1
     };
 
-    // SEGUNDA CONSULTA: Obtener vehículos
-    req.db.query("SELECT * FROM vehiculos WHERE id_concesionario = ?", [id], (errVehiculos, vehiculos) => {
+    const sqlVehiculos = `
+      SELECT v.*, 
+      (SELECT COUNT(*) FROM reservas r 
+       WHERE r.id_vehiculo = v.id_vehiculo 
+       AND r.activo = 1 
+       AND r.estado = 'activa'
+       AND NOW() BETWEEN r.fecha_inicio AND r.fecha_fin
+      ) as ocupado_actualmente
+      FROM vehiculos v 
+      WHERE v.id_concesionario = ?
+    `;
+
+    req.db.query(sqlVehiculos, [id], (errVehiculos, vehiculos) => {
       if (errVehiculos) return res.json({ ok: false, error: errVehiculos.message });
 
       const vehiculosConEstado = vehiculos.map(v => ({
         ...v,
         activo: v.activo ? "Activo" : "Eliminado",
-        activoBool: v.activo === 1
+        activoBool: v.activo === 1,
+        estaReservado: v.ocupado_actualmente > 0
       }));
 
       res.json({ ok: true, concesionario: concesionarioConEstado, vehiculos: vehiculosConEstado });
@@ -187,9 +199,7 @@ router.put('/:id(\\d+)/editar', isAdmin, (req, res) => {
   );
 });
 
-// ==========================================
-// ELIMINAR (Soft Delete) - LÓGICA AMPLIADA
-// ==========================================
+// ELIMINAR (Soft Delete)
 router.delete('/:id(\\d+)/eliminar', isAdmin, (req, res) => {
   const id = parseInt(req.params.id, 10);
 

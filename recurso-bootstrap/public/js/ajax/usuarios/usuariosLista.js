@@ -52,13 +52,74 @@ $(document).ready(function() {
                     mostrarAlerta("danger", data.error || "Error al eliminar el usuario");
                 }
             },
-            error: function(jqXHR, textStatus, errorThrown) {
+            error: function(jqXHR) {
                 const modalEl = document.getElementById('confirmarEliminarUsuarioModal');
                 const modalInstance = bootstrap.Modal.getInstance(modalEl);
                 if (modalInstance) modalInstance.hide();
 
-                console.error("Error AJAX:", errorThrown);
-                mostrarAlerta("danger", "Error de conexión al eliminar.");
+                let msg = "Error de conexión al eliminar.";
+                if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
+                    msg = jqXHR.responseJSON.error;  // muestra el error de reservas activas
+                }
+
+                mostrarAlerta("danger", msg);
+            }
+        });
+
+    });
+
+    // Abrir modal de asignar concesionario
+    $(document).on("click", ".btnAsignar", function (e) {
+        e.stopPropagation(); // evita que la fila navegue
+
+        const idUsuario = $(this).data("id");
+        const nombreUsuario = $(this).data("name");
+
+        // Guardar el ID del usuario en el botón del modal
+        $("#btnConfirmarAsignar").data("id", idUsuario);
+
+        // Mostrar texto informativo
+        $("#textoAsignarUsuario").text(`Asignar concesionario al usuario ${nombreUsuario}`);
+
+        // Abrir modal
+        const modal = new bootstrap.Modal(document.getElementById("modalAsignarConcesionario"));
+        modal.show();
+    });
+
+    // Confirmar asignación de concesionario
+    $("#btnConfirmarAsignar").on("click", function () {
+        const idUsuario = $(this).data("id");
+        const idConcesionario = $("#selectConcesionario").val();
+        const $error = $("#errorConcesionario");
+
+        // Reset error
+        $error.text("");
+
+        if (!idConcesionario || idConcesionario === "0") {
+            $error.text("Debes seleccionar un concesionario");
+            return;
+        }
+
+        $.ajax({
+            url: `/api/usuarios/${idUsuario}/asignar-concesionario`,
+            type: "PATCH",
+            data: { id_concesionario: idConcesionario },
+            success: function (data) {
+                if (!data.ok) {
+                    mostrarAlerta("danger", data.error || "Error al asignar concesionario");
+                    return;
+                }
+
+                // Cerrar modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById("modalAsignarConcesionario"));
+                modal.hide();
+
+                mostrarAlerta("success", "Concesionario asignado correctamente");
+
+                cargarUsuarios(); // recargar la tabla
+            },
+            error: function () {
+                mostrarAlerta("danger", "Error de conexión al asignar concesionario");
             }
         });
     });
@@ -100,16 +161,19 @@ function cargarUsuarios() {
             }
 
             let html = "";
+            
+            const currentUserId = data.idUsuarioSesion; 
+
             $.each(data.usuarios, function(i, u) {
                 
                 const estaEliminado = !u.activoBool;
                 const disabledAttr = estaEliminado ? 'disabled' : '';
                 const disabledClass = estaEliminado ? 'disabled pe-none' : ''; 
 
-                // Botón eliminar
                 let btnEliminar = "";
-                if (u.rol === "Admin") {
-                    btnEliminar = `<button type="button" class="btn btn-secondary btn-sm" disabled >Eliminar</button>`;
+
+                if (u.id_usuario === currentUserId) {
+                    btnEliminar = `<button type="button" class="btn btn-secondary btn-sm" disabled>Eliminar</button>`;
                 } else {
                     btnEliminar = `
                         <button type="button" class="btn btn-secondary btn-sm" ${disabledAttr}
@@ -125,12 +189,20 @@ function cargarUsuarios() {
                 // Botón editar
                 const btnEditar = `<a href="/usuarios/${u.id_usuario}/editar" class="btn btn-primary btn-sm ${disabledClass}" ${estaEliminado ? 'aria-disabled="true" tabindex="-1"' : ''}>Editar</a>`;
 
-                // Concesionario o botón asignar
-                const celdaConcesionario = '—';
-                if(u.rol !=="Admin"){
-                    celdaConcesionario = u.nombre_concesionario 
-                    ? u.nombre_concesionario 
-                    : `<button class="btn btn-warning btn-sm btnAsignar celda-acciones" data-id="${u.id_usuario}">Asignar</button>`;
+                let celdaConcesionario = "—";
+
+                if (u.rol !== "Admin") {
+                    if (u.nombre_concesionario) {
+                        celdaConcesionario = u.nombre_concesionario;
+                    } else {
+                        // Botón asignar
+                        celdaConcesionario =
+                            `<button class="btn btn-primary btn-sm btnAsignar celda-acciones" 
+                                    data-id="${u.id_usuario}"
+                                    data-name="${u.nombre}">
+                                Asignar concesionario
+                            </button>`;
+                    }
                 }
                     
 

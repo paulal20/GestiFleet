@@ -57,28 +57,26 @@ router.post('/', isAuth, (req, res) => {
   const ahoraConMargen = new Date(Date.now() - 5 * 60000); 
 
   let errorFecha = null;
-
   if (!fechaInicio || !fechaFin) errorFecha = 'Las fechas son obligatorias.';
   else if (isNaN(fechaI.getTime()) || isNaN(fechaF.getTime())) errorFecha = 'Formato de fecha inválido.';
   else if (fechaI < ahoraConMargen) errorFecha = 'La fecha de inicio debe ser futura o actual.';
   else if (fechaF <= fechaI) errorFecha = 'La fecha fin debe ser posterior a la de inicio.';
 
-  if (errorFecha) {
-    return res.status(400).json({ ok: false, error: errorFecha });
-  }
+  if (errorFecha) return res.status(400).json({ ok: false, error: errorFecha });
 
-  const sqlConflictos = `
+  // 1️⃣ Validar que el vehículo esté disponible
+  const sqlConflictosVehiculo = `
       SELECT COUNT(*) AS conflicts
       FROM reservas
       WHERE id_vehiculo = ?
         AND estado = 'activa'
-        AND (fecha_inicio < ?) 
-        AND (fecha_fin > ?)
-    `;
+        AND fecha_inicio < ?
+        AND fecha_fin > ?
+  `;
 
-  req.db.query(sqlConflictos, [idVehiculo, fechaFin, fechaInicio], (err, rows) => {
+  req.db.query(sqlConflictosVehiculo, [idVehiculo, fechaFin, fechaInicio], (err, rows) => {
     if (err) {
-      console.error("Error comprobando conflictos:", err);
+      console.error("Error comprobando conflictos vehículo:", err);
       return res.status(500).json({ ok: false, error: 'Error interno al verificar disponibilidad' });
     }
 
@@ -89,23 +87,48 @@ router.post('/', isAuth, (req, res) => {
       });
     }
 
-    // 3. Insertar Reserva
-    const sqlInsert = `
-      INSERT INTO reservas (id_usuario, id_vehiculo, fecha_inicio, fecha_fin, estado, activo) 
-      VALUES (?, ?, ?, ?, ?, true)
+    // 2️⃣ Validar que el usuario no tenga otra reserva activa en el mismo período
+    const sqlConflictosUsuario = `
+        SELECT COUNT(*) AS conflicts
+        FROM reservas
+        WHERE id_usuario = ?
+          AND estado = 'activa'
+          AND fecha_inicio < ?
+          AND fecha_fin > ?
     `;
-    
-    req.db.query(sqlInsert, [usuarioActual.id_usuario, idVehiculo, fechaInicio, fechaFin, 'activa'], (errInsert, result) => {
-      if (errInsert) {
-        console.error("Error insertando reserva:", errInsert);
-        return res.status(500).json({ ok: false, error: 'Error al guardar la reserva' });
+
+    req.db.query(sqlConflictosUsuario, [usuarioActual.id_usuario, fechaFin, fechaInicio], (err2, rows2) => {
+      if (err2) {
+        console.error("Error comprobando conflictos usuario:", err2);
+        return res.status(500).json({ ok: false, error: 'Error interno al verificar tus reservas' });
       }
 
-      const redirectUrl = usuarioActual.rol === 'Admin' ? '/reserva/listareservas' : '/reserva/mis-reservas';
-      res.json({ ok: true, id: result.insertId, redirectUrl });
+      if (rows2[0].conflicts > 0) {
+        return res.status(409).json({
+          ok: false,
+          error: 'Ya tienes otra reserva activa que coincide con esas fechas.'
+        });
+      }
+
+      // 3️⃣ Insertar Reserva
+      const sqlInsert = `
+        INSERT INTO reservas (id_usuario, id_vehiculo, fecha_inicio, fecha_fin, estado, activo) 
+        VALUES (?, ?, ?, ?, ?, true)
+      `;
+      
+      req.db.query(sqlInsert, [usuarioActual.id_usuario, idVehiculo, fechaInicio, fechaFin, 'activa'], (errInsert, result) => {
+        if (errInsert) {
+          console.error("Error insertando reserva:", errInsert);
+          return res.status(500).json({ ok: false, error: 'Error al guardar la reserva' });
+        }
+
+        const redirectUrl = usuarioActual.rol === 'Admin' ? '/reserva/listareservas' : '/reserva/mis-reservas';
+        res.json({ ok: true, id: result.insertId, redirectUrl });
+      });
     });
   });
 });
+
 
 // PUT /api/reservas/:id/cancelar (Cancelar)
 router.put('/:id(\\d+)/cancelar', isAuth, (req, res) => {

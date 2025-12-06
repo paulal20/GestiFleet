@@ -27,49 +27,73 @@ const fetchValidTypes = (db, callback) => {
 };
 
 // GET /vehiculos (Vista Listado)
-router.get('/', isAuth, (req, res) => {
+router.get('/', (req, res) => {
   const usuario = req.session.usuario;
   const esAdmin = (usuario && usuario.rol === 'Admin');
 
-  // ... (Consultas SQL existentes: sqlTipos, sqlColores, etc.) ...
   const sqlTipos = "SELECT tipo, COUNT(*) as total FROM vehiculos WHERE activo = true GROUP BY tipo ORDER BY tipo ASC";
 
   req.db.query(sqlTipos, (err1, tiposRows) => {
     const tiposDisponibles = err1 ? [] : tiposRows;
-    
+
     let estadosDisponibles = [];
     if (esAdmin) {
-        estadosDisponibles = [
-            { valor: '', nombre: 'Todos' },
-            { valor: 'disponible', nombre: 'Disponibles' },
-            { valor: 'reservado', nombre: 'Reservados' }
-        ];
+      estadosDisponibles = [
+        { valor: '', nombre: 'Todos' },
+        { valor: 'disponible', nombre: 'Disponibles' },
+        { valor: 'reservado', nombre: 'Reservados' }
+      ];
     } else {
-        estadosDisponibles = [
-            { valor: 'disponible', nombre: 'Disponibles' }
-        ];
+      estadosDisponibles = [
+        { valor: 'disponible', nombre: 'Disponibles' }
+      ];
     }
 
-    const sqlColores = `SELECT color, COUNT(*) as total FROM vehiculos WHERE activo = true AND color IS NOT NULL GROUP BY color ORDER BY color ASC`;
+    const sqlColores = "SELECT color, COUNT(*) as total FROM vehiculos WHERE activo = true AND color IS NOT NULL GROUP BY color ORDER BY color ASC";
     req.db.query(sqlColores, (err3, coloresRows) => {
       const coloresDisponibles = err3 ? [] : coloresRows;
 
-      const sqlPlazas = `SELECT numero_plazas, COUNT(*) as total FROM vehiculos WHERE activo = true GROUP BY numero_plazas ORDER BY numero_plazas ASC`;
+      const sqlPlazas = "SELECT numero_plazas, COUNT(*) as total FROM vehiculos WHERE activo = true GROUP BY numero_plazas ORDER BY numero_plazas ASC";
       req.db.query(sqlPlazas, (err4, plazasRows) => {
         const plazasDisponibles = err4 ? [] : plazasRows;
 
-        const sqlConcesionarios = `SELECT c.id_concesionario, c.nombre, COUNT(v.id_vehiculo) as total FROM concesionarios c INNER JOIN vehiculos v ON c.id_concesionario = v.id_concesionario WHERE c.activo = true AND v.activo = true GROUP BY c.id_concesionario, c.nombre ORDER BY c.nombre`;
+        const sqlConcesionarios = "SELECT c.id_concesionario, c.nombre, COUNT(v.id_vehiculo) as total FROM concesionarios c INNER JOIN vehiculos v ON c.id_concesionario = v.id_concesionario WHERE c.activo = true AND v.activo = true GROUP BY c.id_concesionario, c.nombre ORDER BY c.nombre";
         req.db.query(sqlConcesionarios, (err5, concesionariosRows) => {
-            const concesionariosDisponibles = err5 ? [] : concesionariosRows;
+          const concesionariosDisponibles = err5 ? [] : concesionariosRows;
 
-            req.db.query('SELECT MIN(precio) as minPrecio, MAX(precio) as maxPrecio, MIN(autonomia_km) as minAutonomia, MAX(autonomia_km) as maxAutonomia FROM vehiculos', (err6, rangosRows) => {
-              const rangos = (rangosRows && rangosRows[0]) ? rangosRows[0] : { minPrecio: 0, maxPrecio: 100000, minAutonomia: 0, maxAutonomia: 1000 };
+          req.db.query('SELECT MIN(precio) as minPrecio, MAX(precio) as maxPrecio, MIN(autonomia_km) as minAutonomia, MAX(autonomia_km) as maxAutonomia FROM vehiculos', (err6, rangosRows) => {
+            const rangos = (rangosRows && rangosRows[0]) ? rangosRows[0] : { minPrecio: 0, maxPrecio: 100000, minAutonomia: 0, maxAutonomia: 1000 };
 
-              const fechaParaInput = req.query.fecha || obtenerFechaActualLocal();
+            const fechaParaInput = req.query.fecha || obtenerFechaActualLocal();
+
+            // === Aquí decidimos qué vehículos mostrar ===
+            let sqlVehiculos = "SELECT * FROM vehiculos WHERE activo = true";
+            const filtros = [];
+
+            if (usuario) {
+              // Filtramos por concesionario del usuario si está logueado
+              if (usuario.id_concesionario) filtros.push(`id_concesionario = ${usuario.id_concesionario}`);
+            }
+            // Otros filtros según query params
+            if (req.query.tipo) filtros.push(`tipo = '${req.query.tipo}'`);
+            if (req.query.estado) filtros.push(`estado = '${req.query.estado}'`);
+            if (req.query.color) filtros.push(`color = '${req.query.color}'`);
+            if (req.query.plazas) filtros.push(`numero_plazas = ${req.query.plazas}`);
+            if (req.query.precio_max) filtros.push(`precio <= ${req.query.precio_max}`);
+            if (req.query.autonomia_min) filtros.push(`autonomia_km >= ${req.query.autonomia_min}`);
+
+            if (filtros.length > 0) {
+              sqlVehiculos += " AND " + filtros.join(" AND ");
+            }
+
+            req.db.query(sqlVehiculos, (errVeh, vehiculosRows) => {
+              const vehiculos = errVeh ? [] : vehiculosRows;
+              const mensaje = vehiculos.length === 0 ? "No hay vehículos disponibles con esos criterios" : null;
 
               res.render('listaVehiculos', {
                 title: 'Vehículos',
-                vehiculos: [], 
+                vehiculos,
+                mensaje,
                 usuario,
                 usuarioSesion: req.session.usuario,
                 tiposDisponibles, 
@@ -85,15 +109,16 @@ router.get('/', isAuth, (req, res) => {
                 concesionarioSeleccionado: req.query.concesionario || '',
                 precioMaxSeleccionado: req.query.precio_max || rangos.maxPrecio,
                 autonomiaMinSeleccionado: req.query.autonomia_min || rangos.minAutonomia,
-                
                 fechaSeleccionada: fechaParaInput 
               });
             });
+          });
         });
       });
     });
   });
 });
+
 
 // GET /vehiculos/nuevo (Formulario Creación)
 router.get('/nuevo', isAuth, isAdmin, (req, res) => {

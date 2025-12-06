@@ -2,12 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { isAdmin, isAdminOrSelf } = require('../middleware/auth');
 
+// LISTA DE USUARIOS
 router.get('/', isAdmin, (req, res) => {
   req.db.query('SELECT * FROM concesionarios WHERE activo = true ORDER BY nombre', (err, concesionarios) => {
-    if (err) {
-      console.error("Error obteniendo concesionarios:", err);
-      concesionarios = []; 
-    } 
+    if (err) concesionarios = []; 
 
     res.render('listaUsuarios', {
       title: 'Gestión de Usuarios',
@@ -19,18 +17,14 @@ router.get('/', isAdmin, (req, res) => {
   });
 });
 
-// VISTA FORMULARIO NUEVO: /usuarios/nuevo
+// VISTA FORMULARIO NUEVO
 router.get('/nuevo', isAdmin, (req, res) => {
   req.db.query('SELECT * FROM concesionarios WHERE activo = true ORDER BY nombre', (err, concesionarios) => {
-    if (err) {
-      console.error('Error cargando concesionarios vista nuevo:', err);
-      return res.status(500).render('error', { mensaje: 'Error cargando formulario' });
-    }
+    if (err) return res.status(500).render('error', { mensaje: 'Error cargando formulario' });
 
     res.render('usuarioForm', {
       title: 'Nuevo Usuario',
-      action: '/usuarios/nuevo',
-      method: 'POST',
+      action: '/api/usuarios/nuevo', // Apuntamos directo a la API
       usuario: {},
       usuarioSesion: req.session.usuario,
       concesionarios,
@@ -39,10 +33,12 @@ router.get('/nuevo', isAdmin, (req, res) => {
   });
 });
 
-// VISTA FORMULARIO EDITAR: /usuarios/:id/editar
+// VISTA FORMULARIO EDITAR
 router.get('/:id(\\d+)/editar', isAdminOrSelf, (req, res) => {
   const id = parseInt(req.params.id, 10);
   
+  // Si no es admin y quiere editar a otro, el middleware ya lo para, 
+  // pero redirigimos según rol por si acaso.
   const redirectUrl = req.session.usuario.rol === 'Admin' 
     ? '/usuarios' 
     : `/usuarios/${req.session.usuario.id_usuario}`; 
@@ -54,6 +50,7 @@ router.get('/:id(\\d+)/editar', isAdminOrSelf, (req, res) => {
     
     let usuario = usuarios[0];
     
+    // Separar apellidos para el formulario (visual)
     const nombreParts = usuario.nombre ? usuario.nombre.split(' ') : [];
     usuario.nombre = nombreParts[0] || '';
     usuario.apellido1 = nombreParts[1] || '';
@@ -67,7 +64,6 @@ router.get('/:id(\\d+)/editar', isAdminOrSelf, (req, res) => {
       res.render('usuarioForm', {
         title: 'Editar Usuario',
         action: `/api/usuarios/${id}`, 
-        method: 'PUT',
         usuario,
         usuarioSesion: req.session.usuario,
         concesionarios,
@@ -77,7 +73,7 @@ router.get('/:id(\\d+)/editar', isAdminOrSelf, (req, res) => {
   });
 });
 
-// VISTA DETALLE: /usuarios/:id
+// VISTA DETALLE
 router.get('/:id(\\d+)', isAdminOrSelf, (req, res) => {
   const id = parseInt(req.params.id, 10);
 

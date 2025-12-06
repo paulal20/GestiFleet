@@ -1,0 +1,36 @@
+{
+  "concesionarios": [
+    {
+      "id_concesionario": 1,
+      "nombre": "GestiFleet Madrid",
+      "ciudad": "Madrid",
+      "direccion": "Calle Falsa 123",
+      "telefono_contacto": "000000001",
+      "activo": true
+    },
+    {
+      "id_concesionario": 2,
+      "nombre": "GestiFleet Barcelona",
+      "ciudad": "Barcelona",
+      "direccion": "Avenida Siempre Viva 742",
+      "telefono_contacto": "000000002",
+      "activo": true
+    },
+    {
+      "id_concesionario": 3,
+      "nombre": "GestiFleet Sevilla",
+      "ciudad": "Sevilla",
+      "direccion": "Avenida del Arte 15",
+      "telefono_contacto": "000000003",
+      "activo": true
+    },
+    {
+      "id_concesionario": 4,
+      "nombre": "GestiFleet Valencia",
+      "ciudad": "Valencia",
+      "direccion": "Calle de la Luz 45",
+      "telefono_contacto": "000000004",
+      "activo": true
+    }
+  ]
+}

@@ -1,13 +1,14 @@
 <%
   const isEditMode = (typeof usuario !== 'undefined' && usuario.id_usuario) ? true : false;
   
+  // Valor del rol actual
   const rolValor = isEditMode ? usuario.rol : 'Empleado';
   
-  const mostrarConcesionario = (rolValor === 'Empleado');
+  // Determinamos si es auto-edición para deshabilitar el select de rol
+  const isSelf = (typeof usuarioSesion !== 'undefined' && isEditMode && usuarioSesion.id_usuario == usuario.id_usuario);
 
   const segundaFila = isEditMode ? 'col-md-6' : 'col-md-4';
-  
-  const anchoTelefono = mostrarConcesionario ? 'col-md-6' : 'col-md-12';
+  const anchoTelefono = 'col-md-4'; 
 %>
 
 <div class="usuario-form-content">
@@ -19,11 +20,13 @@
     </div>
   <% } %>
 
-    <form id="usuarioForm" action="<%= action %>" method="POST" novalidate autocomplete="off" 
+    <form id="usuarioForm" action="<%= typeof action !== 'undefined' ? action : '' %>" novalidate autocomplete="off" 
         data-editmode="<%= isEditMode %>"
         data-id="<%= usuario?.id_usuario || '' %>">
     
-    <input type="hidden" id="rol" name="rol" value="<%= rolValor %>">
+    <% if (isSelf) { %>
+        <input type="hidden" id="rol_hidden" name="rol" value="<%= rolValor %>">
+    <% } %>
 
     <fieldset>
       <legend class="w-auto">Datos del Usuario</legend>
@@ -91,23 +94,34 @@
           <span class="error" id="error-telefono" aria-live="polite"></span>
         </div>
 
-        <% if (mostrarConcesionario) { %>
-            <div class="col-md-6 mb-3">
-              <label for="id_concesionario" class="form-label obligatorio">Concesionario:</label>
-              <select id="id_concesionario" name="id_concesionario" class="form-select" required 
-                      aria-describedby="error-id_concesionario">
+        <div class="col-md-4 mb-3">
+          <label for="rol" class="form-label obligatorio">Rol:</label>
+          <select id="rol" name="rol" class="form-select" required <%= isSelf ? 'disabled' : '' %>>
+            <option value="">Selecciona un rol</option>
+            <option value="Empleado" <%= rolValor === 'Empleado' ? 'selected' : '' %>>Empleado</option>
+            <option value="Admin" <%= rolValor === 'Admin' ? 'selected' : '' %>>Admin</option>
+          </select>
+          <% if (isSelf) { %>
+            <div class="form-text text-muted">No puedes cambiar tu propio rol.</div>
+          <% } %>
+          <span class="error" id="error-rol" aria-live="polite"></span>
+        </div>
+
+        <div class="col-md-4 mb-3" id="div-concesionario" style="display: none;">
+            <label for="id_concesionario" class="form-label obligatorio">Concesionario:</label>
+            <select id="id_concesionario" name="id_concesionario" class="form-select" 
+                    aria-describedby="error-id_concesionario">
                 <option value="0">Selecciona un concesionario</option>
                 <% if (typeof concesionarios !== 'undefined') { %>
                     <% concesionarios.forEach(c => { %>
-                      <option value="<%= c.id_concesionario %>" <%= (typeof usuario !== 'undefined' && usuario.id_concesionario == c.id_concesionario) ? 'selected' : '' %>>
+                        <option value="<%= c.id_concesionario %>" <%= (typeof usuario !== 'undefined' && usuario.id_concesionario == c.id_concesionario) ? 'selected' : '' %>>
                         <%= c.nombre %>
-                      </option>
+                        </option>
                     <% }) %>
                 <% } %>
-              </select>
-              <span class="error" id="error-id_concesionario" aria-live="polite"></span>
-            </div>
-        <% } %>
+            </select>
+            <span class="error" id="error-id_concesionario" aria-live="polite"></span>
+        </div>
       </div>
 
       <div class="row">
@@ -127,5 +141,7 @@
     </div>
   </form>
 </div>
-<script src="/js/usuarioForm.js"></script>
+
+<script src="/js/jquery-3.7.1.min.js"></script>
+<script src="/js/usuarioForm.js"></script> 
 <script src="/js/ajax/usuarios/usuarioForm.js"></script>

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { isAuth, isAdmin, isAdminOrWorker } = require('../middleware/auth');
+const { isAdmin, isAdminOrWorker } = require('../middleware/auth');
 
 // LISTADO: /concesionarios
 router.get('/', isAdmin, (req, res) => {
@@ -11,7 +11,7 @@ router.get('/', isAdmin, (req, res) => {
 });
 
 // DETALLE: /concesionarios/:id
-router.get('/:id(\\d+)', isAdminOrWorker, (req, res, next) => {
+router.get('/:id(\\d+)', isAdminOrWorker, (req, res) => {
   res.render("concesionarioDetalle", {
     title: "Detalle Concesionario",
     usuarioSesion: req.session.usuario,

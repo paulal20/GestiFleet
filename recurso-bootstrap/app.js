@@ -4,18 +4,18 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const expressLayouts = require('express-ejs-layouts');
+const methodOverride = require('method-override');
+const bcrypt = require('bcrypt'); // Asegúrate de tenerlo importado
 const getConnection = require('./middleware/connection');
-
-const cargaInicial = require('./middleware/carga');
+const cargaInicial = require('./middleware/carga'); // Tu middleware de protección
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-
-// Middleware
+// Middleware básicos
 app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' })); // Aumentamos límite por si el JSON es grande
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 app.use(session({
   secret: 'gestifleet',
@@ -28,10 +28,7 @@ app.use((req, res, next) => {
   next();
 });
 
-const methodOverride = require('method-override');
 app.use(methodOverride('_method'));
-
-// Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
 // View engine
@@ -40,10 +37,47 @@ app.set('view engine', 'ejs');
 app.use(expressLayouts);
 app.set('layout', 'layout');
 
-// Get Connection
+// DB Connection middleware
 app.use(getConnection);
 
-//Mirar carga inicial
+// --- SEEDER AUTOMÁTICO DE ADMINISTRADOR ---
+// Esto se ejecuta en cada petición para asegurar que existe, 
+// o podrías ponerlo solo al arrancar el servidor si prefieres.
+app.use((req, res, next) => {
+    const ADMIN_DEFAULT = {
+        nombre: "Administrador Jefe",
+        correo: "admin@gestifleet.com",
+        pass_plana: "Admin^12",
+        rol: "Admin",
+        telefono: "111111111"
+    };
+
+    req.db.query('SELECT count(*) as count FROM usuarios', (err, rows) => {
+        if (err) return next(err); // Si falla la BD, pasamos error
+
+        if (rows[0].count === 0) {
+            console.log("Detectada BD de usuarios vacía. Creando Administrador base...");
+            bcrypt.hash(ADMIN_DEFAULT.pass_plana, 10, (errHash, hash) => {
+                if (errHash) return next(errHash);
+                
+                // Insertamos el admin (sin concesionario)
+                req.db.query(
+                    `INSERT INTO usuarios (nombre, correo, contrasenya, rol, telefono, activo) VALUES (?, ?, ?, ?, ?, 1)`,
+                    [ADMIN_DEFAULT.nombre, ADMIN_DEFAULT.correo, hash, ADMIN_DEFAULT.rol, ADMIN_DEFAULT.telefono],
+                    (errInsert) => {
+                        if (errInsert) console.error("Error creando admin base:", errInsert);
+                        else console.log("Administrador base creado correctamente.");
+                        next();
+                    }
+                );
+            });
+        } else {
+            next();
+        }
+    });
+});
+
+// Middleware de Carga Inicial (Redirección si faltan datos)
 app.use(cargaInicial);
 
 // Rutas
@@ -52,6 +86,7 @@ const vehiculosRoutes = require('./routes/vehiculos');
 const reservasRoutes = require('./routes/reservas');
 const concesionariosRoutes = require('./routes/concesionarios');
 const usuariosRoutes = require('./routes/usuarios');
+// APIs
 const concesionariosAjax = require('./routes/api/concesionarios');
 const usuariosAjax = require('./routes/api/usuarios');
 const vehiculosAjax = require('./routes/api/vehiculos');
@@ -63,63 +98,36 @@ app.use('/vehiculos', vehiculosRoutes);
 app.use('/reserva', reservasRoutes);
 app.use('/concesionarios', concesionariosRoutes);
 app.use('/usuarios', usuariosRoutes);
+
 app.use('/api/concesionarios', concesionariosAjax);
 app.use('/api/usuarios', usuariosAjax);
 app.use('/api/vehiculos', vehiculosAjax);
 app.use('/api/reservas', reservasAjax);
+
 app.use('/carga-inicial', cargaInicialRoutes);
 
-// Forzar error 500
-app.get('/error', (req, res, next) => {
-    next(new Error('Error forzado para probar error 500'));
-});
+// Manejo de errores
+app.get('/error', (req, res, next) => next(new Error('Error forzado')));
 
-// 404 y manejador de errores
 app.use((req, res, next) => {
-  const err404 = new Error(`Ruta ${req.originalUrl} no encontrada`);
-  err404.status = 404;
-  err404.publicMessage = 'La página que buscas no existe.';
-  err404.expose = true;
-  next(err404);
+  const err = new Error(`Ruta ${req.originalUrl} no encontrada`);
+  err.status = 404;
+  err.publicMessage = 'La página que buscas no existe.';
+  next(err);
 });
 
-// Manejador de errores genérico
 app.use((err, req, res, next) => {
-  console.error(err && err.stack ? err.stack : err);
-
+  console.error(err.stack || err);
   const status = err.status || 500;
-  res.status(status);
-
-  let mensajePublico;
-  if (err.expose && err.publicMessage) mensajePublico = err.publicMessage;
-  else if (err.expose) mensajePublico = err.message;
-  else if (status === 404) mensajePublico = 'No se ha encontrado la página solicitada.';
-  else mensajePublico = 'Ha ocurrido un error en el servidor. Por favor, inténtalo más tarde.';
-
-  //----------------------------------------No sé si esto sobra----------------------------------------//
-  const canShowDetails = (process.env.NODE_ENV !== 'production') && !!err.showStack;
-  const detalles = canShowDetails ? (err.stack || String(err)) : null;
-  //----------------------------------------No sé si esto sobra----------------------------------------//
-
+  const mensaje = err.publicMessage || 'Ha ocurrido un error en el servidor.';
+  
   if (req.accepts('html')) {
-    return res.render('error', {
-      status,
-      mensaje: mensajePublico,
-      details: detalles,
-      url: req.originalUrl
-    });
-  }else if (req.accepts('json')) {
-    return res.json({
-        status,
-        mensaje: mensajePublico,
-        details: detalles
-    });
+    res.status(status).render('error', { status, mensaje, details: null, url: req.originalUrl });
   } else {
-    return res.type('txt').send(`${status}: ${mensajePublico}`);
+    res.status(status).json({ ok: false, error: mensaje });
   }
 });
 
-// Server
 app.listen(PORT, () => {
   console.log(`GestiFleet app running at http://localhost:${PORT}`);
 });

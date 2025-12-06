@@ -1,11 +1,15 @@
 module.exports = (req, res, next) => {
+    // Lista blanca de rutas permitidas durante el setup
     const rutasPermitidas = [
         '/carga-inicial/setup', 
-        '/carga-inicial/previsualizar', 
-        '/carga-inicial/ejecutar'
+        '/carga-inicial/paso1-concesionarios', 
+        '/carga-inicial/paso2-vehiculos', 
+        '/carga-inicial/paso3-usuarios',
+        '/login',
+        '/logout'
     ];
 
-    // Esta parte es síncrona, se queda igual
+    // Permitir recursos estáticos y rutas api internas si es necesario
     if (rutasPermitidas.includes(req.path) || 
         req.path.startsWith('/css') || 
         req.path.startsWith('/js') || 
@@ -13,20 +17,24 @@ module.exports = (req, res, next) => {
         return next();
     }
 
-    // CAMBIO: Sustituimos await por callback
-    req.db.query('SELECT count(*) as count FROM usuarios', (err, rows) => {
-        // 1. Manejo de errores
-        if (err) {
-            return next(err);
-        }
+    if (!req.session.usuario) {
+        return next();
+    }
 
-        // 2. Lógica de negocio dentro del callback
-        // En mysql2 estándar, 'rows' es un array de resultados directos
-        if (rows && rows.length > 0 && rows[0].count === 0) {
-            return res.redirect('/carga-inicial/setup');
-        }
+    if (req.session.usuario.rol === 'Admin') {
+        req.db.query('SELECT count(*) as count FROM concesionarios', (err, rows) => {
+            if (err) return next(err);
 
-        // 3. Continuar si hay usuarios
+            // Si NO hay concesionarios, forzamos ir al setup
+            if (rows[0].count === 0) {
+                return res.redirect('/carga-inicial/setup');
+            }
+
+            // Si hay datos, continuamos normal
+            next();
+        });
+    } else {
+        // Empleados pasan (verán su dashboard vacío o limitado)
         next();
-    });
+    }
 };

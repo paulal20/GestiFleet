@@ -222,14 +222,30 @@ function pintarVehiculos(lista) {
     $tbody.empty();
 
     if (!lista || !lista.length) {
-        $tbody.html('<tr><td colspan="5" class="text-center text-muted">No hay vehículos</td></tr>');
+        // Ajustamos el colspan a 6 porque hemos añadido una columna nueva
+        $tbody.html('<tr><td colspan="6" class="text-center text-muted">No hay vehículos</td></tr>');
         return;
     }
+
+    // Obtenemos la fecha actual en formato local para el input datetime-local (YYYY-MM-DDTHH:mm)
+    const ahora = new Date();
+    // Ajuste simple para obtener formato ISO local (restando el offset de zona horaria)
+    const offsetMs = ahora.getTimezoneOffset() * 60 * 1000;
+    const fechaLocal = new Date(ahora.getTime() - offsetMs);
+    const fechaActualStr = fechaLocal.toISOString().slice(0, 16); // "2023-12-06T12:00"
 
     let html = "";
     $.each(lista, function(i, v) {
         let accionesAdmin = "";
-        let reservaBtn = ""; // Variable unificada para el botón reservar
+        let reservaBtn = "";
+        
+        // Lógica de Disponibilidad Visual
+        let htmlDisponibilidad = "";
+        if (v.estaReservado) {
+            htmlDisponibilidad = '<span class="badge bg-warning text-dark">Reservado</span>';
+        } else {
+            htmlDisponibilidad = '<span class="badge bg-success">Disponible</span>';
+        }
 
         // 1. Lógica para Admin (Botones Editar/Eliminar)
         if (window.usuarioSesion && window.usuarioSesion.rol === "Admin") {
@@ -253,17 +269,27 @@ function pintarVehiculos(lista) {
             }
         }
 
-        if(v.activoBool && v.estado === 'disponible'){
-            reservaBtn = `<a href="/reserva?idVehiculo=${v.id_vehiculo}" class="btn btn-primary btn-sm ms-1">Reservar</a>`;
+        // 2. Lógica Botón Reservar
+        // Solo mostramos reservar si está activo (soft delete) Y NO está reservado actualmente
+        if(v.activoBool && !v.estaReservado){
+            // Pasamos idVehiculo y la fecha actual en la URL
+            reservaBtn = `<a href="/reserva?idVehiculo=${v.id_vehiculo}&fechaInicio=${fechaActualStr}" class="btn btn-primary btn-sm ms-1">Reservar</a>`;
+        } else if (v.activoBool && v.estaReservado) {
+            // Si está activo pero ocupado, botón deshabilitado
+            reservaBtn = `<button class="btn btn-primary btn-sm ms-1" disabled>Ocupado</button>`;
         } else if (v.activoBool){
+            // Fallback genérico
             reservaBtn = `<button class="btn btn-primary btn-sm ms-1" disabled>Reservar</button>`;
-        } else reservaBtn = "";
+        } else {
+            reservaBtn = "";
+        }
 
         html += `
             <tr class="fila-click" tabindex="0" data-href="/vehiculos/${v.id_vehiculo}">
                 <td>${v.matricula}</td>
                 <td>${v.marca}</td>
                 <td>${v.modelo}</td>
+                <td>${htmlDisponibilidad}</td>
                 <td>${pintarEstado(v.activoBool)}</td>
                 <td class="celda-acciones" style="cursor: default;">
                     <div class="d-flex gap-1">

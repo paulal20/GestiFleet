@@ -2,12 +2,10 @@ document.addEventListener("DOMContentLoaded", function() {
     const form = document.getElementById("usuarioForm");
     if (!form) return;
 
-    // Inicializamos objeto para guardar valores duplicados detectados por el servidor
     form.valoresVetados = {};
-
-    // Detectamos si es modo edición
     const isEditMode = form.dataset.editmode === "true";
 
+    // Mapeo de campos
     const campos = {
         nombre: document.getElementById("nombre"),
         apellido1: document.getElementById("apellido1"),
@@ -37,16 +35,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function limpiarErrores() {
         Object.values(errores).forEach(span => { if(span) span.textContent = ""; });
-        // No borramos la alerta superior aquí para que el usuario la vea si la hubo
     }
 
     function calcularErrorCampo(key) {
         if (!campos[key]) return "";
-        
         const v = String(campos[key].value || "").trim();
 
-        // 1. COMPROBACIÓN DE VETADOS (NUEVO)
-        // Si el valor actual coincide con el que el servidor dijo que estaba duplicado, devolvemos error.
+        // Chequeo de duplicados reportados por server
         if (form.valoresVetados && form.valoresVetados[key] && form.valoresVetados[key] === v) {
             return "Este valor ya está registrado en el sistema.";
         }
@@ -67,7 +62,6 @@ document.addEventListener("DOMContentLoaded", function() {
             case "confemail":
                 if (!isEditMode && campos.confemail) {
                     if (estaVacio(v)) return "Debes confirmar el correo.";
-                    if (!/^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/.test(v)) return "Formato de correo no válido.";
                     if (v !== (campos.email?.value || "").trim()) return "Los correos no coinciden.";
                 }
                 return "";
@@ -85,13 +79,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 return "";
             case "telefono":
                 if (estaVacio(v)) return "El teléfono es obligatorio.";
-                if (!/^[0-9]{9}$/.test(v)) return "Formato no válido (debe tener exactamente 9 dígitos).";
+                if (!/^[0-9]{9}$/.test(v)) return "Formato no válido (9 dígitos).";
                 return "";
             case "rol":
                 if (estaVacio(v)) return "Debes seleccionar un rol.";
                 return "";
             case "id_concesionario":
-                const rolVal = document.getElementById("rol")?.value;
+                // VALIDACIÓN CONDICIONAL IMPORTANTE
+                // Solo validamos si el rol seleccionado es 'Empleado'
+                const rolVal = campos.rol ? campos.rol.value : "";
                 if (rolVal === 'Empleado') {
                     if (estaVacio(v) || v === "0") return "Debes seleccionar un concesionario.";
                 }
@@ -104,6 +100,12 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!input) return;
         input.classList.remove("is-valid","is-invalid");
         
+        // No validar concesionario si está oculto (Admin)
+        if (input.id === "id_concesionario") {
+             const rolVal = campos.rol ? campos.rol.value : "";
+             if (rolVal !== 'Empleado') return;
+        }
+
         if (errorSpan && errorSpan.textContent) {
             input.classList.add("is-invalid");
         } else if (!estaVacio(input.value)) {
@@ -122,13 +124,19 @@ document.addEventListener("DOMContentLoaded", function() {
         if (key === "email" && campos.confemail) validarCampoEnTiempoReal("confemail");
     }
 
-    // Validación inicial (poner en verde lo que venga bien de base)
+    // Inicialización de eventos
     Object.keys(campos).forEach(key => {
         if (!campos[key]) return;
-        if (!estaVacio(campos[key].value)) {
+        
+        // Validación visual inicial
+        // (Solo si no es concesionario oculto)
+        if (key === 'id_concesionario' && campos.rol.value !== 'Empleado') {
+            // Nada
+        } else if (!estaVacio(campos[key].value)) {
             const msg = calcularErrorCampo(key);
             if (!msg) campos[key].classList.add("is-valid");
         }
+
         ["input","change","blur"].forEach(ev => campos[key].addEventListener(ev, () => validarCampoEnTiempoReal(key)));
     });
 
@@ -139,6 +147,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // Submit listener
     form.addEventListener("submit", function(e){
         e.preventDefault();
         limpiarErrores();
