@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const path = require('path');
 const fs = require('fs');
-const { isEmpty } = require('../middleware/auth');
+const { isAdmin, isEmpty } = require('../middleware/auth');
 
 //GET /carga-inicial/setup
 router.get('/setup', isEmpty, (req, res) => {
@@ -62,7 +62,7 @@ router.post('/paso1-concesionarios', isEmpty, (req, res) => {
 });
 
 // POST /carga-inicial/vehiculos
-router.post('/paso2-vehiculos', isEmpty, (req, res) => {
+router.post('/paso2-vehiculos', isAdmin, (req, res) => {
     const datosJSON = req.body.datos;
     const lista = datosJSON.vehiculos || [];
 
@@ -127,7 +127,7 @@ router.post('/paso2-vehiculos', isEmpty, (req, res) => {
 });
 
 // POST /carga-inicial/usuarios --> es opcional
-router.post('/paso3-usuarios', isEmpty, (req, res) => {
+router.post('/paso3-usuarios', isAdmin, (req, res) => {
     const datosJSON = req.body.datos;
     const lista = datosJSON.usuarios || [];
 

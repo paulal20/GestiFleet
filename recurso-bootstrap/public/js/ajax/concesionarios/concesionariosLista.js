@@ -19,7 +19,7 @@ $(document).ready(function() {
     configurarModalEliminar();
 });
 
-// FUNCIONES DE CARGA DE CIUDADES PARA LOS FILTROS Y DE CONCESIONARIOS
+// FUNCION DE CARGA DE CIUDADES
 function cargarCiudades() {
     $.ajax({
         type: "GET",
@@ -54,6 +54,7 @@ function cargarCiudades() {
     });
 }
 
+// FUNCION DE CARGA DE CONCESIONARIOS
 function cargarConcesionarios() {
     let ciudad = $("#filtroCiudad").val();
 
@@ -136,7 +137,6 @@ function pintarTabla(lista) {
     activarFilaClick();
 }
 
-//FUNCIÓN MODAL
 function configurarModalEliminar() {
     let $modal = $("#confirmarEliminarConcesionarioModal");
     let $form = $("#formEliminarConcesionario");
@@ -163,6 +163,7 @@ function configurarModalEliminar() {
 
         if (!id) return;
 
+        //al comnfirmar eliminar concesionario mandar petición a la api
         $.ajax({
             type: "DELETE",
             url: "/api/concesionarios/" + id + "/eliminar",

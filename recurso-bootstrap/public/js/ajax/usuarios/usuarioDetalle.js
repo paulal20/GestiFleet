@@ -19,6 +19,7 @@ $(document).ready(function () {
     $btnConfirmar.off("click").on("click", function () {
         if (!idParaBorrar) return;
 
+        //eliminar usuario con la api
         $.ajax({
             type: "DELETE",
             url: "/api/usuarios/" + idParaBorrar,

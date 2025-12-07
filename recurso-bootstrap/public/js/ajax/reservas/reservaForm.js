@@ -13,6 +13,7 @@ $(document).ready(function() {
         
         $vehiculoSelect.html('<option>Cargando disponibles...</option>');
 
+        //para ver qué vehículos están disponibles en esa fecha
         $.ajax({
             type: "GET",
             url: "/api/reservas/disponibles",
@@ -84,6 +85,7 @@ $(document).ready(function() {
             const textoOriginal = $btn.text();
             $btn.prop('disabled', true).text("Procesando...");
 
+            //al confirmar la reserva hacemos la petición a la api
             $.ajax({
                 type: "POST",
                 url: "/api/reservas",

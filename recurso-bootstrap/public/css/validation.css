@@ -1,4 +1,3 @@
-/* Estilos para la validación de formularios, incluyendo los estados .is-valid, .is-invalid y sobreescrituras de autofill. */
 input.is-valid,
 select.is-valid,
 textarea.is-valid {

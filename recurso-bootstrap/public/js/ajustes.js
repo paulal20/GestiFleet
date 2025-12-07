@@ -1,5 +1,4 @@
 (function() {
-  // Definición de atajos
   const shortcuts = [
     // Vehículos
     { keys: ['alt+v', 'alt+shift+v', 'ctrl+alt+v'], url: '/vehiculos' },
@@ -17,13 +16,11 @@
     try {
       if (e.repeat) return;
 
-      // No activar dentro de inputs
       const a = document.activeElement;
       if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable)) {
         return;
       }
 
-      // Construir clave presionada
       const parts = [];
       if (e.ctrlKey) parts.push('ctrl');
       if (e.altKey) parts.push('alt');
@@ -32,7 +29,6 @@
 
       const pressed = parts.join('+');
 
-      // Buscar coincidencia
       for (const sc of shortcuts) {
         if (sc.keys.includes(pressed)) {
           e.preventDefault();
@@ -58,7 +54,6 @@
     if (name === 'dark') document.documentElement.classList.add('dark-theme');
     else document.documentElement.classList.remove('dark-theme');
 
-    // Actualizar estado visual de opciones si existen
     document.querySelectorAll('.tema-opcion').forEach(el => {
       const isActive = (name === 'dark' && el.dataset.value === 'high') ||
                        (name !== 'dark' && el.dataset.value !== 'high');
@@ -76,11 +71,9 @@
       applyTheme('light');
     }
   } catch (err) {
-    // en entornos con bloqueo de localStorage
     applyTheme('light');
   }
 
-  // Añadir listeners a opciones del dropdown una vez cargado el DOM
   document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.tema-opcion').forEach(opt => {
       opt.addEventListener('click', function (e) {
@@ -88,7 +81,6 @@
         const val = (this.dataset.value === 'high') ? 'dark' : 'light';
         applyTheme(val);
         try { localStorage.setItem(THEME_KEY, val); } catch(e){}
-        // cerrar dropdown bootstrap si está presente
         const toggle = document.getElementById('temaDropdown');
         if (toggle && typeof bootstrap !== 'undefined') {
           const inst = bootstrap.Dropdown.getInstance(toggle) || new bootstrap.Dropdown(toggle);
@@ -132,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
   setLanguage(savedLang);
 });
 
-// --- AJUSTE DE TAMAÑO DE LETRA ---
+// Ajuste de tamaño de letra
 (function() {
     const SIZE_KEY = 'font_size';
 
@@ -141,7 +133,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.documentElement.style.fontSize = validSize + '%';
 
-        // Actualizar el estado 'active' en las opciones del dropdown
         document.querySelectorAll('.tamanyo-opcion').forEach(el => {
             const isActive = (el.dataset.size === validSize);
             el.classList.toggle('active', isActive);
@@ -160,7 +151,6 @@ document.addEventListener('DOMContentLoaded', function() {
         applyFontSize('100');
     }
 
-    // 3. Añadir los 'listeners' a los botones cuando el DOM esté cargado
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.tamanyo-opcion').forEach(opt => {
             opt.addEventListener('click', function(e) {
@@ -185,7 +175,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 })();
 
-
 document.addEventListener('DOMContentLoaded', function() {
   try {
     const currentPath = (window.location.pathname || '/').replace(/\/+$/, '') || '/';
@@ -194,13 +183,11 @@ document.addEventListener('DOMContentLoaded', function() {
     navLinks.forEach(link => {
       const href = (link.getAttribute("href") || '').trim();
 
-      // Ignorar anchors, triggers de dropdown y enlaces vacíos o javascript:
       if (!href || href.startsWith('#') || href.toLowerCase().startsWith('javascript:') || link.classList.contains('dropdown-toggle')) {
         link.classList.remove('active');
         return;
       }
 
-      // normalizar: quitar query/hash y slash final
       const a = href.split(/[?#]/)[0].replace(/\/+$/, '') || '/';
       if (a === currentPath) {
         link.classList.add("active");
@@ -208,9 +195,8 @@ document.addEventListener('DOMContentLoaded', function() {
         link.classList.remove("active");
       }
     });
-  } catch(e){ /* no crítico */ }
+  } catch(e){ }
 });
-
 
 //Calcular bien el header y el nav fijo
 (function () {
@@ -223,26 +209,21 @@ document.addEventListener('DOMContentLoaded', function() {
   function updateTopOffset() {
     const rect = headerNav.getBoundingClientRect();
     const height = Math.ceil(rect.height);
-    // actualizar variable CSS y padding directo (por redundancia)
     document.documentElement.style.setProperty('--top-offset', height + 'px');
     main.style.paddingTop = 'var(--top-offset)';
   }
 
-  // eventos
   window.addEventListener('load', updateTopOffset);
   window.addEventListener('resize', updateTopOffset);
   window.addEventListener('orientationchange', updateTopOffset);
 
-  // Eventos de Bootstrap (cuando se abre/cierra el collapse en móvil)
   document.addEventListener('shown.bs.collapse', updateTopOffset);
   document.addEventListener('hidden.bs.collapse', updateTopOffset);
 
-  // Observador para cambios dinámicos en .header-nav
   if (window.ResizeObserver) {
     const ro = new ResizeObserver(updateTopOffset);
     ro.observe(headerNav);
   }
 
-  // cálculo inicial ya
   updateTopOffset();
 })();

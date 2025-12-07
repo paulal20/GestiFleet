@@ -1,5 +1,5 @@
 module.exports = (req, res, next) => {
-    // Lista blanca de rutas permitidas durante el setup
+    // Lista de rutas del setup --> carga
     const rutasPermitidas = [
         '/carga-inicial/setup', 
         '/carga-inicial/paso1-concesionarios', 
@@ -9,7 +9,6 @@ module.exports = (req, res, next) => {
         '/logout'
     ];
 
-    // Permitir recursos estáticos y rutas api internas si es necesario
     if (rutasPermitidas.includes(req.path) || 
         req.path.startsWith('/css') || 
         req.path.startsWith('/js') || 
@@ -25,16 +24,14 @@ module.exports = (req, res, next) => {
         req.db.query('SELECT count(*) as count FROM concesionarios', (err, rows) => {
             if (err) return next(err);
 
-            // Si NO hay concesionarios, forzamos ir al setup
+            // Si NO hay concesionarios, forzamos la carga incial
             if (rows[0].count === 0) {
                 return res.redirect('/carga-inicial/setup');
             }
 
-            // Si hay datos, continuamos normal
             next();
         });
     } else {
-        // Empleados pasan (verán su dashboard vacío o limitado)
         next();
     }
 };

@@ -40,9 +40,6 @@ app.set('layout', 'layout');
 // DB Connection middleware
 app.use(getConnection);
 
-// --- SEEDER AUTOMÁTICO DE ADMINISTRADOR ---
-// Esto se ejecuta en cada petición para asegurar que existe, 
-// o podrías ponerlo solo al arrancar el servidor si prefieres.
 app.use((req, res, next) => {
     const ADMIN_DEFAULT = {
         nombre: "Administrador Jefe",

@@ -1,10 +1,8 @@
 $(document).ready(function() {
     let datosAnalizados = null;
 
-    // Estado inicial del botón: Deshabilitado
     $('#btnAnalizarJSON').prop('disabled', true);
 
-    // Evento: Habilitar botón solo si hay archivo
     $('#inputArchivoJSON').on('change', function() {
         if (this.files.length > 0) {
             $('#btnAnalizarJSON').prop('disabled', false);
@@ -13,11 +11,10 @@ $(document).ready(function() {
         }
     });
 
-    // --- 1. BOTÓN ANALIZAR ---
+    //"Analizamos" el archivo JSON para llamar a la api y se encargue de ello
     $('#btnAnalizarJSON').on('click', function() {
         const fileInput = $('#inputArchivoJSON')[0];
         
-        // Limpieza visual previa
         $('#contenedorTablas').empty();
         $('#zonaResultadosAnalisis').hide();
         $('#textoResumenAnalisis').empty(); 
@@ -30,7 +27,6 @@ $(document).ready(function() {
         const file = fileInput.files[0];
         const reader = new FileReader();
 
-        // UI: Mostrar Loading
         $('#loadingAnalisis').show();
         $('#btnAnalizarJSON').prop('disabled', true);
         $('#btnConfirmarImportacion').prop('disabled', true);
@@ -39,7 +35,7 @@ $(document).ready(function() {
             try {
                 const jsonContent = JSON.parse(e.target.result);
                 
-                // Enviar al backend para análisis (AJAX CLÁSICO según PDF)
+                //aqui llamamos a la api para analizar los datos
                 $.ajax({
                     type: "POST",
                     url: "/api/importacion/analizar",
@@ -73,7 +69,6 @@ $(document).ready(function() {
         reader.readAsText(file);
     });
 
-    // Función auxiliar para mostrar errores DENTRO del modal
     function mostrarErrorEnModal(mensaje) {
         const htmlError = `
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -85,7 +80,7 @@ $(document).ready(function() {
         $('#zonaResultadosAnalisis').show();
     }
 
-    // --- 2. RENDERIZADO DE TABLAS ---
+    //mostramos los resultados del análisis en tablas
     function renderizarResultados(reporte) {
         const $contenedor = $('#contenedorTablas');
         $contenedor.empty();
@@ -93,10 +88,8 @@ $(document).ready(function() {
         
         let hayDatos = false;
 
-        // Función para formatear dato (Vehículos muestra más info)
         const formatearDato = (entidad, item, campo) => {
             if (entidad === 'vehiculos') {
-                // Protección contra undefined si el backend no ha devuelto la marca
                 const marcaStr = item.marca ? item.marca + ' ' : '';
                 const modeloStr = item.modelo || '';
                 return `<strong>${item.matricula}</strong> <small class="text-muted">(${marcaStr}${modeloStr})</small>`;
@@ -104,18 +97,17 @@ $(document).ready(function() {
             return item[campo];
         };
 
-        // Iconos para el título
         const iconos = {
             'concesionarios': 'building.svg',
             'vehiculos': 'car-front-fill.svg',
             'usuarios': 'people-fill.svg'
         };
 
+        //creamos las secciones de cada entidad
         const crearSeccion = (titulo, entidadKey, datosEntidad, idField, displayField) => {
             if (!datosEntidad.presente) return;
             hayDatos = true;
 
-            // 1. CABECERA
             let html = `
                 <div class="d-flex justify-content-between align-items-end mb-2">
                     <h5 class="fw-bold m-0">
@@ -127,7 +119,7 @@ $(document).ready(function() {
                 </div>
             `;
 
-            // 2. TABLA (Solo si hay conflictos)
+            //me creo la tabla para mostrar los conflictos si los hay
             if (datosEntidad.conflictos.length > 0) {
                 html += `
                     <div class="table-responsive border rounded" style="max-height: 300px;">
@@ -166,7 +158,6 @@ $(document).ready(function() {
 
                 html += `</tbody></table></div>`;
                 
-                // 3. PIE DE SECCIÓN
                 html += `
                     <div class="d-flex justify-content-end align-items-center mt-2">
                         <div class="form-check">
@@ -179,7 +170,6 @@ $(document).ready(function() {
                 `;
 
             } else {
-                // Mensaje si no hay conflictos
                 html += `
                     <div class="alert alert-secondary d-flex align-items-center" role="alert">
                         <img src="/bootstrap-icons-1.13.1/info-circle-fill.svg" class="bi-svg me-2" alt="">
@@ -188,18 +178,15 @@ $(document).ready(function() {
                 `;
             }
             
-            // 4. SEPARADOR FINAL
             html += `<hr class="my-4 border-2">`;
             
             $contenedor.append(html);
         };
 
-        // Generar secciones
         crearSeccion('Concesionarios', 'concesionarios', reporte.concesionarios, 'id_concesionario', 'nombre');
         crearSeccion('Vehículos', 'vehiculos', reporte.vehiculos, 'id_vehiculo', 'matricula');
         crearSeccion('Usuarios', 'usuarios', reporte.usuarios, 'id_usuario', 'correo');
 
-        // Resumen final
         if (!hayDatos) {
             mostrarErrorEnModal('El archivo JSON no contiene entidades válidas (concesionarios, vehiculos, usuarios).');
             $('#btnConfirmarImportacion').prop('disabled', true);
@@ -208,7 +195,6 @@ $(document).ready(function() {
             $('#btnConfirmarImportacion').prop('disabled', false);
         }
 
-        // Lógica Checkbox "Seleccionar Todos"
         $('.check-todos').on('change', function() {
             const entidad = $(this).data('entidad');
             const isChecked = $(this).is(':checked');
@@ -216,7 +202,6 @@ $(document).ready(function() {
         });
     }
 
-    // --- 3. CONFIRMAR E IMPORTAR (SIN AWAIT - COLA DE PETICIONES) ---
     $('#btnConfirmarImportacion').on('click', function() {
         if (!datosAnalizados) return;
 
@@ -224,17 +209,13 @@ $(document).ready(function() {
         $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Procesando...');
         $('#progresoImportacion').show();
 
-        // Variables de estado
         let successCount = 0;
         let errorCount = 0;
         let erroresDetallados = [];
         
-        // Cola de objetos { url, type, data, isFormData, desc }
         let colaPeticiones = [];
 
-        // --- A. LLENAR LA COLA ---
-        
-        // 1. CONCESIONARIOS
+        //concesionarios
         if (datosAnalizados.concesionarios.presente) {
             // Nuevos
             datosAnalizados.concesionarios.nuevos.forEach(function(item) {
@@ -262,7 +243,7 @@ $(document).ready(function() {
             });
         }
 
-        // 2. VEHÍCULOS (Atención al FormData)
+        //vehiculos
         if (datosAnalizados.vehiculos.presente) {
             var crearFD = function(json) {
                 var fd = new FormData();
@@ -294,7 +275,7 @@ $(document).ready(function() {
             });
         }
 
-        // 3. USUARIOS
+        //usuarios
         if (datosAnalizados.usuarios.presente) {
             // Nuevos
             datosAnalizados.usuarios.nuevos.forEach(function(item) {
@@ -327,48 +308,37 @@ $(document).ready(function() {
             });
         }
 
-        // FUNCIÓN RECURSIVA 
         function procesarSiguiente() {
-            // Caso base: Cola vacía -> Terminar
             if (colaPeticiones.length === 0) {
                 finalizarProceso();
                 return;
             }
 
-            // Sacar el primer elemento
             var tarea = colaPeticiones.shift();
 
-            // Configurar opciones AJAX
             var opcionesAjax = {
                 type: tarea.type,
                 url: tarea.url,
                 data: tarea.data,
                 success: function(data, textStatus, jqXHR) {
-                    // Éxito: Incrementamos contador y seguimos
                     successCount++;
                     procesarSiguiente();
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
-                    // Error: Incrementamos contador error, guardamos mensaje y seguimos
                     errorCount++;
                     var msg = 'Error desconocido';
                     
-                    // 1. Error genérico (.error)
                     if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
                         msg = jqXHR.responseJSON.error;
                     } 
-                    // 2. Errores de validación de campos (.fieldErrors) -> ESTO FALTABA
                     else if (jqXHR.responseJSON && jqXHR.responseJSON.fieldErrors) {
-                        // Convertimos el objeto de errores {nombre: '...', telefono: '...'} en texto
                         var errores = [];
                         for (var key in jqXHR.responseJSON.fieldErrors) {
                             errores.push(jqXHR.responseJSON.fieldErrors[key]);
                         }
                         msg = errores.join(', ');
                     }
-                    // 3. Errores múltiples (.errors)
                     else if (jqXHR.responseJSON && jqXHR.responseJSON.errors) {
-                        // A veces es un objeto, a veces array
                         if (typeof jqXHR.responseJSON.errors === 'object') {
                              var errs = [];
                              for (var k in jqXHR.responseJSON.errors) errs.push(jqXHR.responseJSON.errors[k]);
@@ -377,7 +347,6 @@ $(document).ready(function() {
                              msg = JSON.stringify(jqXHR.responseJSON.errors);
                         }
                     } 
-                    // 4. Fallback al texto HTTP (Bad Request)
                     else if (errorThrown) {
                         msg = errorThrown;
                     }
@@ -387,7 +356,6 @@ $(document).ready(function() {
                 }
             };
 
-            // Ajustes específicos si es FormData o JSON
             if (tarea.isFormData) {
                 opcionesAjax.contentType = false;
                 opcionesAjax.processData = false;
@@ -395,11 +363,9 @@ $(document).ready(function() {
                 opcionesAjax.contentType = tarea.contentType;
             }
 
-            // Ejecutar la petición
             $.ajax(opcionesAjax);
         }
 
-        // --- C. FINALIZACIÓN ---
         function finalizarProceso() {
             $btn.prop('disabled', false).html(' Confirmar e Importar');
             $('#progresoImportacion').hide();
@@ -422,11 +388,9 @@ $(document).ready(function() {
             }
         }
 
-        // Arrancar la recursión
         procesarSiguiente();
     });
 
-    // --- HELPER ALERTAS PÁGINA ---
     function mostrarAlertaPagina(tipo, titulo, detalle) {
         const id = 'alert-' + Date.now();
         const html = `

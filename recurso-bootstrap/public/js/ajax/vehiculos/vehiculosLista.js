@@ -13,6 +13,7 @@ $(document).ready(function () {
 
     cargarVehiculos();
 
+    //cada 30 segundos se actualiza la hora actual si no se ha seleccionado una fecha con el filtro
     setInterval(function() {
         if (!fechaFijadaPorUsuario) {
             actualizarInputFechaAAhora();
@@ -51,11 +52,13 @@ $(document).ready(function () {
     configurarModalEliminarVehiculo();
 });
 
+//se actualizan los valores del precio y autonomía al mover la barra
 function actualizarTextosSliders() {
     $("#precio-val").text($("#precio_max").val());
     $("#autonomia-val").text($("#autonomia_min").val());
 }
 
+//poner la fecha actual en el filtro de fecha
 function actualizarInputFechaAAhora() {
     const ahora = new Date();
     const local = new Date(ahora.getTime() - (ahora.getTimezoneOffset() * 60000));
@@ -81,6 +84,7 @@ function cargarVehiculos() {
         }
     }
 
+    //llamar a la api para obtener vehículos
     $.ajax({
         type: "GET",
         url: "/api/vehiculos",
@@ -99,7 +103,7 @@ function cargarVehiculos() {
             }
 
             pintarVehiculos(data.vehiculos, usuarioSesion);
-            actualizarContadoresSidebar(data.vehiculos);
+            actualizarContadores(data.vehiculos);
         },
         error: function (jqXHR, textStatus, errorThrown) {
             $("#contenedor-vehiculos").css("opacity", "1");
@@ -110,7 +114,7 @@ function cargarVehiculos() {
 }
 
 //FUNCIÓN PARA IR ACTUALIZANDO LOS CONTADORES EN LOS FILTROS
-function actualizarContadoresSidebar(lista) {
+function actualizarContadores(lista) {
     const conteos = { tipo: {}, color: {}, plazas: {}, estado: {}, concesionario: {} };
 
     lista.forEach(v => {
@@ -123,6 +127,7 @@ function actualizarContadoresSidebar(lista) {
         conteos.estado[estadoKey] = (conteos.estado[estadoKey] || 0) + 1;
     });
 
+    //actualizamos los textos de los filtros con los nuevos contadores
     ['tipo', 'color', 'plazas', 'estado', 'concesionario'].forEach(categoria => {
         $(`input[name="${categoria}"]`).each(function() {
             const $input = $(this);
@@ -212,15 +217,13 @@ function pintarVehiculos(lista, usuarioSesion) {
 }
 
 //FUNCIÓN AÑADIR TARJETA "CREAR VEHÍCULO"
-function agregarTarjetaAgregarVehiculo($cont) { //TODO CAMBIAR ESTE ICONO!!!!!!!!!!!!
+function agregarTarjetaAgregarVehiculo($cont) {
     $cont.append(`
       <div class="col">
         <a href="/vehiculos/nuevo" class="d-block text-decoration-none h-100">
           <div class="vehiculo-card card-base h-100 d-flex flex-column align-items-center justify-content-center" style="min-height: 100%;">
             <div class="vehiculo-img-container d-flex align-items-center justify-content-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16" style="font-size: 4rem; color: var(--color-primary-hover)">
-                <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
-              </svg>
+              <img src="/bootstrap-icons-1.13.1/plus-lg.svg" class="bi-svg" alt="">
             </div>
             <div class="card-body align-content-center text-center">
               <h5 class="card-title" style="color: var(--color-primary-hover)">Añadir Vehículo</h5>
@@ -243,6 +246,7 @@ function configurarModalEliminarVehiculo() {
         $btnConfirmar.data("id", btn.data("id"));
     });
 
+    //eliminamos vehiculo con la api al confirmar
     $btnConfirmar.on("click", function () {
         const id = $(this).data("id");
         $.ajax({
@@ -283,6 +287,7 @@ function mostrarAlertaVehiculos(tipo, mensaje) {
         </div>
     `);
 
+    //redirigir el foco al mensaje de alerta
     window.scrollTo(0, 0);
     $("#alertasVehiculos .alert").focus();
 

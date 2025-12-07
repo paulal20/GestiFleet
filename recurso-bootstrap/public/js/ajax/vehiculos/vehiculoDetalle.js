@@ -62,6 +62,7 @@ function eliminarVehiculo(id) {
     });
 }
 
+//actualizamos la vista tras eliminar el vehículo quitando los botones
 function actualizarVistaEliminado() {
     const $badges = $(".card-text .badge");
     

@@ -46,9 +46,7 @@ function cargarReservas() {
 
     const esAdmin = window.location.pathname.includes("/listareservas");
 
-    const endpoint = esAdmin 
-        ? '/api/reservas/listareservas'
-        : '/api/reservas/mis-reservas';
+    const ruta = esAdmin ? '/api/reservas/listareservas' : '/api/reservas/mis-reservas';
 
     let datos = {
         vehiculo,
@@ -62,7 +60,7 @@ function cargarReservas() {
 
     $.ajax({
         type: "GET",
-        url: endpoint,
+        url: ruta,
         data: datos,
         cache: false,
         success: function(data) {
@@ -159,7 +157,7 @@ function pintarEstadoReserva(estado) {
     return `<span class="badge ${clase}">${estado.toUpperCase()}</span>`;
 }
 
-//FUNCIÓN MODAL CANCELAR RESERVA LISTA
+//MODAL CANCELAR RESERVA DESDE LA LISTA
 function configurarModalCancelarLista() {
     const $modal = $("#confirmarCancelarModal");
     const $form = $("#formCancelarReserva");

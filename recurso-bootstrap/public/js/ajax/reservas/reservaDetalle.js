@@ -14,6 +14,7 @@ $(function() {
 
         $btnConfirmar.prop("disabled", true);
 
+        //cancelar reserva con la api
         $.ajax({
             type: "PUT",
             url: "/api/reservas/" + idReservaACancelar + "/cancelar",

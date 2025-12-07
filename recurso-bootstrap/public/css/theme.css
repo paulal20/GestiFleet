@@ -1,4 +1,4 @@
-/* Contiene las variables CSS globales (:root) y las variables del modo oscuro (.dark-theme). */
+/* colores para el modo normal*/
 :root{
  --color-bg: #e3eaf2;      /* fondo claro */
  --color-text: #273444;     /* texto principal */
@@ -17,7 +17,7 @@
  --top-offset: 140px;
 }
 
-/* ========== MODO OSCURO: clase .dark-theme ========== */
+/* colores para el modo oscuro */
 .dark-theme {
  --color-bg: #0c101a; 
  --color-text: #e6ebf5;

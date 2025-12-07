@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* --------------------- VEHÍCULOS --------------------- */
+  //VEHICULOS
   const modalVehiculo = document.getElementById('confirmarEliminarModal');
   if (modalVehiculo) {
     modalVehiculo.addEventListener('show.bs.modal', event => {
@@ -12,8 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-
-  /* --------------------- CONCESIONARIOS --------------------- */
+  //CONCESIONARIOS
   const modalConcesionario = document.getElementById('confirmarEliminarConcesionarioModal');
   if (modalConcesionario) {
     modalConcesionario.addEventListener('show.bs.modal', event => {
@@ -30,8 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-
-  /* --------------------- RESERVAS --------------------- */
+  //RESERVAS
   const modalReserva = document.getElementById('confirmarCancelarReservaModal');
   if (modalReserva) {
     modalReserva.addEventListener('show.bs.modal', event => {
@@ -45,8 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-
-  /* --------------------- USUARIOS --------------------- */
+  //USUARIOS
   const modalUsuario = document.getElementById("confirmarEliminarUsuarioModal");
   if (modalUsuario) {
     modalUsuario.addEventListener("show.bs.modal", event => {

@@ -284,25 +284,12 @@ router.get('/estadisticas', isAdmin, (req, res) => {
       `, (err3, vehiculoMasUsadoRows) => {
         if (err3) return res.status(500).render('error', { mensaje: 'Error al cargar estadísticas (3)' });
         const vehiculoMasUsado = vehiculoMasUsadoRows[0] || null;
-
-        req.db.query(`
-          SELECT 
-              DATE_FORMAT(fecha_inicio, '%Y-%m') AS mes,
-              COUNT(*) AS total
-          FROM reservas
-          GROUP BY mes
-          ORDER BY mes
-        `, (err4, reservasPorMes) => {
-          if (err4) return res.status(500).render('error', { mensaje: 'Error al cargar estadísticas (4)' });
-
-          res.render('estadisticasAdmin', {
-            title: 'Estadísticas',
-            usuarioSesion: usuario,
-            total_reservas,
-            reservasPorConcesionario,
-            vehiculoMasUsado,
-            reservasPorMes,
-          });
+        res.render('estadisticasAdmin', {
+          title: 'Estadísticas',
+          usuarioSesion: usuario,
+          total_reservas,
+          reservasPorConcesionario,
+          vehiculoMasUsado
         });
       });
     });

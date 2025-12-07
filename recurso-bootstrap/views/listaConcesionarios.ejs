@@ -22,7 +22,6 @@
         </div>
 
         <div class="col-md-6 col-lg-4 d-flex align-items-end">
-          <!-- Solo botón Limpiar ocupando todo el ancho -->
           <button type="button" id="btnLimpiar" class="btn btn-outline-secondary w-100">
             Limpiar Filtros
           </button>
@@ -31,10 +30,8 @@
     </fieldset>
   </form>
 
-  <!-- ALERTAS -->
   <div id="alertas"></div>
 
-  <!-- TABLA -->
   <div class="table-responsive-md">
     <table class="table table-hover" aria-describedby="tabla-concesionarios-descripcion">
       <caption class="text-center">
@@ -51,7 +48,6 @@
         </tr>
       </thead>
       <tbody id="tablaConcesionariosBody">
-        <!-- AJAX insertará filas aquí -->
       </tbody>
     </table>
   </div>
@@ -61,7 +57,6 @@
 
 </div>
 
-<!-- MODAL ELIMINAR -->
 <div class="modal fade" id="confirmarEliminarConcesionarioModal" tabindex="-1" aria-labelledby="confirmarEliminarConcesionarioModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
@@ -89,7 +84,6 @@
   </div>
 </div>
 
-<!-- SCRIPTS -->
- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
+<script src="/js/jquery-3.7.1.min.js"></script>
 <script src="/js/modal.js"></script>
 <script src="/js/ajax/concesionarios/concesionariosLista.js"></script>

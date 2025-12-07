@@ -1,4 +1,4 @@
-/* Contiene todos los estilos para dispositivos móviles (media query max-width: 768px). */
+
 @media (max-width: 768px) {
 
  :root { --top-offset: 120px; } 

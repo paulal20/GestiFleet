@@ -5,12 +5,10 @@
 <div class="concesionario-form-content">
   <h1><%= title %></h1>
 
-  <!-- data-id indica si es edición -->
   <form id="concesionarioForm" novalidate autocomplete="off" data-id="<%= isEditMode ? concesionario.id_concesionario : '' %>">
     <fieldset>
       <legend class="w-auto">Datos del Concesionario</legend>
 
-      <!-- Mensaje de error general -->
       <% if (typeof error !== 'undefined' && error) { %>
         <div class="alert alert-danger mt-2" role="alert" aria-live="assertive">
           <%= error %>
@@ -64,6 +62,6 @@
   </form>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
+<script src="/js/jquery-3.7.1.min.js"></script>
 <script src="/js/concesionarioForm.js"></script>
 <script src="/js/ajax/concesionarios/concesionarioForm.js"></script>

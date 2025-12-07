@@ -1,11 +1,11 @@
 document.addEventListener("DOMContentLoaded", function() {
+    //validación de campos del formulario
     const form = document.getElementById("usuarioForm");
     if (!form) return;
 
     form.valoresVetados = {};
     const isEditMode = form.dataset.editmode === "true";
 
-    // Mapeo de campos
     const campos = {
         nombre: document.getElementById("nombre"),
         apellido1: document.getElementById("apellido1"),
@@ -40,7 +40,6 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!campos[key]) return "";
         const v = String(campos[key].value || "").trim();
 
-        // Chequeo de duplicados reportados por server
         if (form.valoresVetados && form.valoresVetados[key] && form.valoresVetados[key] === v) {
             return "Este valor ya está registrado en el sistema.";
         }
@@ -84,8 +83,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (estaVacio(v)) return "Debes seleccionar un rol.";
                 return "";
             case "id_concesionario":
-                // VALIDACIÓN CONDICIONAL IMPORTANTE
-                // Solo validamos si el rol seleccionado es 'Empleado'
                 const rolVal = campos.rol ? campos.rol.value : "";
                 if (rolVal === 'Empleado') {
                     if (estaVacio(v) || v === "0") return "Debes seleccionar un concesionario.";
@@ -99,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!input) return;
         input.classList.remove("is-valid","is-invalid");
         
-        // No validar concesionario si está oculto (Admin)
+        // No validar concesionario si es admin
         if (input.id === "id_concesionario") {
              const rolVal = campos.rol ? campos.rol.value : "";
              if (rolVal !== 'Empleado') return;
@@ -123,14 +120,10 @@ document.addEventListener("DOMContentLoaded", function() {
         if (key === "email" && campos.confemail) validarCampoEnTiempoReal("confemail");
     }
 
-    // Inicialización de eventos
     Object.keys(campos).forEach(key => {
         if (!campos[key]) return;
-        
-        // Validación visual inicial
-        // (Solo si no es concesionario oculto)
+
         if (key === 'id_concesionario' && campos.rol.value !== 'Empleado') {
-            // Nada
         } else if (!estaVacio(campos[key].value)) {
             const msg = calcularErrorCampo(key);
             if (!msg) campos[key].classList.add("is-valid");
@@ -146,7 +139,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Submit listener
     form.addEventListener("submit", function(e){
         e.preventDefault();
         limpiarErrores();

@@ -1,9 +1,8 @@
-/* Estilos para componentes reutilizables: botones, tarjetas (vehículo, perfil), tablas, alertas y modales. */
-/* Botón principal personalizado */
+/*botones*/
 .btn.btn-primary {
-  color: var(--color-text); /* texto del botón */
-  background-color: var(--color-primary); /* fondo del botón */
-  border-color: var(--color-primary); /* borde */
+  color: var(--color-text);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
   margin-right: 0.5rem;
   transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 }
@@ -11,14 +10,14 @@
 .btn.btn-primary:hover,
 .btn.btn-primary:focus,
 .btn.btn-primary:active {
-  color: var(--color-link); /* color del texto al hover/active */
-  background-color: var(--color-primary-hover); /* fondo al hover/active */
-  border-color: var(--color-primary-hover); /* borde al hover/active */
+  color: var(--color-link);
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
   text-decoration: none;
 }
 
 .btn.btn-primary:focus {
-  box-shadow: var( --shadow-focus); /* sombra de foco, puedes ajustar */
+  box-shadow: var( --shadow-focus);
 }
 
 .btn.btn-primary.disabled,
@@ -72,6 +71,7 @@
  color: var(--color-link) !important;
 }
 
+/*cards de vehiculo y perfil*/
 .vehiculo-card {
  background-color: var(--color-input-bg);
  border: 2px solid var(--color-field-border);
@@ -231,6 +231,7 @@
   margin-right: 0.5rem;
 }
 
+/*tablas*/
 .table {
 border-color: var(--color-field-border); 
 }
@@ -271,6 +272,7 @@ table caption strong {
 color: var(--color-primary-hover); 
 }
 
+/*alerts*/
 .alert-info {
 background-color: var(--color-nav) !important;
 border-color: var(--color-primary-hover) !important;
@@ -284,6 +286,7 @@ color: var(--color-link) !important;
 font-weight: 600;
 }
 
+/*modales*/
 .modal-content {
  background-color: var(--color-field-bg);
  border: 2px solid var(--color-field-border); 
@@ -306,6 +309,7 @@ font-weight: 600;
  padding: 1.5rem;
 }
 
+/*panel de administrador y reutilizado para otros lados*/
 .panel-btn {
   display: flex;
   flex-direction: column;
@@ -343,6 +347,7 @@ font-weight: 600;
   color: #fff;
 }
 
+/*acordeón para los filtros de vehiculos*/
 .accordion-item {
   background-color: var(--color-input-bg);
   border: 1.5px solid var(--color-field-border);
@@ -412,6 +417,7 @@ input[type="file"]::file-selector-button:hover {
   color: var(--color-link);
 }
 
+/*imagener de iconos de bootstrap*/
 .bi-svg {
   display: inline-block;
   width: 1.4em;

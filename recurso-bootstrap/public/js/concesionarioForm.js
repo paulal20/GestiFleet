@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+    //validación de loc campos del formulario
     const form = document.getElementById("concesionarioForm");
     if (!form) return;
 
@@ -58,7 +59,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (msg) valido = false;
         });
 
-        // Actualizar clases
         Object.keys(campos).forEach(key => {
             campos[key].classList.remove("is-valid", "is-invalid");
             if (errores[key].textContent) campos[key].classList.add("is-invalid");
@@ -66,7 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (valido) {
-            //dispara evento custom para AJAX
             form.dispatchEvent(new CustomEvent("form-valid", { bubbles: true }));
         }
     });

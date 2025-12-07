@@ -203,7 +203,8 @@
             </div>
           <% } %>
           
-        </div><div class="d-grid gap-2 mt-3">
+        </div>
+        <div class="d-grid gap-2 mt-3">
             <button type="button" id="btnLimpiarFiltros" class="btn btn-outline-secondary">Limpiar Filtros</button>
         </div>
       </form>
@@ -219,8 +220,7 @@
 
       <div id="alertasVehiculos"></div>
       
-      <div id="contenedor-vehiculos" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-          </div>
+      <div id="contenedor-vehiculos" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"></div>
     </div>
   </div>
 </div>
@@ -245,8 +245,6 @@
 
 <div id="vehiculosApp" data-usuario="<%= JSON.stringify(usuarioSesion) %>"></div>
 
-<script src="/js/jquery.min.js"></script>
-<script src="/js/jquery-ui.min.js"></script>
 <script src="/js/jquery-3.7.1.min.js"></script>
 <script src="/js/modal.js"></script>
 <script src="/js/ajax/vehiculos/vehiculosLista.js"></script>

@@ -42,7 +42,7 @@ $(document).ready(function() {
                         });
                     } 
                     else {
-                        mostrarAlertaFormulario("danger", data.error || "Error desconocido al guardar.");
+                        mostrarAlertaFormulario("danger", data.error || "Error al guardar.");
                     }
                 } 
                 else {

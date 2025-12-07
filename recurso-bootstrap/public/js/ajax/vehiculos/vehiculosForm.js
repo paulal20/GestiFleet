@@ -68,6 +68,7 @@ $(document).ready(function () {
     });
 });
 
+//para ir al campo con error
 function irAlCampo(campoId) {
     const $input = $("#" + campoId);
     

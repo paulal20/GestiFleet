@@ -29,6 +29,7 @@ $(document).ready(function() {
         id_concesionario: $("#error-id_concesionario")
     };
 
+    // Mostrar u ocultar campo concesionario según rol
     function toggleConcesionario() {
         const val = $campos.rol.val();
         const $divConc = $("#div-concesionario");
@@ -62,7 +63,7 @@ $(document).ready(function() {
             contrasenya: $campos.contrasenya.val().trim(),
             telefono: $campos.telefono.val().trim(),
             rol: $campos.rol.val(),
-            // Si el rol es Admin, enviamos null o '0' para id_concesionario
+            // Si el rol es Admin, enviamos null para id_concesionario
             id_concesionario: ($campos.rol.val() === 'Empleado') ? $campos.id_concesionario.val() : null
         };
 

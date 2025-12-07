@@ -1,6 +1,6 @@
 $(document).ready(function() {
     
-    // --- PASO 1: Concesionarios ---
+    //Concesionarios 
     $('#btnStep1').on('click', function() {
         procesarPaso(
             '#fileConcesionarios', 
@@ -11,7 +11,7 @@ $(document).ready(function() {
         );
     });
 
-    // --- PASO 2: Vehículos ---
+    //Vehículos
     $('#btnStep2').on('click', function() {
         procesarPaso(
             '#fileVehiculos', 
@@ -22,22 +22,27 @@ $(document).ready(function() {
         );
     });
 
-    // --- PASO 3: Usuarios ---
+    //Usuarios
     $('#btnStep3').on('click', function() {
         procesarPaso(
             '#fileUsuarios', 
             '/carga-inicial/paso3-usuarios', 
             function(success) {
-                // Paso 3 es opcional
+                if (success) {
+                    //Aparece como completado y no te deja cargar más veces el JSON
+                    $('#btnStep3').hide();
+                    $('#status-step3').removeClass('d-none');
+                    $('#card-step3').addClass('border-success shadow-sm');
+                    $('#fileUsuarios').prop('disabled', true);
+                    $('#btnFinish').removeClass('disabled');
+                }
             }
         );
     });
 
-    // --- Función Genérica de Proceso ---
     function procesarPaso(inputId, endpoint, callbackExito) {
         const fileInput = $(inputId)[0];
         
-        // LIMPIEZA DE ALERTAS PREVIAS
         $('#setupAlertContainer').empty();
 
         if (fileInput.files.length === 0) {
@@ -52,7 +57,7 @@ $(document).ready(function() {
             try {
                 const jsonContent = JSON.parse(e.target.result);
                 
-                // Deshabilitar botón para evitar doble click
+                // Deshabilitar botón 
                 const $btn = $(inputId).closest('.perfil-card-body').find('button');
                 const btnTextOriginal = $btn.html();
                 $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Procesando...');
@@ -66,11 +71,9 @@ $(document).ready(function() {
                         $btn.prop('disabled', false).html(btnTextOriginal);
 
                         if (response.ok) {
-                            // Actualizar contadores del modal
                             $('#modalSuccessCount').text(response.successCount);
                             $('#modalFailCount').text(response.failCount);
                             
-                            // 1. Mostrar Alertas detalladas si hubo errores parciales
                             if (response.errorDetails && response.errorDetails.length > 0) {
                                 let htmlErrors = '<ul class="mb-0 text-start small">';
                                 response.errorDetails.forEach(err => {
@@ -88,7 +91,6 @@ $(document).ready(function() {
                                     </div>
                                 `);
                             } else if (response.successCount > 0) {
-                                // 2. Alerta de éxito total
                                 $('#setupAlertContainer').html(`
                                     <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
                                         <strong> ¡Éxito!</strong> 
@@ -98,11 +100,9 @@ $(document).ready(function() {
                                 `);
                             }
 
-                            // 3. Mostrar el Modal
                             const modal = new bootstrap.Modal(document.getElementById('modalResumen'));
                             modal.show();
 
-                            // Lógica de validación: Con que haya 1 éxito, pasamos al siguiente
                             if (response.successCount > 0) {
                                 callbackExito(true);
                             } else {
@@ -110,7 +110,6 @@ $(document).ready(function() {
                             }
 
                         } else {
-                            // Error controlado desde el servidor
                             mostrarAlertaError(response.error || "Error desconocido al procesar la solicitud.");
                         }
                     },
@@ -130,48 +129,42 @@ $(document).ready(function() {
         reader.readAsText(file);
     }
 
-    // --- Helpers visuales ---
-
     function mostrarAlertaError(msg) {
-        // Inyecta alerta Bootstrap roja
         $('#setupAlertContainer').html(`
             <div class="alert alert-danger alert-dismissible fade show shadow-sm border-danger" role="alert">
                 ${msg}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         `);
-        // Scroll suave hacia arriba
         $('html, body').animate({ scrollTop: 0 }, 'fast');
     }
 
     function habilitarPaso2() {
-        // Finalizar Paso 1
+        //termino concesionarios
         $('#btnStep1').hide();
         $('#status-step1').removeClass('d-none');
         $('#card-step1').addClass('border-success shadow-sm');
         
-        // Habilitar Paso 2
+        //empiezo vehiculos
         $('#card-step2').css({ 'opacity': '1', 'pointer-events': 'auto' });
         $('#header-step2').removeClass('bg-secondary').addClass('bg-primary');
         $('#fileVehiculos').prop('disabled', false);
-        // Cambiamos estilo del botón de gris a azul
         $('#btnStep2').prop('disabled', false).removeClass('btn-secondary').addClass('btn-primary');
     }
 
     function habilitarPaso3() {
-        // Finalizar Paso 2
+        //termino vehiculos
         $('#btnStep2').hide();
         $('#status-step2').removeClass('d-none');
         $('#card-step2').addClass('border-success shadow-sm');
 
-        // Habilitar Paso 3
+        //empiezo usuarios si quiero
         $('#card-step3').css({ 'opacity': '1', 'pointer-events': 'auto' });
         $('#header-step3').removeClass('bg-secondary').addClass('bg-primary');
         $('#fileUsuarios').prop('disabled', false);
-        // Cambiamos estilo del botón de gris a azul
         $('#btnStep3').prop('disabled', false).removeClass('btn-secondary').addClass('btn-primary');
 
-        // Habilitar Botón Finalizar
+        // Habilitar botón finalizar
         $('#btnFinish').removeClass('disabled');
     }
 });

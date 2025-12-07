@@ -1,12 +1,3 @@
-/* Estilos para todos los elementos de formulario: fieldset, legend, input, select, button, y helpers de formulario. */
-#revistaForm fieldset + fieldset {
-  margin-top: 2rem;
-}
-
-#revistaFormEn fieldset + fieldset {
-  margin-top: 2rem;
-}
-
 fieldset {
   border: 2px solid var(--color-field-border) !important;
   padding: 1rem !important;
@@ -93,6 +84,7 @@ select option:focus {
   vertical-align: super;
 }
 
+/*barra de progreso*/
 #formProgress {
  width: 100%;
  height: 20px;

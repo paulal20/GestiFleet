@@ -1,6 +1,7 @@
 $(document).ready(function() {
     cargarUsuarios();
-
+    
+    //se actualice la tabla al cambiar filtros
     $("#filtroConcesionario, #filtroEstado").on("change", function() {
         cargarUsuarios();
     });
@@ -32,6 +33,7 @@ $(document).ready(function() {
 
         if (!idUsuario) return;
 
+        //eliminar usuario con la api
         $.ajax({
             url: `/api/usuarios/${idUsuario}`,
             type: "DELETE",
@@ -63,6 +65,7 @@ $(document).ready(function() {
 
     });
 
+    //asginamos concesionario al usuario con un modal
     $(document).on("click", ".btnAsignar", function (e) {
         e.stopPropagation(); 
 
@@ -127,6 +130,7 @@ function cargarUsuarios() {
     $tbody.html('<tr><td colspan="7" class="text-center text-muted">Cargando...</td></tr>');
     $contador.text("0");
 
+    //llamar a la api para obtener usuarios
     $.ajax({
         url: "/api/usuarios",
         type: "GET",
@@ -191,7 +195,6 @@ function cargarUsuarios() {
                     }
                 }
                     
-
                 html += `
                     <tr class="fila-click" data-href="/usuarios/${u.id_usuario}" tabindex="0" style="cursor: pointer;">
                         <td>${u.nombre || ''}</td>

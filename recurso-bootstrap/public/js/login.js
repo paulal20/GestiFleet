@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function(){
+    //validación campos del form de login y el modal de olvidar contraseña
     const form = document.getElementById("loginForm");
 
     if (form) {

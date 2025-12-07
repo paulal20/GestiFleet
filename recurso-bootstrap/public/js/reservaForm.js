@@ -1,13 +1,11 @@
 document.addEventListener("DOMContentLoaded", function(){
-    // Referencia al formulario principal (Español)
+    //validación campos de la reserva
     const form = document.getElementById("revistaForm");
     
-    // Referencias para el Modal
     const confirmBtn = document.getElementById('confirmarReservaBtn');
     const confirmacionModalEl = document.getElementById('confirmacionModal');
     let modalInstance = null;
 
-    // Inicializamos la instancia del Modal de Bootstrap (asumiendo Bootstrap 5+)
     if (confirmacionModalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
         modalInstance = new bootstrap.Modal(confirmacionModalEl);
     }
@@ -21,7 +19,6 @@ document.addEventListener("DOMContentLoaded", function(){
             condiciones: document.getElementById("condiciones")
         };
 
-        // LISTA DE ERRORES COMPLETA Y CORRECTA
         const errores = {
             vehiculo: document.getElementById("error-vehiculo"),
             fechaInicio: document.getElementById("error-fecha-inicio"),
@@ -36,22 +33,17 @@ document.addEventListener("DOMContentLoaded", function(){
         const urlIdVehiculo = paramsUrl.get('idVehiculo');
         const urlFecha = paramsUrl.get('fecha');
 
-        // Si viene el ID del vehículo por URL y el campo existe, lo seleccionamos
         if (urlIdVehiculo && campos.vehiculo) {
             campos.vehiculo.value = urlIdVehiculo;
         }
 
-        // Si viene fecha por URL y el campo inicio existe, lo rellenamos
         if (urlFecha && campos.fechaInicio) {
-            // El input datetime-local necesita formato YYYY-MM-DDTHH:mm
             let fechaValida = urlFecha;
             if (urlFecha.length === 10) { // formato YYYY-MM-DD
-                fechaValida += "T09:00"; // Hora por defecto si no viene
+                fechaValida += "T09:00"; // hora por defecto si no viene
             }
             campos.fechaInicio.value = fechaValida;
         }
-        // =========================================================
-
 
         let totalCampos = Object.values(campos).filter(el => el && el.required).length;
 
@@ -111,10 +103,8 @@ document.addEventListener("DOMContentLoaded", function(){
                 if (estaVacio(v)) return "La fecha y hora de inicio son obligatorias.";
                 const fechaI = new Date(v);
                 
-                // CAMBIO: Permitir margen de 5 minutos hacia atrás para "reservar ya"
                 const ahoraConMargen = new Date(Date.now() - 5 * 60000); 
                 
-                // Aseguramos que la fecha es válida y es "futura" (con margen)
                 if (isNaN(fechaI.getTime()) || fechaI < ahoraConMargen) { 
                     return "La fecha y hora introducidas deben ser posteriores a la presente.";
                 }
@@ -163,7 +153,6 @@ document.addEventListener("DOMContentLoaded", function(){
             if (!input) return;
             input.classList.remove("is-valid", "is-invalid");
 
-            // Si es un checkbox, validamos si está marcado
             if (input.type === 'checkbox') {
                  if (errorSpan && errorSpan.textContent.trim() !== "") {
                     input.classList.add("is-invalid");
@@ -197,7 +186,6 @@ document.addEventListener("DOMContentLoaded", function(){
                 span.textContent = msg;
             }
             
-            // Lógica duplicada de actualizarEstadoCampo para la reactividad en tiempo real
             input.classList.remove("is-valid", "is-invalid");
             if (msg) {
                 input.classList.add("is-invalid");
@@ -206,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function(){
             } else if (input.type === 'checkbox' && input.checked) {
                 input.classList.add("is-valid");
             }
-            // Disparamos la revalidación de la fecha opuesta si cambiamos una fecha
+
             if (key === "fechaInicio" && campos.fechaFin) {
                 validarCampoEnTiempoReal("fechaFin");
             } else if (key === "fechaFin" && campos.fechaInicio) {
@@ -217,7 +205,6 @@ document.addEventListener("DOMContentLoaded", function(){
         function validarCamposIniciales() {
             Object.keys(campos).forEach(key => {
                 const input = campos[key];
-                // Comprobamos si el input existe y si su valor no está vacío
                 if (input && (input.type === 'checkbox' ? input.checked : !estaVacio(input.value))) {
                     validarCampoEnTiempoReal(key);
                 }
@@ -244,11 +231,8 @@ document.addEventListener("DOMContentLoaded", function(){
             });
         });
 
-        // ============================================================
-        // MODIFICACIÓN CLAVE: INTERCEPTAR SUBMIT Y ABRIR MODAL
-        // ============================================================
         form.addEventListener("submit", function (e){
-            e.preventDefault(); // Detenemos el envío automático
+            e.preventDefault();
             limpiarErrores();
 
             let valido = true;
@@ -266,9 +250,9 @@ document.addEventListener("DOMContentLoaded", function(){
             if (valido) {
                 console.log("Formulario válido. Abriendo modal...");
                 if (modalInstance) {
-                    modalInstance.show(); // Abrir el modal en lugar de enviar
+                    modalInstance.show(); 
                 } else {
-                    form.submit(); // Fallback si el modal no se pudo inicializar
+                    form.submit(); 
                 }
             } else {
                 const primeraClaveInvalida = Object.keys(campos).find(k => errores[k] && errores[k].textContent);
@@ -278,13 +262,9 @@ document.addEventListener("DOMContentLoaded", function(){
             }
         });
 
-        // ============================================================
-        // NUEVO LISTENER: BOTÓN CONFIRMAR EN MODAL
-        // ============================================================
         if (confirmBtn) {
             confirmBtn.addEventListener('click', function () {
                 console.log("Confirmación recibida. Enviando formulario...");
-                // Esto envía el formulario al action definido en el HTML: /reserva
                 form.submit();
             });
         }

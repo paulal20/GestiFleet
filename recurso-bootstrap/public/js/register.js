@@ -1,14 +1,12 @@
 document.addEventListener("DOMContentLoaded", function(){
     const form = document.getElementById("registerForm");
     
-    // Si ya existe en el HTML (ejs), lo usamos, si no, lo insertamos arriba
     const existingAlert = document.querySelector(".alert.alert-danger");
     if(existingAlert) {
         existingAlert.style.display = 'none'; 
     }
 
     if (form) {
-        // Mapeo de campos
         const campos = {
             nombre: document.getElementById("nombre"),
             apellido1: document.getElementById("apellido1"),
@@ -19,7 +17,6 @@ document.addEventListener("DOMContentLoaded", function(){
             telefono: document.getElementById("telefono")
         };
 
-        // Mapeo de spans de error
         const spansErrores = {
             nombre: document.getElementById("error-nombre"),
             apellido1: document.getElementById("error-apellido1"),
@@ -31,8 +28,6 @@ document.addEventListener("DOMContentLoaded", function(){
         };
 
         const mostrarContrasenya = document.getElementById("mostrarContrasenya");
-
-        // --- FUNCIONES DE UTILIDAD ---
 
         function limpiarErroresUI() {
             Object.values(spansErrores).forEach(span => {
@@ -70,7 +65,6 @@ document.addEventListener("DOMContentLoaded", function(){
             }, 5000); 
         }
 
-        // ... (Tus funciones calcularErrorCampoLocal y validarCampoEnTiempoReal SE QUEDAN IGUAL) ...
         function estaVacio(val) { return val == null || String(val).trim() === ""; }
 
         function calcularErrorCampoLocal(key) {
@@ -138,7 +132,6 @@ document.addEventListener("DOMContentLoaded", function(){
              }
         }
 
-        // --- EVENT LISTENERS ---
         Object.keys(campos).forEach(key => {
             const el = campos[key];
             if (!el) return;
@@ -153,12 +146,10 @@ document.addEventListener("DOMContentLoaded", function(){
             });
         }
 
-        // --- SUBMIT CON AJAX ---
         form.addEventListener("submit", async function (e) {
             e.preventDefault(); 
             limpiarErroresUI();
 
-            // 1. Validación Local
             let hayErroresLocales = false;
             Object.keys(campos).forEach(key => {
                 const msg = calcularErrorCampoLocal(key);
@@ -174,7 +165,6 @@ document.addEventListener("DOMContentLoaded", function(){
                 return; 
             }
 
-            // 2. Datos
             const formData = {
                 nombre: campos.nombre.value,
                 apellido1: campos.apellido1.value,
@@ -185,7 +175,6 @@ document.addEventListener("DOMContentLoaded", function(){
                 telefono: campos.telefono.value
             };
 
-            // 3. Petición Fetch AJAX
             try {
                 const btnSubmit = form.querySelector('button[type="submit"]');
                 const textoOriginal = btnSubmit.innerHTML;
@@ -204,36 +193,26 @@ document.addEventListener("DOMContentLoaded", function(){
                 btnSubmit.innerHTML = textoOriginal;
 
                 if (data.ok) {
-                    // =========================================================
-                    // CAMBIO AQUÍ: MOSTRAR MODAL EN VEZ DE REDIRIGIR DIRECTO
-                    // =========================================================
-                    
-                    // Instanciar el modal de Bootstrap
-                    // Asegúrate de que bootstrap.bundle.min.js esté cargado en tu layout
                     const modalElement = document.getElementById('modalExito');
                     if (modalElement && window.bootstrap) {
                         const modalExito = new bootstrap.Modal(modalElement);
                         modalExito.show();
 
-                        // Configurar botón para ir al login
                         const btnLogin = document.getElementById('btnIrLogin');
                         btnLogin.addEventListener('click', () => {
                             window.location.href = '/login';
                         });
-                        
-                        // Opcional: Si cierran el modal de otra forma, también ir al login
+
                         modalElement.addEventListener('hidden.bs.modal', function () {
                             window.location.href = '/login';
                         });
 
                     } else {
-                        // Fallback por si falla Bootstrap JS
                         alert("Registro completado. Tus funciones estarán limitadas hasta asignación.");
                         window.location.href = '/login';
                     }
 
                 } else {
-                    // ERRORES
                     if (data.error) {
                         mostrarErrorGlobal(data.error);
                     }
@@ -258,7 +237,6 @@ document.addEventListener("DOMContentLoaded", function(){
             }
         });
 
-        // Reset
         form.addEventListener("reset", function () {
             setTimeout(() => {
                 limpiarErroresUI();

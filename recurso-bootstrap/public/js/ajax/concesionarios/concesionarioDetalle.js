@@ -53,7 +53,7 @@ function configurarModalGenerico() {
     });
 }
 
-//FUNCIONES DE ELIMINAR --> PRIMERO VEHICULO, LUEGO CONCESIONARIO
+//Eliminamos vehiculo con la api de vehiculos
 function eliminarVehiculo(id) {
     $.ajax({
         type: "DELETE",
@@ -72,7 +72,7 @@ function eliminarVehiculo(id) {
                     $row.find("td:nth-child(5)")
                         .html('<span class="badge bg-danger">Eliminado</span>');
 
-                    // Al eliminar, quitamos acciones admin del vehículo
+                    // COmo eliminamos quitamos las acciones
                     $row.find("td:last").html(`
                         <span class="text-muted fst-italic">Sin acciones</span>
                     `);
@@ -89,7 +89,7 @@ function eliminarVehiculo(id) {
     });
 }
 
-
+//Eliminamos concesionario con la api de concesionarios
 function eliminarConcesionario(id) {
     $.ajax({
         type: "DELETE",
@@ -120,7 +120,7 @@ function eliminarConcesionario(id) {
     });
 }
 
-//FUNCIONES DE CARGAR CONCESIONARIO Y VEHÍCULOS
+//FUNCION DE CARGAR CONCESIONARIO
 function cargarConcesionario(id) {
     $.ajax({
         type: "GET",
@@ -133,6 +133,7 @@ function cargarConcesionario(id) {
     });
 }
 
+//FUNCION DE CARGAR LOS VEHICULOS DEL CONCESIONARIO
 function cargarVehiculos(id) {
     $.ajax({
         type: "GET",
@@ -145,7 +146,7 @@ function cargarVehiculos(id) {
     });
 }
 
-//FUNCIONES DE PINTAR CONCESIONARIO Y VEHÍCULOS
+//FUNCION DE PINTAR LA INFO DEL CONCESIONARIO
 function pintarInfoConcesionario(c) {
     $("#tituloConcesionario").text(c.nombre);
 
@@ -207,6 +208,7 @@ function pintarInfoConcesionario(c) {
     `);
 }
 
+//FUNCION DE PINTAR LOS VEHICULOS DEL CONCESIONARIO
 function pintarVehiculos(lista) {
     let $tbody = $("#tablaVehiculosBody");
     $tbody.empty();
@@ -216,7 +218,6 @@ function pintarVehiculos(lista) {
         return;
     }
 
-    // fecha actual en formato local (YYYY-MM-DDTHH:mm)
     const ahora = new Date();
     const offsetMs = ahora.getTimezoneOffset() * 60 * 1000;
     const fechaLocal = new Date(ahora.getTime() - offsetMs);
@@ -226,7 +227,6 @@ function pintarVehiculos(lista) {
     $.each(lista, function(i, v) {
         let accionesAdmin = "";
         let reservaBtn = "";
-        // Para distingir entre disponible y reservado
         let htmlDisponibilidad = "";
         if (v.estaReservado) {
             htmlDisponibilidad = '<span class="badge bg-warning text-dark">Reservado</span>';

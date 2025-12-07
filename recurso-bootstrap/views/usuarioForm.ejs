@@ -1,10 +1,8 @@
 <%
   const isEditMode = (typeof usuario !== 'undefined' && usuario.id_usuario) ? true : false;
   
-  // Valor del rol actual
   const rolValor = isEditMode ? usuario.rol : 'Empleado';
   
-  // Determinamos si es auto-edición para deshabilitar el select de rol
   const isSelf = (typeof usuarioSesion !== 'undefined' && isEditMode && usuarioSesion.id_usuario == usuario.id_usuario);
 
   const segundaFila = isEditMode ? 'col-md-6' : 'col-md-4';
