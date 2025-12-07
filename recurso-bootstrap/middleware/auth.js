@@ -87,12 +87,53 @@ function isAdminOrWorker(req, res, next) {
     res.redirect('/');
 }
 
+function isEmpty(req, res, next) {
+    if (!req.session.usuario || req.session.usuario.rol !== 'Admin') {
+        req.session.errorMessage = 'Acceso denegado. Solo los administradores pueden realizar la carga inicial.';
+        return res.redirect('/');
+    }
+
+    const query = `
+        SELECT 
+            (SELECT count(*) FROM concesionarios) as total_concesionarios,
+            (SELECT count(*) FROM vehiculos) as total_vehiculos
+    `;
+
+    req.db.query(query, (err, rows) => {
+        if (err) {
+            console.error("Error verificando estado de la BD:", err);
+            if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+                return res.status(500).json({ ok: false, msg: "Error de servidor verificando permisos." });
+            }
+            req.session.errorMessage = "Error verificando el estado de la base de datos.";
+            return res.redirect('/');
+        }
+
+        const concesionarios = rows[0].total_concesionarios;
+        const vehiculos = rows[0].total_vehiculos;
+
+        if (concesionarios === 0 && vehiculos === 0) {
+            return next();
+        }
+
+        const mensajeError = 'La carga inicial ya se ha realizado (la base de datos no está vacía).';
+
+        if (req.method === 'POST') {
+            return res.status(403).json({ ok: false, msg: mensajeError });
+        } else {
+            req.session.errorMessage = mensajeError;
+            return res.redirect('/');
+        }
+    });
+}
+
 module.exports = {
     isAuth,
     isGuest,
     isAdmin,
     isAdminOrSelf,
     isInstallationOrImport,
-    isAdminOrWorker
+    isAdminOrWorker,
+    isEmpty
 };
 

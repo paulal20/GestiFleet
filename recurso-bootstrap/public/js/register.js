@@ -1,8 +1,14 @@
 document.addEventListener("DOMContentLoaded", function(){
     const form = document.getElementById("registerForm");
+    
+    // Si ya existe en el HTML (ejs), lo usamos, si no, lo insertamos arriba
+    const existingAlert = document.querySelector(".alert.alert-danger");
+    if(existingAlert) {
+        existingAlert.style.display = 'none'; 
+    }
 
     if (form) {
-
+        // Mapeo de campos
         const campos = {
             nombre: document.getElementById("nombre"),
             apellido1: document.getElementById("apellido1"),
@@ -13,7 +19,8 @@ document.addEventListener("DOMContentLoaded", function(){
             telefono: document.getElementById("telefono")
         };
 
-        const errores = {
+        // Mapeo de spans de error
+        const spansErrores = {
             nombre: document.getElementById("error-nombre"),
             apellido1: document.getElementById("error-apellido1"),
             apellido2: document.getElementById("error-apellido2"),
@@ -25,151 +32,118 @@ document.addEventListener("DOMContentLoaded", function(){
 
         const mostrarContrasenya = document.getElementById("mostrarContrasenya");
 
-        function limpiarErrores() {
-            Object.values(errores).forEach(span => {
+        // --- FUNCIONES DE UTILIDAD ---
+
+        function limpiarErroresUI() {
+            Object.values(spansErrores).forEach(span => {
                 if (span) span.textContent = "";
             });
-        }
-
-        function estaVacio(val) {
-            return val == null || String(val).trim() === "";
-        }
-
-        function calcularErrorCampo(key) {
-            const input = campos[key];
-            if (!input) return "";
-
-            const v = String(input.value || "").trim();
-
-            if (key === "nombre" || key === "apellido1") {
-                if (estaVacio(v)) {
-                    return "Este campo es obligatorio.";
-                }
-                if (v.length < 3) {
-                    return "Debe tener al menos 3 caracteres.";
-                }
-                return "";
-            }
-
-            if (key == "apellido2"){
-                if(v.length != 0) {
-                    if (v.length < 3) {
-                        return "Debe tener al menos 3 caracteres.";
-                    }
-                }
-                return "";
-            }
-
-            if (key === "email") {
-                if (estaVacio(v)) {
-                    return "El email es obligatorio.";
-                }
-                const re = /^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/;
-                if (!re.test(v)) {
-                    return "El correo no tiene un formato válido (@gestifleet.es/com).";
-                }
-                return "";
-            }   
-
-            if(key === "confemail") {
-                if (estaVacio(v)) {
-                    return "El email es obligatorio.";
-                }
-                const re = /^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/;
-                if (!re.test(v)) {
-                    return "El correo no tiene un formato válido (@gestifleet.es/com).";
-                }
-                const emailOriginal = String(campos.email?.value || "").trim();
-                if (v !== emailOriginal) {
-                    return "Los correos no coinciden.";
-                }
-                return "";
-            }
-
-            if (key === "contrasenya") {
-                if (estaVacio(v)) {
-                    return "La contraseña es obligatoria.";
-                }
-                const contrasenyaForm = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-                if (!contrasenyaForm.test(v)) {
-                    return "La contraseña debe tener mín. 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.";
-                }
-                return "";
-            }
-
-            if (key === "telefono") {
-                if (estaVacio(v)) return "El teléfono es obligatorio.";
-                if (!/^\d{9}$/.test(v)) return "Formato de teléfono no válido. Solo 9 dígitos.";
-                return "";
-            }
-
-            return "";
-        }
-
-        function actualizarEstadoCampo(input, errorSpan) {
-            if (!input) return;
-            input.classList.remove("is-valid", "is-invalid");
-
-            if (errorSpan && errorSpan.textContent.trim() !== "") {
-                input.classList.add("is-invalid");
-            } else if (input.value != null && String(input.value).trim() !== "") {
-                input.classList.add("is-valid");
-            }
-        }
-
-        function actualizarTodos() {
-            Object.keys(campos).forEach(key => {
-                actualizarEstadoCampo(campos[key], errores[key]);
+            Object.values(campos).forEach(input => {
+                if(input) input.classList.remove("is-invalid");
             });
+            
+            const alert = document.querySelector(".alert.alert-danger");
+            if (alert) {
+                alert.textContent = "";
+                alert.style.display = "none";
+            }
+        }
+
+        let errorTimer; 
+
+        function mostrarErrorGlobal(mensaje) {
+            let alert = document.querySelector(".alert.alert-danger");
+            if (!alert) {
+                alert = document.createElement("div");
+                alert.className = "alert alert-danger mt-2";
+                alert.role = "alert";
+                form.insertBefore(alert, form.firstChild);
+            }
+            
+            alert.textContent = mensaje;
+            alert.style.display = "block";
+            alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            if (errorTimer) clearTimeout(errorTimer);
+            errorTimer = setTimeout(() => {
+                alert.style.display = "none";
+            }, 5000); 
+        }
+
+        // ... (Tus funciones calcularErrorCampoLocal y validarCampoEnTiempoReal SE QUEDAN IGUAL) ...
+        function estaVacio(val) { return val == null || String(val).trim() === ""; }
+
+        function calcularErrorCampoLocal(key) {
+             const input = campos[key];
+             if (!input) return "";
+             const v = String(input.value || "").trim();
+ 
+             if (key === "nombre" || key === "apellido1") {
+                 if (estaVacio(v)) return "Este campo es obligatorio.";
+                 if (v.length < 3) return "Debe tener al menos 3 caracteres.";
+             }
+ 
+             if (key === "apellido2") {
+                 if (v.length > 0 && v.length < 3) return "Debe tener al menos 3 caracteres.";
+             }
+ 
+             if (key === "email") {
+                 if (estaVacio(v)) return "El email es obligatorio.";
+                 const re = /^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/;
+                 if (!re.test(v)) return "El correo no tiene un formato válido (@gestifleet.es/com).";
+             }
+ 
+             if (key === "confemail") {
+                 if (estaVacio(v)) return "Confirma tu correo.";
+                 const emailOriginal = String(campos.email?.value || "").trim();
+                 if (v !== emailOriginal) return "Los correos no coinciden.";
+             }
+ 
+             if (key === "contrasenya") {
+                 if (estaVacio(v)) return "La contraseña es obligatoria.";
+                 const contrasenyaForm = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+                 if (!contrasenyaForm.test(v)) return "Mín. 8 chars, 1 mayús, 1 minús, 1 num y 1 símbolo.";
+             }
+ 
+             if (key === "telefono") {
+                 if (estaVacio(v)) return "El teléfono es obligatorio.";
+                 if (!/^\d{9}$/.test(v)) return "Formato inválido. Solo 9 dígitos.";
+             }
+             return "";
         }
 
         function validarCampoEnTiempoReal(key) {
-            const input = campos[key];
-            const span = errores[key];
-            if (!input) return;
-
-            const msg = calcularErrorCampo(key);
-
-            if (span) {
-                span.textContent = msg;
-            }
-
-            input.classList.remove("is-valid", "is-invalid");
-            if (msg) {
-                input.classList.add("is-invalid");
-            } else if (!estaVacio(input.value)) {
-                input.classList.add("is-valid");
-            }
-
-            if (key === "email" && !estaVacio(campos.confemail?.value)) {
-                validarCampoEnTiempoReal("confemail");
-            }
-
+             const input = campos[key];
+             const span = spansErrores[key];
+             if (!input) return;
+ 
+             const msg = calcularErrorCampoLocal(key);
+ 
+             if (span) span.textContent = msg;
+ 
+             input.classList.remove("is-valid", "is-invalid");
+             if (msg) {
+                 input.classList.add("is-invalid");
+             } else if (!estaVacio(input.value)) {
+                 input.classList.add("is-valid");
+             }
+ 
+             if (key === "email" && !estaVacio(campos.confemail?.value)) {
+                 const confMsg = calcularErrorCampoLocal("confemail");
+                 if (spansErrores["confemail"]) spansErrores["confemail"].textContent = confMsg;
+                 const confInput = campos["confemail"];
+                 confInput.classList.remove("is-valid", "is-invalid");
+                 if (confMsg) confInput.classList.add("is-invalid");
+                 else confInput.classList.add("is-valid");
+             }
         }
 
-        function validarCamposIniciales() {
-            Object.keys(campos).forEach(key => {
-                const input = campos[key];
-                if (input && !estaVacio(input.value)) {
-                    validarCampoEnTiempoReal(key);
-                }
-            });
-        }
-
+        // --- EVENT LISTENERS ---
         Object.keys(campos).forEach(key => {
             const el = campos[key];
             if (!el) return;
-
-            el.addEventListener("input", () => {
-                validarCampoEnTiempoReal(key);
-            });
-
-            el.addEventListener("change", () => {
-                validarCampoEnTiempoReal(key);
-            });
-
-            el.addEventListener("blur", () => {
-                validarCampoEnTiempoReal(key);
+            ['input', 'blur'].forEach(evt => {
+                el.addEventListener(evt, () => validarCampoEnTiempoReal(key));
             });
         });
 
@@ -179,57 +153,122 @@ document.addEventListener("DOMContentLoaded", function(){
             });
         }
 
-        form.addEventListener("submit", function (e){
-            e.preventDefault();
-            limpiarErrores();
+        // --- SUBMIT CON AJAX ---
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault(); 
+            limpiarErroresUI();
 
-            let valido = true;
-
+            // 1. Validación Local
+            let hayErroresLocales = false;
             Object.keys(campos).forEach(key => {
-                const mensaje = calcularErrorCampo(key);
-                if (mensaje) {
-                    if (errores[key]) errores[key].textContent = mensaje;
-                    valido = false;
+                const msg = calcularErrorCampoLocal(key);
+                if (msg) {
+                    if (spansErrores[key]) spansErrores[key].textContent = msg;
+                    if (campos[key]) campos[key].classList.add("is-invalid");
+                    hayErroresLocales = true;
                 }
             });
 
-            actualizarTodos();
-
-            if (valido) {
-                console.log("Formulario válido. Enviando...");
-                form.submit();
-            } else {
-                const primeraClaveInvalida = Object.keys(campos).find(k => errores[k] && errores[k].textContent);
-                if (primeraClaveInvalida && campos[primeraClaveInvalida]) {
-                    campos[primeraClaveInvalida].focus();
-                }
+            if (hayErroresLocales) {
+                mostrarErrorGlobal("Por favor, corrige los errores antes de enviar.");
+                return; 
             }
-        });
 
-        form.addEventListener("reset", function () {
-            if (form) {
-                setTimeout(() => {
+            // 2. Datos
+            const formData = {
+                nombre: campos.nombre.value,
+                apellido1: campos.apellido1.value,
+                apellido2: campos.apellido2.value,
+                email: campos.email.value,
+                confemail: campos.confemail.value,
+                contrasenya: campos.contrasenya.value,
+                telefono: campos.telefono.value
+            };
+
+            // 3. Petición Fetch AJAX
+            try {
+                const btnSubmit = form.querySelector('button[type="submit"]');
+                const textoOriginal = btnSubmit.innerHTML;
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = "Enviando...";
+
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = textoOriginal;
+
+                if (data.ok) {
+                    // =========================================================
+                    // CAMBIO AQUÍ: MOSTRAR MODAL EN VEZ DE REDIRIGIR DIRECTO
+                    // =========================================================
                     
-                    Object.values(campos).forEach(input => {
-                        if (input) {
-                            input.classList.remove("is-valid", "is-invalid");
-                            
-                            if (input.tagName === 'SELECT') {
-                                input.selectedIndex = 0; 
-                            } else {
-                                input.value = "";
+                    // Instanciar el modal de Bootstrap
+                    // Asegúrate de que bootstrap.bundle.min.js esté cargado en tu layout
+                    const modalElement = document.getElementById('modalExito');
+                    if (modalElement && window.bootstrap) {
+                        const modalExito = new bootstrap.Modal(modalElement);
+                        modalExito.show();
+
+                        // Configurar botón para ir al login
+                        const btnLogin = document.getElementById('btnIrLogin');
+                        btnLogin.addEventListener('click', () => {
+                            window.location.href = '/login';
+                        });
+                        
+                        // Opcional: Si cierran el modal de otra forma, también ir al login
+                        modalElement.addEventListener('hidden.bs.modal', function () {
+                            window.location.href = '/login';
+                        });
+
+                    } else {
+                        // Fallback por si falla Bootstrap JS
+                        alert("Registro completado. Tus funciones estarán limitadas hasta asignación.");
+                        window.location.href = '/login';
+                    }
+
+                } else {
+                    // ERRORES
+                    if (data.error) {
+                        mostrarErrorGlobal(data.error);
+                    }
+
+                    if (data.fieldErrors) {
+                        Object.keys(data.fieldErrors).forEach(key => {
+                            if (spansErrores[key]) spansErrores[key].textContent = data.fieldErrors[key];
+                            if (campos[key]) {
+                                campos[key].classList.add("is-invalid");
+                                campos[key].classList.remove("is-valid");
                             }
-                        }
-                    });
-                    Object.values(errores).forEach(span => { if (span) span.textContent = ""; });
-                    if (campos.contrasenya) campos.contrasenya.type = "password";
-                    if (mostrarContrasenya) mostrarContrasenya.checked = false;
-                    
-                }, 0);
+                        });
+                    }
+                }
+
+            } catch (error) {
+                console.error("Error AJAX:", error);
+                mostrarErrorGlobal("Ocurrió un error de conexión. Inténtalo de nuevo.");
+                const btnSubmit = form.querySelector('button[type="submit"]');
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = "Enviar";
             }
         });
 
-        validarCamposIniciales();
-
+        // Reset
+        form.addEventListener("reset", function () {
+            setTimeout(() => {
+                limpiarErroresUI();
+                Object.values(campos).forEach(input => {
+                    if(input) {
+                        input.classList.remove("is-valid", "is-invalid");
+                        input.value = "";
+                    }
+                });
+            }, 10);
+        });
     }
 });

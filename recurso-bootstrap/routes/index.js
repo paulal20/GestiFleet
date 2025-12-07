@@ -130,78 +130,83 @@ router.get('/register', isGuest, (req, res) => {
 
 // POST REGISTER
 router.post('/register', isGuest, (req, res) => {
-  const formData = { ...req.body };
-  const { nombre, apellido1, apellido2, email: correo, confemail, contrasenya, telefono } = formData;
-
-  const fieldErrors = {};
-
-  // Validaciones básicas
-  if (!nombre || nombre.trim().length < 3) fieldErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
-  if (!apellido1 || apellido1.trim().length < 3) fieldErrors.apellido1 = 'El primer apellido debe tener al menos 3 caracteres.';
+    // Recibimos los datos del cuerpo (JSON desde AJAX)
+    const { nombre, apellido1, apellido2, email, confemail, contrasenya, telefono } = req.body;
     
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/;
-  if (!correo || !emailRegex.test(correo)) fieldErrors.email = 'El formato del correo no es válido.';
-  if (correo !== confemail) fieldErrors.confemail = 'Los correos no coinciden.';
+    // Objeto para acumular errores de campos específicos
+    const fieldErrors = {};
     
-  const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-  if (!contrasenya || !passRegex.test(contrasenya)) fieldErrors.contrasenya = 'La contraseña debe tener mín. 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.';
-
-  const telRegex = /^[0-9]{9,15}$/;
-  if (!telefono || !telRegex.test(telefono)) fieldErrors.telefono = 'El teléfono debe tener entre 9 y 15 números.';
-
-  if (Object.keys(fieldErrors).length > 0) {
-    formData.contrasenya = '';
-    return res.status(400).render('register', { 
-      title: 'Registro de usuario',
-      error: 'Corrija los errores del formulario',
-      formData,
-      fieldErrors
-    });
-  }
-
-  // Validar duplicados
-  req.db.query('SELECT * FROM usuarios WHERE correo = ? OR telefono = ?', [correo, telefono], (errCheck, usuarios) => {
-    if (errCheck) return res.status(500).send("Error interno validando usuario");
-
-    usuarios.forEach(u => {
-      if (u.correo === correo) fieldErrors.email = 'El correo ya está registrado';
-      if (u.telefono === telefono) fieldErrors.telefono = 'El teléfono ya está registrado';
-    });
-
-    if (Object.keys(fieldErrors).length > 0) {
-      formData.contrasenya = '';
-      return res.status(400).render('register', { 
-        title: 'Registro de usuario',
-        error: 'Corrija los errores del formulario',
-        formData,
-        fieldErrors
-      });
+    // Nombre y Apellido1 obligatorios
+    if (!nombre || nombre.trim().length < 3) fieldErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
+    if (!apellido1 || apellido1.trim().length < 3) fieldErrors.apellido1 = 'El primer apellido debe tener al menos 3 caracteres.';
+    // Apellido2 es opcional, pero si viene, validamos longitud mínima
+    if (apellido2 && apellido2.trim().length > 0 && apellido2.trim().length < 3) {
+        fieldErrors.apellido2 = 'El segundo apellido debe tener al menos 3 caracteres.';
     }
 
-    // Insertar usuario
-    bcrypt.hash(contrasenya, SALT_ROUNDS, (errHash, hash) => {
-      if (errHash) return res.status(500).send("Error interno encriptando contraseña");
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@(gestifleet\.es|gestifleet\.com)$/;
+    if (!email || !emailRegex.test(email)) fieldErrors.email = 'El formato del correo no es válido (@gestifleet.es/com).';
+    
+    if (email !== confemail) fieldErrors.confemail = 'Los correos no coinciden.';
+    
+    const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    if (!contrasenya || !passRegex.test(contrasenya)) fieldErrors.contrasenya = 'La contraseña debe tener mín. 8 caracteres, mayúscula, minúscula, número y símbolo.';
 
-      const nombreCompleto = [nombre, apellido1, apellido2].filter(Boolean).join(' ').trim();
+    const telRegex = /^\d{9}$/; // Validamos 9 dígitos exactos para consistencia
+    if (!telefono || !telRegex.test(telefono)) fieldErrors.telefono = 'El teléfono debe tener 9 dígitos numéricos.';
 
-      req.db.query(
-        'INSERT INTO usuarios (nombre, correo, contrasenya, rol, telefono, activo) VALUES (?, ?, ?, ?, ?, true)',
-        [nombreCompleto, correo, hash, 'Empleado', telefono],
-        (errInsert, result) => {
-          if (errInsert) {
-            console.error("Error insertando usuario:", errInsert);
-            return res.status(500).render('register', { 
-              title: 'Registro de usuario', 
-              error: 'Error interno al registrar usuario', 
-              formData,
-              fieldErrors: {}
-            });
-          }
-          res.redirect('/login');
+    // Si ya hay errores de formato, devolvemos respuesta y no consultamos la BD
+    if (Object.keys(fieldErrors).length > 0) {
+        return res.status(400).json({ 
+            ok: false, 
+            error: 'Por favor, revisa los campos marcados.', 
+            fieldErrors 
+        });
+    }
+
+    // --- 2. Validación de duplicados en BD ---
+    req.db.query('SELECT correo, telefono FROM usuarios WHERE correo = ? OR telefono = ?', [email, telefono], (errCheck, rows) => {
+        if (errCheck) {
+            console.error("Error BD Check Register:", errCheck);
+            return res.status(500).json({ ok: false, error: 'Error interno del servidor verificando datos.' });
         }
-      );
+
+        if (rows.length > 0) {
+            // Analizamos qué coincidió
+            rows.forEach(row => {
+                if (row.correo === email) fieldErrors.email = 'Este correo ya está registrado.';
+                if (row.telefono === telefono) fieldErrors.telefono = 'Este teléfono ya está registrado.';
+            });
+
+            return res.status(400).json({ 
+                ok: false, 
+                error: 'Algunos datos ya existen en el sistema.', 
+                fieldErrors 
+            });
+        }
+
+        // --- 3. Hash e Inserción ---
+        bcrypt.hash(contrasenya, SALT_ROUNDS, (errHash, hash) => {
+            if (errHash) {
+                return res.status(500).json({ ok: false, error: 'Error de seguridad procesando la contraseña.' });
+            }
+
+            // Construir nombre completo
+            const nombreCompleto = [nombre, apellido1, apellido2].filter(Boolean).join(' ').trim();
+
+            const sqlInsert = 'INSERT INTO usuarios (nombre, correo, contrasenya, rol, telefono, activo) VALUES (?, ?, ?, ?, ?, 1)';
+            // Nota: id_concesionario queda NULL por defecto hasta que un admin lo asigne
+            req.db.query(sqlInsert, [nombreCompleto, email, hash, 'Empleado', telefono], (errInsert, result) => {
+                if (errInsert) {
+                    console.error("Error BD Insert Register:", errInsert);
+                    return res.status(500).json({ ok: false, error: 'Error interno al registrar el usuario.' });
+                }
+
+                // ÉXITO
+                res.json({ ok: true, mensaje: 'Registro completado. Redirigiendo...' });
+            });
+        });
     });
-  });
 });
 
 // LOGOUT

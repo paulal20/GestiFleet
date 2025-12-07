@@ -3,10 +3,10 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const path = require('path');
 const fs = require('fs');
-const { isAdmin } = require('../middleware/auth');
+const { isEmpty } = require('../middleware/auth');
 
 // RUTA SETUP: Renderiza la vista
-router.get('/setup', isAdmin, (req, res) => {
+router.get('/setup', isEmpty, (req, res) => {
     res.render('setup', { 
         title: 'Instalación Inicial',
         usuarioSesion: req.session.usuario 
@@ -16,7 +16,7 @@ router.get('/setup', isAdmin, (req, res) => {
 // =========================================================================
 // PASO 1: CONCESIONARIOS
 // =========================================================================
-router.post('/paso1-concesionarios', isAdmin, (req, res) => {
+router.post('/paso1-concesionarios', isEmpty, (req, res) => {
     const datosJSON = req.body.datos; // El JS envía { datos: objetoJSON }
     
     // Filtramos solo lo que nos interesa
@@ -74,7 +74,7 @@ router.post('/paso1-concesionarios', isAdmin, (req, res) => {
 // =========================================================================
 // PASO 2: VEHÍCULOS
 // =========================================================================
-router.post('/paso2-vehiculos', isAdmin, (req, res) => {
+router.post('/paso2-vehiculos', isEmpty, (req, res) => {
     const datosJSON = req.body.datos;
     const lista = datosJSON.vehiculos || [];
 
@@ -145,7 +145,7 @@ router.post('/paso2-vehiculos', isAdmin, (req, res) => {
 // =========================================================================
 // PASO 3: USUARIOS
 // =========================================================================
-router.post('/paso3-usuarios', isAdmin, (req, res) => {
+router.post('/paso3-usuarios', isEmpty, (req, res) => {
     const datosJSON = req.body.datos;
     const lista = datosJSON.usuarios || [];
 

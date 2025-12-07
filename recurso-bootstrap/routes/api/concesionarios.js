@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { isAuth, isAdmin } = require('../../middleware/auth');
+const { isAdminOrWorker, isAdmin } = require('../../middleware/auth');
 
 // LISTA
-router.get('/lista', isAuth, (req, res) => {
+router.get('/lista', isAdmin, (req, res) => {
   const { ciudad } = req.query;
   let sql = "SELECT * FROM concesionarios";
   const params = [];
@@ -32,7 +32,7 @@ router.get('/lista', isAuth, (req, res) => {
 });
 
 // DETALLE POR ID
-router.get("/:id(\\d+)", isAuth, (req, res) => {
+router.get("/:id(\\d+)", isAdminOrWorker, (req, res) => {
   const id = parseInt(req.params.id);
 
   // PRIMERA CONSULTA: Obtener el concesionario

@@ -150,7 +150,7 @@ router.get('/', (req, res) => {
 
 
 // GET /vehiculos/nuevo (Formulario Creación)
-router.get('/nuevo', isAuth, isAdmin, (req, res) => {
+router.get('/nuevo', isAdmin, (req, res) => {
   req.db.query('SELECT * FROM concesionarios WHERE activo = true ORDER BY nombre', (err, concesionarios) => {
     if (err) return res.status(500).render('error', { mensaje: 'Error concesionarios' });
     fetchValidTypes(req.db, (errTypes, tiposPermitidos) => {
