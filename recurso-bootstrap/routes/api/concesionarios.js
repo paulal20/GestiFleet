@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { isAdminOrWorker, isAdmin } = require('../../middleware/auth');
 
-// LISTA
+// GET /api/concesionarios/lista
 router.get('/lista', isAdmin, (req, res) => {
   const { ciudad } = req.query;
   let sql = "SELECT * FROM concesionarios";
@@ -31,11 +31,10 @@ router.get('/lista', isAdmin, (req, res) => {
   });
 });
 
-// DETALLE POR ID
+// GET /api/concesionarios/:id
 router.get("/:id(\\d+)", isAdminOrWorker, (req, res) => {
   const id = parseInt(req.params.id);
 
-  // PRIMERA CONSULTA: Obtener el concesionario
   req.db.query("SELECT * FROM concesionarios WHERE id_concesionario = ?", [id], (err, rows) => {
     if (err) return res.json({ ok: false, error: err.message });
 
@@ -78,12 +77,11 @@ router.get("/:id(\\d+)", isAdminOrWorker, (req, res) => {
   });
 });
 
-// CREAR NUEVO
+// POST /api/concesionarios/nuevo 
 router.post('/nuevo', isAdmin, (req, res) => {
   const { nombre, ciudad, direccion, telefono_contacto } = req.body;
   const fieldErrors = {};
 
-  // 1. Validaciones básicas (Mensajes mejorados)
   if (!nombre || nombre.trim().length < 3) fieldErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
   if (!ciudad || ciudad.trim().length < 3) fieldErrors.ciudad = 'La ciudad debe tener al menos 3 caracteres.';
   if (!direccion || direccion.trim().length < 5) fieldErrors.direccion = 'La dirección debe ser más descriptiva (mín. 5 letras).';
@@ -91,7 +89,7 @@ router.post('/nuevo', isAdmin, (req, res) => {
 
   if (Object.keys(fieldErrors).length) return res.status(400).json({ ok: false, fieldErrors });
 
-  // 2. Comprobación de duplicados
+  // si está duplicado o no
   const sqlCheck = `
     SELECT * FROM concesionarios 
     WHERE nombre = ? OR direccion = ? OR telefono_contacto = ?
@@ -121,7 +119,6 @@ router.post('/nuevo', isAdmin, (req, res) => {
       }
     }
 
-    // 3. Insertar
     req.db.query(
       'INSERT INTO concesionarios(nombre, ciudad, direccion, telefono_contacto, activo) VALUES (?, ?, ?, ?, 1)',
       [nombre.trim(), ciudad.trim(), direccion.trim(), telefono_contacto.trim()],
@@ -134,13 +131,12 @@ router.post('/nuevo', isAdmin, (req, res) => {
   });
 });
 
-// EDITAR (PUT)
+// PUT /api/concesionarios/:id/editar
 router.put('/:id(\\d+)/editar', isAdmin, (req, res) => {
   const id = parseInt(req.params.id, 10);
   const { nombre, ciudad, direccion, telefono_contacto } = req.body;
   const fieldErrors = {};
 
-  // Mensajes mejorados
   if (!nombre || nombre.trim().length < 3) fieldErrors.nombre = 'El nombre debe tener al menos 3 caracteres.';
   if (!ciudad || ciudad.trim().length < 3) fieldErrors.ciudad = 'La ciudad debe tener al menos 3 caracteres.';
   if (!direccion || direccion.trim().length < 5) fieldErrors.direccion = 'La dirección debe ser más descriptiva (mín. 5 letras).';
@@ -183,7 +179,6 @@ router.put('/:id(\\d+)/editar', isAdmin, (req, res) => {
         }
       }
 
-      // CAMBIO AQUÍ: Se añade 'activo = 1' para reactivar si estaba borrado lógico
       req.db.query(
         'UPDATE concesionarios SET nombre=?, ciudad=?, direccion=?, telefono_contacto=?, activo=1 WHERE id_concesionario=?',
         [nombre.trim(), ciudad.trim(), direccion.trim(), telefono_contacto.trim(), id],
@@ -200,12 +195,11 @@ router.put('/:id(\\d+)/editar', isAdmin, (req, res) => {
   );
 });
 
-// ELIMINAR (Soft Delete)
+// DELETE /api/concesionarios/:id/eliminar --> técnicamente es un delete lógico 
 router.delete('/:id(\\d+)/eliminar', isAdmin, (req, res) => {
   const id = parseInt(req.params.id, 10);
 
-  // 1. Verificar si tiene VEHÍCULOS ACTIVOS
-  // Añadimos "AND activo = true" para ignorar los que ya estén eliminados.
+  // vemos si tiene vehículos activos o empleados activos
   req.db.query('SELECT COUNT(*) AS cnt FROM vehiculos WHERE id_concesionario=? AND activo = true', [id], (errVeh, rowsVeh) => {
     if (errVeh) return res.status(500).json({ ok: false, error: errVeh.message });
 
@@ -216,8 +210,6 @@ router.delete('/:id(\\d+)/eliminar', isAdmin, (req, res) => {
       });
     }
 
-    // 2. Verificar si tiene EMPLEADOS ACTIVOS (Usuarios vinculados)
-    // Añadimos "AND activo = true" para ignorar ex-empleados.
     req.db.query('SELECT COUNT(*) AS cnt FROM usuarios WHERE id_concesionario=? AND activo = true', [id], (errEmp, rowsEmp) => {
         if (errEmp) return res.status(500).json({ ok: false, error: errEmp.message });
 
@@ -228,7 +220,6 @@ router.delete('/:id(\\d+)/eliminar', isAdmin, (req, res) => {
             });
         }
 
-        // 3. Si no tiene ni vehículos activos ni empleados activos, procedemos al Soft Delete
         req.db.query('UPDATE concesionarios SET activo=0 WHERE id_concesionario=?', [id], (errUpdate) => {
             if (errUpdate) return res.status(500).json({ ok: false, error: errUpdate.message });
 

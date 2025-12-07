@@ -2,21 +2,15 @@ const express = require('express');
 const router = express.Router();
 const { isAuth, isAdmin } = require('../middleware/auth');
 
-// HELPER: Formatear fecha local a string 'YYYY-MM-DDTHH:mm' (Compatible con input type="datetime-local")
+// Función para formatear fecha local a string 'YYYY-MM-DDTHH:mm'
 const obtenerFechaActualLocal = () => {
   const ahora = new Date();
-  // Ajuste manual para zona horaria local (sin librerías y síncrono)
-  // getTimezoneOffset devuelve minutos de diferencia (invertido).
-  // Restamos el offset para ajustar a la hora local real del servidor.
   const fechaLocal = new Date(ahora.getTime() - (ahora.getTimezoneOffset() * 60000));
-  
-  // Convertimos a ISO y cortamos segundos y milisegundos: "2023-11-20T10:30"
   return fechaLocal.toISOString().slice(0, 16);
 };
 
-// ... (Tu función fetchValidTypes sigue igual aquí) ...
+// Función para obtener los tipos válidos de vehículos desde la base de datos
 const fetchValidTypes = (db, callback) => {
-  // ... código existente ...
   const sql = `SELECT COLUMN_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'vehiculos' AND COLUMN_NAME = 'tipo'`;
   db.query(sql, (err, results) => {
     if (err || results.length === 0) return callback(err, []);
@@ -26,14 +20,13 @@ const fetchValidTypes = (db, callback) => {
   });
 };
 
-// GET /vehiculos (Vista Listado)
+// GET /vehiculos 
 router.get('/', (req, res) => {
   const usuario = req.session.usuario;
   const esAdmin = usuario && usuario.rol === 'Admin';
   const fechaParaInput = req.query.fecha || obtenerFechaActualLocal();
   const fechaReferencia = new Date(fechaParaInput);
 
-  // --- Consultas auxiliares para filtros ---
   const sqlTipos = "SELECT tipo, COUNT(*) as total FROM vehiculos WHERE activo = true GROUP BY tipo ORDER BY tipo ASC";
   const sqlColores = "SELECT color, COUNT(*) as total FROM vehiculos WHERE activo = true AND color IS NOT NULL GROUP BY color ORDER BY color ASC";
   const sqlPlazas = "SELECT numero_plazas, COUNT(*) as total FROM vehiculos WHERE activo = true GROUP BY numero_plazas ORDER BY numero_plazas ASC";
@@ -74,10 +67,6 @@ router.get('/', (req, res) => {
 
           req.db.query(sqlRangos, (errRangos, rangosRows) => {
             const rangos = (rangosRows && rangosRows[0]) ? rangosRows[0] : { minPrecio: 0, maxPrecio: 100000, minAutonomia: 0, maxAutonomia: 1000 };
-
-            // =========================
-            // Consulta de vehículos
-            // =========================
             let sqlVehiculos = `
               SELECT 
                   v.*, 
@@ -102,7 +91,6 @@ router.get('/', (req, res) => {
               filtros.push(`v.id_concesionario = ${usuario.id_concesionario}`);
             }
 
-            // Filtros desde query params
             if (req.query.tipo) filtros.push(`v.tipo = '${req.query.tipo}'`);
             if (req.query.estado) filtros.push(`estado_dinamico = '${req.query.estado}'`);
             if (req.query.color) filtros.push(`v.color = '${req.query.color}'`);
@@ -149,7 +137,7 @@ router.get('/', (req, res) => {
 });
 
 
-// GET /vehiculos/nuevo (Formulario Creación)
+// GET /vehiculos/nuevo 
 router.get('/nuevo', isAdmin, (req, res) => {
   req.db.query('SELECT * FROM concesionarios WHERE activo = true ORDER BY nombre', (err, concesionarios) => {
     if (err) return res.status(500).render('error', { mensaje: 'Error concesionarios' });
@@ -168,7 +156,7 @@ router.get('/nuevo', isAdmin, (req, res) => {
   });
 });
 
-// GET /vehiculos/:id/editar (Formulario Edición)
+// GET /vehiculos/:id/editar 
 router.get('/:id/editar', isAdmin, (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) return res.redirect('/vehiculos');

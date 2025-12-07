@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { isAdmin, isAdminOrWorker } = require('../middleware/auth');
 
-// LISTADO: /concesionarios
+// GET /concesionarios/ --> lista de concesionarios para admin
 router.get('/', isAdmin, (req, res) => {
   res.render('listaConcesionarios', {
     title: 'Concesionarios',
@@ -10,7 +10,7 @@ router.get('/', isAdmin, (req, res) => {
   });
 });
 
-// DETALLE: /concesionarios/:id
+// GET /concesionarios/:id 
 router.get('/:id(\\d+)', isAdminOrWorker, (req, res) => {
   res.render("concesionarioDetalle", {
     title: "Detalle Concesionario",
@@ -19,7 +19,7 @@ router.get('/:id(\\d+)', isAdminOrWorker, (req, res) => {
   });
 });
 
-// FORMULARIO NUEVO: GET /concesionarios/nuevo  (admin)
+// GET /concesionarios/nuevo 
 router.get('/nuevo', isAdmin, (req, res) => {
   res.render('concesionarioForm', {
     title: 'Nuevo Concesionario',
@@ -30,7 +30,7 @@ router.get('/nuevo', isAdmin, (req, res) => {
   });
 });
 
-// FORMULARIO EDITAR: GET /concesionarios/:id/editar  (
+// GET /concesionarios/:id/editar  
 router.get('/:id(\\d+)/editar', isAdmin, (req, res, next) => {
   const id = parseInt(req.params.id, 10);
 

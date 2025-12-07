@@ -1,13 +1,8 @@
-/* public/js/ajax/concesionarios/concesionariosLista.js
-   Adaptado a jQuery y $.ajax según especificaciones del PDF
-*/
-
 $(document).ready(function() {
-    // 1. Cargar datos iniciales
     cargarCiudades();
     cargarConcesionarios();
 
-    // 2. Configurar filtros
+    //Configurar filtros
     $("#filtroCiudad").on("change", function() {
         cargarConcesionarios();
     });
@@ -21,17 +16,15 @@ $(document).ready(function() {
         cargarConcesionarios();
     });
 
-    // 3. Configurar Modal de Eliminación
     configurarModalEliminar();
 });
 
-// --- FUNCIONES LÓGICA ---
-
+// FUNCIONES DE CARGA DE CIUDADES PARA LOS FILTROS Y DE CONCESIONARIOS
 function cargarCiudades() {
     $.ajax({
         type: "GET",
         url: "/api/concesionarios/lista",
-        cache: false, // Evitar caché del navegador (304)
+        cache: false,
         success: function(data) {
             if (data.ok) {
                 let $filtro = $("#filtroCiudad");
@@ -88,6 +81,7 @@ function cargarConcesionarios() {
     });
 }
 
+// FUNCIÓN DE PINTAR CONCESIONARIOS
 function pintarTabla(lista) {
     let $tbody = $("#tablaConcesionariosBody");
     let $contador = $("#contadorConcesionarios");
@@ -107,6 +101,7 @@ function pintarTabla(lista) {
         let pointerEvents = !c.activoBool ? 'style="pointer-events: none;"' : "";
         let btnDisabledAttr = !c.activoBool ? "disabled" : "";
 
+        //aquí no hace falta distinguir entre admin y empleado porque solo los admin ven esta página
         html += `
         <tr tabindex="0" class="fila-click" data-href="/concesionarios/${c.id_concesionario}">
             <td>${c.nombre || ''}</td>
@@ -141,6 +136,7 @@ function pintarTabla(lista) {
     activarFilaClick();
 }
 
+//FUNCIÓN MODAL
 function configurarModalEliminar() {
     let $modal = $("#confirmarEliminarConcesionarioModal");
     let $form = $("#formEliminarConcesionario");
@@ -158,7 +154,6 @@ function configurarModalEliminar() {
         $("#textoConfirmacionConcesionario").text('¿Estás seguro de que deseas eliminar el concesionario "' + nombre + '"?');
     });
 
-    // Al confirmar (submit del formulario en el modal)
     $form.on("submit", function(e) {
         e.preventDefault();
         
@@ -172,7 +167,6 @@ function configurarModalEliminar() {
             type: "DELETE",
             url: "/api/concesionarios/" + id + "/eliminar",
             success: function(data) {
-                // Cerrar modal
                 let modalEl = document.getElementById('confirmarEliminarConcesionarioModal');
                 let modalInstance = bootstrap.Modal.getInstance(modalEl);
                 if (modalInstance) modalInstance.hide();
@@ -182,7 +176,6 @@ function configurarModalEliminar() {
                 } else {
                     mostrarAlerta('success', 'Concesionario eliminado: ' + nombre);
                     
-                    // Actualización visual rápida (optimista)
                     let $btnTabla = $("button[data-id='" + id + "']");
                     if ($btnTabla.length) {
                         $btnTabla.prop("disabled", true).text("Eliminar");
@@ -192,18 +185,15 @@ function configurarModalEliminar() {
                 }
             },
             error: function(xhr, status, error) {
-                // Cerrar modal antes de mostrar alerta
                 let modalEl = document.getElementById('confirmarEliminarConcesionarioModal');
                 let modalInstance = bootstrap.Modal.getInstance(modalEl);
                 if (modalInstance) modalInstance.hide();
 
-                // --- CORRECCIÓN CLAVE: LEER MENSAJE DE ERROR DEL JSON ---
                 let mensaje = 'Error de conexión al eliminar.';
                 
                 if (xhr.responseJSON && xhr.responseJSON.error) {
                     mensaje = xhr.responseJSON.error;
                     
-                    // Opcional: personalizar el mensaje si es el de vehículos
                     if (mensaje === 'Tiene vehículos asociados') {
                         mensaje = 'No se puede eliminar: tiene vehículos asociados.';
                     }
@@ -215,8 +205,7 @@ function configurarModalEliminar() {
     });
 }
 
-// --- AUXILIARES ---
-
+//si está o no activo
 function pintarEstadoConcesionario(activo) {
     return activo 
         ? '<span class="badge bg-success">Activo</span>' 
@@ -225,7 +214,7 @@ function pintarEstadoConcesionario(activo) {
 
 function activarFilaClick() {
 
-    // Click del ratón
+    //para el click del ratón
     $(".fila-click").off("click").on("click", function(e) {
         if ($(e.target).closest("button, a").length > 0) return;
         if ($(e.target).closest(".celda-acciones").length > 0) return;
@@ -234,7 +223,7 @@ function activarFilaClick() {
         if (destino) window.location.href = destino;
     });
 
-    // Accesibilidad: ENTER o ESPACIO
+    //para acceder por teclado ya sea con enter o espacio --> ACCESIBILIDAD
     $(".fila-click").off("keydown").on("keydown", function(e) {
         if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();

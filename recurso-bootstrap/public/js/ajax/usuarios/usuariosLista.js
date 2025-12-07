@@ -1,20 +1,16 @@
 $(document).ready(function() {
-    // Carga inicial
     cargarUsuarios();
 
-    // 1. Filtrar automáticamente al cambiar cualquier select
     $("#filtroConcesionario, #filtroEstado").on("change", function() {
         cargarUsuarios();
     });
 
-    // 2. Limpiar filtros
     $("#btnLimpiar").on("click", function() {
         $("#filtroConcesionario").val("0");
         $("#filtroEstado").val("");
         cargarUsuarios();
     });
 
-    // 3. Configuración del Modal de Eliminación
     $("#confirmarEliminarUsuarioModal").on("show.bs.modal", function(event) {
         const btn = $(event.relatedTarget); 
         const id = btn.data("id");
@@ -27,7 +23,6 @@ $(document).ready(function() {
         $("#textoConfirmacion").text(`¿Estás seguro de que deseas eliminar el usuario "${nombre}"?`);
     });
 
-    // 4. Eliminar Usuario
     $("#formEliminarUsuario").on("submit", function(e) {
         e.preventDefault();
         
@@ -59,7 +54,7 @@ $(document).ready(function() {
 
                 let msg = "Error de conexión al eliminar.";
                 if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
-                    msg = jqXHR.responseJSON.error;  // muestra el error de reservas activas
+                    msg = jqXHR.responseJSON.error; 
                 }
 
                 mostrarAlerta("danger", msg);
@@ -68,20 +63,16 @@ $(document).ready(function() {
 
     });
 
-    // Abrir modal de asignar concesionario
     $(document).on("click", ".btnAsignar", function (e) {
-        e.stopPropagation(); // evita que la fila navegue
+        e.stopPropagation(); 
 
         const idUsuario = $(this).data("id");
         const nombreUsuario = $(this).data("name");
 
-        // Guardar el ID del usuario en el botón del modal
         $("#btnConfirmarAsignar").data("id", idUsuario);
 
-        // Mostrar texto informativo
         $("#textoAsignarUsuario").text(`Asignar concesionario al usuario ${nombreUsuario}`);
 
-        // Abrir modal
         const modal = new bootstrap.Modal(document.getElementById("modalAsignarConcesionario"));
         modal.show();
     });
@@ -92,7 +83,6 @@ $(document).ready(function() {
         const idConcesionario = $("#selectConcesionario").val();
         const $error = $("#errorConcesionario");
 
-        // Reset error
         $error.text("");
 
         if (!idConcesionario || idConcesionario === "0") {
@@ -110,7 +100,6 @@ $(document).ready(function() {
                     return;
                 }
 
-                // Cerrar modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById("modalAsignarConcesionario"));
                 modal.hide();
 
@@ -128,9 +117,7 @@ $(document).ready(function() {
 
 });
 
-/* ================================
-   FUNCIÓN CARGAR USUARIOS
-================================= */
+//FUNCIÓN CARGAR USUARIOS
 function cargarUsuarios() {
     const concesionario = $("#filtroConcesionario").val();
     const estado = $("#filtroEstado").val();
@@ -186,7 +173,6 @@ function cargarUsuarios() {
                     `;
                 }
 
-                // Botón editar
                 const btnEditar = `<a href="/usuarios/${u.id_usuario}/editar" class="btn btn-primary btn-sm ${disabledClass}" ${estaEliminado ? 'aria-disabled="true" tabindex="-1"' : ''}>Editar</a>`;
 
                 let celdaConcesionario = "—";
@@ -237,6 +223,7 @@ function cargarUsuarios() {
     });
 }
 
+//si estado activo o eliminado
 function pintarEstado(activoBool) {
     if (activoBool) {
         return `<span class="badge bg-success">Activo</span>`;

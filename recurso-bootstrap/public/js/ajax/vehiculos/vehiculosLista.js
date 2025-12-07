@@ -1,5 +1,3 @@
-/* public/js/ajax/vehiculos/vehiculosLista.js */
-
 let fechaFijadaPorUsuario = false;
 
 $(document).ready(function () {
@@ -15,7 +13,6 @@ $(document).ready(function () {
 
     cargarVehiculos();
 
-    // AUTO-RECARGA
     setInterval(function() {
         if (!fechaFijadaPorUsuario) {
             actualizarInputFechaAAhora();
@@ -66,6 +63,7 @@ function actualizarInputFechaAAhora() {
     $("#fecha_max").val(stringFecha);
 }
 
+//FUNCIÓN CARGAR VEHÍCULOS
 function cargarVehiculos() {
     if (!fechaFijadaPorUsuario) actualizarInputFechaAAhora();
 
@@ -78,7 +76,7 @@ function cargarVehiculos() {
             const parsed = JSON.parse(contenedor.dataset.usuario);
             usuarioSesion = parsed || null;
         } catch (e) {
-            usuarioSesion = null; // Si falla el JSON, seguimos sin usuario
+            usuarioSesion = null; // Si falla el JSON, seguimos sin usuario, NO HAY USER LOGUEADO
             console.warn("No se pudo parsear usuarioSesion:", e);
         }
     }
@@ -111,8 +109,7 @@ function cargarVehiculos() {
     });
 }
 
-
-
+//FUNCIÓN PARA IR ACTUALIZANDO LOS CONTADORES EN LOS FILTROS
 function actualizarContadoresSidebar(lista) {
     const conteos = { tipo: {}, color: {}, plazas: {}, estado: {}, concesionario: {} };
 
@@ -149,6 +146,7 @@ function actualizarContadoresSidebar(lista) {
     });
 }
 
+//FUNCIÓN PINTAR VEHÍCULOS
 function pintarVehiculos(lista, usuarioSesion) {
     const $cont = $("#contenedor-vehiculos");
     $cont.empty();
@@ -213,7 +211,8 @@ function pintarVehiculos(lista, usuarioSesion) {
     if (esAdmin) agregarTarjetaAgregarVehiculo($cont);
 }
 
-function agregarTarjetaAgregarVehiculo($cont) {
+//FUNCIÓN AÑADIR TARJETA "CREAR VEHÍCULO"
+function agregarTarjetaAgregarVehiculo($cont) { //TODO CAMBIAR ESTE ICONO!!!!!!!!!!!!
     $cont.append(`
       <div class="col">
         <a href="/vehiculos/nuevo" class="d-block text-decoration-none h-100">
@@ -233,6 +232,7 @@ function agregarTarjetaAgregarVehiculo($cont) {
     `);
 }
 
+//FUNCIÓN MODAL ELIMINAR VEHÍCULO
 function configurarModalEliminarVehiculo() {
     const $modal = $("#confirmarEliminarModal");
     const $btnConfirmar = $("#btnConfirmarEliminarVehiculo");

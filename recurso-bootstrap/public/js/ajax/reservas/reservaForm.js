@@ -1,24 +1,16 @@
 $(document).ready(function() {
-    
-    // --- LÓGICA DE FECHAS Y VEHÍCULOS DISPONIBLES ---
-
     const $fechaInicio = $("#fechaInicio");
     const $vehiculoSelect = $("#vehiculo");
-    const $errorVehiculoSpan = $("#error-vehiculo"); // Referencia al span de error
+    const $errorVehiculoSpan = $("#error-vehiculo"); 
 
-    // Si el usuario cambia la fecha de inicio, recargamos los coches
     $fechaInicio.on('change', function() {
         const nuevaFecha = $(this).val();
         if (!nuevaFecha) return;
 
-        // 1. Guardamos el valor actual antes de borrar nada
         const idPrevio = $vehiculoSelect.val();
 
-        // Feedback visual
         $vehiculoSelect.prop('disabled', true);
         
-        // Opcional: mostrar "Cargando" sin perder el valor visualmente todavía
-        // Pero para simplificar, mostramos cargando en el primer option
         $vehiculoSelect.html('<option>Cargando disponibles...</option>');
 
         $.ajax({
@@ -69,8 +61,6 @@ $(document).ready(function() {
         });
     });
 
-
-    // --- LÓGICA DE ENVÍO Y ERRORES (Se mantiene igual) ---
     const confirmBtn = document.getElementById('confirmarReservaBtn');
     
     if (confirmBtn) {

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { isAuth, isAdmin } = require('../middleware/auth');
 
+// Fubnción auxiliar para tener los vehículos disponibles en una fecha dada
 function getVehiculosDisponibles(db, usuario, fechaInicio, callback) {
   const momento = fechaInicio ? new Date(fechaInicio) : new Date();
 
@@ -17,8 +18,6 @@ function getVehiculosDisponibles(db, usuario, fechaInicio, callback) {
           SELECT 1 FROM reservas r 
           WHERE r.id_vehiculo = v.id_vehiculo 
           AND r.estado = 'activa'
-          -- El vehículo NO está disponible si existe una reserva activa
-          -- que envuelva el momento de inicio deseado
           AND r.fecha_inicio <= ? 
           AND r.fecha_fin >= ?
       )
@@ -36,7 +35,7 @@ function getVehiculosDisponibles(db, usuario, fechaInicio, callback) {
   db.query(sql, params, callback);
 }
 
-// GET /reserva/ (Formulario Nueva Reserva)
+// GET /reserva/ --> formulario nueva reserva
 router.get('/', isAuth, (req, res) => {
   let fechaObj = req.query.fecha ? new Date(req.query.fecha) : new Date();
   if (isNaN(fechaObj.getTime())) fechaObj = new Date();
@@ -107,7 +106,7 @@ router.get('/:id(\\d+)', isAuth, (req, res, next) => {
   );
 });
 
-// GET /reserva/listareservas (Vista Admin)
+// GET /reserva/listareservas (admin)
 router.get('/listareservas', isAdmin, (req, res) => {
   
   const queries = {
@@ -141,15 +140,11 @@ router.get('/listareservas', isAdmin, (req, res) => {
   });
 });
 
-// GET /reserva/mis-reservas (Vista Usuario)
+// GET /reserva/mis-reservas 
 router.get('/mis-reservas', isAuth, (req, res) => {
   const usuarioActual = req.session.usuario;
   
-  // Aquí usamos 'null' o 'new Date()' como fecha para mostrar los disponibles AHORA por defecto para filtrar visualmente si hiciera falta
-  // Aunque en esta vista 'listareservas' realmente 'todosVehiculos' se usa para los filtros, así que mostramos todos.
-  // Para filtros de listado, no necesitamos filtrar por disponibilidad, así que usamos una query simple.
-  
-  const sqlTodosVehiculos = "SELECT id_vehiculo, marca, modelo, matricula FROM vehiculos WHERE activo = 1"; // Simplificado para filtros
+  const sqlTodosVehiculos = "SELECT id_vehiculo, marca, modelo, matricula FROM vehiculos WHERE activo = 1";
   
   req.db.query(sqlTodosVehiculos, (err, vehiculos) => {
     if (err) vehiculos = [];

@@ -2,16 +2,15 @@ const express = require('express');
 const router = express.Router();
 const { isAuth, isAdmin } = require('../../middleware/auth');
 
+// GET /api/reservas/disponibles?fecha=YYYY-MM-DDTHH:mm
 router.get('/disponibles', isAuth, (req, res) => {
   const { fecha } = req.query;
   const momento = fecha ? new Date(fecha) : new Date();
 
-  // Validación básica de fecha
   if (isNaN(momento.getTime())) {
     return res.status(400).json({ ok: false, error: 'Fecha inválida' });
   }
 
-  // Lógica similar a la que tenías, pero devuelve JSON limpio
   let sql = `
       SELECT v.id_vehiculo, v.marca, v.modelo, v.matricula 
       FROM vehiculos v
@@ -45,7 +44,7 @@ router.get('/disponibles', isAuth, (req, res) => {
   });
 });
 
-// POST /api/reservas (Crear Reserva)
+// POST /api/reservas
 router.post('/', isAuth, (req, res) => {
   const usuarioActual = req.session.usuario;
   const { vehiculo, fechaInicio, fechaFin } = req.body;
@@ -64,7 +63,6 @@ router.post('/', isAuth, (req, res) => {
 
   if (errorFecha) return res.status(400).json({ ok: false, error: errorFecha });
 
-  // 1️⃣ Validar que el vehículo esté disponible
   const sqlConflictosVehiculo = `
       SELECT COUNT(*) AS conflicts
       FROM reservas
@@ -87,7 +85,6 @@ router.post('/', isAuth, (req, res) => {
       });
     }
 
-    // 2️⃣ Validar que el usuario no tenga otra reserva activa en el mismo período
     const sqlConflictosUsuario = `
         SELECT COUNT(*) AS conflicts
         FROM reservas
@@ -110,7 +107,6 @@ router.post('/', isAuth, (req, res) => {
         });
       }
 
-      // 3️⃣ Insertar Reserva
       const sqlInsert = `
         INSERT INTO reservas (id_usuario, id_vehiculo, fecha_inicio, fecha_fin, estado, activo) 
         VALUES (?, ?, ?, ?, ?, true)
@@ -130,12 +126,11 @@ router.post('/', isAuth, (req, res) => {
 });
 
 
-// PUT /api/reservas/:id/cancelar (Cancelar)
+// PUT /api/reservas/:id/cancelar
 router.put('/:id(\\d+)/cancelar', isAuth, (req, res) => {
   const idReserva = parseInt(req.params.id, 10);
   const usuarioActual = req.session.usuario;
 
-  // 1. Obtener la reserva para verificar permisos
   req.db.query('SELECT id_usuario, estado FROM reservas WHERE id_reserva = ?', [idReserva], (err, rows) => {
     if (err) return res.status(500).json({ ok: false, error: err.message });
     
@@ -143,7 +138,6 @@ router.put('/:id(\\d+)/cancelar', isAuth, (req, res) => {
     
     const reserva = rows[0];
 
-    // Verificar propiedad
     if (reserva.id_usuario !== usuarioActual.id_usuario && usuarioActual.rol !== 'Admin') {
       return res.status(403).json({ ok: false, error: 'No autorizado' });
     }
@@ -152,7 +146,6 @@ router.put('/:id(\\d+)/cancelar', isAuth, (req, res) => {
       return res.status(400).json({ ok: false, error: 'La reserva no está activa' });
     }
 
-    // 2. Actualizar estado
     req.db.query("UPDATE reservas SET estado = 'cancelada' WHERE id_reserva = ?", [idReserva], (errUpdate) => {
       if (errUpdate) return res.status(500).json({ ok: false, error: errUpdate.message });
       
@@ -161,7 +154,6 @@ router.put('/:id(\\d+)/cancelar', isAuth, (req, res) => {
   });
 });
 
-//funcion para calcular la hora local
 function pad(n) { return n < 10 ? '0' + n : n; }
 function ahoraLocal() {
   const d = new Date();
@@ -193,7 +185,7 @@ function actualizarEstados(db, callback) {
 }
 
 
-// GET /api/reservas/listareservas (Admin - JSON List)
+// GET /api/reservas/listareservas
 router.get('/listareservas', isAdmin, (req, res) => {
 
   actualizarEstados(req.db, (err) => {
@@ -232,7 +224,7 @@ router.get('/listareservas', isAdmin, (req, res) => {
 });
 
 
-// GET /api/reservas/mis-reservas (Usuario - JSON List)
+// GET /api/reservas/mis-reservas 
 router.get('/mis-reservas', isAuth, (req, res) => {
 
   actualizarEstados(req.db, (err) => {

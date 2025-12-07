@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const { isAdmin, isAdminOrSelf } = require('../../middleware/auth');
 
-// GET /api/usuarios (Listado JSON)
+// GET /api/usuarios 
 router.get('/', isAdmin, (req, res) => {
   const { concesionario, estado } = req.query;
   const concesionarioSeleccionado = concesionario ? parseInt(concesionario, 10) : 0;
@@ -46,7 +46,6 @@ router.get('/', isAdmin, (req, res) => {
       activoBool: u.activo === 1
     }));
 
-    // Enviamos el idUsuarioSesion para controlar botones en el front
     res.json({ ok: true, usuarios: usuariosConEstado, idUsuarioSesion: req.session.usuario.id_usuario });
   });
 });
@@ -55,7 +54,6 @@ router.get('/', isAdmin, (req, res) => {
 router.post('/nuevo', isAdmin, (req, res) => {
   const { nombre, apellido1, apellido2, email, confemail, contrasenya, telefono, id_concesionario, rol } = req.body;
 
-  // 1. Configuración inicial de variables
   let rolFinal = 'Empleado';
   let concesionarioFinal = id_concesionario;
 
@@ -68,7 +66,6 @@ router.post('/nuevo', isAdmin, (req, res) => {
       }
   }
 
-  // 2. Validaciones básicas de campos
   const errors = {};
   if (!nombre || !email || !contrasenya || !telefono) errors.general = 'Faltan campos obligatorios';
   if (email !== confemail) errors.email = 'Los correos no coinciden';
@@ -84,8 +81,7 @@ router.post('/nuevo', isAdmin, (req, res) => {
     return res.status(400).json({ ok: false, errors });
   }
 
-  // --- FUNCIÓN PRINCIPAL: Verificar duplicados de usuario e Insertar ---
-  // (Esta lógica se ejecutará solo si pasamos el chequeo del concesionario)
+  // Verificar duplicados
   const verificarDuplicadosYCrear = () => {
       const checkSql = 'SELECT id_usuario, correo, telefono FROM usuarios WHERE correo = ? OR telefono = ?';
       req.db.query(checkSql, [email, telefono], (err, rows) => {
@@ -120,7 +116,6 @@ router.post('/nuevo', isAdmin, (req, res) => {
       });
   };
 
-  // 3. LÓGICA DE VERIFICACIÓN DE CONCESIONARIO ACTIVO
   if (rolFinal === 'Empleado') {
       // Consultamos si existe y si está activo (activo = 1)
       const sqlConc = 'SELECT id_concesionario FROM concesionarios WHERE id_concesionario = ? AND activo = 1';
@@ -128,23 +123,19 @@ router.post('/nuevo', isAdmin, (req, res) => {
           if (errConc) return res.status(500).json({ ok: false, error: 'Error verificando concesionario: ' + errConc.message });
 
           if (rowsConc.length === 0) {
-              // Si no devuelve filas, o no existe o está borrado (activo=0)
               return res.status(400).json({ 
                   ok: false, 
                   errors: { id_concesionario: 'El concesionario seleccionado no existe o no está activo.' } 
               });
           }
-
-          // Si existe y está activo, procedemos a crear el usuario
           verificarDuplicadosYCrear();
       });
   } else {
-      // Si es Admin, no verificamos concesionario, pasamos directo
       verificarDuplicadosYCrear();
   }
 });
 
-// PUT /api/usuarios/:id (Editar Usuario)
+// PUT /api/usuarios/:id 
 router.put('/:id(\\d+)', isAdminOrSelf, (req, res) => {
   const id = parseInt(req.params.id, 10);
   const { nombre, apellido1, apellido2, email, contrasenya, telefono} = req.body;
@@ -198,7 +189,6 @@ router.put('/:id(\\d+)', isAdminOrSelf, (req, res) => {
     const executeUpdate = (passwordHash) => {
       const nombreCompleto = [nombre, apellido1, apellido2].filter(Boolean).join(' ').trim();
       
-      // CAMBIO AQUÍ: Añadimos activo=true al actualizar para reactivar usuarios eliminados
       let sql = `UPDATE usuarios SET nombre=?, correo=?, telefono=?, activo=true`;
       const params = [nombreCompleto, email, telefono];
       
@@ -230,6 +220,7 @@ router.put('/:id(\\d+)', isAdminOrSelf, (req, res) => {
   });
 });
 
+// PATCH /api/usuarios/:id/asignar-concesionario
 router.patch('/:id(\\d+)/asignar-concesionario', isAdmin, (req, res) => {
     const id = parseInt(req.params.id, 10);
     const { id_concesionario } = req.body;
@@ -249,11 +240,10 @@ router.patch('/:id(\\d+)/asignar-concesionario', isAdmin, (req, res) => {
     );
 });
   
-// DELETE /api/usuarios/:id (Eliminar Usuario)
+// DELETE /api/usuarios/:id --> eliminación lógica
 router.delete('/:id(\\d+)', isAdmin, (req, res) => {
   const id = parseInt(req.params.id, 10);
 
-  // Evitar auto-eliminación
   if (req.session.usuario.id_usuario === id) {
     return res.status(400).json({ ok: false, error: 'No puedes eliminar tu propio usuario' });
   }

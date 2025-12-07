@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { isAdmin } = require('../../middleware/auth');
 
+// POST /api/importacion/analizar
 router.post('/analizar', isAdmin, (req, res) => {
     const datos = req.body.datos || {};
     const reporte = {
@@ -15,7 +16,6 @@ router.post('/analizar', isAdmin, (req, res) => {
         res.json({ ok: true, reporte: reporte });
     };
 
-    // --- PASO 3: ANALIZAR USUARIOS ---
     const procesarUsuarios = () => {
         if (datos.usuarios && Array.isArray(datos.usuarios) && datos.usuarios.length > 0) {
             reporte.usuarios.presente = true;
@@ -34,7 +34,6 @@ router.post('/analizar', isAdmin, (req, res) => {
                     );
 
                     if (coincidencia) {
-                        // CORRECCIÓN DEL ERROR dbItem: Usamos 'coincidencia'
                         const esCorreo = coincidencia.correo && item.correo && coincidencia.correo.toLowerCase() === item.correo.toLowerCase();
                         
                         reporte.usuarios.conflictos.push({
@@ -46,17 +45,13 @@ router.post('/analizar', isAdmin, (req, res) => {
                         reporte.usuarios.nuevos.push(item);
                     }
                 });
-
-                // Terminamos todo
                 finalizar();
             });
         } else {
-            // No hay usuarios, terminamos
             finalizar();
         }
     };
 
-    // --- PASO 2: ANALIZAR VEHÍCULOS ---
     const procesarVehiculos = () => {
         if (datos.vehiculos && Array.isArray(datos.vehiculos) && datos.vehiculos.length > 0) {
             reporte.vehiculos.presente = true;
@@ -83,17 +78,13 @@ router.post('/analizar', isAdmin, (req, res) => {
                         reporte.vehiculos.nuevos.push(item);
                     }
                 });
-
-                // Siguiente paso
                 procesarUsuarios();
             });
         } else {
-            // No hay vehículos, pasamos a usuarios
             procesarUsuarios();
         }
     };
 
-    // --- PASO 1: ANALIZAR CONCESIONARIOS (INICIO) ---
     if (datos.concesionarios && Array.isArray(datos.concesionarios) && datos.concesionarios.length > 0) {
         reporte.concesionarios.presente = true;
 
@@ -122,11 +113,9 @@ router.post('/analizar', isAdmin, (req, res) => {
                 }
             });
 
-            // Siguiente paso
             procesarVehiculos();
         });
     } else {
-        // No hay concesionarios, pasamos a vehículos
         procesarVehiculos();
     }
 });

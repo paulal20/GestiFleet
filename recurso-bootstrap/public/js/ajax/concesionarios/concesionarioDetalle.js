@@ -1,5 +1,3 @@
-/* public/js/ajax/concesionarios/concesionarioDetalle.js */
-
 $(document).ready(function() {
     const data = document.getElementById("pageData");
     const id = data.dataset.id;
@@ -16,8 +14,7 @@ $(document).ready(function() {
     configurarModalGenerico();
 });
 
-// --- MODAL GENÉRICO Y LÓGICA DE ELIMINACIÓN ---
-
+//MODAL DE ELIMINAR YA SEA PARA CONCESIONARIO O VEHICULO
 function configurarModalGenerico() {
     const $modal = $("#modalEliminar");
     const $btnConfirmar = $("#btnConfirmarEliminar");
@@ -56,8 +53,7 @@ function configurarModalGenerico() {
     });
 }
 
-// --- FUNCIONES AJAX (DELETE) ---
-
+//FUNCIONES DE ELIMINAR --> PRIMERO VEHICULO, LUEGO CONCESIONARIO
 function eliminarVehiculo(id) {
     $.ajax({
         type: "DELETE",
@@ -76,11 +72,7 @@ function eliminarVehiculo(id) {
                     $row.find("td:nth-child(5)")
                         .html('<span class="badge bg-danger">Eliminado</span>');
 
-                    // Al eliminar, quitamos acciones admin pero mantenemos el reservar deshabilitado
-                    // para consistencia visual (se repinta luego si recargas, pero aqui lo simulamos)
-                    // Para simplificar, recargamos la fila o dejamos solo el texto de sin acciones admin
-                    // Si quieres que el botón reservar se ponga disabled al instante, habría que manipular el DOM.
-                    // Lo más sencillo tras un delete parcial es:
+                    // Al eliminar, quitamos acciones admin del vehículo
                     $row.find("td:last").html(`
                         <span class="text-muted fst-italic">Sin acciones</span>
                     `);
@@ -128,8 +120,7 @@ function eliminarConcesionario(id) {
     });
 }
 
-// --- FUNCIONES DE CARGA (GET) ---
-
+//FUNCIONES DE CARGAR CONCESIONARIO Y VEHÍCULOS
 function cargarConcesionario(id) {
     $.ajax({
         type: "GET",
@@ -154,8 +145,7 @@ function cargarVehiculos(id) {
     });
 }
 
-// --- PINTADO DEL DOM ---
-
+//FUNCIONES DE PINTAR CONCESIONARIO Y VEHÍCULOS
 function pintarInfoConcesionario(c) {
     $("#tituloConcesionario").text(c.nombre);
 
@@ -222,24 +212,21 @@ function pintarVehiculos(lista) {
     $tbody.empty();
 
     if (!lista || !lista.length) {
-        // Ajustamos el colspan a 6 porque hemos añadido una columna nueva
         $tbody.html('<tr><td colspan="6" class="text-center text-muted">No hay vehículos</td></tr>');
         return;
     }
 
-    // Obtenemos la fecha actual en formato local para el input datetime-local (YYYY-MM-DDTHH:mm)
+    // fecha actual en formato local (YYYY-MM-DDTHH:mm)
     const ahora = new Date();
-    // Ajuste simple para obtener formato ISO local (restando el offset de zona horaria)
     const offsetMs = ahora.getTimezoneOffset() * 60 * 1000;
     const fechaLocal = new Date(ahora.getTime() - offsetMs);
-    const fechaActualStr = fechaLocal.toISOString().slice(0, 16); // "2023-12-06T12:00"
+    const fechaActualStr = fechaLocal.toISOString().slice(0, 16);
 
     let html = "";
     $.each(lista, function(i, v) {
         let accionesAdmin = "";
         let reservaBtn = "";
-        
-        // Lógica de Disponibilidad Visual
+        // Para distingir entre disponible y reservado
         let htmlDisponibilidad = "";
         if (v.estaReservado) {
             htmlDisponibilidad = '<span class="badge bg-warning text-dark">Reservado</span>';
@@ -247,7 +234,6 @@ function pintarVehiculos(lista) {
             htmlDisponibilidad = '<span class="badge bg-success">Disponible</span>';
         }
 
-        // 1. Lógica para Admin (Botones Editar/Eliminar)
         if (window.usuarioSesion && window.usuarioSesion.rol === "Admin") {
             if(v.activoBool){
                 let btnDisabledAttr = !v.activoBool ? "disabled" : "";
@@ -269,16 +255,12 @@ function pintarVehiculos(lista) {
             }
         }
 
-        // 2. Lógica Botón Reservar
-        // Solo mostramos reservar si está activo (soft delete) Y NO está reservado actualmente
+        // Solo mostramos reservar si está activo Y NO está reservado actualmente
         if(v.activoBool && !v.estaReservado){
-            // Pasamos idVehiculo y la fecha actual en la URL
             reservaBtn = `<a href="/reserva?idVehiculo=${v.id_vehiculo}&fechaInicio=${fechaActualStr}" class="btn btn-primary btn-sm ms-1">Reservar</a>`;
         } else if (v.activoBool && v.estaReservado) {
-            // Si está activo pero ocupado, botón deshabilitado
             reservaBtn = `<button class="btn btn-primary btn-sm ms-1" disabled>Ocupado</button>`;
         } else if (v.activoBool){
-            // Fallback genérico
             reservaBtn = `<button class="btn btn-primary btn-sm ms-1" disabled>Reservar</button>`;
         } else {
             reservaBtn = "";
@@ -304,7 +286,6 @@ function pintarVehiculos(lista) {
     activarFilaClick();
 }
 
-// --- AUXILIARES ---
 
 function cerrarModal() {
     let modalEl = document.getElementById('modalEliminar');
@@ -336,6 +317,7 @@ function mostrarAlerta(tipo, mensaje) {
     }, 5000);
 }
 
+//si está o no activo
 function pintarEstado(activoBool) {
     return activoBool 
         ? '<span class="badge bg-success">Activo</span>' 
@@ -344,7 +326,7 @@ function pintarEstado(activoBool) {
 
 function activarFilaClick() {
 
-    // Click del ratón
+    //para el click del ratón
     $(".fila-click").off("click").on("click", function(e) {
         if ($(e.target).closest("button, a").length > 0) return;
         if ($(e.target).closest(".celda-acciones").length > 0) return;
@@ -353,7 +335,7 @@ function activarFilaClick() {
         if (destino) window.location.href = destino;
     });
 
-    // Accesibilidad: ENTER o ESPACIO
+    //para acceder por teclado ya sea con enter o espacio --> ACCESIBILIDAD
     $(".fila-click").off("keydown").on("keydown", function(e) {
         if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();

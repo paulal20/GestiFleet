@@ -29,35 +29,26 @@ $(document).ready(function() {
         id_concesionario: $("#error-id_concesionario")
     };
 
-    // --- LÓGICA UI DINÁMICA ---
     function toggleConcesionario() {
         const val = $campos.rol.val();
         const $divConc = $("#div-concesionario");
 
         if (val === "Empleado") {
-            // Si es Empleado, mostramos y hacemos obligatorio
-            $divConc.slideDown(200); // Animación suave
+            $divConc.slideDown(200); 
             $campos.id_concesionario.prop("required", true);
         } else {
-            // Si es Admin (o vacio), ocultamos, quitamos obligatorio y limpiamos valor
             $divConc.slideUp(200);
             $campos.id_concesionario.prop("required", false);
             
-            // Opcional: Resetear el valor a 0 y quitar estilos de validación visual
-            // para que si vuelven a cambiar a empleado no salga rojo/verde antiguo
             $campos.id_concesionario.val("0").removeClass("is-valid is-invalid");
             $errores.id_concesionario.text("");
         }
     }
 
-    // Escuchar cambios
     $campos.rol.on("change", toggleConcesionario);
     
-    // Ejecutar al inicio para establecer estado correcto según el valor cargado de BD
     toggleConcesionario();
 
-
-    // --- ENVÍO DEL FORMULARIO ---
     $form.on("submit", function(e) {
         e.preventDefault();
         $(".alert").remove(); // Limpiar alertas previas
@@ -99,14 +90,12 @@ $(document).ready(function() {
                     const $alert = $('<div class="alert alert-danger mt-2"></div>').text(data.error || "Error desconocido al guardar.");
                     $form.prepend($alert);
                     
-                    // Scroll arriba para ver el error
                     $('html, body').animate({ scrollTop: 0 }, 'fast');
                     
                     setTimeout(() => { $alert.remove(); }, 5000);
                     return;
                 }
 
-                // Éxito: Redirigir
                 const redirectId = isEditMode ? idUsuario : data.id;
                 window.location.href = `/usuarios/${redirectId}`;
             },
@@ -120,7 +109,6 @@ $(document).ready(function() {
         });
     });
 
-    // Mostrar/ocultar contraseña
     $("#mostrarContrasenya").on("change", function() {
         $campos.contrasenya.attr("type", this.checked ? "text" : "password");
     });

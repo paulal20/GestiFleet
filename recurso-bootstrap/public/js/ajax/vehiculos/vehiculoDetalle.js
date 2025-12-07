@@ -1,33 +1,25 @@
-/* public/js/ajax/vehiculos/vehiculoDetalle.js */
-
 $(document).ready(function () {
     configurarModalEliminar();
 });
 
-// ==========================
-//  CONFIGURACIÓN DEL MODAL
-// ==========================
+//FUNCIÓN MODAL ELIMINAR VEHÍCULO
 function configurarModalEliminar() {
     const $modal = $("#confirmarEliminarModal");
     const $form = $("#formEliminar");
     const $spanNombre = $("#vehiculoAEliminar");
 
-    // 1. Al abrir el modal, capturamos los datos del botón que lo activó
     $modal.on("show.bs.modal", function (event) {
         const $btn = $(event.relatedTarget);
         const id = $btn.data("id");
         const nombre = $btn.data("name");
 
-        // Pintamos el nombre en el cuerpo del modal
         $spanNombre.text(nombre);
         
-        // Guardamos el ID en el formulario para usarlo al enviar
         $form.data("id", id);
     });
 
-    // 2. Interceptamos el envío del formulario
     $form.on("submit", function (e) {
-        e.preventDefault(); // Evitamos el submit tradicional para que no recargue
+        e.preventDefault();
         
         const id = $(this).data("id");
         if (id) {
@@ -36,15 +28,13 @@ function configurarModalEliminar() {
     });
 }
 
-// ==========================
-//  LÓGICA AJAX (DELETE)
-// ==========================
+//FUNCIÓN ELIMINAR VEHÍCULO
 function eliminarVehiculo(id) {
     $.ajax({
         type: "DELETE",
         url: "/api/vehiculos/" + id,
         beforeSend: function() {
-            // Deshabilitar botón para evitar doble clic
+            // Deshabilitar botón 
             $("#formEliminar button[type='submit']").prop("disabled", true);
         },
         success: function (data) {
@@ -61,7 +51,6 @@ function eliminarVehiculo(id) {
             cerrarModal();
             let mensaje = "Error de conexión.";
             
-            // CAPTURAMOS EL ERROR DEL BACKEND
             if (jqXHR.responseJSON && jqXHR.responseJSON.error) {
                 mensaje = jqXHR.responseJSON.error;
             }
@@ -73,11 +62,7 @@ function eliminarVehiculo(id) {
     });
 }
 
-// ==========================
-//  ACTUALIZACIÓN VISUAL (DOM)
-// ==========================
 function actualizarVistaEliminado() {
-    // 1. Cambiar el Badge de estado (Activo -> Eliminado)
     const $badges = $(".card-text .badge");
     
     $badges.each(function() {
@@ -86,7 +71,6 @@ function actualizarVistaEliminado() {
         }
     });
 
-    // 2. Ocultar botones de acción y mostrar mensaje
     const $accionesDiv = $(".perfil-actions");
     
     $accionesDiv.fadeOut(300, function() {
@@ -94,9 +78,6 @@ function actualizarVistaEliminado() {
     });
 }
 
-// ==========================
-//  AUXILIARES
-// ==========================
 function cerrarModal() {
     const modalEl = document.getElementById('confirmarEliminarModal');
     if (modalEl) {
@@ -121,7 +102,6 @@ function mostrarAlerta(tipo, mensaje) {
     
     $cont.html(html);
 
-    // Auto-ocultar a los 5 segundos
     setTimeout(function() {
         $cont.find(".alert").fadeOut(500, function() {
             $(this).remove();

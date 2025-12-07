@@ -1,5 +1,4 @@
 $(document).ready(function() {
-    // Obtener datos del usuario embebidos en la vista
     const dataPage = document.getElementById("pageData"); 
     try {
         window.usuarioSesion = (dataPage && dataPage.dataset.user) 
@@ -9,22 +8,19 @@ $(document).ready(function() {
         window.usuarioSesion = null; 
     }
 
-    // Cargar reservas al iniciar
     cargarReservas();
 
-    // Filtros automáticos
+    // Filtros 
     $("#filtroVehiculo, #filtroEstado, #filtroFechaDesde, #filtroFechaHasta, #filtroUsuario")
         .on("change", function() {
             cargarReservas();
         });
 
-    // Evitar submit tradicional
     $("form").on("submit", function(e) {
         e.preventDefault();
         cargarReservas();
     });
 
-    // Botón limpiar filtros
     $("#btnLimpiar").on("click", function(e) {
         e.preventDefault();
 
@@ -37,13 +33,10 @@ $(document).ready(function() {
         cargarReservas();
     });
 
-    // Configurar modal cancelar
     configurarModalCancelarLista();
 });
 
-/* ================================
-   FUNCIÓN PRINCIPAL CARGAR RESERVAS
-================================= */
+//FUNCIÓN CARGAR RESERVAS
 function cargarReservas() {
     const vehiculo = $("#filtroVehiculo").val() || "";
     const estado = $("#filtroEstado").val() || "";
@@ -90,9 +83,7 @@ function cargarReservas() {
     });
 }
 
-/* ================================
-   PINTAR TABLA
-================================= */
+//FUNCIÓN PINTAR RESERVAS LISTA
 function pintarTabla(lista, esAdmin) {
     const $tbody = $("#tablaReservasBody");
     const $contador = $("#contadorReservas");
@@ -168,9 +159,7 @@ function pintarEstadoReserva(estado) {
     return `<span class="badge ${clase}">${estado.toUpperCase()}</span>`;
 }
 
-/* ================================
-   MODAL CANCELAR RESERVA
-================================= */
+//FUNCIÓN MODAL CANCELAR RESERVA LISTA
 function configurarModalCancelarLista() {
     const $modal = $("#confirmarCancelarModal");
     const $form = $("#formCancelarReserva");
@@ -213,10 +202,8 @@ function configurarModalCancelarLista() {
     });
 }
 
-/* ================================
-   AUXILIARES
-================================= */
 function activarFilaClick() {
+    //para el click del ratón
     $(".fila-click").off("click").on("click", function(e) {
         if ($(e.target).closest("button, a").length > 0) return;
         if ($(e.target).closest(".celda-acciones").length > 0) return;
@@ -225,6 +212,7 @@ function activarFilaClick() {
         if (destino) window.location.href = destino;
     });
 
+    //para acceder por teclado ya sea con enter o espacio --> ACCESIBILIDAD
     $(".fila-click").off("keydown").on("keydown", function(e) {
         if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();

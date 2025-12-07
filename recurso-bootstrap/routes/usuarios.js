@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { isAdmin, isAdminOrSelf } = require('../middleware/auth');
 
-// LISTA DE USUARIOS
+// GET /usuarios/ --> lista de usuarios para admin
 router.get('/', isAdmin, (req, res) => {
   req.db.query('SELECT * FROM concesionarios WHERE activo = true ORDER BY nombre', (err, concesionarios) => {
     if (err) concesionarios = []; 
@@ -17,7 +17,7 @@ router.get('/', isAdmin, (req, res) => {
   });
 });
 
-// VISTA FORMULARIO NUEVO
+// GET /usuarios/nuevo
 router.get('/nuevo', isAdmin, (req, res) => {
   req.db.query('SELECT * FROM concesionarios WHERE activo = true ORDER BY nombre', (err, concesionarios) => {
     if (err) return res.status(500).render('error', { mensaje: 'Error cargando formulario' });
@@ -33,7 +33,7 @@ router.get('/nuevo', isAdmin, (req, res) => {
   });
 });
 
-// VISTA FORMULARIO EDITAR
+// GET /usuarios/:id/editar
 router.get('/:id(\\d+)/editar', isAdminOrSelf, (req, res) => {
   const id = parseInt(req.params.id, 10);
   
@@ -50,7 +50,6 @@ router.get('/:id(\\d+)/editar', isAdminOrSelf, (req, res) => {
     
     let usuario = usuarios[0];
     
-    // Separar apellidos para el formulario (visual)
     const nombreParts = usuario.nombre ? usuario.nombre.split(' ') : [];
     usuario.nombre = nombreParts[0] || '';
     usuario.apellido1 = nombreParts[1] || '';
@@ -73,7 +72,7 @@ router.get('/:id(\\d+)/editar', isAdminOrSelf, (req, res) => {
   });
 });
 
-// VISTA DETALLE
+// GET /usuarios/:id
 router.get('/:id(\\d+)', isAdminOrSelf, (req, res) => {
   const id = parseInt(req.params.id, 10);
 
