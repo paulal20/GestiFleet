@@ -1,5 +1,7 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
+CREATE DATABASE IF NOT EXISTS gestifleetbd CHARACTER SET utf8 COLLATE utf8_spanish_ci;
+
 USE gestifleetbd;
 
 DROP TABLE IF EXISTS reservas;
